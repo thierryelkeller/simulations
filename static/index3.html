@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The AI Architect | AI Consulting for Educators</title>
+    
+    <!-- Fonts: Outfit for elegant geometric headings, Inter for body, Space Mono for technical details -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=Outfit:wght@200;300;400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                        mono: ['Space Mono', 'monospace'],
+                    },
+                    colors: {
+                        holo: {
+                            100: '#f0f9ff',
+                            200: '#e0f2fe',
+                            300: '#bae6fd',
+                            purple: '#f3e8ff',
+                        }
+                    },
+                    letterSpacing: {
+                        'widest': '.25em',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Language Toggle Logic */
+        .lang-fr .en { display: none !important; }
+        body:not(.lang-fr) .fr { display: none !important; }
+        
+        /* Ultra-subtle grid background */
+        .bg-light-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+        }
+
+        /* Smooth, airy transitions */
+        .btn-minimal {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-minimal:hover {
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        /* Glassmorphism utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-500 bg-white flex flex-col min-h-screen selection:bg-gray-100 selection:text-gray-900 antialiased font-light">
+
+    <header class="glass sticky top-0 z-50 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer group">
+                    <div class="w-8 h-8 flex items-center justify-center text-gray-800 border border-gray-200 rounded-full group-hover:border-gray-400 transition-colors">
+                        <i data-lucide="cpu" class="w-4 h-4" stroke-width="1.5"></i>
+                    </div>
+                    <span class="font-display font-light text-xl text-gray-900 tracking-widest uppercase">
+                        The AI Architect<span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-purple-300 animate-pulse">_</span>
+                    </span>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-10 font-mono text-[10px] uppercase tracking-widest">
+                    <a href="#" class="text-gray-400 hover:text-gray-900 py-2 transition-colors">
+                        <span class="en">01. Home</span><span class="fr">01. Accueil</span>
+                    </a>
+                    <a href="#purpose" class="text-gray-400 hover:text-gray-900 py-2 transition-colors">
+                        <span class="en">02. Purpose</span><span class="fr">02. Objectif</span>
+                    </a>
+                    <a href="#simulations" class="text-gray-400 hover:text-gray-900 py-2 transition-colors">
+                        <span class="en">03. Simulations</span><span class="fr">03. Simulations</span>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-gray-900 py-2 transition-colors">
+                        <span class="en">04. Resources</span><span class="fr">04. Ressources</span>
+                    </a>
+                </nav>
+
+                <!-- Actions Container -->
+                <div class="flex items-center gap-8">
+                    <!-- Language Switcher -->
+                    <button id="langToggle" class="font-mono text-[10px] text-gray-400 hover:text-gray-900 focus:outline-none transition-colors tracking-widest uppercase">
+                        [ <span class="en">FR</span><span class="fr">EN</span> ]
+                    </button>
+
+                    <!-- CTA Button -->
+                    <div class="hidden md:flex">
+                        <a href="#purpose" class="btn-minimal border border-gray-200 hover:border-gray-900 bg-white text-gray-900 px-6 py-2.5 text-[10px] font-mono tracking-widest uppercase flex items-center gap-3 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-sky-300 to-purple-300 animate-pulse"></span>
+                            <span class="en">Book Session</span><span class="fr">Réserver Session</span>
+                        </a>
+                    </div>
+
+                    <!-- Mobile menu button -->
+                    <div class="md:hidden flex items-center">
+                        <button class="text-gray-400 hover:text-gray-900 focus:outline-none">
+                            <i data-lucide="menu" class="w-6 h-6" stroke-width="1.5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section class="relative bg-white overflow-hidden py-32 md:py-48 border-b border-gray-100 bg-light-grid">
+            <!-- Ethereal Glows -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-b from-holo-100 to-transparent rounded-full filter blur-[100px] pointer-events-none opacity-50"></div>
+
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
+                
+                <div class="font-mono text-gray-400 text-[10px] tracking-widest mb-12 uppercase flex items-center gap-4">
+                    <span class="w-8 h-[1px] bg-gray-300"></span>
+                    <span class="en">System.Active</span><span class="fr">Système.Actif</span>
+                    <span class="w-8 h-[1px] bg-gray-300"></span>
+                </div>
+                
+                <!-- Elegant Text Rotator -->
+                <div class="relative w-full flex items-center justify-center h-[120px] sm:h-[100px] md:h-[120px] lg:h-[140px] mb-8">
+                    <h1 id="hero-rotator" class="font-display text-3xl sm:text-4xl md:text-5xl font-extralight leading-tight absolute w-full px-4 text-gray-900 tracking-tight" style="opacity: 1; transform: translateY(0);">
+                        <span class="en">Bridging the Gap Between <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-purple-300 font-normal">AI</span> and the Classroom</span>
+                        <span class="fr">Combler le Fossé Entre <br>l'<span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-purple-300 font-normal">IA</span> et la Classe</span>
+                    </h1>
+                </div>
+                
+                <p class="text-gray-500 text-lg max-w-2xl mb-16 font-light leading-relaxed en">
+                    We help teachers and educational institutions discover the elegant power of Artificial Intelligence. Reclaim your time and elevate your instructional design.
+                </p>
+                <p class="text-gray-500 text-lg max-w-2xl mb-16 font-light leading-relaxed fr">
+                    Nous aidons les enseignants et les institutions à découvrir la puissance élégante de l'Intelligence Artificielle. Récupérez votre temps et élevez votre conception pédagogique.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
+                    <a href="#purpose" class="btn-minimal bg-gray-900 text-white px-10 py-4 text-[11px] font-mono tracking-widest uppercase hover:bg-gray-800 transition-colors flex items-center justify-center gap-4 rounded-full">
+                        <span class="en">Explore Platform</span><span class="fr">Explorer Plateforme</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4" stroke-width="1.5"></i>
+                    </a>
+                    <a href="#simulations" class="btn-minimal border border-gray-200 text-gray-600 hover:border-gray-900 hover:text-gray-900 px-10 py-4 text-[11px] font-mono tracking-widest uppercase bg-transparent flex items-center justify-center rounded-full transition-all">
+                        <span class="en">Bonus Simulations</span><span class="fr">Simulations Bonus</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="purpose" class="py-32 bg-white relative border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                    <div class="order-2 lg:order-1 relative">
+                        <!-- High-key / Minimal Image Placeholder -->
+                        <div class="aspect-w-4 aspect-h-5 relative group overflow-hidden bg-gray-50">
+                            <!-- Delicate frame -->
+                            <div class="absolute inset-4 border border-gray-200 z-20 pointer-events-none"></div>
+                            
+                            <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Minimalist tech abstraction" class="object-cover w-full h-full opacity-60 grayscale transition-all duration-1000 group-hover:scale-105 group-hover:opacity-80" onerror="this.src='https://placehold.co/800x1000/fafafa/d1d5db?text=DATA_NODE'">
+                            
+                            <!-- Minimal Overlays -->
+                            <div class="absolute top-8 left-8 z-20 font-mono text-[9px] text-gray-400 tracking-widest uppercase">
+                                Node // <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-purple-300 font-bold">01</span><br>
+                                Data_Stream: Active
+                            </div>
+                            
+                            <div class="absolute bottom-8 left-8 right-8 z-20 bg-white/80 backdrop-blur-md p-8 border border-white/40 shadow-xl shadow-black/5">
+                                <p class="font-display font-light text-lg text-gray-800 mb-4 leading-relaxed">
+                                    <span class="en">"The important thing is not to stop questioning. Curiosity has its own reason for existence."</span>
+                                    <span class="fr">"L'important est de ne pas cesser de s'interroger. La curiosité a sa propre raison d'exister."</span>
+                                </p>
+                                <p class="text-[10px] text-gray-400 font-mono uppercase tracking-widest">— Albert Einstein</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-1 lg:order-2">
+                        <div class="font-mono text-[10px] text-gray-400 tracking-widest uppercase mb-6 flex items-center gap-3">
+                            <span class="w-4 h-[1px] bg-gray-300"></span>
+                            <span class="en">Core Directive</span><span class="fr">Directive Principale</span>
+                        </div>
+                        <h2 class="font-display text-2xl md:text-3xl font-extralight text-gray-900 mb-10 leading-tight tracking-tight">
+                            <span class="en">Our Consulting <br><span class="font-normal text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-purple-300">Architecture</span></span>
+                            <span class="fr">Notre Architecture <br><span class="font-normal text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-purple-300">de Conseil</span></span>
+                        </h2>
+                        
+                        <!-- English Text -->
+                        <div class="space-y-8 text-gray-500 text-lg font-light leading-relaxed en">
+                            <p>As educators, time is your most valuable resource. The core of <span class="text-gray-900 font-normal">The AI Architect</span> is to help teachers, educational institutions, and administrators discover the transformative potential of Artificial Intelligence as a daily tool.</p>
+                            <p>Through specialized <span class="text-gray-900 font-normal">webinars, conferences, and interactive workshops</span>, we empower you to reclaim hours of your week and maximize your true teaching potential. We demystify AI so you can focus on what matters most: your students.</p>
+                            <p>As a bonus to our core consulting services, we also develop interactive science simulations to demonstrate the incredible, tangible possibilities of AI in the classroom.</p>
+                        </div>
+                        
+                        <!-- French Text -->
+                        <div class="space-y-8 text-gray-500 text-lg font-light leading-relaxed fr">
+                            <p>En tant qu'éducateurs, le temps est votre ressource la plus précieuse. Le cœur de <span class="text-gray-900 font-normal">The AI Architect</span> est d'aider les enseignants, les institutions éducatives et les administrateurs à découvrir le potentiel transformateur de l'IA comme outil quotidien.</p>
+                            <p>Grâce à des <span class="text-gray-900 font-normal">webinaires, des conférences et des ateliers interactifs</span> spécialisés, nous vous donnons les moyens de récupérer des heures dans votre semaine et de maximiser votre véritable potentiel d'enseignement. Nous démystifions l'IA pour que vous puissiez vous concentrer sur ce qui compte le plus : vos élèves.</p>
+                            <p>En prime de nos services de conseil, nous développons également des simulations scientifiques interactives pour démontrer les possibilités incroyables et tangibles de l'IA en classe.</p>
+                        </div>
+                        
+                        <!-- Minimalist Stats/Icons -->
+                        <div class="mt-16 grid grid-cols-2 gap-8 border-t border-gray-100 pt-10">
+                            <div>
+                                <div class="text-transparent bg-clip-text bg-gradient-to-br from-sky-300 to-purple-300 text-2xl mb-4 font-light inline-block">01.</div>
+                                <div class="text-sm font-display text-gray-900 tracking-wide mb-2">
+                                    <span class="en">Expert Workshops</span><span class="fr">Ateliers Experts</span>
+                                </div>
+                                <div class="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
+                                    <span class="en">Seminars & Webinars</span><span class="fr">Séminaires & Webinaires</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-transparent bg-clip-text bg-gradient-to-br from-sky-300 to-purple-300 text-2xl mb-4 font-light inline-block">02.</div>
+                                <div class="text-sm font-display text-gray-900 tracking-wide mb-2">
+                                    <span class="en">Time Optimization</span><span class="fr">Optimisation du Temps</span>
+                                </div>
+                                <div class="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
+                                    <span class="en">Bridge The Gap</span><span class="fr">Combler Le Fossé</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="simulations" class="py-32 bg-gray-50/50 border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-24 flex flex-col items-center">
+                    <div class="font-mono text-[9px] text-gray-500 tracking-widest uppercase border border-gray-200 px-4 py-1.5 rounded-full mb-8 inline-flex items-center gap-3 bg-white">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-sky-300 to-purple-300"></span>
+                        <span class="en">Open Source Resources</span><span class="fr">Ressources Open Source</span>
+                    </div>
+                    <h2 class="font-display text-2xl md:text-3xl font-extralight text-gray-900 mb-6 tracking-tight">
+                        <span class="en">Simulations <span class="font-normal text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-purple-300">Library</span></span>
+                        <span class="fr">Bibliothèque de <span class="font-normal text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-purple-300">Simulations</span></span>
+                    </h2>
+                    <p class="text-gray-500 max-w-2xl mx-auto text-lg font-light">
+                        <span class="en">Explore these interactive, minimalist environments built to demonstrate AI's potential in the classroom.</span>
+                        <span class="fr">Explorez ces environnements interactifs et minimalistes conçus pour démontrer le potentiel de l'IA en classe.</span>
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Simulation Card 1 (Astronomy) -->
+                    <div class="bg-white/80 backdrop-blur-md border border-gray-200 hover:border-sky-200 hover:shadow-[0_20px_40px_-15px_rgba(186,230,253,0.4)] transition-all duration-700 flex flex-col group relative overflow-hidden rounded-3xl">
+                        
+                        <!-- Animated Ethereal Top Border -->
+                        <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-sky-300 to-purple-300 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-20"></div>
+                        
+                        <div class="h-56 bg-gray-50/30 relative flex items-center justify-center overflow-hidden">
+                            <!-- Ethereal hover glow -->
+                            <div class="absolute inset-0 bg-gradient-to-br from-holo-100 via-white/50 to-holo-purple/30 opacity-40 group-hover:opacity-100 transition-opacity duration-700"></div>
+                            
+                            <!-- Concentric decorative orbits -->
+                            <div class="absolute w-32 h-32 border border-sky-100 rounded-full group-hover:scale-150 transition-transform duration-1000 opacity-50"></div>
+                            <div class="absolute w-48 h-48 border border-purple-100 rounded-full group-hover:scale-150 transition-transform duration-1000 opacity-30 delay-75"></div>
+                            
+                            <i data-lucide="orbit" class="w-14 h-14 text-gray-300 group-hover:text-sky-400 transition-all duration-700 relative z-10 transform group-hover:-translate-y-1 group-hover:scale-110" stroke-width="1"></i>
+                            
+                            <div class="absolute top-5 right-5 border border-sky-100 text-sky-500 text-[9px] font-mono tracking-widest px-3 py-1 uppercase bg-white/80 backdrop-blur-md rounded-full shadow-sm">
+                                <span class="en">V_1.0 BETA</span><span class="fr">V_1.0 BÊTA</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8 flex flex-col flex-grow bg-white relative z-10">
+                            <div class="text-[9px] text-gray-400 font-mono tracking-widest uppercase mb-4 flex items-center gap-2">
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-purple-300">/</span> <span class="en">Astrophysics</span><span class="fr">Astrophysique</span>
+                            </div>
+                            <h3 class="font-display text-xl font-light text-gray-900 mb-4 tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-sky-400 group-hover:to-purple-400 transition-all duration-300">
+                                <span class="en">Orbital Mechanics</span>
+                                <span class="fr">Mécanique Orbitale</span>
+                            </h3>
+                            <p class="text-gray-500 text-sm mb-10 flex-grow font-light leading-relaxed group-hover:text-gray-600 transition-colors">
+                                <span class="en">Map planetary orbits and calculate trajectories across the Milky Way, guided by a conceptual AI tutor mapping gravitational fields.</span>
+                                <span class="fr">Cartographiez les orbites planétaires et calculez les trajectoires guidé par un tuteur IA conceptuel cartographiant les champs gravitationnels.</span>
+                            </p>
+                            <a href="Orbittrajectories.html" class="inline-flex items-center justify-between w-full border-t border-gray-100 pt-6 text-gray-900 group-hover:text-sky-500 transition-colors">
+                                <span class="text-[10px] font-mono tracking-widest uppercase font-bold"><span class="en">Execute Simulation</span><span class="fr">Exécuter Simulation</span></span>
+                                <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" stroke-width="1.5"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder Card 2 (Biology) -->
+                    <div class="bg-white border border-gray-100 flex flex-col opacity-60 rounded-3xl overflow-hidden hover:opacity-80 transition-opacity duration-500">
+                        <div class="h-56 bg-gray-50/50 relative flex items-center justify-center overflow-hidden">
+                            <div class="absolute w-32 h-32 border border-gray-100 rounded-full"></div>
+                            <i data-lucide="dna" class="w-14 h-14 text-gray-300 relative z-10" stroke-width="1"></i>
+                            <div class="absolute top-5 right-5 border border-gray-200 text-gray-400 text-[9px] font-mono tracking-widest px-3 py-1 uppercase rounded-full bg-white/50 backdrop-blur-md">
+                                <span class="en">PENDING</span><span class="fr">EN ATTENTE</span>
+                            </div>
+                        </div>
+                        <div class="p-8 flex flex-col flex-grow">
+                            <div class="text-[9px] text-gray-400 font-mono tracking-widest uppercase mb-4 flex items-center gap-2">
+                                <span class="text-gray-300">/</span> <span class="en">Genetics</span><span class="fr">Génétique</span>
+                            </div>
+                            <h3 class="font-display text-xl font-light text-gray-400 mb-4 tracking-tight">
+                                <span class="en">Evolutionary Algorithm</span>
+                                <span class="fr">Algorithme Évolutif</span>
+                            </h3>
+                            <p class="text-gray-400 text-sm mb-10 flex-grow font-light leading-relaxed">
+                                <span class="en">Watch natural selection in real-time. Students set environmental variables and watch AI-driven organisms adapt.</span>
+                                <span class="fr">Observez la sélection naturelle en temps réel. Les élèves définissent des variables environnementales.</span>
+                            </p>
+                            <div class="inline-flex items-center justify-between w-full border-t border-gray-100 pt-6 text-gray-300 cursor-not-allowed">
+                                <span class="text-[10px] font-mono tracking-widest uppercase"><span class="en">Locked</span><span class="fr">Verrouillé</span></span>
+                                <i data-lucide="lock" class="w-3 h-3" stroke-width="1.5"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder Card 3 (Earth Science) -->
+                    <div class="bg-white border border-gray-100 flex flex-col opacity-60 rounded-3xl overflow-hidden hover:opacity-80 transition-opacity duration-500">
+                        <div class="h-56 bg-gray-50/50 relative flex items-center justify-center overflow-hidden">
+                            <div class="absolute w-32 h-32 border border-gray-100 rounded-full"></div>
+                            <i data-lucide="globe" class="w-14 h-14 text-gray-300 relative z-10" stroke-width="1"></i>
+                            <div class="absolute top-5 right-5 border border-gray-200 text-gray-400 text-[9px] font-mono tracking-widest px-3 py-1 uppercase rounded-full bg-white/50 backdrop-blur-md">
+                                <span class="en">PENDING</span><span class="fr">EN ATTENTE</span>
+                            </div>
+                        </div>
+                        <div class="p-8 flex flex-col flex-grow">
+                            <div class="text-[9px] text-gray-400 font-mono tracking-widest uppercase mb-4 flex items-center gap-2">
+                                <span class="text-gray-300">/</span> <span class="en">Climate_Sci</span><span class="fr">Sci_Climatique</span>
+                            </div>
+                            <h3 class="font-display text-xl font-light text-gray-400 mb-4 tracking-tight">
+                                <span class="en">Forecasting Models</span>
+                                <span class="fr">Modèles de Prévision</span>
+                            </h3>
+                            <p class="text-gray-400 text-sm mb-10 flex-grow font-light leading-relaxed">
+                                <span class="en">Utilize actual machine learning models to predict climate trends based on historical data inputs.</span>
+                                <span class="fr">Utilisez de véritables modèles d'apprentissage automatique pour prédire les tendances climatiques.</span>
+                            </p>
+                            <div class="inline-flex items-center justify-between w-full border-t border-gray-100 pt-6 text-gray-300 cursor-not-allowed">
+                                <span class="text-[10px] font-mono tracking-widest uppercase"><span class="en">Locked</span><span class="fr">Verrouillé</span></span>
+                                <i data-lucide="lock" class="w-3 h-3" stroke-width="1.5"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="py-32 px-4 bg-white relative overflow-hidden">
+            <!-- Very subtle central accent line -->
+            <div class="absolute inset-0 flex justify-center items-center pointer-events-none">
+                <div class="w-[1px] h-[300px] bg-gradient-to-b from-transparent via-gray-200 to-transparent"></div>
+            </div>
+
+            <div class="max-w-3xl mx-auto text-center relative z-10 bg-white p-8">
+                <h2 class="font-display text-2xl md:text-4xl font-light text-gray-900 mb-6 tracking-tight">
+                    <span class="en">Ready to transform your institution with <span class="font-normal text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-purple-300">AI</span>?</span>
+                    <span class="fr">Prêt à transformer votre institution avec l'<span class="font-normal text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-purple-300">IA</span> ?</span>
+                </h2>
+                <p class="text-gray-500 text-lg mb-12 font-light">
+                    <span class="en">Book a workshop, webinar, or consulting session today and start using your time wisely.</span>
+                    <span class="fr">Réservez un atelier, un webinaire ou une session de conseil dès aujourd'hui et commencez à utiliser votre temps judicieusement.</span>
+                </p>
+                <button class="btn-minimal bg-gray-900 text-white px-12 py-5 text-[11px] font-mono tracking-widest uppercase hover:bg-gray-800 transition-all rounded-full shadow-lg shadow-gray-200">
+                    <span class="en">Initialize Contact</span>
+                    <span class="fr">Initialiser Contact</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-50 text-gray-500 py-20 font-mono text-[10px] uppercase tracking-widest border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+                
+                <div class="md:col-span-5">
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="cpu" class="w-4 h-4 text-gray-400" stroke-width="1.5"></i>
+                        <span class="font-display font-light text-sm text-gray-900 tracking-widest">The AI Architect<span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-purple-300 font-bold">.</span></span>
+                    </div>
+                    <p class="text-gray-400 max-w-sm leading-loose normal-case text-xs font-sans font-light">
+                        <span class="en">Helping educators and institutions bridge the gap between AI and the classroom through elegant consulting, workshops, and minimalist tech solutions.</span>
+                        <span class="fr">Aider les éducateurs et les institutions à combler le fossé entre l'IA et la classe grâce à des conseils élégants, des ateliers et des solutions tech minimalistes.</span>
+                    </p>
+                </div>
+                
+                <div class="md:col-span-3">
+                    <h4 class="text-gray-900 mb-6 font-display text-xs">Directory</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="hover:text-gray-900 transition-colors flex items-center gap-2"><span class="text-gray-300">-</span> <span class="en">Home</span><span class="fr">Accueil</span></a></li>
+                        <li><a href="#purpose" class="hover:text-gray-900 transition-colors flex items-center gap-2"><span class="text-gray-300">-</span> <span class="en">Consulting Architecture</span><span class="fr">Architecture de Conseil</span></a></li>
+                        <li><a href="#simulations" class="hover:text-gray-900 transition-colors flex items-center gap-2"><span class="text-gray-300">-</span> <span class="en">Bonus Simulations</span><span class="fr">Simulations Bonus</span></a></li>
+                    </ul>
+                </div>
+                
+                <div class="md:col-span-4">
+                    <h4 class="text-gray-900 mb-6 font-display text-xs">Comms & Nodes</h4>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start gap-3 normal-case font-sans font-light text-xs"><i data-lucide="mail" class="w-4 h-4 text-gray-400" stroke-width="1.5"></i> booking@theaiarchitect.example.com</li>
+                        <li class="flex items-start gap-3 cursor-pointer hover:text-gray-900 transition-colors normal-case font-sans font-light text-xs"><i data-lucide="video" class="w-4 h-4 text-gray-400" stroke-width="1.5"></i> <span class="en">Schedule Webinar</span><span class="fr">Planifier Webinaire</span></li>
+                    </ul>
+                    
+                    <h4 class="text-gray-400 mb-4 tracking-widest text-[9px] border-t border-gray-200 pt-6">/ Reference_Links</h4>
+                    <ul class="space-y-3 flex flex-col gap-1 text-[9px]">
+                        <li><a href="index1.html" class="hover:text-gray-900 transition-colors text-gray-400">-> index1.html</a></li>
+                        <li><a href="index2.html" class="hover:text-gray-900 transition-colors text-gray-400">-> index2.html</a></li>
+                        <li><a href="index3.html" class="hover:text-gray-900 transition-colors text-gray-400">-> index3.html</a></li>
+                    </ul>
+                    
+                    <div class="flex space-x-6 mt-10">
+                        <a href="#" class="text-gray-400 hover:text-gray-900 transition-colors"><i data-lucide="twitter" class="w-4 h-4" stroke-width="1.5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-gray-900 transition-colors"><i data-lucide="linkedin" class="w-4 h-4" stroke-width="1.5"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pt-8 flex flex-col md:flex-row justify-between items-center text-gray-400 border-t border-gray-200">
+                <p>&copy; 2026 The AI Architect. <span class="en">All rights reserved.</span><span class="fr">Tous droits réservés.</span></p>
+                <div class="space-x-8 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-gray-900 transition-colors"><span class="en">Privacy</span><span class="fr">Confidentialité</span></a>
+                    <a href="#" class="hover:text-gray-900 transition-colors"><span class="en">Terms</span><span class="fr">Conditions</span></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const langToggleBtn = document.getElementById('langToggle');
+            const body = document.body;
+            
+            if (localStorage.getItem('lang') === 'fr') {
+                body.classList.add('lang-fr');
+                document.documentElement.lang = 'fr';
+            } else {
+                document.documentElement.lang = 'en';
+            }
+
+            langToggleBtn.addEventListener('click', () => {
+                body.classList.toggle('lang-fr');
+                const isFr = body.classList.contains('lang-fr');
+                document.documentElement.lang = isFr ? 'fr' : 'en';
+                localStorage.setItem('lang', isFr ? 'fr' : 'en');
+            });
+
+            // Elegant, slow, breathing Text Rotator Logic
+            const phrases = [
+                `<span class="en">Bridging the Gap Between <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-purple-300 font-normal">AI</span> and the Classroom</span><span class="fr">Combler le Fossé Entre <br>l'<span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-purple-300 font-normal">IA</span> et la Classe</span>`,
+                `<span class="en">Transforming Education Through <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-purple-300 font-normal">Artificial Intelligence</span></span><span class="fr">Transformer l'Éducation par <br>l'<span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-purple-300 font-normal">Intelligence Artificielle</span></span>`,
+                `<span class="en">Reclaim Your Time & Elevate Your <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-purple-300 font-normal">Teaching</span></span><span class="fr">Récupérez Votre Temps & Élevez Votre <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-purple-300 font-normal">Enseignement</span></span>`
+            ];
+
+            let currentPhrase = 0;
+            const rotatorEl = document.getElementById('hero-rotator');
+
+            if(rotatorEl) {
+                // Initial styling for elegant transitions
+                rotatorEl.style.transition = 'opacity 1.5s ease-in-out, transform 1.5s ease-in-out';
+                
+                setInterval(() => {
+                    // Soft fade out
+                    rotatorEl.style.opacity = '0';
+                    rotatorEl.style.transform = 'translateY(-10px)';
+                    
+                    setTimeout(() => {
+                        // Change text
+                        currentPhrase = (currentPhrase + 1) % phrases.length;
+                        rotatorEl.innerHTML = phrases[currentPhrase];
+                        
+                        // Reset position subtly
+                        rotatorEl.style.transform = 'translateY(10px)';
+                        
+                        // Force reflow
+                        void rotatorEl.offsetWidth;
+                        
+                        // Soft fade in
+                        rotatorEl.style.opacity = '1';
+                        rotatorEl.style.transform = 'translateY(0)';
+                    }, 1500); // Matches transition time
+                }, 6000); // Slower pacing for elegant feel
+            }
+        });
+    </script>
+</body>
+</html>
