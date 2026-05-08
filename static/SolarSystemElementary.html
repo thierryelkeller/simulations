@@ -259,7 +259,7 @@
                 <span class="text-sm text-gray-300" data-i18n="weight_hint">kg on Earth = ? on other planets</span>
             </div>
             
-            <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div id="cards-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 <!-- Cards injected by JS -->
             </div>
         </div>
@@ -322,6 +322,7 @@
                 guide_tab2: "<strong>Experiment 1:</strong> Drag the Sun across the sky to see how it changes the length and direction of the shadow.<br><strong>Experiment 2:</strong> Slide the moon control to see how sunlight creates the different phases of the moon from Earth's view.",
                 guide_tab3: "Enter your weight below to see how gravity changes your weight on different planets! <strong>Click on any planet card</strong> to open a detailed data sheet and cultural teachings.",
                 guide_tab4: "<strong>Scroll horizontally to the right</strong> to explore the true proportional size of all the planets compared to the massive edge of the Sun on the left.",
+                click_hint: "Click on any planet to learn more!",
                 show_inner: "Show Inner Planets", show_gas: "Show Gas Giants", show_ice: "Show Ice Giants",
                 star_knowledge_title: "Ancestral Star Knowledge", 
                 star_knowledge_desc: "For thousands of years, the Anishinaabe, Ininiw (Cree), and Dakota peoples of the prairies have used the night sky as a calendar, map, and storybook. The movement of the stars and planets indicates when to plant, hunt, and hold ceremonies.",
@@ -347,6 +348,7 @@
                 guide_tab2: "<strong>Expérience 1 :</strong> Faites glisser le Soleil pour voir comment il modifie l'ombre.<br><strong>Expérience 2 :</strong> Utilisez le curseur pour voir comment la lumière crée les différentes phases de la lune.",
                 guide_tab3: "Entrez votre poids ci-dessous pour voir comment la gravité le modifie sur d'autres planètes ! <strong>Cliquez sur une carte</strong> pour ouvrir une fiche détaillée.",
                 guide_tab4: "<strong>Faites défiler horizontalement vers la droite</strong> pour explorer la taille proportionnelle des planètes par rapport au bord massif du Soleil à gauche.",
+                click_hint: "Cliquez sur une planète pour en savoir plus !",
                 show_inner: "Planètes Telluriques", show_gas: "Géantes Gazeuses", show_ice: "Géantes de Glace",
                 star_knowledge_title: "Savoir Ancestral des Étoiles", 
                 star_knowledge_desc: "Pendant des millénaires, les peuples Anishinaabe, Ininiw (Cris) et Dakota des Prairies ont utilisé le ciel nocturne comme calendrier, carte et livre d'histoires.",
@@ -372,6 +374,7 @@
                 guide_tab2: "<strong>Experiment 1:</strong> Move Giizis (Sun) to change the shadows.<br><strong>Experiment 2:</strong> Slide the bar to see the phases of Dibaajiki-giizis (Moon).",
                 guide_tab3: "Enter your weight below to see your space weight! <strong>Click any card</strong> for teachings and full data.",
                 guide_tab4: "<strong>Scroll to the right</strong> to see how small we are compared to Giizis (the Sun).",
+                click_hint: "Odinan anang ji-kikendaman nawaj! (Click to learn more)",
                 show_inner: "Show Biindig-anangook (Inner)", show_gas: "Show Nibiish-anangook (Gas)", show_ice: "Show Miskwamii-anangook (Ice)",
                 star_knowledge_title: "Anishinaabe Anangong", 
                 star_knowledge_desc: "The night sky is our storybook and map. For generations, Anishinaabe ancestors have read the stars to know the seasons, navigate the lakes, and hold our ceremonies.",
@@ -397,6 +400,7 @@
                 guide_tab2: "<strong>Experiment 1:</strong> Move Pīsim (Sun) to change the shadows.<br><strong>Experiment 2:</strong> Slide the bar to see the phases of Tipiskāw-pīsim (Moon).",
                 guide_tab3: "Enter your weight below to see your space weight! <strong>Click any card</strong> for teachings and full data.",
                 guide_tab4: "<strong>Scroll to the right</strong> to see how small we are compared to Pīsim (the Sun).",
+                click_hint: "Pahkwatinīh acāhkos kita-kiskēyihtaman nawac! (Click to learn more)",
                 show_inner: "Show Pīhcāyihk-acāhkosak (Inner)", show_gas: "Show Pīyasiy-acāhkosak (Gas)", show_ice: "Show Miskwamiy-acāhkosak (Ice)",
                 star_knowledge_title: "Ininiw Acāhkosak (Cree Stars)", 
                 star_knowledge_desc: "The night sky is our storybook and map. For generations, Ininiw (Cree) ancestors have read the stars to know the seasons, navigate, and hold ceremonies.",
@@ -777,25 +781,21 @@
             
             planets.forEach(p => {
                 const card = document.createElement('div');
-                card.className = "bg-gray-800 border border-gray-700 p-6 rounded-2xl flex flex-col items-center text-center hover:border-yellow-400 hover:scale-[1.02] transition-all cursor-pointer shadow-lg relative";
+                card.className = "bg-gray-800 border border-gray-700 p-4 rounded-2xl flex flex-col items-center text-center hover:border-yellow-400 hover:scale-[1.05] transition-all cursor-pointer shadow-lg relative";
                 card.onclick = () => showPlanetModal(p);
                 
                 card.innerHTML = `
-                    <div class="w-20 h-20 mb-4">${getPlanetVisualHTML(p)}</div>
+                    <div class="w-24 h-24 mb-4 mt-2">
+                        ${getPlanetVisualHTML(p)}
+                    </div>
                     <h4 class="text-2xl font-bold text-white mb-1">${p.name[currentLang]}</h4>
                     <span class="text-xs px-3 py-1 bg-gray-700 rounded-full text-blue-300 font-semibold mb-4">${p.type[currentLang]}</span>
                     
-                    <div class="w-full text-left space-y-2 text-sm bg-gray-900/50 p-3 rounded-xl border border-gray-700/50 mb-3">
-                        <p class="flex justify-between text-gray-300"><span>☀️ ${t('dist_sun')}:</span> <span class="font-semibold text-white">${p.distanceKm[currentLang]}</span></p>
-                        <p class="flex justify-between text-gray-300"><span>⏱️ ${t('year_len')}:</span> <span class="font-semibold text-white">${p.yearDays} ${t('days')}</span></p>
-                        <p class="flex justify-between border-t border-gray-700 pt-1 mt-1 text-yellow-400">
-                            <span>⚖️ ${t('grav_weight')}:</span> 
-                            <span class="font-bold" id="weight-val-${p.id}">${(weight * p.weightFactor).toFixed(1)} kg</span>
+                    <div class="w-full bg-gray-900/50 p-2 rounded-xl border border-gray-700/50 mt-auto">
+                        <p class="text-yellow-400 text-sm flex flex-col">
+                            <span class="text-gray-400 text-xs mb-1">⚖️ ${t('grav_weight')}</span> 
+                            <span class="font-bold text-lg" id="weight-val-${p.id}">${(weight * p.weightFactor).toFixed(1)} kg</span>
                         </p>
-                    </div>
-                    <!-- Small cultural badge -->
-                    <div class="mt-auto w-full border-t border-green-900/50 pt-2 text-xs text-green-300 italic opacity-80 line-clamp-2">
-                        "${p.indigenous[currentLang]}"
                     </div>
                 `;
                 cardsGrid.appendChild(card);
