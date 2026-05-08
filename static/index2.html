@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The AI Architect | AI Consulting for Educators</title>
+    
+    <!-- Fonts: Nunito for friendly, approachable headings, Inter for high-legibility body text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: 'rgb(var(--brand-50) / <alpha-value>)',
+                            100: 'rgb(var(--brand-100) / <alpha-value>)',
+                            200: 'rgb(var(--brand-200) / <alpha-value>)',
+                            300: 'rgb(var(--brand-300) / <alpha-value>)',
+                            400: 'rgb(var(--brand-400) / <alpha-value>)',
+                            500: 'rgb(var(--brand-500) / <alpha-value>)',
+                            600: 'rgb(var(--brand-600) / <alpha-value>)',
+                            700: 'rgb(var(--brand-700) / <alpha-value>)',
+                            800: 'rgb(var(--brand-800) / <alpha-value>)',
+                            900: 'rgb(var(--brand-900) / <alpha-value>)',
+                        },
+                        accent: {
+                            500: 'rgb(var(--accent-500) / <alpha-value>)',
+                            600: 'rgb(var(--accent-600) / <alpha-value>)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Interactive Theme CSS Variables */
+        :root, [data-theme="turquoise"] {
+            --brand-50: 240 253 250; --brand-100: 204 251 241; --brand-200: 153 246 228; --brand-300: 94 234 212; --brand-400: 45 212 191; --brand-500: 20 184 166; --brand-600: 13 148 136; --brand-700: 15 118 110; --brand-800: 17 94 89; --brand-900: 19 78 74;
+            --accent-500: 249 115 22; --accent-600: 234 88 12;
+        }
+        [data-theme="indigo"] {
+            --brand-50: 238 242 255; --brand-100: 224 231 255; --brand-200: 199 210 254; --brand-300: 165 180 252; --brand-400: 129 140 248; --brand-500: 99 102 241; --brand-600: 79 70 229; --brand-700: 67 56 202; --brand-800: 55 48 163; --brand-900: 49 46 129;
+            --accent-500: 244 63 94; --accent-600: 225 29 72;
+        }
+        [data-theme="sage"] {
+            --brand-50: 236 253 245; --brand-100: 209 250 229; --brand-200: 167 243 208; --brand-300: 110 231 183; --brand-400: 52 211 153; --brand-500: 16 185 129; --brand-600: 5 150 105; --brand-700: 4 120 87; --brand-800: 6 95 70; --brand-900: 6 78 59;
+            --accent-500: 245 158 11; --accent-600: 217 119 6;
+        }
+        [data-theme="berry"] {
+            --brand-50: 253 244 255; --brand-100: 250 232 255; --brand-200: 245 208 254; --brand-300: 240 171 252; --brand-400: 232 121 249; --brand-500: 217 70 239; --brand-600: 192 38 211; --brand-700: 162 28 175; --brand-800: 134 25 143; --brand-900: 112 26 117;
+            --accent-500: 20 184 166; --accent-600: 13 148 136;
+        }
+        [data-theme="ocean"] {
+            --brand-50: 239 246 255; --brand-100: 219 234 254; --brand-200: 191 219 254; --brand-300: 147 197 253; --brand-400: 96 165 250; --brand-500: 59 130 246; --brand-600: 37 99 235; --brand-700: 29 78 216; --brand-800: 30 64 175; --brand-900: 30 58 138;
+            --accent-500: 234 179 8; --accent-600: 202 138 4;
+        }
+
+        /* Language Toggle Logic */
+        .lang-fr .en { display: none !important; }
+        body:not(.lang-fr) .fr { display: none !important; }
+        
+        /* Smooth transitions */
+        #langToggle { transition: all 0.2s ease; }
+        #langToggle:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body class="font-sans text-gray-700 bg-[#fdfdfd] flex flex-col min-h-screen selection:bg-brand-200 selection:text-brand-900 transition-colors duration-300">
+
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-brand-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer group">
+                    <div class="w-12 h-12 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-md group-hover:shadow-lg transition-all group-hover:-rotate-3">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <span class="font-heading font-extrabold text-2xl text-brand-900 tracking-tight">The AI Architect<span class="text-accent-500">.</span></span>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#" class="text-gray-600 hover:text-brand-500 px-3 py-2 text-base font-medium transition-colors rounded-full hover:bg-brand-50">
+                        <span class="en">Home</span><span class="fr">Accueil</span>
+                    </a>
+                    <a href="#purpose" class="text-gray-600 hover:text-brand-500 px-3 py-2 text-base font-medium transition-colors rounded-full hover:bg-brand-50">
+                        <span class="en">Consulting & Purpose</span><span class="fr">Conseil & Objectif</span>
+                    </a>
+                    <a href="#simulations" class="text-gray-600 hover:text-brand-500 px-3 py-2 text-base font-medium transition-colors rounded-full hover:bg-brand-50">
+                        <span class="en">Bonus Simulations</span><span class="fr">Simulations Bonus</span>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-brand-500 px-3 py-2 text-base font-medium transition-colors rounded-full hover:bg-brand-50">
+                        <span class="en">Resources</span><span class="fr">Ressources</span>
+                    </a>
+                </nav>
+
+                <!-- Actions Container (Lang Toggle + CTA) -->
+                <div class="flex items-center gap-4">
+                    <!-- Language Switcher -->
+                    <button id="langToggle" class="flex items-center gap-2 text-gray-700 hover:text-brand-700 bg-white hover:bg-brand-50 px-4 py-2 rounded-full text-sm font-bold shadow-sm border border-gray-100 focus:outline-none focus:ring-4 focus:ring-brand-100 transition-all">
+                        <i class="fa-solid fa-globe text-brand-500 text-lg"></i>
+                        <span class="en">FR</span>
+                        <span class="fr">EN</span>
+                    </button>
+
+                    <!-- CTA Button -->
+                    <div class="hidden md:flex">
+                        <a href="#purpose" class="bg-accent-500 hover:bg-accent-600 text-white px-6 py-2.5 rounded-full text-sm font-bold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                            <span class="en">Book a Workshop</span><span class="fr">Réserver un Atelier</span>
+                        </a>
+                    </div>
+
+                    <!-- Mobile menu button -->
+                    <div class="md:hidden flex items-center">
+                        <button class="text-gray-500 hover:text-brand-700 focus:outline-none bg-brand-50 p-2 rounded-xl">
+                            <i class="fa-solid fa-bars text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section class="relative bg-gradient-to-b from-brand-50 via-white to-white overflow-hidden py-16 md:py-24">
+            <!-- Decorative Soft Shapes -->
+            <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+                <div class="absolute top-10 left-10 w-64 h-64 bg-accent-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+                <div class="absolute top-0 right-20 w-72 h-72 bg-brand-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+            </div>
+
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
+                <span class="text-brand-700 font-bold tracking-wide uppercase text-xs mb-6 border-2 border-brand-200 bg-white px-5 py-2 rounded-full shadow-sm inline-flex items-center gap-2">
+                    <i class="fa-solid fa-hands-holding-child text-accent-500"></i>
+                    <span class="en">AI Consulting For Educators</span><span class="fr">Conseil en IA pour les Éducateurs</span>
+                </span>
+                
+                <!-- Elegant Text Rotator -->
+                <div class="relative w-full flex items-center justify-center h-[160px] sm:h-[140px] md:h-[160px] lg:h-[180px] mb-4">
+                    <h1 id="hero-rotator" class="font-heading text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight absolute w-full px-4 text-brand-900" style="opacity: 1; transform: translateY(0);">
+                        <span class="en">Bridging the Gap Between <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">AI</span> and the Classroom</span>
+                        <span class="fr">Combler le Fossé Entre l'<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">IA</span> et la Classe</span>
+                    </h1>
+                </div>
+                
+                <p class="text-gray-600 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed font-medium en">
+                    We help teachers and educational institutions discover the power of Artificial Intelligence. Through our webinars, conferences, and workshops, learn to use your time wisely and elevate your classroom.
+                </p>
+                <p class="text-gray-600 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed font-medium fr">
+                    Nous aidons les enseignants et les institutions à découvrir la puissance de l'Intelligence Artificielle. Grâce à nos webinaires, conférences et ateliers, apprenez à utiliser votre temps judicieusement et à élever votre enseignement.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <a href="#purpose" class="bg-accent-500 hover:bg-accent-600 text-white px-8 py-4 rounded-full text-lg font-bold transition-all shadow-lg shadow-accent-500/30 hover:shadow-xl hover:shadow-accent-500/40 hover:-translate-y-1 flex items-center justify-center gap-3 relative ring-4 ring-accent-500/20">
+                        <span class="en">Explore Our Services</span><span class="fr">Explorer Nos Services</span>
+                        <i class="fa-solid fa-arrow-right bg-white/20 p-2 rounded-full text-sm"></i>
+                    </a>
+                    <a href="#simulations" class="bg-white border-2 border-brand-100 text-brand-700 hover:border-brand-300 hover:bg-brand-50 px-8 py-4 rounded-full text-lg font-bold transition-all flex items-center justify-center shadow-sm">
+                        <span class="en">View Bonus Simulations</span><span class="fr">Voir les Simulations Bonus</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="purpose" class="py-24 bg-white relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div class="order-2 lg:order-1 relative">
+                        <!-- Decorative image placeholder -->
+                        <div class="aspect-w-4 aspect-h-3 rounded-3xl overflow-hidden shadow-2xl relative bg-brand-50 flex items-center justify-center group border-8 border-white ring-1 ring-gray-100">
+                            <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Students learning" class="object-cover w-full h-full opacity-90 transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://placehold.co/800x600/eef2ff/6366f1?text=Happy+Learning'">
+                            <div class="absolute inset-0 bg-gradient-to-t from-brand-900/70 via-brand-900/20 to-transparent"></div>
+                            <div class="absolute bottom-6 left-6 right-6 text-white bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+                                <p class="font-heading italic text-xl">
+                                    <span class="en">"The important thing is not to stop questioning. Curiosity has its own reason for existence."</span>
+                                    <span class="fr">"L'important est de ne pas cesser de s'interroger. La curiosité a sa propre raison d'exister."</span>
+                                </p>
+                                <p class="mt-3 text-sm text-brand-200 font-bold tracking-wide uppercase">— Albert Einstein</p>
+                            </div>
+                        </div>
+                        <div class="absolute -top-6 -right-6 bg-accent-500 text-white w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-lg transform rotate-12 border-4 border-white">
+                            <i class="fa-solid fa-star text-2xl mb-1"></i>
+                            <span class="text-xs font-bold">Inspire</span>
+                        </div>
+                    </div>
+
+                    <div class="order-1 lg:order-2">
+                        <div class="inline-block px-4 py-2 bg-brand-100 text-brand-700 rounded-full font-bold text-sm mb-6">
+                            <i class="fa-solid fa-heart mr-2 text-accent-500"></i>
+                            <span class="en">Our Mission</span><span class="fr">Notre Mission</span>
+                        </div>
+                        <h2 class="font-heading text-3xl md:text-5xl font-extrabold text-brand-900 mb-8 leading-tight">
+                            <span class="en">Our Consulting Purpose</span><span class="fr">Notre Objectif de Conseil</span>
+                        </h2>
+                        
+                        <div class="space-y-6 text-gray-600 text-lg leading-relaxed en">
+                            <p>As educators, time is your most valuable resource. The core of <strong class="text-brand-700">The AI Architect</strong> is to help teachers, educational institutions, and administrators discover the transformative potential of Artificial Intelligence as a daily tool.</p>
+                            <p>Through specialized <strong class="text-brand-700">webinars, conferences, and interactive workshops</strong>, we empower you to reclaim hours of your week and maximize your true teaching potential. We demystify AI so you can focus on what matters most: your students.</p>
+                            <p>As a bonus to our core consulting services, we also develop interactive science simulations to demonstrate the incredible, tangible possibilities of AI in the classroom.</p>
+                        </div>
+                        
+                        <div class="space-y-6 text-gray-600 text-lg leading-relaxed fr">
+                            <p>En tant qu'éducateurs, le temps est votre ressource la plus précieuse. Le cœur de <strong class="text-brand-700">The AI Architect</strong> est d'aider les enseignants, les institutions éducatives et les administrateurs à découvrir le potentiel transformateur de l'IA comme outil quotidien.</p>
+                            <p>Grâce à des <strong class="text-brand-700">webinaires, des conférences et des ateliers interactifs</strong> spécialisés, nous vous donnons les moyens de récupérer des heures dans votre semaine et de maximiser votre véritable potentiel d'enseignement. Nous démystifions l'IA pour que vous puissiez vous concentrer sur ce qui compte le plus : vos élèves.</p>
+                            <p>En prime de nos services de conseil, nous développons également des simulations scientifiques interactives pour démontrer les possibilités incroyables et tangibles de l'IA en classe.</p>
+                        </div>
+                        
+                        <div class="mt-10 grid grid-cols-2 gap-6">
+                            <div class="bg-brand-50 p-5 rounded-2xl border border-brand-100 hover:shadow-md transition-shadow">
+                                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-500 text-xl shadow-sm mb-4">
+                                    <i class="fa-solid fa-chalkboard-user"></i>
+                                </div>
+                                <div class="text-xl font-heading font-bold text-brand-900 mb-1">
+                                    <span class="en">Workshops</span><span class="fr">Ateliers</span>
+                                </div>
+                                <div class="text-sm text-gray-500 font-semibold">
+                                    <span class="en">& Webinars</span><span class="fr">& Webinaires</span>
+                                </div>
+                            </div>
+                            <div class="bg-brand-50 p-5 rounded-2xl border border-brand-100 hover:shadow-md transition-shadow">
+                                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-accent-500 text-xl shadow-sm mb-4">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                </div>
+                                <div class="text-xl font-heading font-bold text-brand-900 mb-1">
+                                    <span class="en">Save Time</span><span class="fr">Gain de Temps</span>
+                                </div>
+                                <div class="text-sm text-gray-500 font-semibold">
+                                    <span class="en">Bridge The Gap</span><span class="fr">Combler Le Fossé</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="w-full h-16 bg-gradient-to-b from-white to-brand-50"></div>
+
+        <section id="simulations" class="py-20 bg-brand-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <span class="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full text-brand-600 font-bold text-sm shadow-sm mb-4 border border-brand-100">
+                        <i class="fa-solid fa-gift"></i>
+                        <span class="en">Free Resources</span><span class="fr">Ressources Gratuites</span>
+                    </span>
+                    <h2 class="font-heading text-3xl md:text-5xl font-extrabold text-brand-900 mb-6">
+                        <span class="en">Bonus: Simulations Library</span><span class="fr">Bonus : Bibliothèque de Simulations</span>
+                    </h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto text-lg font-medium">
+                        <span class="en">As an add-on to our consulting services, explore these interactive AI-driven environments built for the classroom.</span>
+                        <span class="fr">En complément de nos services de conseil, explorez ces environnements interactifs pilotés par l'IA conçus pour la classe.</span>
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Simulation Card 1 -->
+                    <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-brand-200 flex flex-col group transform hover:-translate-y-1">
+                        <div class="h-48 bg-gradient-to-br from-brand-400 to-brand-600 relative overflow-hidden flex items-center justify-center p-6">
+                            <div class="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors"></div>
+                            <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform duration-500">
+                                <i class="fa-solid fa-meteor text-5xl text-white"></i>
+                            </div>
+                            <div class="absolute top-4 right-4 bg-white text-brand-600 text-xs font-extrabold px-3 py-1 rounded-full shadow-sm">
+                                <span class="en">BETA</span><span class="fr">BÊTA</span>
+                            </div>
+                        </div>
+                        <div class="p-8 flex flex-col flex-grow">
+                            <div class="text-xs text-brand-500 font-extrabold tracking-wider uppercase mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-book-open"></i>
+                                <span class="en">Astronomy / Physics</span><span class="fr">Astronomie / Physique</span>
+                            </div>
+                            <h3 class="font-heading text-2xl font-bold text-gray-900 mb-3">
+                                <span class="en">Orbital Mechanics & The Solar System</span>
+                                <span class="fr">Mécanique Orbitale & Le Système Solaire</span>
+                            </h3>
+                            <p class="text-gray-600 mb-8 flex-grow leading-relaxed">
+                                <span class="en">An interactive simulation where students map planetary orbits and calculate space trajectories across the Milky Way, guided by an AI tutor that assists with gravitational concepts.</span>
+                                <span class="fr">Une simulation interactive où les élèves cartographient les orbites planétaires et calculent les trajectoires spatiales à travers la Voie Lactée, guidés par un tuteur IA qui aide avec les concepts gravitationnels.</span>
+                            </p>
+                            <a href="Orbittrajectories.html" class="inline-flex items-center justify-center w-full bg-brand-50 hover:bg-brand-600 text-brand-700 hover:text-white px-6 py-4 rounded-xl text-base font-bold transition-all duration-200 shadow-sm group-hover:shadow">
+                                <span class="en">Launch Orbit Trajectories</span><span class="fr">Lancer Trajectoires Orbitales</span>
+                                <i class="fa-solid fa-rocket ml-3"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder Card 2 -->
+                    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 flex flex-col opacity-80">
+                        <div class="h-48 bg-gray-100 relative flex items-center justify-center">
+                            <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                <i class="fa-solid fa-dna text-5xl text-gray-400"></i>
+                            </div>
+                            <div class="absolute top-4 right-4 bg-gray-200 text-gray-600 text-xs font-extrabold px-3 py-1 rounded-full">
+                                <span class="en">COMING SOON</span><span class="fr">BIENTÔT</span>
+                            </div>
+                        </div>
+                        <div class="p-8 flex flex-col flex-grow">
+                            <div class="text-xs text-gray-400 font-extrabold tracking-wider uppercase mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-leaf"></i>
+                                <span class="en">Biology</span><span class="fr">Biologie</span>
+                            </div>
+                            <h3 class="font-heading text-2xl font-bold text-gray-800 mb-3">
+                                <span class="en">Evolutionary Algorithm Lab</span>
+                                <span class="fr">Labo d'Algorithme Évolutif</span>
+                            </h3>
+                            <p class="text-gray-500 mb-8 flex-grow leading-relaxed">
+                                <span class="en">Watch natural selection in real-time. Students set environmental variables and watch AI-driven organisms adapt over generations.</span>
+                                <span class="fr">Observez la sélection naturelle en temps réel. Les élèves définissent des variables environnementales.</span>
+                            </p>
+                            <button disabled class="w-full bg-gray-50 text-gray-400 px-6 py-4 rounded-xl text-base font-bold cursor-not-allowed">
+                                <span class="en">Unavailable</span><span class="fr">Indisponible</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder Card 3 -->
+                    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 flex flex-col opacity-80">
+                        <div class="h-48 bg-gray-100 relative flex items-center justify-center">
+                            <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                <i class="fa-solid fa-earth-americas text-5xl text-gray-400"></i>
+                            </div>
+                            <div class="absolute top-4 right-4 bg-gray-200 text-gray-600 text-xs font-extrabold px-3 py-1 rounded-full">
+                                <span class="en">IN DEVELOPMENT</span><span class="fr">EN DÉV.</span>
+                            </div>
+                        </div>
+                        <div class="p-8 flex flex-col flex-grow">
+                            <div class="text-xs text-gray-400 font-extrabold tracking-wider uppercase mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-cloud-sun"></i>
+                                <span class="en">Earth Science</span><span class="fr">Sciences de la Terre</span>
+                            </div>
+                            <h3 class="font-heading text-2xl font-bold text-gray-800 mb-3">
+                                <span class="en">Climate Forecasting AI</span>
+                                <span class="fr">IA de Prévision Climatique</span>
+                            </h3>
+                            <p class="text-gray-500 mb-8 flex-grow leading-relaxed">
+                                <span class="en">Students utilize actual machine learning models to predict climate trends based on historical data inputs.</span>
+                                <span class="fr">Les élèves utilisent de véritables modèles d'apprentissage automatique pour prédire les tendances climatiques.</span>
+                            </p>
+                            <button disabled class="w-full bg-gray-50 text-gray-400 px-6 py-4 rounded-xl text-base font-bold cursor-not-allowed">
+                                <span class="en">Unavailable</span><span class="fr">Indisponible</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 px-4">
+            <div class="max-w-5xl mx-auto bg-brand-600 rounded-[3rem] p-10 md:p-16 text-center text-white shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-accent-500/20 rounded-full translate-y-1/3 -translate-x-1/3"></div>
+                
+                <div class="relative z-10">
+                    <h2 class="font-heading text-3xl md:text-5xl font-extrabold mb-6">
+                        <span class="en">Ready to transform your institution with AI?</span>
+                        <span class="fr">Prêt à transformer votre institution avec l'IA ?</span>
+                    </h2>
+                    <p class="text-brand-100 text-lg mb-10 max-w-2xl mx-auto">
+                        <span class="en">Book a workshop, webinar, or consulting session today and start using your time wisely.</span>
+                        <span class="fr">Réservez un atelier, un webinaire ou une session de conseil dès aujourd'hui et commencez à utiliser votre temps judicieusement.</span>
+                    </p>
+                    <button class="bg-white text-brand-700 hover:bg-brand-50 px-10 py-4 rounded-full text-lg font-extrabold transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                        <span class="en">Contact for Booking</span>
+                        <span class="fr">Contact pour Réservation</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white text-gray-600 py-16 border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center text-brand-600 text-xl">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <span class="font-heading font-extrabold text-2xl text-gray-900">The AI Architect<span class="text-accent-500">.</span></span>
+                    </div>
+                    <p class="text-base text-gray-500 max-w-sm leading-relaxed">
+                        <span class="en">Helping educators and institutions bridge the gap between AI and the classroom through expert consulting, workshops, and webinars.</span>
+                        <span class="fr">Aider les éducateurs et les institutions à combler le fossé entre l'IA et la classe grâce à des conseils experts, des ateliers et des webinaires.</span>
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-gray-900 font-extrabold mb-6 tracking-wide text-base">
+                        <span class="en">Quick Links</span><span class="fr">Liens Rapides</span>
+                    </h4>
+                    <ul class="space-y-3 text-base text-gray-500 font-medium">
+                        <li><a href="#" class="hover:text-brand-600 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-xs text-brand-300"></i><span class="en">Home</span><span class="fr">Accueil</span></a></li>
+                        <li><a href="#purpose" class="hover:text-brand-600 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-xs text-brand-300"></i><span class="en">Consulting Services</span><span class="fr">Services de Conseil</span></a></li>
+                        <li><a href="#simulations" class="hover:text-brand-600 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-xs text-brand-300"></i><span class="en">Bonus Simulations</span><span class="fr">Simulations Bonus</span></a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-gray-900 font-extrabold mb-6 tracking-wide text-base">Contact & Links</h4>
+                    <ul class="space-y-3 text-base text-gray-500 font-medium mb-6">
+                        <li class="flex items-start gap-3"><i class="fa-regular fa-envelope mt-1 text-brand-400"></i> booking@theaiarchitect.example.com</li>
+                        <li class="flex items-start gap-3 cursor-pointer hover:text-brand-600"><i class="fa-solid fa-chalkboard-user mt-1 text-brand-400"></i> <span class="en">Book a Webinar</span><span class="fr">Réserver un Webinaire</span></li>
+                    </ul>
+                    
+                    <h4 class="text-gray-900 font-extrabold mb-4 mt-8 tracking-wide text-sm bg-gray-50 inline-block px-3 py-1 rounded-lg">Additional Pages</h4>
+                    <ul class="space-y-2 text-sm text-gray-500 font-medium flex flex-wrap gap-3">
+                        <li><a href="index1.html" class="hover:text-brand-600 transition-colors bg-white border border-gray-200 px-3 py-1.5 rounded-lg shadow-sm">Index 1</a></li>
+                        <li><a href="index2.html" class="hover:text-brand-600 transition-colors bg-white border border-gray-200 px-3 py-1.5 rounded-lg shadow-sm">Index 2</a></li>
+                        <li><a href="index3.html" class="hover:text-brand-600 transition-colors bg-white border border-gray-200 px-3 py-1.5 rounded-lg shadow-sm">Index 3</a></li>
+                    </ul>
+                    
+                    <div class="flex space-x-4 mt-8">
+                        <a href="#" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 hover:bg-brand-50 hover:text-brand-600 transition-colors"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 hover:bg-brand-50 hover:text-brand-600 transition-colors"><i class="fa-brands fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 font-medium">
+                <p>&copy; 2026 The AI Architect. <span class="en">All rights reserved.</span><span class="fr">Tous droits réservés.</span></p>
+                <div class="space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-gray-600"><span class="en">Privacy Policy</span><span class="fr">Politique de Confidentialité</span></a>
+                    <a href="#" class="hover:text-gray-600"><span class="en">Terms of Service</span><span class="fr">Conditions d'Utilisation</span></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="fixed bottom-6 left-6 z-50 bg-white/90 backdrop-blur-md border border-gray-100 p-4 rounded-2xl shadow-xl flex flex-col gap-3 transition-transform hover:-translate-y-1 group">
+        <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest text-center group-hover:text-gray-600 transition-colors">
+            <span class="en">Choose Palette</span><span class="fr">Choisir Palette</span>
+        </span>
+        <div class="flex items-center gap-2">
+            <button onclick="setTheme('turquoise')" class="w-8 h-8 rounded-full border-2 border-white shadow hover:scale-110 transition-all focus:outline-none focus:ring-4 focus:ring-[#14b8a6]/30" style="background: linear-gradient(135deg, #14b8a6 50%, #f97316 50%);" title="Turquoise & Mango"></button>
+            <button onclick="setTheme('indigo')" class="w-8 h-8 rounded-full border-2 border-white shadow hover:scale-110 transition-all focus:outline-none focus:ring-4 focus:ring-[#6366f1]/30" style="background: linear-gradient(135deg, #6366f1 50%, #f43f5e 50%);" title="Indigo & Coral"></button>
+            <button onclick="setTheme('sage')" class="w-8 h-8 rounded-full border-2 border-white shadow hover:scale-110 transition-all focus:outline-none focus:ring-4 focus:ring-[#10b981]/30" style="background: linear-gradient(135deg, #10b981 50%, #f59e0b 50%);" title="Sage & Sunrise"></button>
+            <button onclick="setTheme('berry')" class="w-8 h-8 rounded-full border-2 border-white shadow hover:scale-110 transition-all focus:outline-none focus:ring-4 focus:ring-[#d946ef]/30" style="background: linear-gradient(135deg, #d946ef 50%, #14b8a6 50%);" title="Berry & Mint"></button>
+            <button onclick="setTheme('ocean')" class="w-8 h-8 rounded-full border-2 border-white shadow hover:scale-110 transition-all focus:outline-none focus:ring-4 focus:ring-[#3b82f6]/30" style="background: linear-gradient(135deg, #3b82f6 50%, #eab308 50%);" title="Ocean & Sand"></button>
+        </div>
+    </div>
+
+    <script>
+        // Theme Switcher Logic
+        function setTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('theme', themeName);
+        }
+        
+        // Load saved theme on startup
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const langToggleBtn = document.getElementById('langToggle');
+            const body = document.body;
+            
+            // Check if user previously selected French
+            if (localStorage.getItem('lang') === 'fr') {
+                body.classList.add('lang-fr');
+                document.documentElement.lang = 'fr';
+            } else {
+                document.documentElement.lang = 'en';
+            }
+
+            // Language Toggle Safety Check (Resolves TypeError)
+            if (langToggleBtn) {
+                langToggleBtn.addEventListener('click', () => {
+                    body.classList.toggle('lang-fr');
+                    const isFr = body.classList.contains('lang-fr');
+                    
+                    // Update language attribute and store preference
+                    document.documentElement.lang = isFr ? 'fr' : 'en';
+                    localStorage.setItem('lang', isFr ? 'fr' : 'en');
+                });
+            }
+
+            // Elegant Text Rotator Logic
+            const phrases = [
+                `<span class="en">Bridging the Gap Between <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">AI</span> and the Classroom</span><span class="fr">Combler le Fossé Entre l'<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">IA</span> et la Classe</span>`,
+                `<span class="en">Transforming Education Through <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">Artificial Intelligence</span></span><span class="fr">Transformer l'Éducation par l'<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">Intelligence Artificielle</span></span>`,
+                `<span class="en">Reclaim Your Time & Elevate Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">Teaching</span></span><span class="fr">Récupérez Votre Temps & Élevez Votre <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">Enseignement</span></span>`
+            ];
+
+            let currentPhrase = 0;
+            const rotatorEl = document.getElementById('hero-rotator');
+
+            if(rotatorEl) {
+                // Initial styling for transitions
+                rotatorEl.style.transition = 'all 0.7s ease-in-out';
+                
+                setInterval(() => {
+                    // Fade out & slide up slightly
+                    rotatorEl.style.transition = 'all 0.7s ease-in-out';
+                    rotatorEl.style.opacity = '0';
+                    rotatorEl.style.transform = 'translateY(-15px)';
+                    
+                    setTimeout(() => {
+                        // Move to bottom instantly (invisible)
+                        rotatorEl.style.transition = 'none';
+                        currentPhrase = (currentPhrase + 1) % phrases.length;
+                        rotatorEl.innerHTML = phrases[currentPhrase];
+                        rotatorEl.style.transform = 'translateY(15px)';
+                        
+                        // Force a browser reflow
+                        void rotatorEl.offsetWidth;
+                        
+                        // Fade in & slide into center
+                        rotatorEl.style.transition = 'all 0.7s ease-in-out';
+                        rotatorEl.style.opacity = '1';
+                        rotatorEl.style.transform = 'translateY(0)';
+                    }, 700); // Matches the CSS transition duration
+                }, 5000); // Wait 5 seconds between changes
+            }
+        });
+    </script>
+</body>
+</html>
