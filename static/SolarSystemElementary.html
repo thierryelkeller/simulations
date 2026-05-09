@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
         
         body {
             font-family: 'Fredoka', system-ui, sans-serif;
@@ -18,18 +17,6 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-        }
-
-        /* Apply Urdu font dynamically when UR is selected */
-        body.lang-ur {
-            font-family: 'Noto Nastaliq Urdu', 'Fredoka', sans-serif;
-        }
-        body.lang-ur .planet-label,
-        body.lang-ur .text-xs,
-        body.lang-ur .text-\[10px\],
-        body.lang-ur .text-\[11px\] {
-            font-size: 110%; /* Slightly boost small text for Nastaliq legibility */
-            line-height: 1.6;
         }
 
         .space-bg {
@@ -65,10 +52,6 @@
         .planet-label {
             position: absolute; top: calc(100% + 8px); font-size: 14px; font-weight: 600; background: rgba(0, 0, 0, 0.8);
             padding: 4px 10px; border-radius: 6px; pointer-events: none; white-space: nowrap;
-            opacity: 0; transition: opacity 0.2s ease-in-out;
-        }
-        .planet-circle:hover .planet-label, 
-        .force-labels .planet-label {
             opacity: 1;
         }
 
@@ -131,6 +114,12 @@
         ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.5); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.8); }
+
+        /* Tab 5 Soccer Pitch Background */
+        .soccer-bg-vertical {
+            background-color: #166534; /* dark green */
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(255,255,255,0.04) 50px, rgba(255,255,255,0.04) 100px);
+        }
     </style>
 </head>
 <body>
@@ -139,7 +128,7 @@
     <div class="w-full h-full max-w-[1600px] mx-auto flex flex-col p-2 md:p-6 relative">
         
         <!-- Language Switcher -->
-        <div class="absolute top-2 right-2 md:top-6 md:right-6 z-50 flex gap-2 md:gap-3 text-[11px] md:text-sm bg-black/60 p-2 rounded-xl backdrop-blur-md border border-gray-700 shadow-md">
+        <div class="absolute top-2 right-2 md:top-6 md:right-6 z-50 flex gap-2 md:gap-3 text-[12px] md:text-sm bg-black/60 p-2 rounded-xl backdrop-blur-md border border-gray-700 shadow-md">
             <button id="btn-en" class="lang-btn active" onclick="setLang('en')">EN</button>
             <span class="text-gray-600">|</span>
             <button id="btn-fr" class="lang-btn" onclick="setLang('fr')">FR</button>
@@ -147,22 +136,21 @@
             <button id="btn-oj" class="lang-btn text-green-400" onclick="setLang('oj')" title="Ojibway (Anishinaabemowin)">OJ</button>
             <span class="text-gray-600">|</span>
             <button id="btn-cr" class="lang-btn text-blue-400" onclick="setLang('cr')" title="Cree (Nehiyawewin)">CR</button>
-            <span class="text-gray-600">|</span>
-            <button id="btn-ur" class="lang-btn text-purple-400" onclick="setLang('ur')" title="Urdu (اردو)">UR</button>
         </div>
 
         <!-- Header -->
         <header class="text-center mb-3 mt-4 md:mt-2 flex-shrink-0">
             <h1 class="text-3xl md:text-5xl font-bold text-yellow-400 mb-1" data-i18n="title">Manitoba Space Explorer</h1>
-            <p class="text-[11px] md:text-lg text-blue-200" data-i18n="subtitle">Science Curriculum Grades 3–6 Interactive</p>
+            <p class="text-[12px] md:text-lg text-blue-200" data-i18n="subtitle">Science Curriculum Grades 3–6 Interactive</p>
         </header>
 
         <!-- Navigation Tabs -->
-        <nav class="flex flex-wrap justify-center gap-4 md:gap-8 mb-4 text-[13px] md:text-xl font-semibold border-b border-gray-700 flex-shrink-0">
-            <button onclick="showTab('orrery')" id="tab-orrery" class="pb-2 active-tab transition-colors hover:text-yellow-200" data-i18n="tab_orrery">Planets & Orbits</button>
-            <button onclick="showTab('earthlab')" id="tab-earthlab" class="pb-2 transition-colors hover:text-yellow-200" data-i18n="tab_earthlab">Light & Moon Lab</button>
-            <button onclick="showTab('datacards')" id="tab-datacards" class="pb-2 transition-colors hover:text-yellow-200" data-i18n="tab_datacards">Planet Cards</button>
-            <button onclick="showTab('sizes')" id="tab-sizes" class="pb-2 transition-colors hover:text-yellow-200" data-i18n="tab_sizes">Size Comparison</button>
+        <nav class="flex flex-wrap justify-center gap-4 md:gap-8 mb-4 text-[13px] md:text-xl font-semibold border-b border-gray-700 flex-shrink-0 px-4">
+            <button onclick="showTab('orrery')" id="tab-orrery" class="pb-2 active-tab transition-colors hover:text-yellow-200 whitespace-nowrap" data-i18n="tab_orrery">Planets & Orbits</button>
+            <button onclick="showTab('earthlab')" id="tab-earthlab" class="pb-2 transition-colors hover:text-yellow-200 whitespace-nowrap" data-i18n="tab_earthlab">Light & Moon</button>
+            <button onclick="showTab('datacards')" id="tab-datacards" class="pb-2 transition-colors hover:text-yellow-200 whitespace-nowrap" data-i18n="tab_datacards">Planet Cards</button>
+            <button onclick="showTab('sizes')" id="tab-sizes" class="pb-2 transition-colors hover:text-yellow-200 whitespace-nowrap" data-i18n="tab_sizes">Size Contrast</button>
+            <button onclick="showTab('soccer')" id="tab-soccer" class="pb-2 transition-colors hover:text-yellow-200 whitespace-nowrap" data-i18n="tab_soccer">Soccer Field Scale</button>
         </nav>
 
         <!-- Main Content Area -->
@@ -171,48 +159,45 @@
             <!-- TAB 1: ORRERY -->
             <div id="orrery" class="tab-content active p-4">
                 
-                <!-- Decluttered Control Panel -->
-                <div class="absolute top-4 left-4 z-40 bg-black/70 p-4 rounded-2xl border border-gray-700 w-[240px] md:w-[300px] shadow-2xl backdrop-blur-md flex flex-col gap-4">
-                    <h3 class="text-yellow-400 font-bold text-sm md:text-base uppercase tracking-wider flex items-center gap-2" data-i18n="controls">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                        Controls
-                    </h3>
+                <!-- Decluttered Compact Control Panel (Top Left) -->
+                <div class="absolute top-4 left-4 z-40 bg-black/75 p-3 md:p-4 rounded-2xl border border-gray-700 shadow-2xl backdrop-blur-md flex flex-col md:flex-row gap-4 items-center">
                     
-                    <div class="space-y-4 bg-gray-900/50 p-3 rounded-xl border border-gray-700/50">
-                        <div>
-                            <div class="flex justify-between mb-1">
-                                <label class="text-[11px] md:text-xs font-semibold text-gray-300" data-i18n="speed">Speed</label>
-                            </div>
-                            <input type="range" id="time-speed" min="0" max="5" step="0.1" value="1" class="w-full accent-yellow-400 cursor-pointer">
+                    <!-- Time & Play Block -->
+                    <div class="flex flex-col w-32 md:w-36">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label class="text-[12px] md:text-xs font-semibold text-gray-300" data-i18n="speed">Speed</label>
+                            <button id="play-pause-btn" class="flex items-center gap-1 px-2 py-0.5 bg-gray-800 hover:bg-gray-700 text-yellow-400 border border-gray-600 rounded cursor-pointer transition-colors focus:outline-none">
+                                <svg id="icon-pause" class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                                <svg id="icon-play" class="w-3 h-3 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                                <span id="play-pause-text" class="text-[11px] font-bold uppercase tracking-wider" data-i18n="pause">Pause</span>
+                            </button>
                         </div>
-                        <div>
-                            <div class="flex justify-between mb-1">
-                                <label class="text-[11px] md:text-xs font-semibold text-gray-300" data-i18n="zoom">Zoom</label>
-                            </div>
-                            <input type="range" id="zoom-slider" min="0.05" max="2.5" step="0.05" value="1" class="w-full accent-blue-400 cursor-pointer">
-                        </div>
+                        <input type="range" id="time-speed" min="0" max="5" step="0.1" value="1" class="w-full accent-yellow-400 cursor-pointer">
                     </div>
 
-                    <div class="space-y-3">
-                        <label class="flex items-center justify-between bg-blue-900/30 hover:bg-blue-900/50 border border-blue-500/30 p-2.5 rounded-lg cursor-pointer transition-colors">
-                            <span class="text-[11px] md:text-sm font-semibold text-blue-100 select-none" data-i18n="real_dist">Proportional Distances</span>
-                            <input type="checkbox" id="toggle-real-dist" class="w-4 h-4 accent-blue-400 cursor-pointer">
-                        </label>
-                        <p class="text-[11px] text-gray-400 leading-tight text-center" id="dist-hint" data-i18n="real_dist_hint">Planets are tiny, space is vast!</p>
+                    <!-- Zoom Block -->
+                    <div class="flex flex-col w-32 md:w-36 md:border-l md:border-gray-700 md:pl-4">
+                        <label class="text-[12px] md:text-xs font-semibold text-gray-300 mb-2 mt-1 md:mt-0" data-i18n="zoom">Zoom</label>
+                        <input type="range" id="zoom-slider" min="0.05" max="2.5" step="0.05" value="1" class="w-full accent-blue-400 cursor-pointer">
+                    </div>
 
-                        <div class="flex gap-2 justify-between pt-1">
-                            <label class="flex-1 flex flex-col items-center justify-center bg-gray-800/60 hover:bg-gray-700/60 p-2 rounded-lg cursor-pointer transition-colors border border-gray-700/50">
-                                <input type="checkbox" id="show-inner" checked class="w-3 h-3 accent-yellow-500 mb-1 cursor-pointer">
-                                <span class="text-[11px] font-medium text-gray-300" data-i18n="show_inner_short">Inner</span>
-                            </label>
-                            <label class="flex-1 flex flex-col items-center justify-center bg-gray-800/60 hover:bg-gray-700/60 p-2 rounded-lg cursor-pointer transition-colors border border-gray-700/50">
-                                <input type="checkbox" id="show-gas" checked class="w-3 h-3 accent-yellow-500 mb-1 cursor-pointer">
-                                <span class="text-[11px] font-medium text-gray-300" data-i18n="show_gas_short">Gas</span>
-                            </label>
-                            <label class="flex-1 flex flex-col items-center justify-center bg-gray-800/60 hover:bg-gray-700/60 p-2 rounded-lg cursor-pointer transition-colors border border-gray-700/50">
-                                <input type="checkbox" id="show-ice" checked class="w-3 h-3 accent-yellow-500 mb-1 cursor-pointer">
-                                <span class="text-[11px] font-medium text-gray-300" data-i18n="show_ice_short">Ice</span>
-                            </label>
+                    <!-- Visual Toggles Block -->
+                    <div class="flex flex-col md:border-l md:border-gray-700 md:pl-4 space-y-2 mt-1 md:mt-0">
+                        <label class="flex items-center gap-2 cursor-pointer bg-blue-900/30 hover:bg-blue-900/50 p-1.5 rounded transition-colors w-full">
+                            <input type="checkbox" id="toggle-real-dist" class="w-4 h-4 accent-blue-400 cursor-pointer">
+                            <span class="text-[12px] font-semibold text-blue-100 select-none whitespace-nowrap" data-i18n="real_dist">Proportional Distances</span>
+                        </label>
+                        
+                        <div class="flex gap-1.5">
+                            <button onmouseenter="hoveredCategory = 'inner'" onmouseleave="hoveredCategory = null" class="flex-1 px-3 py-1 bg-gray-800 hover:bg-yellow-900/40 rounded border border-gray-600 transition-all focus:outline-none group">
+                                <span class="text-[11px] font-medium text-gray-300 group-hover:text-yellow-400" data-i18n="show_inner_short">Inner</span>
+                            </button>
+                            <button onmouseenter="hoveredCategory = 'gas'" onmouseleave="hoveredCategory = null" class="flex-1 px-3 py-1 bg-gray-800 hover:bg-yellow-900/40 rounded border border-gray-600 transition-all focus:outline-none group">
+                                <span class="text-[11px] font-medium text-gray-300 group-hover:text-yellow-400" data-i18n="show_gas_short">Gas</span>
+                            </button>
+                            <button onmouseenter="hoveredCategory = 'ice'" onmouseleave="hoveredCategory = null" class="flex-1 px-3 py-1 bg-gray-800 hover:bg-yellow-900/40 rounded border border-gray-600 transition-all focus:outline-none group">
+                                <span class="text-[11px] font-medium text-gray-300 group-hover:text-yellow-400" data-i18n="show_ice_short">Ice</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -221,24 +206,25 @@
                 <div class="absolute bottom-4 left-4 right-4 z-40 flex flex-col md:flex-row justify-between items-end md:items-center gap-4 pointer-events-none">
                     <!-- Indigenous Star Knowledge Box -->
                     <div class="indigenous-block p-4 rounded-xl w-[280px] md:w-[350px] shadow-lg backdrop-blur-md hidden md:block pointer-events-auto">
-                        <h4 class="text-green-400 font-bold mb-2 text-[11px] md:text-sm flex items-center gap-2"><svg class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg> <span data-i18n="star_knowledge_title">Ancestral Star Knowledge</span></h4>
+                        <h4 class="text-green-400 font-bold mb-2 text-[12px] md:text-sm flex items-center gap-2"><svg class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg> <span data-i18n="star_knowledge_title">Ancestral Star Knowledge</span></h4>
                         <p class="text-[11px] md:text-xs text-green-100 leading-relaxed" data-i18n="star_knowledge_desc">For thousands of years, the Anishinaabe, Ininiw (Cree), and Dakota peoples of the prairies have used the night sky as a calendar, map, and storybook. The movement of the stars and planets indicates when to plant, hunt, and hold ceremonies.</p>
                     </div>
 
                     <!-- Explorer Guide Tab 1 -->
                     <div class="guide-block p-4 rounded-xl w-[260px] md:w-[350px] shadow-lg backdrop-blur-md pointer-events-auto ml-auto">
-                        <h4 class="text-blue-400 font-bold mb-2 text-[11px] md:text-sm flex items-center gap-2">
+                        <h4 class="text-blue-400 font-bold mb-2 text-[12px] md:text-sm flex items-center gap-2">
                             <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span data-i18n="guide_title">Explorer's Guide</span>
                         </h4>
-                        <p class="text-[11px] md:text-xs text-blue-100 leading-relaxed" data-i18n="guide_tab1">Use the sliders to change time speed and zoom. Toggle proportions to see real distances. <strong>Click on any moving planet</strong> to learn more about it!</p>
+                        <p class="text-[12px] md:text-xs text-blue-100 leading-relaxed" data-i18n="guide_tab1">Use the sliders to change time speed and zoom. Toggle proportions to see real distances. <strong>Click on any moving planet</strong> to learn more about it!</p>
+                        <p class="text-[12px] text-yellow-300 leading-tight mt-2 border-t border-blue-500/50 pt-2" id="dist-hint" data-i18n="real_dist_hint">Planets are tiny, space is vast!</p>
                     </div>
                 </div>
 
                 <div id="solar-system-container" class="relative w-full h-full flex items-center justify-center">
                     <div id="solar-system-zoom" class="relative w-full h-full flex items-center justify-center origin-center">
                         <div class="absolute sun-animated rounded-full z-20 flex items-center justify-center transition-all duration-300" id="the-sun" style="width: 60px; height: 60px; background: radial-gradient(circle at 50% 50%, #fffde7, #fbc02d, #f57f17);">
-                            <span class="text-black font-bold text-[11px] md:text-sm bg-white/50 px-1.5 py-0.5 rounded z-30" data-i18n="sun_label">SUN</span>
+                            <span class="text-black font-bold text-[12px] md:text-sm bg-white/50 px-1.5 py-0.5 rounded z-30" data-i18n="sun_label">SUN</span>
                         </div>
                         <!-- Randomized Asteroid Belt Container -->
                         <div id="asteroid-belt-orrery" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10" style="transition: width 0.3s, height 0.3s;"></div>
@@ -251,11 +237,11 @@
                 
                 <!-- Explorer Guide Tab 2 -->
                 <div class="guide-block p-4 rounded-xl mb-6 flex flex-col md:flex-row items-start md:items-center gap-4 flex-shrink-0 shadow-md">
-                    <h4 class="text-blue-400 font-bold text-[11px] md:text-sm flex items-center gap-2 whitespace-nowrap">
+                    <h4 class="text-blue-400 font-bold text-[12px] md:text-sm flex items-center gap-2 whitespace-nowrap">
                         <svg class="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span data-i18n="guide_title">Explorer's Guide</span>:
                     </h4>
-                    <p class="text-[11px] md:text-sm text-blue-100" data-i18n="guide_tab2"><strong>Experiment 1:</strong> Drag the Sun across the sky to see how it changes the length and direction of the shadow. <br><strong>Experiment 2:</strong> Slide the moon control to see how sunlight creates the different phases of the moon from Earth's view.</p>
+                    <p class="text-[12px] md:text-sm text-blue-100" data-i18n="guide_tab2"><strong>Experiment 1:</strong> Drag the Sun across the sky to see how it changes the length and direction of the shadow. <br><strong>Experiment 2:</strong> Slide the moon control to see how sunlight creates the different phases of the moon from Earth's view.</p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 flex-grow">
@@ -264,7 +250,7 @@
                         <h3 class="text-xl md:text-2xl font-bold text-yellow-400 mb-3 flex-shrink-0" data-i18n="shadow_exp">Shadow Experiment</h3>
                         
                         <div class="indigenous-block p-3 rounded-lg mb-4 flex-shrink-0">
-                            <p class="text-[11px] md:text-sm text-green-100" data-i18n="lodge_knowledge"><strong>Cultural Connection:</strong> Tipis and traditional lodges on the prairies are traditionally set up with their doors facing East to welcome the morning sun and its first light.</p>
+                            <p class="text-[12px] md:text-sm text-green-100" data-i18n="lodge_knowledge"><strong>Cultural Connection:</strong> Tipis and traditional lodges on the prairies are traditionally set up with their doors facing East to welcome the morning sun and its first light.</p>
                         </div>
 
                         <div class="relative flex-grow bg-gradient-to-b from-blue-900 to-blue-500/20 rounded-xl overflow-hidden border border-blue-800 flex items-end justify-center min-h-[200px]" id="shadow-container">
@@ -284,7 +270,7 @@
                         <h3 class="text-xl md:text-2xl font-bold text-yellow-400 mb-3 flex-shrink-0" data-i18n="moon_checker">Moon Phase Checker</h3>
                         
                         <div class="indigenous-block p-3 rounded-lg mb-4 flex-shrink-0">
-                            <p class="text-[11px] md:text-sm text-green-100" data-i18n="moon_knowledge"><strong>Cultural Connection:</strong> The 13 Moon Calendar. Many Indigenous nations recognize 13 full moons in a year, representing the 13 scutes on a turtle's back.</p>
+                            <p class="text-[12px] md:text-sm text-green-100" data-i18n="moon_knowledge"><strong>Cultural Connection:</strong> The 13 Moon Calendar. Many Indigenous nations recognize 13 full moons in a year, representing the 13 scutes on a turtle's back.</p>
                         </div>
 
                         <div class="flex flex-col items-center flex-grow justify-center py-4">
@@ -302,8 +288,8 @@
                             
                             <!-- Day Counter and Slider -->
                             <div class="w-full max-w-md mt-4">
-                                <p class="text-xs md:text-sm font-bold text-yellow-400 mb-2 text-center tracking-wide">
-                                    <span data-i18n="moon_day_label">Day</span>: <span id="moon-day-counter">14.8</span> / 29.5
+                                <p class="text-[12px] md:text-sm font-bold text-yellow-400 mb-2 text-center tracking-wide">
+                                    <span data-i18n="moon_day_label">Day</span>: <span id="moon-day-counter">15</span> / 30
                                 </p>
                                 <input type="range" id="moon-slider" min="0" max="100" step="0.1" value="50" list="moon-ticks" class="w-full accent-yellow-400 cursor-pointer">
                                 <datalist id="moon-ticks">
@@ -313,7 +299,7 @@
                                 <!-- Autoplay Toggle -->
                                 <div class="mt-4 flex items-center justify-center gap-2">
                                     <input type="checkbox" id="moon-autoplay" class="w-5 h-5 accent-yellow-400 cursor-pointer">
-                                    <label for="moon-autoplay" class="text-[11px] md:text-sm text-white font-semibold cursor-pointer select-none" data-i18n="moon_autoplay">Auto-Play (1 sec = 1 day)</label>
+                                    <label for="moon-autoplay" class="text-[12px] md:text-sm text-white font-semibold cursor-pointer select-none" data-i18n="moon_autoplay">Auto-Play (1 sec = 1 day)</label>
                                 </div>
                             </div>
                         </div>
@@ -325,17 +311,17 @@
             <div id="datacards" class="tab-content overflow-y-auto p-4 md:p-6">
                 <!-- Explorer Guide Tab 3 -->
                 <div class="guide-block p-4 rounded-xl mb-6 flex-shrink-0 shadow-md">
-                    <h4 class="text-blue-400 font-bold mb-2 text-[11px] md:text-sm flex items-center gap-2">
+                    <h4 class="text-blue-400 font-bold mb-2 text-[12px] md:text-sm flex items-center gap-2">
                         <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span data-i18n="guide_title">Explorer's Guide</span>
                     </h4>
-                    <p class="text-[11px] md:text-sm text-blue-100" data-i18n="guide_tab3">Enter your weight below to see how gravity changes your weight on different planets! <strong>Click on any planet card</strong> to open a detailed data sheet and cultural teachings.</p>
+                    <p class="text-[12px] md:text-sm text-blue-100" data-i18n="guide_tab3">Enter your weight below to see how gravity changes your weight on different planets! <strong>Click on any planet card</strong> to open a detailed data sheet and cultural teachings.</p>
                 </div>
 
                 <div class="mb-6 flex flex-wrap gap-4 justify-center items-center bg-gray-900/50 p-4 rounded-xl border border-gray-800 flex-shrink-0">
                     <span class="text-base md:text-xl text-yellow-400 font-bold" data-i18n="grav_calc">Gravity Calculator:</span>
                     <input type="number" id="user-weight" oninput="updateWeights()" data-i18n="weight_placeholder" placeholder="Weight (kg)" class="bg-gray-800 border border-gray-600 rounded-lg p-2 md:p-3 text-white w-32 md:w-40 text-sm md:text-base focus:border-yellow-400 outline-none" value="40">
-                    <span class="text-[11px] md:text-sm text-gray-300" data-i18n="weight_hint">kg on Earth = ? on space</span>
+                    <span class="text-[12px] md:text-sm text-gray-300" data-i18n="weight_hint">kg on Earth = ? on space</span>
                 </div>
                 
                 <div id="cards-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 pb-6">
@@ -344,38 +330,138 @@
             </div>
 
             <!-- TAB 4: SIZE COMPARISON -->
-            <div id="sizes" class="tab-content relative w-full h-full overflow-hidden">
-                <div class="absolute top-4 left-6 z-30 bg-black/60 backdrop-blur px-5 py-4 rounded-xl w-[260px] md:w-[350px] shadow-xl border border-gray-700">
+            <div id="sizes" class="tab-content w-full h-full overflow-hidden">
+                <div class="absolute top-4 left-6 z-40 bg-black/60 backdrop-blur px-5 py-4 rounded-xl w-[260px] md:w-[350px] shadow-xl border border-gray-700">
                     <h3 class="text-xl md:text-2xl font-bold text-yellow-400 mb-3" data-i18n="tab_sizes">Size Comparison</h3>
                     
                     <!-- Explorer Guide Tab 4 -->
                     <div class="guide-block p-3 rounded-lg mb-4">
-                        <h4 class="text-blue-400 font-bold text-[11px] md:text-sm flex items-center gap-1 mb-2">
+                        <h4 class="text-blue-400 font-bold text-[12px] md:text-sm flex items-center gap-1 mb-2">
                             <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span data-i18n="guide_title">Explorer's Guide</span>
                         </h4>
-                        <p class="text-[11px] text-blue-100" data-i18n="guide_tab4"><strong>Scroll horizontally to the right</strong> to explore the true proportional size of all the planets compared to the massive edge of the Sun on the left.</p>
+                        <p class="text-[12px] text-blue-100" data-i18n="guide_tab4"><strong>Scroll horizontally to the right</strong> to explore the true proportional size of all the planets compared to the massive edge of the Sun on the left.</p>
                     </div>
 
                     <div class="indigenous-block p-3 rounded-lg">
-                        <p class="text-[11px] text-green-100" data-i18n="size_knowledge">Ancestral View: From the massive sun to the smallest grain of sand, Anishinaabe teachings emphasize that all things are interconnected.</p>
+                        <p class="text-[11px] md:text-[12px] text-green-100" data-i18n="size_knowledge">Ancestral View: From the massive sun to the smallest grain of sand, Anishinaabe teachings emphasize that all things are interconnected.</p>
                     </div>
                 </div>
                 
                 <!-- The Massive Sun Edge fixed to the left of the screen entirely outside the scroll area -->
-                <div class="absolute left-[-900px] top-1/2 -translate-y-1/2 z-10 pointer-events-none">
-                    <div class="rounded-full sun-animated" style="width: 1100px; height: 1100px; background: radial-gradient(circle at 95% 50%, #fffde7, #fbc02d, #f57f17); box-shadow: 0 0 120px #fbbf24;"></div>
+                <div class="absolute left-[-900px] top-1/2 -translate-y-1/2 z-10 group cursor-pointer pointer-events-auto">
+                    <div class="rounded-full sun-animated pointer-events-auto" style="width: 1100px; height: 1100px; background: radial-gradient(circle at 95% 50%, #fffde7, #fbc02d, #f57f17); box-shadow: 0 0 120px #fbbf24;"></div>
+                    
+                    <!-- Sun Tooltip -->
+                    <div class="absolute top-1/2 right-[10%] transform -translate-y-1/2 translate-x-full ml-4 bg-gray-900/95 border border-gray-600 rounded-xl p-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-56 z-[60] backdrop-blur-sm flex flex-col items-start">
+                        <h4 class="font-bold text-yellow-400 mb-1.5 border-b border-gray-700 pb-1 w-full text-center text-[12px] md:text-sm whitespace-nowrap" data-i18n="sun_label">SUN</h4>
+                        <ul class="text-left text-[11px] md:text-xs space-y-1.5 mt-1 text-gray-200 w-full">
+                            <li>📏 <span data-i18n="sun_size">109x larger</span></li>
+                            <li>⚖️ <span data-i18n="sun_mass">333,000x heavier</span></li>
+                            <li>🔥 <span data-i18n="sun_desc">Center of the system</span></li>
+                        </ul>
+                    </div>
                 </div>
                 
                 <!-- Container scrolls the planets OVER the fixed sun -->
-                <div id="size-compare-container" class="absolute inset-0 overflow-x-auto overflow-y-hidden flex items-center z-20 space-x-8 md:space-x-14 pl-[260px] md:pl-[340px] pr-12 pb-4 pt-10 scroll-smooth">
+                <div id="size-compare-container" class="absolute inset-0 overflow-x-auto overflow-y-hidden flex items-center z-20 space-x-8 md:space-x-14 pl-[260px] md:pl-[340px] pr-12 scroll-smooth">
                     <!-- Comparison Planets injected by JS -->
+                </div>
+            </div>
+
+            <!-- TAB 5: SOCCER FIELD SCALE -->
+            <div id="soccer" class="tab-content w-full h-full bg-black overflow-hidden">
+                
+                <!-- UI overlay Header for Tab 5 -->
+                <div class="relative z-40 bg-black/80 backdrop-blur w-full shadow-xl border-b border-gray-700 flex-shrink-0 flex flex-col md:flex-row p-4 gap-6 md:items-start">
+                    
+                    <div class="flex-shrink-0 w-full md:w-1/3">
+                        <h3 class="text-xl md:text-2xl font-bold text-yellow-400 mb-3" data-i18n="tab_soccer">Soccer Field Scale</h3>
+                        <!-- Zoom Control -->
+                        <div class="bg-gray-900/50 p-3 rounded-xl border border-gray-700/50">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[12px] md:text-sm font-semibold text-gray-300" data-i18n="zoom">Field Zoom</label>
+                                <span id="soccer-zoom-label" class="text-[11px] text-yellow-400 font-bold">100%</span>
+                            </div>
+                            <input type="range" id="soccer-zoom" min="0.4" max="2.5" step="0.1" value="1" class="w-full accent-green-400 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="flex-grow flex flex-col md:flex-row gap-4">
+                        <div class="guide-block p-3 rounded-lg flex-1">
+                            <h4 class="text-blue-400 font-bold text-[12px] md:text-sm flex items-center gap-1 mb-2">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span data-i18n="guide_title">Explorer's Guide</span>
+                            </h4>
+                            <p class="text-[12px] text-blue-100" data-i18n="guide_tab5">Scroll down the 100-meter soccer pitch to see the true vastness of space. If Neptune is at the far goal line, Earth is just 3 meters away!</p>
+                        </div>
+                        <div class="indigenous-block p-3 rounded-lg flex-1 hidden md:block">
+                            <p class="text-[11px] md:text-[12px] text-green-100" data-i18n="tab5_indigenous">Cultural Connection: When contemplating the vast emptiness of space, Anishinaabe and Ininiw elders speak of the Jiibay-ziibi (The Milky Way). What science measures in millions of kilometers, Indigenous star knowledge understands as a boundless spiritual path connecting us to the Star Nation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- The 2D Vertical Field Container (Scrollable) -->
+                <div class="flex-grow overflow-auto relative flex justify-center pt-[50px] pb-[100px] scroll-smooth" id="soccer-scroll-area">
+                     
+                     <!-- Scalable Wrapper controlled by zoom slider -->
+                     <div id="soccer-pitch-wrapper" style="transform: scale(1); transform-origin: top center; transition: transform 0.2s ease-out; --inv-zoom: 1;" class="flex-shrink-0">
+                         
+                         <!-- Actual Soccer Pitch Container (Strictly Proportioned 68m x 100m -> 680px x 1000px) -->
+                         <div id="soccer-pitch-container" class="relative soccer-bg-vertical border-[4px] border-white/80 rounded-md shadow-[0_0_50px_rgba(0,0,0,0.8)] mb-[100px]" style="width: 680px; height: 1000px;">
+                            
+                            <!-- === PITCH MARKINGS === -->
+                            <!-- Halfway line -->
+                            <div class="absolute top-1/2 left-0 w-full border-t-[3px] border-white/70 -translate-y-1/2"></div>
+                            
+                            <!-- Center circle (18.3m diameter -> 183px) -->
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[183px] h-[183px] border-[3px] border-white/70 rounded-full"></div>
+                            
+                            <!-- Center spot -->
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
+                            
+                            <!-- TOP GOAL AREA (SUN) -->
+                            <!-- Penalty Box (40.32m x 16.5m -> 403px x 165px) -->
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[403px] h-[165px] border-[3px] border-t-0 border-white/70 bg-[#166534]/50 z-0"></div>
+                            <!-- Goal Box (18.32m x 5.5m -> 183px x 55px) -->
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[183px] h-[55px] border-[3px] border-t-0 border-white/70 z-0"></div>
+                            <!-- Penalty Spot (11m -> 110px) -->
+                            <div class="absolute top-[110px] left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full z-0"></div>
+                            <!-- Top Penalty Arc (Radius 9.15m from spot -> 183px diameter, clipped at 16.5m line) -->
+                            <div class="absolute left-1/2 -translate-x-1/2 w-[183px] h-[183px] border-[3px] border-white/70 rounded-full z-0" style="top: 18.5px; clip-path: inset(146.5px 0 0 0);"></div>
+
+                            <!-- BOTTOM GOAL AREA (NEPTUNE) -->
+                            <!-- Penalty Box -->
+                            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[403px] h-[165px] border-[3px] border-b-0 border-white/70 bg-[#166534]/50 z-0"></div>
+                            <!-- Goal Box -->
+                            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[183px] h-[55px] border-[3px] border-b-0 border-white/70 z-0"></div>
+                            <!-- Penalty Spot -->
+                            <div class="absolute bottom-[110px] left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full z-0"></div>
+                            <!-- Bottom Penalty Arc -->
+                            <div class="absolute left-1/2 -translate-x-1/2 w-[183px] h-[183px] border-[3px] border-white/70 rounded-full z-0" style="bottom: 18.5px; clip-path: inset(0 0 146.5px 0);"></div>
+
+                            <!-- Corner Arcs (1m radius -> 20px diameter since it's an arc) -->
+                            <div class="absolute top-0 left-0 w-[20px] h-[20px] border-[3px] border-white/70 rounded-br-full border-t-0 border-l-0"></div>
+                            <div class="absolute top-0 right-0 w-[20px] h-[20px] border-[3px] border-white/70 rounded-bl-full border-t-0 border-r-0"></div>
+                            <div class="absolute bottom-0 left-0 w-[20px] h-[20px] border-[3px] border-white/70 rounded-tr-full border-b-0 border-l-0"></div>
+                            <div class="absolute bottom-0 right-0 w-[20px] h-[20px] border-[3px] border-white/70 rounded-tl-full border-b-0 border-r-0"></div>
+
+                            <!-- Distance Markers Sidebar (Right aligned, kept outside the pitch visually but anchored to it) -->
+                            <div class="absolute top-0 -right-16 text-white/50 font-bold text-[12px] md:text-sm -translate-y-1/2 pitch-label-scaler">0m</div>
+                            <div class="absolute top-[250px] -right-16 text-white/50 font-bold text-[12px] md:text-sm -translate-y-1/2 pitch-label-scaler">25m</div>
+                            <div class="absolute top-[500px] -right-16 text-white/50 font-bold text-[12px] md:text-sm -translate-y-1/2 pitch-label-scaler">50m</div>
+                            <div class="absolute top-[750px] -right-16 text-white/50 font-bold text-[12px] md:text-sm -translate-y-1/2 pitch-label-scaler">75m</div>
+                            <div class="absolute bottom-0 -right-16 text-white/50 font-bold text-[12px] md:text-sm translate-y-1/2 pitch-label-scaler">100m</div>
+
+                             <!-- Planets & Sun injected by JS -->
+                         </div>
+                     </div>
                 </div>
             </div>
 
         </main>
 
-        <footer class="text-center text-gray-500 text-[11px] md:text-sm pt-3 flex-shrink-0">
+        <footer class="text-center text-gray-500 text-[11px] md:text-sm pt-3 flex-shrink-0 z-40 relative">
             <p data-i18n="footer">Designed for Manitoba Schools • Science Cluster 4: Our Solar System</p>
             <p class="text-[11px] md:text-xs mt-1 opacity-70">Incorporates Prairies Indigenous knowledge frameworks respectfully alongside scientific data.</p>
         </footer>
@@ -396,8 +482,8 @@
         const dict = {
             en: {
                 title: "Manitoba Space Explorer", subtitle: "Science Curriculum Grades 3–6 Interactive",
-                tab_orrery: "Planets & Orbits", tab_earthlab: "Light & Moon Lab", tab_datacards: "Planet Cards", tab_sizes: "Size Comparison",
-                controls: "Controls", speed: "Speed", zoom: "Zoom",
+                tab_orrery: "Planets & Orbits", tab_earthlab: "Light & Moon Lab", tab_datacards: "Planet Cards", tab_sizes: "Size Contrast", tab_soccer: "Soccer Field Scale",
+                controls: "Controls", speed: "Speed", zoom: "Zoom", play: "Play", pause: "Pause",
                 real_dist: "Proportional Distances",
                 real_dist_hint: "Planets are tiny, space is vast!",
                 show_inner_short: "Inner", show_gas_short: "Gas", show_ice_short: "Ice",
@@ -406,6 +492,7 @@
                 guide_tab2: "<strong>Experiment 1:</strong> Drag the Sun across the sky to see how it changes the length and direction of the shadow.<br><strong>Experiment 2:</strong> Slide the moon control to see how sunlight creates the different phases of the moon from Earth's view.",
                 guide_tab3: "Enter your weight below to see how gravity changes your weight on different planets! <strong>Click on any planet card</strong> to open a detailed data sheet and cultural teachings.",
                 guide_tab4: "<strong>Scroll horizontally to the right</strong> to explore the true proportional size of all the planets compared to the massive edge of the Sun on the left.",
+                guide_tab5: "Scroll down the 100-meter soccer pitch to see the true vastness of space. If Neptune is at the far goal line, Earth is just 3 meters away!",
                 show_inner: "Show Inner Planets", show_gas: "Show Gas Giants", show_ice: "Show Ice Giants",
                 asteroid_belt: "Asteroid Belt",
                 star_knowledge_title: "Ancestral Star Knowledge", 
@@ -420,12 +507,19 @@
                 size_desc: "Scroll horizontally to see the true relative sizes of the planets compared to the edge of the massive Sun.", 
                 size_knowledge: "Ancestral View: From the massive sun to the smallest grain of sand, Anishinaabe teachings emphasize that all things are interconnected.",
                 dist_sun: "Distance from Sun", moons_label: "Satellites", year_len: "Year Length", surf_temp: "Surface Temp", discovery: "Discovery Year", did_you_know: "Did you know?", footer: "Designed for Manitoba Schools • Science Cluster 4: Our Solar System", close: "Close Explorer",
-                main_sat: "Main", other_sat: "Other", days: "Days", earth_years: "Earth Years", sun_label: "SUN", cultural_knowledge: "Cultural Knowledge"
+                main_sat: "Main", other_sat: "Other", days: "Days", earth_years: "Earth Years", sun_label: "SUN", cultural_knowledge: "Cultural Knowledge",
+                sun_size: "109x larger", sun_mass: "333,000x heavier", sun_desc: "Center of the system",
+                comp_earth: "Our home planet!", comp_size_bigger: "{x}x larger", comp_size_smaller: "{x}x smaller", comp_size_same: "About the same size",
+                comp_mass_heavier: "{x}x heavier", comp_mass_lighter: "{x}x lighter", comp_mass_same: "About the same weight",
+                comp_dist_further: "{x}x further from Sun", comp_dist_closer: "{x}x closer to Sun", comp_dist_same: "Same distance", vs_earth: "vs Earth",
+                if_earth_size: "If Earth's size was a 🐕 Dog:", if_earth_weight: "If Earth weighed like a 🧍 Human:",
+                pitch_dist: "Distance on Pitch", pitch_size: "Scaled Size", sun_pitch_size: "Walnut (30 mm)",
+                tab5_indigenous: "Cultural Connection: When contemplating the vast emptiness of space, Anishinaabe and Ininiw elders speak of the Jiibay-ziibi (The Milky Way). What science measures in millions of kilometers, Indigenous star knowledge understands as a boundless spiritual path connecting us to the Star Nation."
             },
             fr: {
                 title: "Explorateur Spatial du Manitoba", subtitle: "Programme de sciences 3e à 6e année",
-                tab_orrery: "Planètes et Orbites", tab_earthlab: "Lumière et Lune", tab_datacards: "Fiches Planétaires", tab_sizes: "Comparaison des Tailles",
-                controls: "Contrôles", speed: "Vitesse", zoom: "Zoom",
+                tab_orrery: "Planètes et Orbites", tab_earthlab: "Lumière et Lune", tab_datacards: "Fiches Planétaires", tab_sizes: "Comparaison des Tailles", tab_soccer: "Échelle : Terrain de Foot",
+                controls: "Contrôles", speed: "Vitesse", zoom: "Zoom", play: "Lecture", pause: "Pause",
                 real_dist: "Distances Proport.",
                 real_dist_hint: "Les planètes sont minuscules !",
                 show_inner_short: "Internes", show_gas_short: "Gazeuses", show_ice_short: "Glacées",
@@ -434,6 +528,7 @@
                 guide_tab2: "<strong>Expérience 1 :</strong> Faites glisser le Soleil pour voir comment il modifie l'ombre.<br><strong>Expérience 2 :</strong> Utilisez le curseur pour voir comment la lumière crée les différentes phases de la lune.",
                 guide_tab3: "Entrez votre poids ci-dessous pour voir comment la gravité le modifie sur d'autres planètes ! <strong>Cliquez sur une carte</strong> pour ouvrir une fiche détaillée.",
                 guide_tab4: "<strong>Faites défiler horizontalement vers la droite</strong> pour explorer la taille proportionnelle des planètes par rapport au bord massif du Soleil à gauche.",
+                guide_tab5: "Faites défiler le terrain de football de 100 mètres vers le bas pour voir la véritable immensité de l'espace. Si Neptune est sur la ligne de but opposée, la Terre n'est qu'à 3 mètres !",
                 show_inner: "Planètes Telluriques", show_gas: "Géantes Gazeuses", show_ice: "Géantes de Glace",
                 asteroid_belt: "Ceinture d'Astéroïdes",
                 star_knowledge_title: "Savoir Ancestral des Étoiles", 
@@ -448,12 +543,19 @@
                 size_desc: "Faites défiler horizontalement pour voir les vraies tailles relatives des planètes.", 
                 size_knowledge: "Vision Ancestrale : Du soleil massif au plus petit grain de sable, les enseignements Anishinaabe soulignent que tout est interconnecté.",
                 dist_sun: "Distance du Soleil", moons_label: "Satellites", year_len: "Durée de l'Année", surf_temp: "Temp. de Surface", discovery: "Année de Découverte", did_you_know: "Le saviez-vous ?", footer: "Conçu pour les écoles du Manitoba • Regroupement 4", close: "Fermer l'Explorateur",
-                main_sat: "Princ.", other_sat: "Autres", days: "Jours", earth_years: "Années Terrestres", sun_label: "SOLEIL", cultural_knowledge: "Savoir Culturel"
+                main_sat: "Princ.", other_sat: "Autres", days: "Jours", earth_years: "Années Terrestres", sun_label: "SOLEIL", cultural_knowledge: "Savoir Culturel",
+                sun_size: "109x plus grand", sun_mass: "333 000x plus lourd", sun_desc: "Centre du système",
+                comp_earth: "Notre planète !", comp_size_bigger: "{x}x plus grande", comp_size_smaller: "{x}x plus petite", comp_size_same: "Même taille",
+                comp_mass_heavier: "{x}x plus lourde", comp_mass_lighter: "{x}x plus légère", comp_mass_same: "Même poids",
+                comp_dist_further: "{x}x plus loin du Soleil", comp_dist_closer: "{x}x plus près du Soleil", comp_dist_same: "Même distance", vs_earth: "vs Terre",
+                if_earth_size: "Si la Terre était un 🐕 Chien :", if_earth_weight: "Si la Terre pesait comme un 🧍 Humain :",
+                pitch_dist: "Distance sur le terrain", pitch_size: "Taille à l'échelle", sun_pitch_size: "Noix (30 mm)",
+                tab5_indigenous: "Lien culturel : En contemplant le vaste vide de l'espace, les aînés parlent du Jiibay-ziibi (la Voie lactée). Ce que la science mesure en kilomètres, les peuples autochtones le comprennent comme un chemin spirituel sans limites."
             },
             oj: {
                 title: "Manitoba Anangong", subtitle: "Science Curriculum Grades 3–6 Interactive",
-                tab_orrery: "Anangook & Orbits", tab_earthlab: "Giizis & Nokomis", tab_datacards: "Anangook Cards", tab_sizes: "E-igok (Sizes)",
-                controls: "Controls", speed: "Speed", zoom: "Zoom",
+                tab_orrery: "Anangook & Orbits", tab_earthlab: "Giizis & Nokomis", tab_datacards: "Anangook Cards", tab_sizes: "E-igok (Sizes)", tab_soccer: "Soccer Field Scale",
+                controls: "Controls", speed: "Speed", zoom: "Zoom", play: "Maajitaa", pause: "Nagaa",
                 real_dist: "True Distances",
                 real_dist_hint: "Planets are tiny, space is vast.",
                 show_inner_short: "Biindig", show_gas_short: "Nibiish", show_ice_short: "Miskwamii",
@@ -462,6 +564,7 @@
                 guide_tab2: "<strong>Experiment 1:</strong> Move Giizis (Sun) to change the shadows.<br><strong>Experiment 2:</strong> Slide the bar to see the phases of Dibaajiki-giizis (Moon).",
                 guide_tab3: "Enter your weight below to see your space weight! <strong>Click any card</strong> for teachings and full data.",
                 guide_tab4: "<strong>Scroll to the right</strong> to see how small we are compared to Giizis (the Sun).",
+                guide_tab5: "Scroll down the 100-meter soccer pitch to see the true vastness of space. If Neptune is at the far goal line, Earth is just 3 meters away!",
                 show_inner: "Show Biindig-anangook (Inner)", show_gas: "Show Nibiish-anangook (Gas)", show_ice: "Show Miskwamii-anangook (Ice)",
                 asteroid_belt: "Asinii-bimiishkaa",
                 star_knowledge_title: "Anishinaabe Anangong", 
@@ -476,12 +579,19 @@
                 size_desc: "Compare the planets to the edge of Giizis (Sun).", 
                 size_knowledge: "Ancestral View: Gakina gegoo (Everything is connected). We are all part of the same creation.",
                 dist_sun: "Distance from Giizis", moons_label: "Satellites", year_len: "Year Length", surf_temp: "Temperature", discovery: "Kikenimind (Discovered)", did_you_know: "Dibaajimowin (Story):", footer: "Manitoba Schools", close: "Close (Ishaak)",
-                main_sat: "Main", other_sat: "Other", days: "Giizhigon (Days)", earth_years: "Akiing Biboonan", sun_label: "GIIZIS", cultural_knowledge: "Aadizookaan (Traditional Knowledge)"
+                main_sat: "Main", other_sat: "Other", days: "Giizhigon (Days)", earth_years: "Akiing Biboonan", sun_label: "GIIZIS", cultural_knowledge: "Aadizookaan (Traditional Knowledge)",
+                sun_size: "109x nawaj michaa (larger)", sun_mass: "333,000x nawaj kosigwan (heavier)", sun_desc: "Naawaii (Center)",
+                comp_earth: "Aki - Our home!", comp_size_bigger: "{x}x nawaj michaa (larger)", comp_size_smaller: "{x}x nawaj agaashaa (smaller)", comp_size_same: "Same size",
+                comp_mass_heavier: "{x}x nawaj kosigwan (heavier)", comp_mass_lighter: "{x}x nawaj naangizi (lighter)", comp_mass_same: "Same weight",
+                comp_dist_further: "{x}x nawaj waasa (further)", comp_dist_closer: "{x}x nawaj besho (closer)", comp_dist_same: "Same distance", vs_earth: "vs Aki",
+                if_earth_size: "Aki 🐕 Animosh awid:", if_earth_weight: "Aki 🧍 Anishinaabe kosigwanid:",
+                pitch_dist: "Distance on Pitch", pitch_size: "Scaled Size", sun_pitch_size: "Pagaan (30 mm)",
+                tab5_indigenous: "Aadizookaan (Traditional Knowledge): When we look into the vast space, we see Jiibay-ziibi (The Milky Way). It is the path of souls, connecting Aki (Earth) to the Star Nation across unimaginable distances."
             },
             cr: {
                 title: "Manitoba Acāhkosak", subtitle: "Science Curriculum Grades 3–6 Interactive",
-                tab_orrery: "Acāhkosak & Orbits", tab_earthlab: "Pīsim & Tipiskāw-pīsim", tab_datacards: "Acāhkos Cards", tab_sizes: "Ispīhcāw (Sizes)",
-                controls: "Controls", speed: "Speed", zoom: "Zoom",
+                tab_orrery: "Acāhkosak & Orbits", tab_earthlab: "Pīsim & Tipiskāw-pīsim", tab_datacards: "Acāhkos Cards", tab_sizes: "Ispīhcāw (Sizes)", tab_soccer: "Soccer Field Scale",
+                controls: "Controls", speed: "Speed", zoom: "Zoom", play: "Pimipayi", pause: "Naki",
                 real_dist: "True Distances",
                 real_dist_hint: "Planets are tiny, space is vast.",
                 show_inner_short: "Pīhcāyihk", show_gas_short: "Pīyasiy", show_ice_short: "Miskwamiy",
@@ -490,6 +600,7 @@
                 guide_tab2: "<strong>Experiment 1:</strong> Move Pīsim (Sun) to change the shadows.<br><strong>Experiment 2:</strong> Slide the bar to see the phases of Tipiskāw-pīsim (Moon).",
                 guide_tab3: "Enter your weight below to see your space weight! <strong>Click any card</strong> for teachings and full data.",
                 guide_tab4: "<strong>Scroll to the right</strong> to see how small we are compared to Pīsim (the Sun).",
+                guide_tab5: "Scroll down the 100-meter soccer pitch to see the true vastness of space. If Neptune is at the far goal line, Earth is just 3 meters away!",
                 show_inner: "Show Pīhcāyihk-acāhkosak (Inner)", show_gas: "Show Pīyasiy-acāhkosak (Gas)", show_ice: "Show Miskwamiy-acāhkosak (Ice)",
                 asteroid_belt: "Asiniy-pīhcāyihk",
                 star_knowledge_title: "Ininiw Acāhkosak (Cree Stars)", 
@@ -504,153 +615,132 @@
                 size_desc: "Compare the planets to the edge of Pīsim (Sun).", 
                 size_knowledge: "Ancestral View: Wahkohtowin (Kinship). All of creation, from the stars to the earth, is related.",
                 dist_sun: "Distance from Pīsim", moons_label: "Satellites", year_len: "Year Length", surf_temp: "Temperature", discovery: "Miskāsowin (Discovered)", did_you_know: "Ācimowin (Story):", footer: "Manitoba Schools", close: "Close (Kipaha)",
-                main_sat: "Main", other_sat: "Other", days: "Kīsikāwa (Days)", earth_years: "Askiy Askīwa", sun_label: "PĪSIM", cultural_knowledge: "Kiskēyihtamowin (Knowledge)"
-            },
-            ur: {
-                title: "مینیٹوبا اسپیس ایکسپلورر", subtitle: "سائنس نصاب گریڈ 3-6 انٹرایکٹو",
-                tab_orrery: "سیارے اور مدار", tab_earthlab: "روشنی اور چاند کی لیب", tab_datacards: "سیارے کے کارڈز", tab_sizes: "سائز کا موازنہ",
-                controls: "نقلی کنٹرول", speed: "وقت کی رفتار", zoom: "زوم",
-                real_dist: "متناسب فاصلے",
-                real_dist_hint: "سیارے چھوٹے ہیں، خلا وسیع ہے!",
-                show_inner_short: "اندرونی", show_gas_short: "گیس", show_ice_short: "برف",
-                guide_title: "ایکسپلورر گائیڈ",
-                guide_tab1: "وقت کی رفتار اور زوم کو تبدیل کرنے کے لیے سلائیڈرز کا استعمال کریں۔ حقیقی فاصلے دیکھنے کے لیے تناسب کو ٹوگل کریں۔ کسی بھی متحرک سیارے کے بارے میں مزید جاننے کے لیے اس پر کلک کریں!",
-                guide_tab2: "<strong>تجربہ 1:</strong> سائے کی سمت اور لمبائی تبدیل کرنے کے لیے سورج کو آسمان پر گھسیٹیں۔<br><strong>تجربہ 2:</strong> چاند کے مختلف مراحل دیکھنے کے لیے چاند کے کنٹرول کو سلائیڈ کریں۔",
-                guide_tab3: "مختلف سیاروں پر کشش ثقل کا وزن دیکھنے کے لیے اپنا وزن نیچے درج کریں! تفصیلی ڈیٹا اور ثقافتی تعلیمات کھولنے کے لیے کسی بھی سیارے پر کلک کریں۔",
-                guide_tab4: "سورج کے کنارے کے مقابلے میں سیاروں کے اصل متناسب سائز کا موازنہ کرنے کے لیے دائیں طرف افقی طور پر اسکرول کریں۔",
-                show_inner: "اندرونی سیارے", show_gas: "گیس کے جن", show_ice: "برف کے جن",
-                asteroid_belt: "سیارچوں کا بیلٹ",
-                star_knowledge_title: "آبائی ستاروں کا علم", 
-                star_knowledge_desc: "ہزاروں سالوں سے، انیشینابے، انینیو (کری)، اور ڈکوٹا کے لوگوں نے رات کے آسمان کو کیلنڈر، نقشہ، اور کہانیوں کی کتاب کے طور پر استعمال کیا ہے۔ ستاروں اور سیاروں کی حرکت بتاتی ہے کہ کب پودے لگانے ہیں اور تقریبات منعقد کرنی ہیں۔",
-                shadow_exp: "سائے کا تجربہ", shadow_desc: "سائے کی لمبائی تبدیل کرنے کے لیے سورج کو آسمان پر گھسیٹیں۔",
-                lodge_knowledge: "ثقافتی رابطہ: پریریز پر انینیو (کری) اور ڈکوٹا ٹیپیز روایتی طور پر مشرق کی طرف رکھے جاتے ہیں تاکہ صبح کے سورج کا استقبال کیا جا سکے۔",
-                moon_checker: "چاند کے مراحل کا چیکر", moon_desc: "چاند کو مدار میں لانے کے لیے سلائیڈ کریں اور حقیقت پسندانہ مراحل دیکھیں۔",
-                moon_knowledge: "ثقافتی رابطہ: 13 چاند کا کیلنڈر۔ بہت سی انیشینابے اور کری قومیں ایک سال میں 13 پورے چاند تسلیم کرتی ہیں، جو کچھوے کی پیٹھ پر 13 حصوں کی نمائندگی کرتے ہیں۔",
-                moon_autoplay: "آٹو پلے (1 سیکنڈ = 1 دن)", moon_day_label: "دن",
-                new_moon: "نیا چاند", wax_crescent: "بڑھتا ہوا ہلال", first_quarter: "پہلی سہ ماہی", wax_gibbous: "بڑھتا ہوا محدب", full_moon: "پورا چاند", wan_gibbous: "گھٹتا ہوا محدب", third_quarter: "تیسری سہ ماہی", wan_crescent: "گھٹتا ہوا ہلال",
-                grav_calc: "کشش ثقل کیلکولیٹر:", weight_hint: "زمین پر کلوگرام = ? دوسرے سیاروں پر", grav_weight: "کشش ثقل کا وزن", space_weight: "خلائی وزن", weight_placeholder: "وزن (کلوگرام)",
-                size_desc: "سورج کے مقابلے میں سیاروں کے اصل سائز دیکھنے کے لیے افقی طور پر اسکرول کریں۔", 
-                size_knowledge: "آبائی نظریہ: بڑے سورج سے لے کر ریت کے چھوٹے ذرے تک، تعلیمات اس بات پر زور دیتی ہیں کہ تمام چیزیں آپس میں جڑی ہوئی ہیں۔",
-                dist_sun: "سورج سے فاصلہ", moons_label: "سیٹلائٹ", year_len: "سال کی لمبائی", surf_temp: "سطح کا درجہ حرارت", discovery: "دریافت کا سال", did_you_know: "کیا آپ جانتے ہیں؟", footer: "مینیٹوبا کے اسکولوں کے لیے ڈیزائن کیا گیا • سائنس کلسٹر 4", close: "بند کریں",
-                main_sat: "مرکزی", other_sat: "دیگر", days: "دن", earth_years: "زمینی سال", sun_label: "سورج", cultural_knowledge: "ثقافتی علم"
+                main_sat: "Main", other_sat: "Other", days: "Kīsikāwa (Days)", earth_years: "Askiy Askīwa", sun_label: "PĪSIM", cultural_knowledge: "Kiskēyihtamowin (Knowledge)",
+                sun_size: "109x nawac misāw (larger)", sun_mass: "333,000x nawac kosikwan (heavier)", sun_desc: "Tāwāyihk (Center)",
+                comp_earth: "Askiy - Our home!", comp_size_bigger: "{x}x nawac misāw (larger)", comp_size_smaller: "{x}x nawac apisāsow (smaller)", comp_size_same: "Same size",
+                comp_mass_heavier: "{x}x nawac kosikwan (heavier)", comp_mass_lighter: "{x}x nawac yāhkasin (lighter)", comp_mass_same: "Same weight",
+                comp_dist_further: "{x}x nawac wahyaw (further)", comp_dist_closer: "{x}x nawac pēsoc (closer)", comp_dist_same: "Same distance", vs_earth: "vs Askiy",
+                if_earth_size: "Askiy 🐕 Atim awit:", if_earth_weight: "Askiy 🧍 Ininiw kosikwat:",
+                pitch_dist: "Distance on Pitch", pitch_size: "Scaled Size", sun_pitch_size: "Pakan (30 mm)",
+                tab5_indigenous: "Kiskēyihtamowin (Knowledge): The immense space between stars is not empty. We look to the Milky Way as a great spirit path, showing that even across billions of kilometers, all of creation remains connected."
             }
         };
 
         let currentLang = 'en';
 
-        // High-fidelity planetary data with bilingual + Indigenous support
+        // High-fidelity planetary data with bilingual + Indigenous
         const planets = [
             { 
-                id: "mercury", cat: "inner", name: { en: "Mercury", fr: "Mercure", oj: "Nitaa-giizhik (Mercury)", cr: "Mercury", ur: "عطارد" }, 
-                distance: 60, realDist: 39, size: 14, realSize: 4.9, speed: 4.7, weightFactor: 0.38, moons: { main: 0, other: 0 },
-                type: { en: "Terrestrial", fr: "Tellurique", oj: "Asinii-anang (Rock)", cr: "Asiniy-acāhkos (Rock)", ur: "ارضی (پتھریلا)" }, temp: "-173°C to 427°C",
-                distanceKm: { en: "58 Million km", fr: "58 Millions km", oj: "58 Million km", cr: "58 Million km", ur: "58 ملین کلومیٹر" }, yearDays: 88, yearYears: 0.24, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Ancient", cr: "Ancient", ur: "قبل از تاریخ" },
-                fact: { en: "It's the smallest planet and closest to the Sun. It has no atmosphere!", fr: "La plus petite planète, sans atmosphère !", oj: "Smallest planet, closest to Giizis.", cr: "Smallest planet, closest to Pīsim.", ur: "یہ سب سے چھوٹا سیارہ ہے اور سورج کے سب سے قریب ہے۔ اس کی کوئی فضا نہیں ہے!" },
+                id: "mercury", cat: "inner", name: { en: "Mercury", fr: "Mercure", oj: "Nitaa-giizhik (Mercury)", cr: "Mercury" }, 
+                distance: 60, realDist: 39, pitchPos: 1.28, size: 14, realSize: 4.9, massEarth: 0.055, speed: 4.7, weightFactor: 0.38, moons: { main: 0, other: 0 },
+                type: { en: "Terrestrial", fr: "Tellurique", oj: "Asinii-anang (Rock)", cr: "Asiniy-acāhkos (Rock)" }, temp: "-173°C to 427°C",
+                distanceKm: { en: "58 Million km", fr: "58 Millions km", oj: "58 Million km", cr: "58 Million km" }, yearDays: 88, yearYears: 0.24, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Ancient", cr: "Ancient" },
+                fact: { en: "It's the smallest planet and closest to the Sun. It has no atmosphere!", fr: "La plus petite planète, sans atmosphère !", oj: "Smallest planet, closest to Giizis.", cr: "Smallest planet, closest to Pīsim." },
                 indigenous: { 
                     en: "In Ininiw (Cree) star tracking, planets closest to the sun are observed carefully as they herald the shifting of seasonal light on the prairies.", 
                     fr: "Dans l'observation Ininiw (Crie), les planètes proches du soleil marquent le changement de lumière saisonnière dans les Prairies.", 
                     oj: "Anishinaabe elders watched the bodies closest to Giizis to mark the changing seasons.", 
-                    cr: "Ininiw (Cree) skywatchers look to the bodies closest to Pīsim to signal the changing seasons.",
-                    ur: "انینیو (کری) ستاروں کی ٹریکنگ میں، سورج کے قریب ترین سیاروں کا بغور مشاہدہ کیا جاتا ہے کیونکہ وہ پریریز پر موسمی روشنی کی تبدیلی کا اعلان کرتے ہیں۔"
-                }
+                    cr: "Ininiw (Cree) skywatchers look to the bodies closest to Pīsim to signal the changing seasons." 
+                },
+                pitchSize: { en: "Dust speck (0.1 mm)", fr: "Poussière (0.1 mm)", oj: "Biiwii (0.1 mm)", cr: "Pīwī (0.1 mm)" }
             },
             { 
-                id: "venus", cat: "inner", name: { en: "Venus", fr: "Vénus", oj: "Waabananang", cr: "Wāpanatāhk", ur: "زہرہ" }, 
-                distance: 100, realDist: 72, size: 20, realSize: 12.1, speed: 3.5, weightFactor: 0.91, moons: { main: 0, other: 0 },
-                type: { en: "Terrestrial", fr: "Tellurique", oj: "Asinii-anang (Rock)", cr: "Asiniy-acāhkos (Rock)", ur: "ارضی (پتھریلا)" }, temp: "460°C",
-                distanceKm: { en: "108 Million km", fr: "108 Millions km", oj: "108 Million km", cr: "108 Million km", ur: "108 ملین کلومیٹر" }, yearDays: 225, yearYears: 0.62, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Ancient", cr: "Ancient", ur: "قبل از تاریخ" },
-                fact: { en: "Venus is the hottest planet because of toxic clouds. It spins backward!", fr: "Vénus est la plus chaude à cause de nuages toxiques.", oj: "The hottest planet due to thick clouds.", cr: "The hottest planet due to thick clouds.", ur: "زہریلے بادلوں کی وجہ سے زہرہ سب سے گرم سیارہ ہے۔ یہ الٹا گھومتا ہے!" },
+                id: "venus", cat: "inner", name: { en: "Venus", fr: "Vénus", oj: "Waabananang", cr: "Wāpanatāhk" }, 
+                distance: 100, realDist: 72, pitchPos: 2.40, size: 20, realSize: 12.1, massEarth: 0.81, speed: 3.5, weightFactor: 0.91, moons: { main: 0, other: 0 },
+                type: { en: "Terrestrial", fr: "Tellurique", oj: "Asinii-anang (Rock)", cr: "Asiniy-acāhkos (Rock)" }, temp: "460°C",
+                distanceKm: { en: "108 Million km", fr: "108 Millions km", oj: "108 Million km", cr: "108 Million km" }, yearDays: 225, yearYears: 0.62, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Ancient", cr: "Ancient" },
+                fact: { en: "Venus is the hottest planet because of toxic clouds. It spins backward!", fr: "Vénus est la plus chaude à cause de nuages toxiques.", oj: "The hottest planet due to thick clouds.", cr: "The hottest planet due to thick clouds." },
                 indigenous: { 
                     en: "In Anishinaabe culture, this is Waabananang (Morning Star). It holds deep ceremonial significance, signaling the arrival of a new day.", 
                     fr: "Dans la culture Anishinaabe, c'est Waabananang (l'Étoile du Matin). Elle a une grande importance cérémonielle.", 
                     oj: "Waabananang (Morning Star) holds great spiritual power, guiding our mornings and ceremonies.", 
-                    cr: "Wāpanatāhk (Morning Star) heralds the arrival of a new day and is honored in ceremony.",
-                    ur: "انیشینابے ثقافت میں، یہ وابانانگ (مارننگ اسٹار) ہے۔ اس کی گہری رسمی اہمیت ہے، جو ایک نئے دن کی آمد کا اشارہ دیتا ہے۔"
-                }
+                    cr: "Wāpanatāhk (Morning Star) heralds the arrival of a new day and is honored in ceremony." 
+                },
+                pitchSize: { en: "Fine sand (0.26 mm)", fr: "Sable fin (0.26 mm)", oj: "Negaw (0.26 mm)", cr: "Yēkaw (0.26 mm)" }
             },
             { 
-                id: "earth", cat: "inner", name: { en: "Earth", fr: "Terre", oj: "Aki", cr: "Askiy", ur: "زمین" }, 
-                distance: 150, realDist: 100, size: 22, realSize: 12.7, speed: 2.9, weightFactor: 1.0, moons: { main: 1, other: 0 },
-                type: { en: "Terrestrial", fr: "Tellurique", oj: "Asinii-anang (Rock)", cr: "Asiniy-acāhkos (Rock)", ur: "ارضی (پتھریلا)" }, temp: "-88°C to 58°C",
-                distanceKm: { en: "150 Million km", fr: "150 Millions km", oj: "150 Million km", cr: "150 Million km", ur: "150 ملین کلومیٹر" }, yearDays: 365.25, yearYears: 1.0, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Always known", cr: "Always known", ur: "ہمیشہ معلوم" },
-                fact: { en: "Our home! The only planet known to support life and liquid water.", fr: "Notre maison ! La seule planète abritant la vie.", oj: "Our home, supporting all life.", cr: "Our home, supporting all life.", ur: "ہمارا گھر! واحد سیارہ جو زندگی اور مائع پانی کو سہارا دینے کے لیے جانا جاتا ہے۔" },
+                id: "earth", cat: "inner", name: { en: "Earth", fr: "Terre", oj: "Aki", cr: "Askiy" }, 
+                distance: 150, realDist: 100, pitchPos: 3.32, size: 22, realSize: 12.7, massEarth: 1.0, speed: 2.9, weightFactor: 1.0, moons: { main: 1, other: 0 },
+                type: { en: "Terrestrial", fr: "Tellurique", oj: "Asinii-anang (Rock)", cr: "Asiniy-acāhkos (Rock)" }, temp: "-88°C to 58°C",
+                distanceKm: { en: "150 Million km", fr: "150 Millions km", oj: "150 Million km", cr: "150 Million km" }, yearDays: 365.25, yearYears: 1.0, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Always known", cr: "Always known" },
+                fact: { en: "Our home! The only planet known to support life and liquid water.", fr: "Notre maison ! La seule planète abritant la vie.", oj: "Our home, supporting all life.", cr: "Our home, supporting all life." },
                 indigenous: { 
                     en: "Across both Anishinaabe (Aki) and Cree (Askiy) cultures, Earth is viewed not as a resource, but as a living mother who sustains all creation.", 
                     fr: "Dans les cultures Anishinaabe (Aki) et Cries (Askiy), la Terre n'est pas une ressource, mais une mère vivante.", 
                     oj: "Shkagamik-Kwe (Mother Earth) gives us life. We are taught to respect and care for her deeply.", 
-                    cr: "Kikāwīnaw Askiy (Mother Earth) provides all we need. We are her stewards.",
-                    ur: "انیشینابے اور کری ثقافتوں دونوں میں، زمین کو ایک وسائل کے طور پر نہیں، بلکہ ایک زندہ ماں کے طور پر دیکھا جاتا ہے جو تمام مخلوقات کو برقرار رکھتی ہے۔"
-                }
+                    cr: "Kikāwīnaw Askiy (Mother Earth) provides all we need. We are her stewards." 
+                },
+                pitchSize: { en: "Grain of salt (0.27 mm)", fr: "Grain de sel (0.27 mm)", oj: "Zhiiwitaagan (0.27 mm)", cr: "Sīwīhtākan (0.27 mm)" }
             },
             { 
-                id: "mars", cat: "inner", name: { en: "Mars", fr: "Mars", oj: "Miskwanang", cr: "Mīhkocāhkos", ur: "مریخ" }, 
-                distance: 200, realDist: 152, size: 16, realSize: 6.8, speed: 2.4, weightFactor: 0.38, moons: { main: 2, other: 0 },
-                type: { en: "Terrestrial", fr: "Tellurique", oj: "Asinii-anang (Rock)", cr: "Asiniy-acāhkos (Rock)", ur: "ارضی (پتھریلا)" }, temp: "-125°C to 20°C",
-                distanceKm: { en: "228 Million km", fr: "228 Millions km", oj: "228 Million km", cr: "228 Million km", ur: "228 ملین کلومیٹر" }, yearDays: 687, yearYears: 1.88, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Ancient", cr: "Ancient", ur: "قبل از تاریخ" },
-                fact: { en: "Known as the Red Planet because of rusty iron dust.", fr: "Connue comme la planète rouge en raison de sa poussière de fer.", oj: "Called the Red Planet for its dusty surface.", cr: "Called the Red Planet for its dusty surface.", ur: "زنگ آلود لوہے کی دھول کی وجہ سے سرخ سیارے کے طور پر جانا جاتا ہے۔" },
+                id: "mars", cat: "inner", name: { en: "Mars", fr: "Mars", oj: "Miskwanang", cr: "Mīhkocāhkos" }, 
+                distance: 200, realDist: 152, pitchPos: 5.06, size: 16, realSize: 6.8, massEarth: 0.11, speed: 2.4, weightFactor: 0.38, moons: { main: 2, other: 0 },
+                type: { en: "Terrestrial", fr: "Tellurique", oj: "Asinii-anang (Rock)", cr: "Asiniy-acāhkos (Rock)" }, temp: "-125°C to 20°C",
+                distanceKm: { en: "228 Million km", fr: "228 Millions km", oj: "228 Million km", cr: "228 Million km" }, yearDays: 687, yearYears: 1.88, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Ancient", cr: "Ancient" },
+                fact: { en: "Known as the Red Planet because of rusty iron dust.", fr: "Connue comme la planète rouge en raison de sa poussière de fer.", oj: "Called the Red Planet for its dusty surface.", cr: "Called the Red Planet for its dusty surface." },
                 indigenous: { 
                     en: "Anishinaabe skywatchers identify this as Miskwanang (Red Star). Its distinct rust color makes it a prominent marker in oral teachings.", 
                     fr: "Les observateurs Anishinaabe l'identifient comme Miskwanang (Étoile Rouge). Sa couleur rouille est marquante.", 
                     oj: "Miskwanang (Red Star) stands out distinctly in the night sky to our ancestors.", 
-                    cr: "Mīhkocāhkos (Red Star) is easily recognized by Ininiw elders looking up at the night sky.",
-                    ur: "انیشینابے مشاہدہ کار اسے مسکوانانگ (سرخ ستارہ) کے طور پر پہچانتے ہیں۔ اس کا مخصوص زنگ آلود رنگ زبانی تعلیمات میں ایک نمایاں علامت ہے۔"
-                }
+                    cr: "Mīhkocāhkos (Red Star) is easily recognized by Ininiw elders looking up at the night sky." 
+                },
+                pitchSize: { en: "Pepper fleck (0.15 mm)", fr: "Flocon de poivre (0.15 mm)", oj: "Dakamij (0.15 mm)", cr: "Takamic (0.15 mm)" }
             },
             { 
-                id: "jupiter", cat: "gas", name: { en: "Jupiter", fr: "Jupiter", oj: "Kitchi-anang", cr: "Mistacāhkos", ur: "مشتری" }, 
-                distance: 290, realDist: 520, size: 45, realSize: 143, speed: 1.3, weightFactor: 2.34, moons: { main: 4, other: 91 },
-                type: { en: "Gas Giant", fr: "Géante Gazeuse", oj: "Nibiish-mishi-anang", cr: "Pīyasiy-acāhkos", ur: "گیس کا جن" }, temp: "-110°C",
-                distanceKm: { en: "778 Million km", fr: "778 Millions km", oj: "778 Million km", cr: "778 Million km", ur: "778 ملین کلومیٹر" }, yearDays: 4333, yearYears: 11.86, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Ancient", cr: "Ancient", ur: "قبل از تاریخ" },
-                fact: { en: "The biggest planet! It has a giant storm called the Great Red Spot.", fr: "La plus grande planète ! Elle possède une tempête géante.", oj: "The biggest planet in our system.", cr: "The biggest planet in our system.", ur: "سب سے بڑا سیارہ! اس میں ایک بہت بڑا طوفان ہے جسے گریٹ ریڈ اسپاٹ کہا جاتا ہے۔" },
+                id: "jupiter", cat: "gas", name: { en: "Jupiter", fr: "Jupiter", oj: "Kitchi-anang", cr: "Mistacāhkos" }, 
+                distance: 290, realDist: 520, pitchPos: 17.30, size: 45, realSize: 143, massEarth: 318, speed: 1.3, weightFactor: 2.34, moons: { main: 4, other: 91 },
+                type: { en: "Gas Giant", fr: "Géante Gazeuse", oj: "Nibiish-mishi-anang", cr: "Pīyasiy-acāhkos" }, temp: "-110°C",
+                distanceKm: { en: "778 Million km", fr: "778 Millions km", oj: "778 Million km", cr: "778 Million km" }, yearDays: 4333, yearYears: 11.86, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Ancient", cr: "Ancient" },
+                fact: { en: "The biggest planet! It has a giant storm called the Great Red Spot.", fr: "La plus grande planète ! Elle possède une tempête géante.", oj: "The biggest planet in our system.", cr: "The biggest planet in our system." },
                 indigenous: { 
                     en: "Ininiw (Cree) traditions distinguish 'wandering stars' (planets) from fixed stars. Jupiter's bright, steady path is a prominent navigational marker.", 
                     fr: "Les traditions Ininiw (Cries) distinguent les étoiles errantes. Jupiter est un repère de navigation majeur.", 
                     oj: "As a 'wandering star', Kitchi-anang moves independently across the backdrop of our fixed star constellations.", 
-                    cr: "Mistacāhkos is a wandering star, charting its own slow path across the Nehiyaw night sky.",
-                    ur: "انینیو (کری) روایات 'بھٹکتے ستاروں' (سیاروں) کو مقررہ ستاروں سے ممتاز کرتی ہیں۔ مشتری کا روشن، مستحکم راستہ ایک نمایاں نیویگیشنل نشان ہے۔"
-                }
+                    cr: "Mistacāhkos is a wandering star, charting its own slow path across the Nehiyaw night sky." 
+                },
+                pitchSize: { en: "Peppercorn (3 mm)", fr: "Grain de poivre (3 mm)", oj: "Miinens (3 mm)", cr: "Mīnims (3 mm)" }
             },
             { 
-                id: "saturn", cat: "gas", name: { en: "Saturn", fr: "Saturne", oj: "Bimide-anang", cr: "Saturn", ur: "زحل" }, 
-                distance: 380, realDist: 958, size: 38, realSize: 120, speed: 0.9, weightFactor: 1.06, moons: { main: 8, other: 138 },
-                type: { en: "Gas Giant", fr: "Géante Gazeuse", oj: "Nibiish-mishi-anang", cr: "Pīyasiy-acāhkos", ur: "گیس کا جن" }, temp: "-140°C",
-                distanceKm: { en: "1.4 Billion km", fr: "1.4 Milliards km", oj: "1.4 Billion km", cr: "1.4 Billion km", ur: "1.4 ارب کلومیٹر" }, yearDays: 10759, yearYears: 29.45, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Ancient", cr: "Ancient", ur: "قبل از تاریخ" },
-                fact: { en: "Famous for its spectacular rings made of ice and rock.", fr: "Célèbre pour ses anneaux spectaculaires.", oj: "Known for its beautiful icy rings.", cr: "Known for its beautiful icy rings.", ur: "برف اور چٹان سے بنے اپنے شاندار حلقوں کے لیے مشہور ہے۔" },
+                id: "saturn", cat: "gas", name: { en: "Saturn", fr: "Saturne", oj: "Bimide-anang", cr: "Saturn" }, 
+                distance: 380, realDist: 958, pitchPos: 31.84, size: 38, realSize: 120, massEarth: 95, speed: 0.9, weightFactor: 1.06, moons: { main: 8, other: 138 },
+                type: { en: "Gas Giant", fr: "Géante Gazeuse", oj: "Nibiish-mishi-anang", cr: "Pīyasiy-acāhkos" }, temp: "-140°C",
+                distanceKm: { en: "1.4 Billion km", fr: "1.4 Milliards km", oj: "1.4 Billion km", cr: "1.4 Billion km" }, yearDays: 10759, yearYears: 29.45, discovery: { en: "Prehistoric", fr: "Préhistorique", oj: "Ancient", cr: "Ancient" },
+                fact: { en: "Famous for its spectacular rings made of ice and rock.", fr: "Célèbre pour ses anneaux spectaculaires.", oj: "Known for its beautiful icy rings.", cr: "Known for its beautiful icy rings." },
                 indigenous: { 
                     en: "Like Jupiter, Saturn was tracked in Anishinaabe teachings as a bright, wandering spirit star that followed its own unique journey across the heavens.", 
                     fr: "Comme Jupiter, Saturne était suivie dans les enseignements Anishinaabe comme une étoile errante.", 
                     oj: "Our ancestors watched the slow, wandering journey of this star across the night sky.", 
-                    cr: "Tracked by early prairie skywatchers as a steadily moving light among the constellations.",
-                    ur: "مشتری کی طرح، زحل کو انیشینابے کی تعلیمات میں ایک روشن، بھٹکتے ہوئے روح کے ستارے کے طور پر ٹریک کیا گیا تھا جس نے آسمانوں پر اپنے منفرد سفر کی پیروی کی۔"
-                }
+                    cr: "Tracked by early prairie skywatchers as a steadily moving light among the constellations." 
+                },
+                pitchSize: { en: "Mustard seed (2.5 mm)", fr: "Graine de moutarde (2.5 mm)", oj: "Miinens (2.5 mm)", cr: "Mīnims (2.5 mm)" }
             },
             { 
-                id: "uranus", cat: "ice", name: { en: "Uranus", fr: "Uranus", oj: "Uranus", cr: "Uranus", ur: "یورینس" }, 
-                distance: 460, realDist: 1920, size: 30, realSize: 51, speed: 0.6, weightFactor: 0.92, moons: { main: 5, other: 23 },
-                type: { en: "Ice Giant", fr: "Géante de Glace", oj: "Miskwamii-anang", cr: "Miskwamiy-acāhkos", ur: "برف کا جن" }, temp: "-195°C",
-                distanceKm: { en: "2.9 Billion km", fr: "2.9 Milliards km", oj: "2.9 Billion km", cr: "2.9 Billion km", ur: "2.9 ارب کلومیٹر" }, yearDays: 30687, yearYears: 84, discovery: { en: "1781", fr: "1781", oj: "1781", cr: "1781", ur: "1781" },
-                fact: { en: "Uranus spins completely on its side! It looks like a rolling blue ball.", fr: "Uranus tourne complètement sur le côté !", oj: "A cold planet that spins on its side.", cr: "A cold planet that spins on its side.", ur: "یورینس پوری طرح سے اپنے پہلو پر گھومتا ہے! یہ گھومتی ہوئی نیلی گیند کی طرح لگتا ہے۔" },
+                id: "uranus", cat: "ice", name: { en: "Uranus", fr: "Uranus", oj: "Uranus", cr: "Uranus" }, 
+                distance: 460, realDist: 1920, pitchPos: 63.82, size: 30, realSize: 51, massEarth: 14.5, speed: 0.6, weightFactor: 0.92, moons: { main: 5, other: 23 },
+                type: { en: "Ice Giant", fr: "Géante de Glace", oj: "Miskwamii-anang", cr: "Miskwamiy-acāhkos" }, temp: "-195°C",
+                distanceKm: { en: "2.9 Billion km", fr: "2.9 Milliards km", oj: "2.9 Billion km", cr: "2.9 Billion km" }, yearDays: 30687, yearYears: 84, discovery: { en: "1781", fr: "1781", oj: "1781", cr: "1781" },
+                fact: { en: "Uranus spins completely on its side! It looks like a rolling blue ball.", fr: "Uranus tourne complètement sur le côté !", oj: "A cold planet that spins on its side.", cr: "A cold planet that spins on its side." },
                 indigenous: { 
                     en: "Because it cannot be seen with the naked eye, Uranus is not part of ancient oral histories. Traditional Prairie astronomy focuses strictly on observable patterns.", 
                     fr: "Invisible à l'œil nu, Uranus ne fait pas partie de l'histoire orale ancienne. L'astronomie des Prairies se concentre sur l'observable.", 
                     oj: "Ancient Anishinaabe teachings focus on the stars we can see to navigate and know the seasons.", 
-                    cr: "Ininiw teachings rely on the visible sky, mapping what our ancestors could see to earthly events.",
-                    ur: "چونکہ اسے ننگی آنکھ سے نہیں دیکھا جا سکتا، اس لیے یورینس قدیم زبانی تاریخ کا حصہ نہیں ہے۔ روایتی پریری فلکیات صرف قابل مشاہدہ نمونوں پر توجہ مرکوز کرتی ہے۔"
-                }
+                    cr: "Ininiw teachings rely on the visible sky, mapping what our ancestors could see to earthly events." 
+                },
+                pitchSize: { en: "Poppy seed (1.1 mm)", fr: "Graine de pavot (1.1 mm)", oj: "Miinens (1.1 mm)", cr: "Mīnims (1.1 mm)" }
             },
             { 
-                id: "neptune", cat: "ice", name: { en: "Neptune", fr: "Neptune", oj: "Neptune", cr: "Neptune", ur: "نیپچون" }, 
-                distance: 530, realDist: 3010, size: 28, realSize: 49, speed: 0.5, weightFactor: 1.19, moons: { main: 1, other: 15 },
-                type: { en: "Ice Giant", fr: "Géante de Glace", oj: "Miskwamii-anang", cr: "Miskwamiy-acāhkos", ur: "برف کا جن" }, temp: "-200°C",
-                distanceKm: { en: "4.5 Billion km", fr: "4.5 Milliards km", oj: "4.5 Billion km", cr: "4.5 Billion km", ur: "4.5 ارب کلومیٹر" }, yearDays: 60190, yearYears: 164.8, discovery: { en: "1846", fr: "1846", oj: "1846", cr: "1846", ur: "1846" },
-                fact: { en: "The farthest planet from the Sun, featuring the fastest winds.", fr: "La planète la plus éloignée, avec les vents les plus rapides.", oj: "The farthest planet, very cold and windy.", cr: "The farthest planet, very cold and windy.", ur: "سورج سے سب سے دور سیارہ، جس میں سب سے تیز ہوائیں چلتی ہیں۔" },
+                id: "neptune", cat: "ice", name: { en: "Neptune", fr: "Neptune", oj: "Neptune", cr: "Neptune" }, 
+                distance: 530, realDist: 3010, pitchPos: 100.0, size: 28, realSize: 49, massEarth: 17, speed: 0.5, weightFactor: 1.19, moons: { main: 1, other: 15 },
+                type: { en: "Ice Giant", fr: "Géante de Glace", oj: "Miskwamii-anang", cr: "Miskwamiy-acāhkos" }, temp: "-200°C",
+                distanceKm: { en: "4.5 Billion km", fr: "4.5 Milliards km", oj: "4.5 Billion km", cr: "4.5 Billion km" }, yearDays: 60190, yearYears: 164.8, discovery: { en: "1846", fr: "1846", oj: "1846", cr: "1846" },
+                fact: { en: "The farthest planet from the Sun, featuring the fastest winds.", fr: "La planète la plus éloignée, avec les vents les plus rapides.", oj: "The farthest planet, very cold and windy.", cr: "The farthest planet, very cold and windy." },
                 indigenous: { 
                     en: "Discovered mathematically in the 1800s. Ancestral teachings instead mapped the visible constellations (like the Fisher/Ursa Major) to guide earthly lives.", 
-                    fr: "Découverte au 19ème siècle. Les enseignements ancestraux se concentraient sur les constellations visibles (comme la Grande Ourse).", 
+                    fr: "Découverte au 19ème siècle. Les enseignements ancestraux se concentre sur les constellations visibles (comme la Grande Ourse).", 
                     oj: "Our ancestral astronomy maps the visible constellations, like Ojiig (the Fisher), to our earthly seasons.", 
-                    cr: "Cree astronomy maps the visible sky, like Mistatim (the Horse), to guide our lives on earth.",
-                    ur: "1800 کی دہائی میں دریافت ہوا۔ آبائی تعلیمات نے اس کے بجائے زمینی زندگی کی رہنمائی کے لیے مرئی برجوں کو نقشہ بند کیا۔"
-                }
+                    cr: "Cree astronomy maps the visible sky, like Mistatim (the Horse), to guide our lives on earth." 
+                },
+                pitchSize: { en: "Sugar crystal (1.0 mm)", fr: "Cristal de sucre (1.0 mm)", oj: "Ziinzibaakwad (1.0 mm)", cr: "Sīwinikan (1.0 mm)" }
             }
         ];
 
@@ -670,16 +760,7 @@
         function setLang(lang) {
             currentLang = lang;
             
-            // RTL Logic for Urdu readability
-            if (lang === 'ur') {
-                document.body.classList.add('lang-ur');
-                document.body.setAttribute('dir', 'rtl');
-            } else {
-                document.body.classList.remove('lang-ur');
-                document.body.setAttribute('dir', 'ltr');
-            }
-
-            ['en', 'fr', 'oj', 'cr', 'ur'].forEach(l => {
+            ['en', 'fr', 'oj', 'cr'].forEach(l => {
                 const btn = document.getElementById('btn-'+l);
                 if(btn) btn.classList.toggle('active', lang === l);
             });
@@ -701,6 +782,7 @@
             
             planets.forEach(p => { if(p.labelEl) p.labelEl.innerText = p.name[currentLang]; });
             renderSizeComparison();
+            renderSoccerField();
         }
         function t(key) { return (dict[currentLang] && dict[currentLang][key]) ? dict[currentLang][key] : key; }
 
@@ -722,24 +804,12 @@
         const timeInput = document.getElementById('time-speed');
         const zoomInput = document.getElementById('zoom-slider');
         const toggleDist = document.getElementById('toggle-real-dist');
-        const showInner = document.getElementById('show-inner');
-        const showGas = document.getElementById('show-gas');
-        const showIce = document.getElementById('show-ice');
+        let hoveredCategory = null;
 
         if(zoomInput) {
             zoomInput.oninput = () => { 
                 systemZoom.style.transform = `scale(${zoomInput.value})`; 
                 systemZoom.style.setProperty('--zoom', zoomInput.value);
-            };
-        }
-
-        if(toggleDist) {
-            toggleDist.onchange = () => {
-                if(toggleDist.checked) {
-                    systemZoom.classList.add('force-labels');
-                } else {
-                    systemZoom.classList.remove('force-labels');
-                }
             };
         }
 
@@ -783,11 +853,26 @@
         });
 
         let globalTime = 0;
+        let isOrreryPaused = false;
+
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        if(playPauseBtn) {
+            playPauseBtn.onclick = () => {
+                isOrreryPaused = !isOrreryPaused;
+                document.getElementById('icon-pause').classList.toggle('hidden', isOrreryPaused);
+                document.getElementById('icon-play').classList.toggle('hidden', !isOrreryPaused);
+                const textEl = document.getElementById('play-pause-text');
+                if(textEl) {
+                    textEl.setAttribute('data-i18n', isOrreryPaused ? 'play' : 'pause');
+                    textEl.innerText = t(isOrreryPaused ? 'play' : 'pause');
+                }
+            };
+        }
 
         function animate() {
-            if(!timeInput || !toggleDist || !showInner || !showGas || !showIce) return;
+            if(!timeInput || !toggleDist) return;
             
-            const speedMultiplier = parseFloat(timeInput.value);
+            const speedMultiplier = isOrreryPaused ? 0 : parseFloat(timeInput.value);
             const isRealDist = toggleDist.checked;
             globalTime += speedMultiplier * 0.1;
 
@@ -795,15 +880,19 @@
                 p.angle -= p.speed * speedMultiplier * 0.1;
                 
                 let isVisible = true;
-                if (p.cat === 'inner' && !showInner.checked) isVisible = false;
-                if (p.cat === 'gas' && !showGas.checked) isVisible = false;
-                if (p.cat === 'ice' && !showIce.checked) isVisible = false;
+                if (hoveredCategory && p.cat !== hoveredCategory) {
+                    isVisible = false;
+                }
 
-                p.element.style.display = isVisible ? 'flex' : 'none';
+                p.element.style.opacity = isVisible ? '1' : '0.15';
+                p.element.style.pointerEvents = isVisible ? 'auto' : 'none';
+                p.element.style.display = 'flex'; 
+                
                 const orbitEl = document.getElementById(`orbit-${p.id}`);
-                if(orbitEl) orbitEl.style.display = isVisible ? 'block' : 'none';
-
-                if (!isVisible) return;
+                if(orbitEl) {
+                    orbitEl.style.opacity = isVisible ? '1' : '0.15';
+                    orbitEl.style.display = 'block';
+                }
 
                 const dist = isRealDist ? (p.realDist * 10) : p.distance;
                 const currentSize = p.size; 
@@ -816,19 +905,16 @@
                 p.element.style.width = currentSize + 'px'; 
                 p.element.style.height = currentSize + 'px';
 
-                // Revert to LTR math safely for positioning
                 const rad = p.angle * (Math.PI / 180);
                 const xOffset = Math.cos(rad) * dist;
                 const yOffset = Math.sin(rad) * dist;
                 
-                // Keep LTR calculation despite dir="rtl" to prevent orbital flip issues
                 p.element.style.left = `calc(50% + ${xOffset}px - ${currentSize/2}px)`;
                 p.element.style.top = `calc(50% + ${yOffset}px - ${currentSize/2}px)`;
             });
 
             // Asteroid Belt Scaling & Rotation
             if(beltOrrery) {
-                // Mars real=152, Jup=520 (avg 3360px). Prop=200, Jup=290 (avg 245px)
                 const beltDist = isRealDist ? 3360 : 245;
                 beltOrrery.style.width = (beltDist * 2) + 'px';
                 beltOrrery.style.height = (beltDist * 2) + 'px';
@@ -855,14 +941,7 @@
             const container = labSun.parentElement.getBoundingClientRect();
             const sunRect = labSun.getBoundingClientRect();
             
-            // Adjust X calc for RTL dynamically
-            let sx;
-            if (document.body.getAttribute('dir') === 'rtl') {
-                sx = (container.right - sunRect.right) + (sunRect.width / 2);
-            } else {
-                sx = (sunRect.left - container.left) + (sunRect.width / 2);
-            }
-            
+            const sx = (sunRect.left - container.left) + (sunRect.width / 2);
             let sy = (sunRect.top - container.top) + (sunRect.height / 2);
             
             const groundY = container.height - 32; 
@@ -883,16 +962,13 @@
             if (shadowTipX > stickBaseX + maxShadowLen) shadowTipX = stickBaseX + maxShadowLen;
             if (shadowTipX < stickBaseX - maxShadowLen) shadowTipX = stickBaseX - maxShadowLen;
 
-            // In RTL, SVG needs to project mirrored internally if using left/right offsets
-            const rtlAdjustX = (val) => document.body.getAttribute('dir') === 'rtl' ? container.width - val : val;
+            svgStick.setAttribute('x1', stickBaseX); svgStick.setAttribute('y1', stickBaseY);
+            svgStick.setAttribute('x2', stickTopX); svgStick.setAttribute('y2', stickTopY);
 
-            svgStick.setAttribute('x1', rtlAdjustX(stickBaseX)); svgStick.setAttribute('y1', stickBaseY);
-            svgStick.setAttribute('x2', rtlAdjustX(stickTopX)); svgStick.setAttribute('y2', stickTopY);
+            svgGroundShadow.setAttribute('x1', stickBaseX); svgGroundShadow.setAttribute('y1', stickBaseY);
+            svgGroundShadow.setAttribute('x2', shadowTipX); svgGroundShadow.setAttribute('y2', stickBaseY);
 
-            svgGroundShadow.setAttribute('x1', rtlAdjustX(stickBaseX)); svgGroundShadow.setAttribute('y1', stickBaseY);
-            svgGroundShadow.setAttribute('x2', rtlAdjustX(shadowTipX)); svgGroundShadow.setAttribute('y2', stickBaseY);
-
-            svgProjection.setAttribute('points', `${rtlAdjustX(stickTopX)},${stickTopY} ${rtlAdjustX(shadowTipX)},${groundY} ${rtlAdjustX(stickBaseX)},${stickBaseY}`);
+            svgProjection.setAttribute('points', `${stickTopX},${stickTopY} ${shadowTipX},${groundY} ${stickBaseX},${stickBaseY}`);
         }
 
         if(labSun) {
@@ -903,28 +979,15 @@
                 const container = labSun.parentElement.getBoundingClientRect();
                 const sunRect = labSun.getBoundingClientRect();
                 
-                let x, y;
-                
-                if (document.body.getAttribute('dir') === 'rtl') {
-                    x = container.right - e.clientX - (sunRect.width / 2);
-                } else {
-                    x = e.clientX - container.left - (sunRect.width / 2);
-                }
-                
-                y = e.clientY - container.top - (sunRect.height / 2);
+                let x = e.clientX - container.left - (sunRect.width / 2);
+                let y = e.clientY - container.top - (sunRect.height / 2);
                 
                 const maxSunY = container.height - 92 - (sunRect.height / 2) - 10;
                 
                 x = Math.max(20, Math.min(container.width - sunRect.width - 20, x));
                 y = Math.max(20, Math.min(maxSunY, y)); 
                 
-                if (document.body.getAttribute('dir') === 'rtl') {
-                    labSun.style.right = x + 'px'; 
-                    labSun.style.left = 'auto'; 
-                } else {
-                    labSun.style.left = x + 'px'; 
-                    labSun.style.right = 'auto'; 
-                }
+                labSun.style.left = x + 'px'; 
                 labSun.style.top = y + 'px';
                 updateShadow();
             };
@@ -946,9 +1009,8 @@
             if(!moonLitHalf || !moonTerminator) return;
             const phase = val / 100;
             
-            // Update Day Counter (29.5 days total)
             if (moonDayCounter) {
-                moonDayCounter.innerText = (phase * 29.5).toFixed(1);
+                moonDayCounter.innerText = Math.round(phase * 29.5);
             }
 
             if (phase === 0 || phase === 1) {
@@ -968,11 +1030,12 @@
             let phaseKey = 'new_moon';
             if (phase > 0 && phase < 0.25) phaseKey = 'wax_crescent';
             else if (phase === 0.25) phaseKey = 'first_quarter';
-            else if (phase > 0.25 && phase < 0.5) phaseKey = 'wax_gibbous';
-            else if (phase === 0.5) phaseKey = 'full_moon';
-            else if (phase > 0.5 && phase < 0.75) phaseKey = 'wan_gibbous';
+            else if (phase > 0.25 && phase < 0.466) phaseKey = 'wax_gibbous';
+            else if (phase >= 0.466 && phase <= 0.534) phaseKey = 'full_moon';
+            else if (phase > 0.534 && phase < 0.75) phaseKey = 'wan_gibbous';
             else if (phase === 0.75) phaseKey = 'third_quarter';
             else if (phase > 0.75 && phase < 1.0) phaseKey = 'wan_crescent';
+            
             if(moonName) moonName.innerText = dict[currentLang][phaseKey] || phaseKey;
         }
 
@@ -981,13 +1044,10 @@
         }
 
         // Moon Auto-Play Loop
-        let lastMoonTime;
-        let autoMoonVal = 50; // Track high-precision value outside the DOM to prevent step-rounding
+        let lastMoonTime = performance.now();
+        let autoMoonVal = 50; 
 
         function autoPlayMoon(time) {
-            if (lastMoonTime === undefined) {
-                lastMoonTime = time;
-            }
             const delta = time - lastMoonTime;
             lastMoonTime = time;
 
@@ -1002,7 +1062,6 @@
                 moonSlider.value = autoMoonVal;
                 updateContinuousMoon(autoMoonVal);
             } else if (moonSlider) {
-                // Keep synced if user drags slider while paused
                 autoMoonVal = parseFloat(moonSlider.value);
             }
             requestAnimationFrame(autoPlayMoon);
@@ -1038,11 +1097,11 @@
                         ${getPlanetVisualHTML(p)}
                     </div>
                     <h4 class="text-2xl font-bold text-white mb-1">${p.name[currentLang]}</h4>
-                    <span class="text-xs px-3 py-1 bg-gray-700 rounded-full text-blue-300 font-semibold mb-4">${p.type[currentLang]}</span>
+                    <span class="text-[11px] px-3 py-1 bg-gray-700 rounded-full text-blue-300 font-semibold mb-4">${p.type[currentLang]}</span>
                     
                     <div class="w-full bg-gray-900/50 p-2 rounded-xl border border-gray-700/50 mt-auto">
                         <p class="text-yellow-400 text-sm flex flex-col">
-                            <span class="text-gray-400 text-[11px] md:text-xs mb-1">⚖️ ${t('grav_weight')}</span> 
+                            <span class="text-gray-400 text-[11px] md:text-[12px] mb-1">⚖️ ${t('grav_weight')}</span> 
                             <span class="font-bold text-lg" id="weight-val-${p.id}">${(weight * p.weightFactor).toFixed(1)} kg</span>
                         </p>
                     </div>
@@ -1059,30 +1118,53 @@
             container.querySelectorAll('.compare-planet').forEach(n => n.remove());
             
             const scale = 1.2; 
+            
+            function getMultiplierText(val, keyBigger, keySmaller, keySame) {
+                if (val > 1.2) {
+                    let rounded = Math.round(val);
+                    if (val < 2) rounded = val.toFixed(1); 
+                    return t(keyBigger).replace('{x}', rounded);
+                } else if (val < 0.8) {
+                    let inv = 1/val;
+                    let rounded = Math.round(inv);
+                    if (inv < 2) rounded = inv.toFixed(1);
+                    return t(keySmaller).replace('{x}', rounded);
+                } else {
+                    return t(keySame);
+                }
+            }
+
             planets.forEach(p => {
                 
                 // Inject Asteroid Belt specifically between Mars and Jupiter
                 if (p.id === 'jupiter') {
                     const belt = document.createElement('div');
-                    belt.className = "compare-planet flex flex-col items-center justify-end flex-shrink-0 relative group px-2 md:px-6 h-full";
+                    belt.className = "compare-planet flex flex-col items-center justify-center flex-shrink-0 relative group px-2 md:px-6 h-full";
                     
                     // Generate randomized rocks for Tab 4 belt
                     let rocksHTML = '';
-                    for(let i=0; i<60; i++) {
+                    for(let i=0; i<250; i++) {
                         const sz = Math.random() * 3 + 1.5;
-                        const left = Math.random() * 80 + 10;
-                        const top = Math.random() * 80 + 10; // keep within vertical bounds
+                        const top = Math.random() * 100; // 0% to 100% of container height
+                        const baseLeft = Math.random() * 40; 
+                        const left = 10 + baseLeft; 
+
                         const color = ['#9ca3af', '#6b7280', '#4b5563'][Math.floor(Math.random()*3)];
-                        // RTL absolute adjustment
-                        const leftAttr = document.body.getAttribute('dir') === 'rtl' ? 'right' : 'left';
-                        rocksHTML += `<div class="absolute rounded-full opacity-70" style="width:${sz}px; height:${sz}px; ${leftAttr}:${left}%; top:${top}%; background-color:${color};"></div>`;
+                        rocksHTML += `<div class="absolute rounded-full opacity-70" style="width:${sz}px; height:${sz}px; left:${left}%; top:${top}%; background-color:${color};"></div>`;
                     }
 
                     belt.innerHTML = `
-                        <div class="flex items-center justify-center relative w-12 md:w-20 h-full max-h-[300px]">
-                            ${rocksHTML}
+                        <div class="flex items-center justify-center relative w-full h-12 md:h-20">
+                            <div class="absolute w-full pointer-events-none" style="height: 100vh; top: 50%; transform: translateY(-50%); z-index: 5;">
+                                ${rocksHTML}
+                            </div>
                         </div>
-                        <span class="mt-4 text-[11px] md:text-sm font-bold text-gray-400 bg-black/60 px-3 py-1.5 rounded-full border border-gray-600 shadow-md whitespace-nowrap z-20">${t('asteroid_belt')}</span>
+                        <span class="mt-4 text-[11px] md:text-sm font-bold text-gray-400 bg-black/60 px-3 py-1.5 rounded-full border border-gray-600 shadow-md whitespace-nowrap z-20 relative">${t('asteroid_belt')}</span>
+                        
+                        <div class="absolute top-[calc(100%+15px)] left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-gray-600 rounded-xl p-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-48 z-[60] backdrop-blur-sm flex flex-col items-center text-[11px] md:text-[12px]">
+                            <h4 class="font-bold text-yellow-400 mb-1.5 border-b border-gray-700 pb-1 w-full text-center">${t('asteroid_belt')}</h4>
+                            <p class="text-gray-200">Millions of rocky fragments. Total mass is actually less than our Moon!</p>
+                        </div>
                     `;
                     container.appendChild(belt);
                 }
@@ -1092,18 +1174,139 @@
                 if (p.id === 'saturn') boxWidth = pxSize * 2.8; 
                 if (p.id === 'uranus') boxWidth = pxSize * 2.2; 
 
+                // Compile Comparison Data relative to Earth
+                let tooltipHTML = '';
+                if (p.id === 'earth') {
+                    tooltipHTML = `<p class="font-bold text-yellow-400 text-center py-2 text-[11px] md:text-[12px]">${t('comp_earth')}</p>`;
+                } else {
+                    let sizeStr = getMultiplierText(p.realSize / 12.7, 'comp_size_bigger', 'comp_size_smaller', 'comp_size_same');
+                    let massStr = getMultiplierText(p.massEarth, 'comp_mass_heavier', 'comp_mass_lighter', 'comp_mass_same');
+                    let distStr = getMultiplierText(p.realDist / 100, 'comp_dist_further', 'comp_dist_closer', 'comp_dist_same');
+
+                    tooltipHTML = `
+                        <ul class="text-left text-[11px] md:text-[12px] space-y-1.5 mt-1 text-gray-200 w-full">
+                            <li>📏 ${sizeStr}</li>
+                            <li>⚖️ ${massStr}</li>
+                            <li>🚀 ${distStr}</li>
+                        </ul>
+                    `;
+                }
+
                 const wrapper = document.createElement('div');
-                wrapper.className = "compare-planet flex flex-col items-center justify-end flex-shrink-0 relative group";
+                wrapper.className = "compare-planet flex flex-col items-center justify-center flex-shrink-0 relative group h-full";
                 wrapper.style.width = Math.max(boxWidth, 100) + 'px';
                 
                 wrapper.innerHTML = `
                     <div class="flex items-center justify-center relative" style="width: ${boxWidth}px; height: ${pxSize}px;">
                         <div style="width: ${pxSize}px; height: ${pxSize}px; position: relative;">${getPlanetVisualHTML(p)}</div>
                     </div>
-                    <span class="mt-4 text-[11px] md:text-sm font-bold text-white bg-black/60 px-3 py-1.5 rounded-full border border-gray-600 shadow-md whitespace-nowrap z-20 hover:text-yellow-400 transition-colors">${p.name[currentLang]}</span>
+                    <span class="mt-4 text-[11px] md:text-sm font-bold text-white bg-black/60 px-3 py-1.5 rounded-full border border-gray-600 shadow-md whitespace-nowrap z-20 hover:text-yellow-400 transition-colors cursor-pointer">${p.name[currentLang]}</span>
+                    
+                    <div class="absolute top-[calc(100%+15px)] left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-gray-600 rounded-xl p-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-52 z-[60] backdrop-blur-sm flex flex-col items-center">
+                        <h4 class="font-bold text-yellow-400 mb-1.5 border-b border-gray-700 pb-1 w-full text-center text-[12px] md:text-sm whitespace-nowrap">${p.name[currentLang]} ${t('vs_earth')}</h4>
+                        ${tooltipHTML}
+                    </div>
                 `;
                 container.appendChild(wrapper);
             });
+        }
+
+        // --- TAB 5: SOCCER PITCH LOGIC ---
+        const soccerZoomSlider = document.getElementById('soccer-zoom');
+        const soccerZoomLabel = document.getElementById('soccer-zoom-label');
+        const soccerPitchWrapper = document.getElementById('soccer-pitch-wrapper');
+
+        if (soccerZoomSlider && soccerPitchWrapper) {
+            soccerZoomSlider.oninput = () => {
+                soccerPitchWrapper.style.transform = `scale(${soccerZoomSlider.value})`;
+                soccerPitchWrapper.style.setProperty('--inv-zoom', 1 / soccerZoomSlider.value);
+                if (soccerZoomLabel) {
+                    soccerZoomLabel.innerText = Math.round(soccerZoomSlider.value * 100) + '%';
+                }
+            };
+        }
+
+        function renderSoccerField() {
+            const container = document.getElementById('soccer-pitch-container');
+            if(!container) return;
+            
+            // Clean out previous dynamic planets (keeping the pitch markings intact)
+            container.querySelectorAll('.pitch-planet-marker').forEach(n => n.remove());
+
+            // Add Sun Marker manually at 0% (Top)
+            const sunHTML = `
+                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group cursor-pointer z-30 hover:z-[100] pitch-planet-marker" style="width: 24px; height: 24px;">
+                    <!-- Scaled Wrapper for Sun Dot -->
+                    <div class="absolute flex items-center justify-center" style="transform: scale(var(--inv-zoom, 1));">
+                        <div class="w-6 h-6 rounded-full sun-animated" style="background: radial-gradient(circle at 95% 50%, #fffde7, #fbc02d, #f57f17); box-shadow: 0 0 15px #fbbf24;"></div>
+                    </div>
+                    
+                    <!-- Scaled Wrapper for Label -->
+                    <div class="absolute bottom-[calc(100%+8px)]" style="transform: scale(var(--inv-zoom, 1)); transform-origin: bottom center;">
+                        <div class="bg-black/90 px-3 py-1 rounded border border-gray-600 shadow-md transition-transform group-hover:scale-110 group-hover:border-yellow-400 flex items-center justify-center">
+                            <span class="text-[11px] md:text-[12px] font-bold text-yellow-400 whitespace-nowrap">${t('sun_label')}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Scaled Wrapper for Tooltip -->
+                    <div class="absolute top-[calc(100%+8px)] pointer-events-none z-[110]" style="transform: scale(var(--inv-zoom, 1)); transform-origin: top center;">
+                        <div class="bg-gray-900/95 border border-yellow-500/50 rounded-xl p-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-48 text-[11px] md:text-[12px] text-left backdrop-blur-md">
+                            <h4 class="font-bold text-yellow-400 mb-1 border-b border-gray-700 pb-1 text-center">${t('sun_label')}</h4>
+                            <p class="text-gray-200"><strong>${t('pitch_dist')}:</strong> <span class="text-yellow-300">0 m</span></p>
+                            <p class="text-gray-200 mt-1"><strong>${t('pitch_size')}:</strong> ${t('sun_pitch_size')}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', sunHTML);
+
+            planets.forEach((p, i) => {
+                const isLeft = i % 2 === 0;
+                // Stagger labels alternately so they don't crash into each other
+                const staggerX = isLeft ? -(120 + (i * 10)) : (120 + (i * 10)); 
+                const planetColor = p.id === 'mars' ? '#ef4444' : p.id === 'earth' ? '#3b82f6' : p.id === 'jupiter' ? '#f59e0b' : p.id === 'neptune' ? '#0284c7' : p.id === 'uranus' ? '#0ea5e9' : p.id === 'venus' ? '#fcd34d' : p.id === 'saturn' ? '#fde68a' : '#9ca3af';
+                const lineWidth = Math.abs(staggerX);
+                
+                const pHTML = `
+                    <div class="absolute w-full flex justify-center group cursor-pointer z-20 hover:z-[100] pitch-planet-marker" style="top: ${p.pitchPos}%;">
+                        
+                        <!-- Dot on the center line with inverse zoom -->
+                        <div class="absolute z-10" style="top: 0; transform: translateY(-50%) scale(var(--inv-zoom, 1));">
+                            <div class="w-3.5 h-3.5 rounded-full border border-white/80 shadow-[0_0_10px_rgba(255,255,255,0.5)] group-hover:scale-125 transition-transform" style="background-color: ${planetColor};"></div>
+                        </div>
+                        
+                        <!-- Horizontal connection line to label -->
+                        <div class="absolute h-px bg-white/40 group-hover:bg-yellow-400 border-dashed" style="width: ${lineWidth}px; ${isLeft ? 'right: 50%' : 'left: 50%'}; top: 0;"></div>
+                        
+                        <!-- Staggered Label Scaler -->
+                        <div class="absolute z-20" style="${isLeft ? `right: calc(50% + ${lineWidth}px)` : `left: calc(50% + ${lineWidth}px)`}; top: 0; transform: translateY(-50%);">
+                            <div style="transform: scale(var(--inv-zoom, 1)); transform-origin: ${isLeft ? 'right center' : 'left center'};" class="bg-black/90 px-3 py-1 rounded border border-gray-500 shadow-lg transition-transform group-hover:scale-110 group-hover:border-yellow-400 flex flex-col items-center">
+                                <span class="text-[11px] md:text-[12px] font-bold text-white whitespace-nowrap">${p.name[currentLang]}</span>
+                            </div>
+                        </div>
+
+                        <!-- Hover Tooltip Scaler -->
+                        <div class="absolute z-[110] pointer-events-none" style="${isLeft ? `right: calc(50% + ${lineWidth}px)` : `left: calc(50% + ${lineWidth}px)`}; top: 0; transform: translateY(20px);">
+                            <div style="transform: scale(var(--inv-zoom, 1)); transform-origin: ${isLeft ? 'top right' : 'top left'};" class="bg-gray-900/95 border border-yellow-500/50 rounded-xl p-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-48 text-[11px] md:text-[12px] text-left backdrop-blur-md">
+                                <h4 class="font-bold text-yellow-400 mb-1 border-b border-gray-700 pb-1 text-center text-[13px]">${p.name[currentLang]}</h4>
+                                <p class="text-gray-200 mt-1"><strong>${t('pitch_dist')}:</strong> <span class="text-yellow-300">${p.pitchPos} m</span></p>
+                                <p class="text-gray-200 mt-1 mb-2"><strong>${t('pitch_size')}:</strong> ${p.pitchSize[currentLang]}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', pHTML);
+            });
+
+            // Insert Asteroid Belt Marker at ~8.8%
+            const beltHTML = `
+                <div class="absolute w-full border-t-[4px] border-dashed border-gray-400/60 opacity-80 flex justify-end pr-4 items-center pointer-events-none z-10" style="top: 8.8%;">
+                    <div style="transform: scale(var(--inv-zoom, 1)); transform-origin: right center;" class="absolute right-4">
+                        <span class="bg-black/80 px-2 py-1 rounded text-gray-300 font-bold text-[11px] border border-gray-600 shadow-md" style="transform: translateY(-50%); display: block;">${t('asteroid_belt')}</span>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', beltHTML);
         }
 
         // --- UI / MODAL HELPERS ---
@@ -1117,6 +1320,7 @@
             if(targetBtn) targetBtn.classList.add('active-tab');
             
             if(tabId === 'sizes') renderSizeComparison();
+            if(tabId === 'soccer') renderSoccerField();
             if(tabId === 'earthlab') updateShadow(); // ensure SVG is drawn correct size
         }
 
@@ -1134,7 +1338,7 @@
                 <h2 class="text-4xl font-bold text-yellow-400 mb-2">${p.name[currentLang]}</h2>
                 <p class="text-blue-300 font-semibold mb-6 inline-block bg-blue-900/30 px-4 py-1 rounded-full">${p.type[currentLang]}</p>
                 
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-left mb-6" dir="${currentLang === 'ur' ? 'rtl' : 'ltr'}">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-left mb-6">
                     <div class="bg-gray-800 border border-gray-700 p-4 rounded-xl">
                         <p class="text-[11px] text-gray-400 uppercase tracking-wider mb-1">${t('dist_sun')}</p>
                         <p class="text-lg md:text-xl font-bold text-white">${p.distanceKm[currentLang]}</p>
@@ -1156,7 +1360,7 @@
                     </div>
                     <div class="bg-gray-800 border border-yellow-700/50 p-4 rounded-xl bg-yellow-900/10">
                         <p class="text-[11px] text-yellow-500 uppercase tracking-wider mb-1 font-bold">${t('space_weight')}</p>
-                        <p class="text-lg md:text-xl font-bold text-yellow-400">${calculatedWeight}</p>
+                        <p class="text-lg md:text-xl font-bold text-yellow-400">${calculatedWeight} kg</p>
                     </div>
                     <div class="bg-gray-800 border border-gray-700 p-4 rounded-xl md:col-span-1">
                         <p class="text-[11px] text-gray-400 uppercase tracking-wider mb-1">${t('discovery')}</p>
@@ -1165,17 +1369,17 @@
                 </div>
 
                 <!-- Indigenous Knowledge Panel in Modal -->
-                <div class="indigenous-block p-4 rounded-xl text-left mb-4" dir="${currentLang === 'ur' ? 'rtl' : 'ltr'}">
+                <div class="indigenous-block p-4 rounded-xl text-left mb-4">
                     <p class="text-sm md:text-base text-green-400 uppercase tracking-wider mb-1 font-bold flex items-center gap-2">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                         ${t('cultural_knowledge')}
                     </p>
-                    <p class="text-sm md:text-base text-green-100 leading-relaxed">"${p.indigenous[currentLang]}"</p>
+                    <p class="text-[13px] md:text-sm text-green-100 leading-relaxed">"${p.indigenous[currentLang]}"</p>
                 </div>
                 
-                <div class="bg-gray-800/50 p-4 rounded-xl text-left mb-6" dir="${currentLang === 'ur' ? 'rtl' : 'ltr'}">
-                    <p class="text-sm md:text-base text-blue-300 uppercase tracking-wider mb-1 font-bold">${t('did_you_know')}</p>
-                    <p class="text-lg md:text-xl text-gray-200 leading-relaxed italic">"${p.fact[currentLang]}"</p>
+                <div class="bg-gray-800/50 p-4 rounded-xl text-left mb-6">
+                    <p class="text-[12px] md:text-sm text-blue-300 uppercase tracking-wider mb-1 font-bold">${t('did_you_know')}</p>
+                    <p class="text-base md:text-lg text-gray-200 leading-relaxed italic">"${p.fact[currentLang]}"</p>
                 </div>
                 <button onclick="closeModal()" class="bg-yellow-400 text-black px-8 py-3 rounded-full font-bold text-lg hover:bg-yellow-300 transition-colors">${t('close')}</button>
             `;
