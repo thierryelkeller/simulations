@@ -32,8 +32,9 @@
 
         /* Tabs & UI */
         .active-tab { border-bottom: 4px solid #fbbf24; color: #fbbf24; }
-        .tab-content { display: none; position: absolute; inset: 0; }
-        .tab-content.active { display: flex; flex-direction: column; }
+        .tab-content { display: none !important; position: absolute; inset: 0; }
+        .tab-content.active { display: flex !important; flex-direction: column; }
+        
         .lang-btn { opacity: 0.5; transition: opacity 0.2s; cursor: pointer; font-weight: 500; }
         .lang-btn.active { opacity: 1; color: #fbbf24; font-weight: 700; border-bottom: 2px solid #fbbf24;}
 
@@ -148,7 +149,7 @@
         </header>
 
         <!-- Navigation Tabs -->
-        <nav class="flex flex-wrap justify-center gap-4 md:gap-8 mb-4 text-[13px] md:text-xl font-semibold border-b border-gray-700 flex-shrink-0 px-4">
+        <nav class="flex flex-wrap justify-center gap-4 md:gap-8 mb-4 text-sm md:text-xl font-semibold border-b border-gray-700 flex-shrink-0 px-4">
             <button onclick="showTab('orrery')" id="tab-orrery" class="pb-2 active-tab transition-colors hover:text-yellow-200 whitespace-nowrap" data-i18n="tab_orrery">Planets & Orbits</button>
             <button onclick="showTab('earthlab')" id="tab-earthlab" class="pb-2 transition-colors hover:text-yellow-200 whitespace-nowrap" data-i18n="tab_earthlab">Light & Moon Lab</button>
             <button onclick="showTab('datacards')" id="tab-datacards" class="pb-2 transition-colors hover:text-yellow-200 whitespace-nowrap" data-i18n="tab_datacards">Planet Cards</button>
@@ -172,13 +173,13 @@
                     <div class="space-y-4 bg-gray-900/50 p-3 rounded-xl border border-gray-700/50">
                         <div>
                             <div class="flex justify-between mb-1">
-                                <label class="text-xs font-semibold text-gray-300" data-i18n="speed">Speed</label>
+                                <label class="text-xs md:text-sm font-semibold text-gray-300" data-i18n="speed">Speed</label>
                             </div>
                             <input type="range" id="time-speed" min="0" max="5" step="0.1" value="1" class="w-full accent-yellow-400 cursor-pointer">
                         </div>
                         <div>
                             <div class="flex justify-between mb-1">
-                                <label class="text-xs font-semibold text-gray-300" data-i18n="zoom">Zoom</label>
+                                <label class="text-xs md:text-sm font-semibold text-gray-300" data-i18n="zoom">Zoom</label>
                             </div>
                             <input type="range" id="zoom-slider" min="0.05" max="2.5" step="0.05" value="1" class="w-full accent-blue-400 cursor-pointer">
                         </div>
@@ -208,7 +209,7 @@
                             <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span data-i18n="guide_title">Explorer's Guide</span>
                         </h4>
-                        <p class="text-xs md:text-sm text-blue-100 leading-relaxed" data-i18n="guide_tab1">Use the sliders to change time speed and zoom. Toggle proportions to see real distances. <strong>Click on any moving planet</strong> to learn more about it!</p>
+                        <p class="text-xs md:text-sm text-blue-100 leading-relaxed" data-i18n="guide_tab1">Use the sliders to change time speed and zoom. Pinch the screen or use the slider to zoom in and out. <strong>Click on any moving planet</strong> to learn more about it!</p>
                     </div>
                 </div>
 
@@ -374,7 +375,7 @@
                                 <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 <span data-i18n="guide_title">Explorer's Guide</span>
                             </h4>
-                            <p class="text-xs text-blue-100" data-i18n="guide_tab5">Scroll down the 100-meter soccer pitch to see the true vastness of space. If Neptune is at the far goal line, Earth is just 3 meters away!</p>
+                            <p class="text-xs text-blue-100" data-i18n="guide_tab5">Scroll down the 100-meter soccer pitch to see the true vastness of space. Pinch to zoom in and see the inner planets. If Neptune is at the far goal line, Earth is just 3 meters away!</p>
                         </div>
                         <div class="indigenous-block p-3 rounded-lg flex-1 hidden md:block">
                             <p class="text-xs md:text-sm text-green-100" data-i18n="tab5_indigenous">Cultural Connection: When contemplating the vast emptiness of space, Anishinaabe and Ininiw elders speak of the Jiibay-ziibi (The Milky Way). What science measures in millions of kilometers, Indigenous star knowledge understands as a boundless spiritual path connecting us to the Star Nation.</p>
@@ -464,10 +465,10 @@
                 title: "Solar System Explorer",
                 tab_orrery: "Planets & Orbits", tab_earthlab: "Light & Moon Lab", tab_datacards: "Planet Cards", tab_sizes: "Size Comparison", tab_soccer: "Soccer Field Scale",
                 controls: "Controls", speed: "Speed", zoom: "Zoom", play: "Play", pause: "Pause",
-                show_all_planets: "All Planets",
+                show_all_planets: "All",
                 show_inner_short: "Inner", show_gas_short: "Gas", show_ice_short: "Ice",
                 guide_title: "Explorer's Guide",
-                guide_tab1: "Use the sliders to change time speed and zoom. Pinch the screen or use the slider to zoom in and out. <strong>Click on any moving planet</strong> to learn more about it!",
+                guide_tab1: "Use the sliders or pinch to change time and zoom. <strong>Click on any moving planet</strong> to learn its teachings!",
                 guide_tab2: "<strong>Experiment 1:</strong> Drag the Sun across the sky to see how it changes the length and direction of the shadow.<br><strong>Experiment 2:</strong> Slide the moon control to see how sunlight creates the different phases of the moon from Earth's view.",
                 guide_tab3: "Enter your weight below to see how gravity changes your weight on different planets! <strong>Click on any planet card</strong> to open a detailed data sheet and cultural teachings.",
                 guide_tab4: "<strong>Scroll horizontally to the right</strong> to explore the true proportional size of all the planets compared to the massive edge of the Sun on the left. <strong>Tap or hover on a planet to see animal scale comparisons!</strong>",
@@ -492,14 +493,13 @@
                 comp_dist_further: "{x}x further from Sun", comp_dist_closer: "{x}x closer to Sun", comp_dist_same: "Same distance", vs_earth: "vs Earth",
                 if_earth_size: "If Earth's size was an 🧍 Adult Human:",
                 if_earth_weight: "If Earth's mass was an 🧍 Adult Human:",
-                pitch_dist: "Distance on Pitch", pitch_size: "Scaled Size", sun_pitch_size: "Walnut (30 mm)",
-                tab5_indigenous: "Cultural Connection: When contemplating the vast emptiness of space, Anishinaabe and Ininiw elders speak of the Jiibay-ziibi (The Milky Way). What science measures in millions of kilometers, Indigenous star knowledge understands as a boundless spiritual path connecting us to the Star Nation."
+                pitch_dist: "Distance on Pitch", pitch_size: "Scaled Size", sun_pitch_size: "Walnut (30 mm)"
             },
             fr: {
                 title: "Explorateur du Système Solaire",
                 tab_orrery: "Planètes et Orbites", tab_earthlab: "Lumière et Lune", tab_datacards: "Fiches Planétaires", tab_sizes: "Comparaison des Tailles", tab_soccer: "Échelle : Terrain de Foot",
                 controls: "Contrôles", speed: "Vitesse", zoom: "Zoom", play: "Lecture", pause: "Pause",
-                show_all_planets: "Toutes Planètes",
+                show_all_planets: "Toutes",
                 show_inner_short: "Internes", show_gas_short: "Gazeuses", show_ice_short: "Glacées",
                 guide_title: "Guide de l'Explorateur",
                 guide_tab1: "Utilisez les curseurs pour changer la vitesse et le zoom. Pincez l'écran pour zoomer. <strong>Cliquez sur une planète</strong> pour en savoir plus !",
@@ -527,14 +527,13 @@
                 comp_dist_further: "{x}x plus loin du Soleil", comp_dist_closer: "{x}x plus près du Soleil", comp_dist_same: "Même distance", vs_earth: "vs Terre",
                 if_earth_size: "Si la taille de la Terre était un 🧍 Humain adulte :",
                 if_earth_weight: "Si la masse de la Terre était un 🧍 Humain adulte :",
-                pitch_dist: "Distance sur le terrain", pitch_size: "Taille à l'échelle", sun_pitch_size: "Noix (30 mm)",
-                tab5_indigenous: "Lien culturel : En contemplant le vaste vide de l'espace, les aînés parlent du Jiibay-ziibi (la Voie lactée). Ce que la science mesure en kilomètres, les peuples autochtones le comprennent comme un chemin spirituel sans limites."
+                pitch_dist: "Distance sur le terrain", pitch_size: "Taille à l'échelle", sun_pitch_size: "Noix (30 mm)"
             },
             oj: {
                 title: "Solar System Explorer",
                 tab_orrery: "Anangook & Orbits", tab_earthlab: "Giizis & Nokomis", tab_datacards: "Anangook Cards", tab_sizes: "E-igok (Sizes)", tab_soccer: "Soccer Field Scale",
                 controls: "Controls", speed: "Speed", zoom: "Zoom", play: "Maajitaa", pause: "Nagaa",
-                show_all_planets: "All Planets",
+                show_all_planets: "All",
                 show_inner_short: "Biindig", show_gas_short: "Nibiish", show_ice_short: "Miskwamii",
                 guide_title: "Gikinoo'amaagewin (Guide)",
                 guide_tab1: "Use the sliders or pinch to change time and zoom. <strong>Click on any moving planet</strong> to learn its teachings!",
@@ -562,14 +561,13 @@
                 comp_dist_further: "{x}x nawaj waasa (further)", comp_dist_closer: "{x}x nawaj besho (closer)", comp_dist_same: "Same distance", vs_earth: "vs Aki",
                 if_earth_size: "Aki 🧍 Gichi-anishinaabe awid (Size):",
                 if_earth_weight: "Aki 🧍 Gichi-anishinaabe kosigwanid (Mass):",
-                pitch_dist: "Distance on Pitch", pitch_size: "Scaled Size", sun_pitch_size: "Pagaan (30 mm)",
-                tab5_indigenous: "Aadizookaan (Traditional Knowledge): When we look into the vast space, we see Jiibay-ziibi (The Milky Way). It is the path of souls, connecting Aki (Earth) to the Star Nation across unimaginable distances."
+                pitch_dist: "Distance on Pitch", pitch_size: "Scaled Size", sun_pitch_size: "Pagaan (30 mm)"
             },
             cr: {
                 title: "Solar System Explorer",
                 tab_orrery: "Acāhkosak & Orbits", tab_earthlab: "Pīsim & Tipiskāw-pīsim", tab_datacards: "Acāhkos Cards", tab_sizes: "Ispīhcāw (Sizes)", tab_soccer: "Soccer Field Scale",
                 controls: "Controls", speed: "Speed", zoom: "Zoom", play: "Pimipayi", pause: "Naki",
-                show_all_planets: "All Planets",
+                show_all_planets: "All",
                 show_inner_short: "Pīhcāyihk", show_gas_short: "Pīyasiy", show_ice_short: "Miskwamiy",
                 guide_title: "Kiskinohamākēwin (Guide)",
                 guide_tab1: "Use the sliders or pinch to change time and zoom. <strong>Click on any moving planet</strong> to learn its teachings!",
@@ -597,8 +595,7 @@
                 comp_dist_further: "{x}x nawac wahyaw (further)", comp_dist_closer: "{x}x nawac pēsoc (closer)", comp_dist_same: "Same distance", vs_earth: "vs Askiy",
                 if_earth_size: "Askiy 🧍 Kici-ininiw awit (Size):",
                 if_earth_weight: "Askiy 🧍 Kici-ininiw kosikwat (Mass):",
-                pitch_dist: "Distance on Pitch", pitch_size: "Scaled Size", sun_pitch_size: "Pakan (30 mm)",
-                tab5_indigenous: "Kiskēyihtamowin (Knowledge): The immense space between stars is not empty. We look to the Milky Way as a great spirit path, showing that even across billions of kilometers, all of creation remains connected."
+                pitch_dist: "Distance on Pitch", pitch_size: "Scaled Size", sun_pitch_size: "Pakan (30 mm)"
             }
         };
 
