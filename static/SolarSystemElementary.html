@@ -352,7 +352,7 @@
             </div>
 
             <!-- TAB 5: SOCCER FIELD SCALE -->
-            <div id="soccer" class="tab-content w-full h-full bg-black overflow-hidden">
+            <div id="soccer" class="tab-content w-full h-full bg-black overflow-hidden flex flex-col">
                 
                 <!-- UI overlay Header for Tab 5 -->
                 <div class="relative z-40 bg-black/80 backdrop-blur w-full shadow-xl border-b border-gray-700 flex-shrink-0 flex flex-col md:flex-row p-4 gap-6 md:items-start">
@@ -1193,19 +1193,21 @@
                     
                     // Generate randomized rocks for Tab 4 belt
                     let rocksHTML = '';
-                    for(let i=0; i<60; i++) {
+                    for(let i=0; i<200; i++) {
                         const sz = Math.random() * 3 + 1.5;
                         const left = Math.random() * 80 + 10;
-                        const top = Math.random() * 80 + 10; // keep within vertical bounds
+                        const top = Math.random() * 100; // spread across the new tall container
                         const color = ['#9ca3af', '#6b7280', '#4b5563'][Math.floor(Math.random()*3)];
                         rocksHTML += `<div class="absolute rounded-full opacity-70" style="width:${sz}px; height:${sz}px; left:${left}%; top:${top}%; background-color:${color};"></div>`;
                     }
 
                     belt.innerHTML = `
-                        <div class="flex items-center justify-center relative w-12 md:w-20 h-full max-h-[300px]">
+                        <!-- Absolute wrapper covering vertical space -->
+                        <div class="absolute inset-x-0 pointer-events-none z-10" style="top: -100%; bottom: -100%;">
                             ${rocksHTML}
                         </div>
-                        <span class="mt-4 text-xs md:text-sm font-bold text-gray-400 bg-black/60 px-3 py-1.5 rounded-full border border-gray-600 shadow-md whitespace-nowrap z-20 group-hover:text-yellow-400 group-focus:text-yellow-400 transition-colors">${t('asteroid_belt')}</span>
+                        <div class="flex items-center justify-center relative w-12 md:w-20 h-full z-20"></div>
+                        <span class="mt-4 text-xs md:text-sm font-bold text-gray-400 bg-black/60 px-3 py-1.5 rounded-full border border-gray-600 shadow-md whitespace-nowrap z-30 group-hover:text-yellow-400 group-focus:text-yellow-400 transition-colors">${t('asteroid_belt')}</span>
                         
                         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-900/95 border border-gray-600 rounded-xl p-3 shadow-2xl opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 pointer-events-none w-48 z-[100] backdrop-blur-sm flex flex-col items-center text-xs">
                             <h4 class="font-bold text-yellow-400 mb-1.5 border-b border-gray-700 pb-1 w-full text-center">${t('asteroid_belt')}</h4>
