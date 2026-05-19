@@ -1,364 +1,343 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Perception & Reflection Simulation</title>
+    <title>Simulation de la perception des couleurs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
-        .bar-transition { transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s; }
-        
-        /* Modal transitions */
-        .modal-enter { opacity: 0; transform: scale(0.95); }
-        .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 200ms, transform 200ms; }
-        .modal-leave { opacity: 1; transform: scale(1); }
-        .modal-leave-active { opacity: 0; transform: scale(0.95); transition: opacity 200ms, transform 200ms; }
-
-        /* Sliders */
-        input[type=range] {
-            -webkit-appearance: none; width: 100%; background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
-            background: #ffffff; border: 2px solid #3b82f6; cursor: pointer;
-            margin-top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px; cursor: pointer; background: #d1d5db; border-radius: 2px;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow: hidden; }
+        .bar-transition { transition: height 0.3s ease-out, background-color 0.3s; }
+        .color-cell:hover { transform: scale(1.1); z-index: 10; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
-    <header class="max-w-7xl w-full mb-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative z-20">
-        <div class="absolute top-6 right-6 flex items-center bg-gray-100 rounded-lg p-1">
-            <button id="btn-en" class="px-3 py-1 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700" onclick="setLang('en')">EN</button>
-            <button id="btn-fr" class="px-3 py-1 text-sm font-semibold rounded-md bg-white shadow-sm text-blue-600" onclick="setLang('fr')">FR</button>
+<body class="h-screen w-full flex flex-col text-slate-800">
+
+    <header class="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center shadow-sm shrink-0 z-20">
+        <div>
+            <h1 id="app-title" class="text-xl font-bold text-slate-800">Simulation de la perception des couleurs</h1>
+            <p id="app-subtitle" class="text-xs text-slate-500">Optique de 8e année : Absorption et réflexion</p>
         </div>
-        <h1 id="ui-title" class="text-3xl font-bold text-gray-800 mb-2 w-5/6">Color Perception Simulation</h1>
-        <p id="ui-subtitle" class="text-gray-600 w-5/6">Explore how light interacts with different objects. Select an object and observe how wavelengths are absorbed or reflected.</p>
+        <div class="flex bg-slate-100 rounded-lg p-1">
+            <button id="btn-fr" class="px-3 py-1 text-sm font-semibold rounded-md bg-white shadow-sm text-blue-600" onclick="setLang('fr')">FR</button>
+            <button id="btn-en" class="px-3 py-1 text-sm font-semibold rounded-md text-slate-500 hover:text-slate-700" onclick="setLang('en')">EN</button>
+        </div>
     </header>
 
-    <main class="max-w-7xl w-full mx-auto relative bg-gray-900 rounded-2xl shadow-inner overflow-hidden border-4 border-gray-800 flex flex-col justify-between" style="min-height: 800px;">
-        <canvas id="simCanvas" class="absolute inset-0 w-full h-full block z-0"></canvas>
-
-        <!-- Top Row: Light Source & Eye Analyzer -->
-        <div class="relative z-10 w-full p-6 flex flex-col md:flex-row justify-between items-start pointer-events-none gap-6">
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- Left Panel: Light Controls -->
+        <div class="w-80 bg-white border-r border-slate-200 shadow-sm z-10 flex flex-col shrink-0">
+            <div class="p-4 border-b border-slate-100 bg-slate-50">
+                <h2 id="ui-stepLight" class="text-sm font-bold text-slate-700 uppercase tracking-wider">1. Source de lumière</h2>
+            </div>
             
-            <!-- Left: Light Controls -->
-            <div class="w-full md:w-80 bg-white/95 backdrop-blur-md shadow-xl rounded-2xl pointer-events-auto border border-gray-100 overflow-hidden flex flex-col">
-                <div class="flex border-b border-gray-200 bg-white">
-                    <button id="tab-white" class="flex-1 py-3 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 bg-blue-50/50" onclick="setTab('white')">White Light</button>
-                    <button id="tab-colored" class="flex-1 py-3 text-sm font-semibold text-gray-500 hover:bg-gray-50" onclick="setTab('colored')">Colored Light</button>
-                </div>
-                <div class="p-5">
-                    <div id="light-controls" class="hidden">
-                        <div class="flex justify-between items-center mb-3">
-                            <h2 id="ui-stepLight" class="text-lg font-semibold text-gray-800">Light Source</h2>
-                            <div id="light-swatch" class="w-6 h-6 rounded-full shadow-inner border border-gray-200 bg-white"></div>
-                        </div>
-                        <div class="space-y-4">
-                            <div>
-                                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                                    <span id="ui-hue">Hue</span> <span id="val-h">0°</span>
-                                </div>
-                                <input type="range" id="hue-slider" min="0" max="360" value="0" class="w-full">
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                                    <span id="ui-sat">Saturation</span> <span id="val-s">100%</span>
-                                </div>
-                                <input type="range" id="sat-slider" min="0" max="100" value="100" class="w-full">
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                                    <span id="ui-light">Lightness (Tint/Shade)</span> <span id="val-l">50%</span>
-                                </div>
-                                <!-- Max lightness capped at 50% for optimal color saturation -->
-                                <input type="range" id="light-slider" min="0" max="50" value="50" class="w-full">
-                            </div>
-                        </div>
-                    </div>
-                    <div id="white-light-msg" class="text-sm text-gray-600 italic">
-                        <span id="label-source" class="font-semibold block mb-1">Light Source</span>
-                        Full spectrum white light active.
-                    </div>
-                </div>
+            <div class="flex border-b border-slate-200">
+                <button id="tab-white" class="flex-1 py-3 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 bg-blue-50/50" onclick="setTab('white')">Lumière blanche</button>
+                <button id="tab-colored" class="flex-1 py-3 text-sm font-semibold text-slate-500 hover:bg-slate-50" onclick="setTab('colored')">Lumière colorée</button>
             </div>
 
-            <!-- Right: Analyzer & Perception -->
-            <div class="w-full md:w-80 bg-white/95 backdrop-blur-md shadow-xl rounded-2xl p-5 pointer-events-auto border border-gray-100 flex flex-col gap-6">
-                <!-- Perception Result -->
-                <div>
-                    <h2 id="ui-step3" class="text-lg font-semibold text-gray-800 mb-2">3. Perception</h2>
-                    <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
-                        <div id="perceived-color-swatch" class="w-12 h-12 rounded-full shadow-inner bg-red-500 border border-gray-200"></div>
-                        <div>
-                            <p id="ui-brain" class="text-sm text-gray-500">The brain perceives:</p>
-                            <p id="perceived-color-text" class="text-lg font-bold text-gray-800">Red</p>
-                        </div>
-                    </div>
+            <div class="p-5 overflow-y-auto">
+                <div class="flex justify-center mb-6">
+                    <div id="light-swatch" class="w-12 h-12 rounded-full shadow-inner border-2 border-slate-200 bg-white"></div>
                 </div>
 
-                <!-- RGB Analyzer -->
-                <div class="flex-1 min-h-[220px] flex flex-col">
-                    <h2 id="ui-step2" class="text-lg font-semibold text-gray-800 mb-1">2. RGB Analyzer</h2>
-                    <p id="ui-analyzerDesc" class="text-[11px] text-gray-500 mb-2 leading-tight">Measures reflected light intensity</p>
-                    
-                    <div class="flex-1 flex items-end justify-around pb-6 border-b-2 border-gray-200 relative pt-4 h-full mt-2">
-                        <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-gray-400 pb-6 pt-4">
-                            <span>100%</span><span>50%</span><span>0%</span>
+                <!-- White Light Controls -->
+                <div id="white-light-controls" class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm font-medium text-slate-600 mb-2">
+                            <span id="ui-intensity">Intensité de la lumière</span> <span id="val-i" class="text-blue-600 font-bold">100%</span>
                         </div>
+                        <input type="range" id="intensity-slider" min="0" max="100" value="100" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+                    <p id="white-light-msg" class="text-xs text-slate-500 italic mt-4 text-center">Émet un spectre complet de lumière blanche.</p>
+                </div>
 
-                        <!-- Bars -->
-                        <div class="flex flex-col items-center w-1/4 z-10 h-full justify-end relative">
-                            <span id="label-r" class="text-[10px] font-bold text-red-600 mb-1">100%</span>
-                            <div class="w-full bg-red-50 rounded-t-sm flex items-end justify-center h-full">
-                                <div id="bar-r" class="w-full bg-red-500 rounded-t-sm bar-transition" style="height: 100%;"></div>
-                            </div>
-                            <span class="text-sm font-bold text-red-600 absolute -bottom-6">R</span>
+                <!-- Colored Light Controls (RGB) -->
+                <div id="colored-light-controls" class="hidden space-y-6">
+                    <div>
+                        <div class="flex justify-between text-sm font-medium text-slate-600 mb-2">
+                            <span id="ui-red-light">Rouge (R)</span> <span id="val-r-light" class="text-red-600 font-bold">100%</span>
                         </div>
-                        <div class="flex flex-col items-center w-1/4 z-10 h-full justify-end relative">
-                            <span id="label-g" class="text-[10px] font-bold text-green-600 mb-1">0%</span>
-                            <div class="w-full bg-green-50 rounded-t-sm flex items-end justify-center h-full">
-                                <div id="bar-g" class="w-full bg-green-500 rounded-t-sm bar-transition" style="height: 0%;"></div>
-                            </div>
-                            <span class="text-sm font-bold text-green-600 absolute -bottom-6">G</span>
+                        <input type="range" id="r-slider" min="0" max="100" value="100" class="w-full h-2 bg-red-100 rounded-lg appearance-none cursor-pointer accent-red-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm font-medium text-slate-600 mb-2">
+                            <span id="ui-green-light">Vert (G)</span> <span id="val-g-light" class="text-green-600 font-bold">100%</span>
                         </div>
-                        <div class="flex flex-col items-center w-1/4 z-10 h-full justify-end relative">
-                            <span id="label-b" class="text-[10px] font-bold text-blue-600 mb-1">0%</span>
-                            <div class="w-full bg-blue-50 rounded-t-sm flex items-end justify-center h-full">
-                                <div id="bar-b" class="w-full bg-blue-500 rounded-t-sm bar-transition" style="height: 0%;"></div>
-                            </div>
-                            <span class="text-sm font-bold text-blue-600 absolute -bottom-6">B</span>
+                        <input type="range" id="g-slider" min="0" max="100" value="100" class="w-full h-2 bg-green-100 rounded-lg appearance-none cursor-pointer accent-green-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm font-medium text-slate-600 mb-2">
+                            <span id="ui-blue-light">Bleu (B)</span> <span id="val-b-light" class="text-blue-600 font-bold">100%</span>
                         </div>
+                        <input type="range" id="b-slider" min="0" max="100" value="100" class="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer accent-blue-500">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Row: Object Selector -->
-        <div class="relative z-10 w-full p-6 flex justify-center pointer-events-none pb-8 mt-auto">
-            <div class="w-full max-w-4xl bg-white/95 backdrop-blur-md shadow-xl rounded-2xl p-5 pointer-events-auto border border-gray-100">
-                <h2 id="ui-step1" class="text-lg font-semibold text-gray-800 mb-3 text-center">1. Select an Object</h2>
-                <div class="grid grid-cols-4 md:grid-cols-8 gap-2" id="object-buttons">
-                    <!-- Buttons injected via JS -->
-                </div>
-                <div class="text-center mt-3">
-                    <span id="label-filter" class="text-xs text-gray-400 font-medium uppercase tracking-wider">Object (Filter)</span>
+        <div class="flex-1 relative bg-slate-900" id="canvas-container">
+            <!-- Labels overlay (Positioned dynamically so they don't block canvas) -->
+            <div id="label-source" class="absolute top-6 left-6 text-white text-sm font-bold opacity-80 bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm pointer-events-none">Source</div>
+            <div id="label-observer" class="absolute top-6 right-6 text-white text-sm font-bold opacity-80 bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm pointer-events-none">Œil (Observateur)</div>
+            
+            <canvas id="simCanvas" class="w-full h-full block absolute inset-0"></canvas>
+        </div>
+
+        <div class="w-80 bg-white border-l border-slate-200 shadow-sm z-10 flex flex-col shrink-0">
+            <!-- Perception Header -->
+            <div class="p-4 border-b border-slate-100 bg-slate-50">
+                <h2 id="ui-step3" class="text-sm font-bold text-slate-700 uppercase tracking-wider">3. Perception</h2>
+            </div>
+            
+            <div class="p-6 flex flex-col items-center border-b border-slate-100">
+                <div id="perceived-swatch" class="w-20 h-20 rounded-full shadow-inner border-4 border-slate-100 bg-red-500 mb-3 transition-colors duration-300"></div>
+                <p id="ui-brain" class="text-xs text-slate-500 uppercase tracking-wide mb-1">Le cerveau perçoit :</p>
+                <p id="perceived-text" class="text-2xl font-bold text-slate-800">Rouge</p>
+            </div>
+
+            <!-- RGB Analyzer Chart -->
+            <div class="flex-1 p-6 flex flex-col">
+                <h2 id="ui-step2" class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-1 text-center">Analyseur RGB</h2>
+                <p id="ui-analyzerDesc" class="text-xs text-slate-500 mb-4 text-center">Quantité de lumière atteignant l'œil</p>
+                
+                <div class="flex-1 flex items-end justify-around pb-6 border-b-2 border-slate-200 relative pt-4">
+                    <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-slate-400 pb-6 pt-4 font-medium">
+                        <span>100%</span><span>50%</span><span>0%</span>
+                    </div>
+
+                    <!-- Bars -->
+                    <div class="flex flex-col items-center w-1/4 z-10 h-full justify-end relative">
+                        <span id="lbl-bar-r" class="text-[10px] font-bold text-red-600 mb-1">100%</span>
+                        <div class="w-full bg-red-50 rounded-t-sm flex items-end justify-center h-full">
+                            <div id="bar-r" class="w-full bg-red-500 rounded-t-sm bar-transition" style="height: 100%;"></div>
+                        </div>
+                        <span class="text-sm font-bold text-red-600 absolute -bottom-6">R</span>
+                    </div>
+                    <div class="flex flex-col items-center w-1/4 z-10 h-full justify-end relative">
+                        <span id="lbl-bar-g" class="text-[10px] font-bold text-green-600 mb-1">0%</span>
+                        <div class="w-full bg-green-50 rounded-t-sm flex items-end justify-center h-full">
+                            <div id="bar-g" class="w-full bg-green-500 rounded-t-sm bar-transition" style="height: 0%;"></div>
+                        </div>
+                        <span class="text-sm font-bold text-green-600 absolute -bottom-6">G</span>
+                    </div>
+                    <div class="flex flex-col items-center w-1/4 z-10 h-full justify-end relative">
+                        <span id="lbl-bar-b" class="text-[10px] font-bold text-blue-600 mb-1">0%</span>
+                        <div class="w-full bg-blue-50 rounded-t-sm flex items-end justify-center h-full">
+                            <div id="bar-b" class="w-full bg-blue-500 rounded-t-sm bar-transition" style="height: 0%;"></div>
+                        </div>
+                        <span class="text-sm font-bold text-blue-600 absolute -bottom-6">B</span>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Custom Color Palette Modal -->
-    <div id="palette-modal" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
-        <div class="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full transform scale-95 transition-transform duration-200" id="palette-content">
+    <footer class="bg-white border-t border-slate-200 p-4 shrink-0 z-20">
+        <h2 id="ui-stepFilter" class="text-sm font-bold text-slate-700 uppercase tracking-wider text-center mb-3">2. Choisir l'objet (Le filtre)</h2>
+        <div class="flex flex-wrap justify-center gap-3" id="object-buttons">
+            <!-- Dynamically populated -->
+        </div>
+    </footer>
+
+    <div id="color-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-lg w-full transform transition-all">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-gray-800" id="ui-modalTitle">Choose a Color</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+                <h3 id="modal-title" class="text-lg font-bold text-slate-800">Choisissez une couleur personnalisée</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
             </div>
-            <!-- 36 Color Grid (6x6) -->
-            <div class="grid grid-cols-6 gap-2" id="color-grid">
-                <!-- Swatches injected by JS -->
+            <div id="color-grid" class="grid grid-cols-6 gap-2">
+                <!-- Colors injected via JS -->
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. Bilingual Dictionary & State ---
-        const i18n = {
-            en: {
-                title: "Color Perception & Reflection",
-                subtitle: "Explore how light interacts with different objects. Select an object and observe how wavelengths are absorbed or reflected.",
-                tabWhite: "White Light",
-                tabColored: "Colored Light",
-                step1: "1. Select Object",
-                stepLight: "Light Source Properties",
-                step2: "2. RGB Analyzer",
-                analyzerDesc: "Measures reflected light intensity to the eye",
-                step3: "3. Perception",
-                brain: "The brain perceives:",
-                hue: "Hue", sat: "Saturation", light: "Lightness",
-                lblSource: "Light Source", lblFilter: "Object (Filter)", lblObserver: "Observer",
-                modalTitle: "Choose a Custom Color",
-                colors: {
-                    mixed: "Mixed", black: "Black", white: "White", red: "Red", green: "Green", blue: "Blue", yellow: "Yellow", purple: "Purple", cyan: "Cyan"
-                },
-                objects: {
-                    apple: "Apple", leaf: "Leaf", book: "Book", banana: "Banana", white: "White", black: "Black", plum: "Plum", custom: "Custom"
-                }
-            },
-            fr: {
-                title: "Perception et Réflexion des Couleurs",
-                subtitle: "Explorez comment la lumière interagit avec les objets. Sélectionnez un objet pour voir quelles longueurs d'onde sont absorbées ou réfléchies.",
-                tabWhite: "Lumière blanche",
-                tabColored: "Lumière colorée",
-                step1: "1. Sélectionner un objet",
-                stepLight: "Propriétés de la lumière",
-                step2: "2. Analyseur RVB",
-                analyzerDesc: "Mesure l'intensité de la lumière réfléchie vers l'œil",
-                step3: "3. Perception",
-                brain: "Le cerveau perçoit :",
-                hue: "Teinte", sat: "Saturation", light: "Luminosité",
-                lblSource: "Source lumineuse", lblFilter: "Objet (Filtre)", lblObserver: "Observateur",
-                modalTitle: "Choisir une couleur personnalisée",
-                colors: {
-                    mixed: "Mixte", black: "Noir", white: "Blanc", red: "Rouge", green: "Vert", blue: "Bleu", yellow: "Jaune", purple: "Violet", cyan: "Cyan"
-                },
-                objects: {
-                    apple: "Pomme", leaf: "Feuille", book: "Livre", banana: "Banane", white: "Blanc", black: "Noir", plum: "Prune", custom: "Personnalisé"
-                }
-            }
-        };
-
-        // Set French as the default initialization language
+        // State Management
         let currentLang = 'fr';
         let currentMode = 'white'; // 'white' or 'colored'
         
-        // Light Source (RGB 0-100)
+        // Data states (0-100 percentages)
         let lightSource = { r: 100, g: 100, b: 100 };
+        let perceivedLight = { r: 100, g: 0, b: 0 };
 
-        // --- 2. Color Utilities ---
-        function hexToRgb(hex) {
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: Math.round(parseInt(result[1], 16) / 2.55),
-                g: Math.round(parseInt(result[2], 16) / 2.55),
-                b: Math.round(parseInt(result[3], 16) / 2.55)
-            } : { r: 0, g: 0, b: 0 };
-        }
-
-        // HSL to RGB conversion for the light sliders
-        function hslToRgb(h, s, l) {
-            s /= 100; l /= 100;
-            const k = n => (n + h / 30) % 12;
-            const a = s * Math.min(l, 1 - l);
-            const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-            return {
-                r: Math.round(255 * f(0) / 2.55),
-                g: Math.round(255 * f(8) / 2.55),
-                b: Math.round(255 * f(4) / 2.55)
-            };
-        }
-
-        function determineColorName(r, g, b) {
-            const t = 75; // threshold
-            const low = 25;
-            if (r<low && g<low && b<low) return i18n[currentLang].colors.black;
-            if (r>t && g>t && b>t) return i18n[currentLang].colors.white;
-            if (r>t && g<low && b<low) return i18n[currentLang].colors.red;
-            if (r<low && g>t && b<low) return i18n[currentLang].colors.green;
-            if (r<low && g<low && b>t) return i18n[currentLang].colors.blue;
-            if (r>t && g>t && b<low) return i18n[currentLang].colors.yellow;
-            if (r>t && g<low && b>t) return i18n[currentLang].colors.purple;
-            if (r<low && g>t && b>t) return i18n[currentLang].colors.cyan;
-            return i18n[currentLang].colors.mixed;
-        }
-
-        // --- STREAMING_CHUNK:Defining Object Models & Palette Data... ---
+        // Real-world objects dictionary
         const simObjects = [
-            { id: 'apple', emoji: '🍎', r: 100, g: 0, b: 0, hex: '#ef4444' },
-            { id: 'leaf', emoji: '🍃', r: 0, g: 100, b: 0, hex: '#22c55e' },
-            { id: 'book', emoji: '📘', r: 0, g: 0, b: 100, hex: '#3b82f6' },
-            { id: 'banana', emoji: '🍌', r: 100, g: 100, b: 0, hex: '#eab308' },
-            { id: 'plum', emoji: '🟣', r: 60, g: 0, b: 80, hex: '#8B008B' },
-            { id: 'white', emoji: '⚪', r: 100, g: 100, b: 100, hex: '#ffffff' },
-            { id: 'black', emoji: '⚫', r: 0, g: 0, b: 0, hex: '#111827' },
-            { id: 'custom', emoji: '🎨', r: 50, g: 50, b: 50, hex: '#808080', isCustom: true },
+            { id: 'apple', nameEn: 'Red Apple', nameFr: 'Pomme rouge', emoji: '🍎', r: 100, g: 10, b: 10 },
+            { id: 'leaf', nameEn: 'Green Leaf', nameFr: 'Feuille verte', emoji: '🍃', r: 10, g: 100, b: 10 },
+            { id: 'book', nameEn: 'Blue Book', nameFr: 'Livre bleu', emoji: '📘', r: 10, g: 20, b: 100 },
+            { id: 'banana', nameEn: 'Banana', nameFr: 'Banane', emoji: '🍌', r: 100, g: 100, b: 10 },
+            { id: 'plum', nameEn: 'Plum', nameFr: 'Prune', emoji: '🍇', r: 70, g: 10, b: 90 }, // Purple Plum added
+            { id: 'white', nameEn: 'White Ball', nameFr: 'Balle blanche', emoji: '⚪', r: 100, g: 100, b: 100 },
+            { id: 'black', nameEn: 'Black Ball', nameFr: 'Balle noire', emoji: '⚫', r: 5, g: 5, b: 5 },
+            { id: 'custom', nameEn: 'Custom', nameFr: 'Personnalisé', emoji: '🎨', r: 50, g: 50, b: 50, isCustom: true }
         ];
         let currentObject = simObjects[0];
 
-        // 36 diverse colors for the palette grid
-        const paletteColors = [
-            "#FF0000", "#D32F2F", "#FF5252", "#FF8C00", "#F57C00", "#FFB74D",
-            "#FFFF00", "#FBC02D", "#FFF176", "#00FF00", "#388E3C", "#81C784",
-            "#00FFFF", "#0097A7", "#4DD0E1", "#0000FF", "#1976D2", "#64B5F6",
-            "#800080", "#7B1FA2", "#BA68C8", "#FF00FF", "#C2185B", "#F06292",
-            "#FFC0CB", "#8D6E63", "#5D4037", "#A1887F", "#BCAAA4", "#ECEFF1",
-            "#FFFFFF", "#E0E0E0", "#9E9E9E", "#616161", "#424242", "#000000"
-        ];
+        // Language Dictionary
+        const i18n = {
+            en: {
+                title: "Color Perception Simulation",
+                subtitle: "Grade 8 Science: Absorption and Reflection",
+                stepLight: "1. Light Source",
+                stepFilter: "2. Choose Object (Filter)",
+                step3: "3. Perception",
+                tabWhite: "White Light",
+                tabColored: "Colored Light",
+                intensity: "Light Intensity",
+                whiteMsg: "Emits a full spectrum of white light.",
+                red: "Red (R)", green: "Green (G)", blue: "Blue (B)",
+                brain: "The brain perceives:",
+                analyzerTitle: "RGB Analyzer",
+                analyzerDesc: "Amount of light reaching the eye",
+                lblSource: "Source",
+                lblObserver: "Eye (Observer)",
+                modalTitle: "Choose a Custom Color"
+            },
+            fr: {
+                title: "Simulation de la perception des couleurs",
+                subtitle: "Optique de 8e année : Absorption et réflexion",
+                stepLight: "1. Source de lumière",
+                stepFilter: "2. Choisir l'objet (Le filtre)",
+                step3: "3. Perception",
+                tabWhite: "Lumière blanche",
+                tabColored: "Lumière colorée",
+                intensity: "Intensité de la lumière",
+                whiteMsg: "Émet un spectre complet de lumière blanche.",
+                red: "Rouge (R)", green: "Vert (G)", blue: "Bleu (B)",
+                brain: "Le cerveau perçoit :",
+                analyzerTitle: "Analyseur RGB",
+                analyzerDesc: "Quantité de lumière atteignant l'œil",
+                lblSource: "Source",
+                lblObserver: "Œil (Observateur)",
+                modalTitle: "Choisissez une couleur personnalisée"
+            }
+        };
 
-        // --- STREAMING_CHUNK:UI Logic and Translations... ---
+        // --- Core UI & Logic Setup ---
+        
         function setLang(lang) {
             currentLang = lang;
-            document.getElementById('btn-en').className = lang === 'en' ? "px-3 py-1 text-sm font-semibold rounded-md bg-white shadow-sm text-blue-600" : "px-3 py-1 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700";
-            document.getElementById('btn-fr').className = lang === 'fr' ? "px-3 py-1 text-sm font-semibold rounded-md bg-white shadow-sm text-blue-600" : "px-3 py-1 text-sm font-semibold rounded-md text-gray-500 hover:text-gray-700";
-            
             const t = i18n[lang];
-            document.getElementById('ui-title').innerText = t.title;
-            document.getElementById('ui-subtitle').innerText = t.subtitle;
+            
+            // Toggles
+            document.getElementById('btn-fr').className = lang === 'fr' ? "px-3 py-1 text-sm font-semibold rounded-md bg-white shadow-sm text-blue-600" : "px-3 py-1 text-sm font-semibold rounded-md text-slate-500 hover:text-slate-700";
+            document.getElementById('btn-en').className = lang === 'en' ? "px-3 py-1 text-sm font-semibold rounded-md bg-white shadow-sm text-blue-600" : "px-3 py-1 text-sm font-semibold rounded-md text-slate-500 hover:text-slate-700";
+            
+            // Text Replacements
+            document.getElementById('app-title').innerText = t.title;
+            document.getElementById('app-subtitle').innerText = t.subtitle;
+            document.getElementById('ui-stepLight').innerText = t.stepLight;
+            document.getElementById('ui-stepFilter').innerText = t.stepFilter;
+            document.getElementById('ui-step3').innerText = t.step3;
             document.getElementById('tab-white').innerText = t.tabWhite;
             document.getElementById('tab-colored').innerText = t.tabColored;
-            document.getElementById('ui-step1').innerText = t.step1;
-            document.getElementById('ui-stepLight').innerText = t.stepLight;
-            document.getElementById('ui-step2').innerText = t.step2;
-            document.getElementById('ui-analyzerDesc').innerText = t.analyzerDesc;
-            document.getElementById('ui-step3').innerText = t.step3;
+            document.getElementById('ui-intensity').innerText = t.intensity;
+            document.getElementById('white-light-msg').innerText = t.whiteMsg;
+            document.getElementById('ui-red-light').innerText = t.red;
+            document.getElementById('ui-green-light').innerText = t.green;
+            document.getElementById('ui-blue-light').innerText = t.blue;
             document.getElementById('ui-brain').innerText = t.brain;
-            document.getElementById('ui-hue').innerText = t.hue;
-            document.getElementById('ui-sat').innerText = t.sat;
-            document.getElementById('ui-light').innerText = t.light;
+            document.getElementById('ui-step2').innerText = t.analyzerTitle;
+            document.getElementById('ui-analyzerDesc').innerText = t.analyzerDesc;
+            document.getElementById('modal-title').innerText = t.modalTitle;
             
-            if (document.getElementById('label-source')) document.getElementById('label-source').innerText = t.lblSource;
-            if (document.getElementById('label-filter')) document.getElementById('label-filter').innerText = t.lblFilter;
-            if (document.getElementById('label-observer')) document.getElementById('label-observer').innerText = t.lblObserver;
-            
-            document.getElementById('ui-modalTitle').innerText = t.modalTitle;
+            if(document.getElementById('label-source')) document.getElementById('label-source').innerText = t.lblSource;
+            if(document.getElementById('label-observer')) document.getElementById('label-observer').innerText = t.lblObserver;
 
             buildObjectButtons();
-            updateAnalyzer();
+            updateDataAndUI();
         }
 
         function setTab(mode) {
             currentMode = mode;
             const btnWhite = document.getElementById('tab-white');
             const btnColored = document.getElementById('tab-colored');
-            const lightControls = document.getElementById('light-controls');
-            const whiteMsg = document.getElementById('white-light-msg');
-
+            
             if (mode === 'white') {
                 btnWhite.className = "flex-1 py-3 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 bg-blue-50/50";
-                btnColored.className = "flex-1 py-3 text-sm font-semibold text-gray-500 hover:bg-gray-50 border-b border-transparent";
-                lightControls.classList.add('hidden');
-                if (whiteMsg) whiteMsg.classList.remove('hidden');
-                lightSource = { r: 100, g: 100, b: 100 };
+                btnColored.className = "flex-1 py-3 text-sm font-semibold text-slate-500 hover:bg-slate-50 border-b border-transparent";
+                document.getElementById('white-light-controls').classList.remove('hidden');
+                document.getElementById('colored-light-controls').classList.add('hidden');
             } else {
                 btnColored.className = "flex-1 py-3 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 bg-blue-50/50";
-                btnWhite.className = "flex-1 py-3 text-sm font-semibold text-gray-500 hover:bg-gray-50 border-b border-transparent";
-                lightControls.classList.remove('hidden');
-                if (whiteMsg) whiteMsg.classList.add('hidden');
-                updateLightFromSliders(); // Read current slider values
+                btnWhite.className = "flex-1 py-3 text-sm font-semibold text-slate-500 hover:bg-slate-50 border-b border-transparent";
+                document.getElementById('colored-light-controls').classList.remove('hidden');
+                document.getElementById('white-light-controls').classList.add('hidden');
             }
-            updateAnalyzer();
+            readSliders();
+        }
+
+        // Generate 36 Colors (6 Hues, 6 Lightness/Saturation variations)
+        function generatePalette() {
+            const grid = document.getElementById('color-grid');
+            const hues = [0, 30, 60, 120, 240, 280]; // Red, Orange, Yellow, Green, Blue, Purple
+            const variations = [
+                {s: 100, l: 30}, {s: 100, l: 50}, {s: 100, l: 70}, 
+                {s: 50, l: 40}, {s: 30, l: 60}, {s: 10, l: 80}
+            ];
+            
+            hues.forEach(h => {
+                variations.forEach(v => {
+                    const rgb = hslToRgb(h/360, v.s/100, v.l/100);
+                    const btn = document.createElement('button');
+                    btn.className = "w-10 h-10 rounded-full cursor-pointer color-cell border border-slate-200";
+                    btn.style.backgroundColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                    btn.onclick = () => {
+                        const customObj = simObjects.find(o => o.id === 'custom');
+                        // Map RGB (0-255) to Percentages (0-100)
+                        customObj.r = Math.round((rgb[0]/255)*100);
+                        customObj.g = Math.round((rgb[1]/255)*100);
+                        customObj.b = Math.round((rgb[2]/255)*100);
+                        selectObject(customObj);
+                        closeModal();
+                    };
+                    grid.appendChild(btn);
+                });
+            });
+        }
+
+        function openModal() {
+            const modal = document.getElementById('color-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('color-modal').classList.add('hidden');
+            document.getElementById('color-modal').classList.remove('flex');
         }
 
         function buildObjectButtons() {
             const container = document.getElementById('object-buttons');
-            container.innerHTML = '';
+            container.innerHTML = ''; 
+            
             simObjects.forEach((obj) => {
-                const btn = document.createElement('div');
                 const isSelected = currentObject.id === obj.id;
-                btn.className = `flex flex-col items-center justify-center py-2 px-1 rounded-xl border-2 transition-all duration-200 cursor-pointer ${isSelected ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-100 hover:border-gray-300 bg-white hover:bg-gray-50'}`;
+                const btn = document.createElement('button');
+                btn.className = `flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all min-w-[80px] ${isSelected ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-slate-100 bg-white hover:border-slate-300'}`;
                 
-                const objName = i18n[currentLang].objects[obj.id];
+                const name = currentLang === 'fr' ? obj.nameFr : obj.nameEn;
                 
+                let extraHTML = '';
+                if (obj.isCustom) {
+                    const r = Math.round(obj.r * 2.55);
+                    const g = Math.round(obj.g * 2.55);
+                    const b = Math.round(obj.b * 2.55);
+                    extraHTML = `<div class="w-6 h-1 mt-1 rounded-full" style="background-color: rgb(${r},${g},${b})"></div>`;
+                }
+
                 btn.innerHTML = `
-                    <span class="text-2xl mb-1">${obj.emoji}</span>
-                    <span class="text-[10px] font-semibold text-gray-700 text-center leading-tight">${objName}</span>
+                    <span class="text-3xl mb-1">${obj.emoji}</span>
+                    <span class="text-[10px] font-bold text-slate-700 text-center uppercase tracking-wide">${name}</span>
+                    ${extraHTML}
                 `;
                 
                 btn.onclick = () => {
-                    if (obj.isCustom) {
-                        openModal();
-                    } else {
-                        selectObject(obj);
-                    }
+                    if (obj.isCustom) openModal();
+                    else selectObject(obj);
                 };
                 container.appendChild(btn);
             });
@@ -366,127 +345,131 @@
 
         function selectObject(obj) {
             currentObject = obj;
-            buildObjectButtons(); // refresh selection styling
-            updateAnalyzer();
+            buildObjectButtons(); // Re-render to show active state
+            updateDataAndUI();
         }
 
-        // --- STREAMING_CHUNK:Modal and Sliders Logic... ---
-        const modal = document.getElementById('palette-modal');
-        const modalContent = document.getElementById('palette-content');
-        
-        function buildPalette() {
-            const grid = document.getElementById('color-grid');
-            paletteColors.forEach(hex => {
-                const swatch = document.createElement('button');
-                swatch.className = "w-full aspect-square rounded-md shadow-sm border border-black/10 hover:scale-110 transition-transform cursor-pointer";
-                swatch.style.backgroundColor = hex;
-                swatch.onclick = () => {
-                    const rgb = hexToRgb(hex);
-                    const customObj = simObjects.find(o => o.id === 'custom');
-                    customObj.hex = hex;
-                    customObj.r = rgb.r;
-                    customObj.g = rgb.g;
-                    customObj.b = rgb.b;
-                    selectObject(customObj);
-                    closeModal();
-                };
-                grid.appendChild(swatch);
-            });
+        function readSliders() {
+            if (currentMode === 'white') {
+                const i = parseInt(document.getElementById('intensity-slider').value);
+                document.getElementById('val-i').innerText = `${i}%`;
+                lightSource = { r: i, g: i, b: i };
+            } else {
+                const r = parseInt(document.getElementById('r-slider').value);
+                const g = parseInt(document.getElementById('g-slider').value);
+                const b = parseInt(document.getElementById('b-slider').value);
+                document.getElementById('val-r-light').innerText = `${r}%`;
+                document.getElementById('val-g-light').innerText = `${g}%`;
+                document.getElementById('val-b-light').innerText = `${b}%`;
+                lightSource = { r, g, b };
+            }
+            
+            // Update light swatch visually
+            const cR = Math.round(lightSource.r * 2.55);
+            const cG = Math.round(lightSource.g * 2.55);
+            const cB = Math.round(lightSource.b * 2.55);
+            document.getElementById('light-swatch').style.backgroundColor = `rgb(${cR}, ${cG}, ${cB})`;
+            document.getElementById('light-swatch').style.boxShadow = `0 0 20px rgba(${cR}, ${cG}, ${cB}, 0.5)`;
+
+            updateDataAndUI();
         }
 
-        function openModal() {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modalContent.classList.remove('scale-95');
-            }, 10);
-        }
-
-        function closeModal() {
-            modal.classList.add('opacity-0');
-            modalContent.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); }, 200);
-        }
-
-        // Sliders Listeners
-        ['hue', 'sat', 'light'].forEach(id => {
-            document.getElementById(`${id}-slider`).addEventListener('input', updateLightFromSliders);
+        // Attach listeners
+        ['intensity', 'r', 'g', 'b'].forEach(id => {
+            const el = document.getElementById(`${id}-slider`);
+            if(el) el.addEventListener('input', readSliders);
         });
 
-        function updateLightFromSliders() {
-            if (currentMode !== 'colored') return;
-            const h = document.getElementById('hue-slider').value;
-            const s = document.getElementById('sat-slider').value;
-            const l = document.getElementById('light-slider').value;
-            
-            document.getElementById('val-h').innerText = `${h}°`;
-            document.getElementById('val-s').innerText = `${s}%`;
-            document.getElementById('val-l').innerText = `${l}%`;
+        function updateDataAndUI() {
+            // Core Physics Formula: Perceived Light = (Source Light Intensity) * (Object Reflectivity)
+            perceivedLight.r = Math.round((lightSource.r / 100) * (currentObject.r / 100) * 100);
+            perceivedLight.g = Math.round((lightSource.g / 100) * (currentObject.g / 100) * 100);
+            perceivedLight.b = Math.round((lightSource.b / 100) * (currentObject.b / 100) * 100);
 
-            lightSource = hslToRgb(h, s, l);
-            const hex = `rgb(${lightSource.r*2.55}, ${lightSource.g*2.55}, ${lightSource.b*2.55})`;
-            document.getElementById('light-swatch').style.backgroundColor = hex;
+            // Update Bars
+            document.getElementById('bar-r').style.height = `${perceivedLight.r}%`;
+            document.getElementById('bar-g').style.height = `${perceivedLight.g}%`;
+            document.getElementById('bar-b').style.height = `${perceivedLight.b}%`;
             
-            updateAnalyzer();
+            document.getElementById('lbl-bar-r').innerText = `${perceivedLight.r}%`;
+            document.getElementById('lbl-bar-g').innerText = `${perceivedLight.g}%`;
+            document.getElementById('lbl-bar-b').innerText = `${perceivedLight.b}%`;
+
+            // Update Swatch
+            const cR = Math.round(perceivedLight.r * 2.55);
+            const cG = Math.round(perceivedLight.g * 2.55);
+            const cB = Math.round(perceivedLight.b * 2.55);
+            document.getElementById('perceived-swatch').style.backgroundColor = `rgb(${cR}, ${cG}, ${cB})`;
+
+            // Name the color
+            document.getElementById('perceived-text').innerText = guessColorName(perceivedLight.r, perceivedLight.g, perceivedLight.b, currentLang);
         }
 
-        // --- STREAMING_CHUNK:Analyzer Math and Data Updating... ---
-        function updateAnalyzer() {
-            // Core Physics Concept: Reflected Intensity = Light Intensity * Object Reflectance
-            const reflectedR = Math.round((lightSource.r / 100) * (currentObject.r / 100) * 100);
-            const reflectedG = Math.round((lightSource.g / 100) * (currentObject.g / 100) * 100);
-            const reflectedB = Math.round((lightSource.b / 100) * (currentObject.b / 100) * 100);
-
-            document.getElementById('bar-r').style.height = `${reflectedR}%`;
-            document.getElementById('bar-g').style.height = `${reflectedG}%`;
-            document.getElementById('bar-b').style.height = `${reflectedB}%`;
-            
-            document.getElementById('label-r').innerText = `${reflectedR}%`;
-            document.getElementById('label-g').innerText = `${reflectedG}%`;
-            document.getElementById('label-b').innerText = `${reflectedB}%`;
-            
-            // Perception swatch
-            const pR = Math.round(reflectedR * 2.55);
-            const pG = Math.round(reflectedG * 2.55);
-            const pB = Math.round(reflectedB * 2.55);
-            const finalColorStr = `rgb(${pR}, ${pG}, ${pB})`;
-            
-            document.getElementById('perceived-color-swatch').style.backgroundColor = finalColorStr;
-            document.getElementById('perceived-color-text').innerText = determineColorName(reflectedR, reflectedG, reflectedB);
+        function guessColorName(r, g, b, lang) {
+            if (r < 15 && g < 15 && b < 15) return lang === 'fr' ? 'Noir' : 'Black';
+            if (r > 85 && g > 85 && b > 85) return lang === 'fr' ? 'Blanc' : 'White';
+            if (r > 60 && g < 30 && b < 30) return lang === 'fr' ? 'Rouge' : 'Red';
+            if (g > 60 && r < 30 && b < 30) return lang === 'fr' ? 'Vert' : 'Green';
+            if (b > 60 && r < 30 && g < 30) return lang === 'fr' ? 'Bleu' : 'Blue';
+            if (r > 60 && g > 60 && b < 30) return lang === 'fr' ? 'Jaune' : 'Yellow';
+            if (r > 60 && b > 60 && g < 30) return lang === 'fr' ? 'Magenta' : 'Magenta';
+            if (g > 60 && b > 60 && r < 30) return lang === 'fr' ? 'Cyan' : 'Cyan';
+            if (r > 30 && r < 80 && g < 20 && b > 30 && b < 80) return lang === 'fr' ? 'Violet' : 'Purple';
+            return lang === 'fr' ? 'Couleur mixte' : 'Mixed Color';
         }
 
-        // --- STREAMING_CHUNK:Simulation Canvas & Animation Engine... ---
+        // HSL to RGB helper for palette generation
+        function hslToRgb(h, s, l) {
+            let r, g, b;
+            if (s === 0) { r = g = b = l; } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
         const canvas = document.getElementById('simCanvas');
         const ctx = canvas.getContext('2d');
+        let rect = canvas.parentElement.getBoundingClientRect();
         
         function resizeCanvas() {
-            const rect = canvas.parentElement.getBoundingClientRect();
+            rect = canvas.parentElement.getBoundingClientRect();
             canvas.width = rect.width;
             canvas.height = rect.height;
         }
         window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
 
         let particles = [];
-        const PARTICLE_SPEED = 4;
-        
-        class Photon {
-            constructor(colorType, startX, startY, targetX, targetY, isReflectedPhase = false) {
+        const SPEED = 5;
+
+        class Particle {
+            constructor(colorType, startX, startY, targetX, targetY, isReflected = false) {
                 this.x = startX; this.y = startY;
-                this.colorType = colorType; 
-                this.isReflectedPhase = isReflectedPhase;
-                this.active = true;
+                this.colorType = colorType;
+                this.isReflected = isReflected;
                 this.targetX = targetX; this.targetY = targetY;
-                
+                this.active = true;
+
                 if (colorType === 'r') this.color = '#ef4444';
                 if (colorType === 'g') this.color = '#22c55e';
                 if (colorType === 'b') this.color = '#3b82f6';
 
                 const dx = targetX - startX;
                 const dy = targetY - startY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                this.vx = (dx / distance) * PARTICLE_SPEED;
-                this.vy = (dy / distance) * PARTICLE_SPEED;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                this.vx = (dx / dist) * SPEED;
+                this.vy = (dy / dist) * SPEED;
             }
 
             update(eyeX, eyeY) {
@@ -494,27 +477,27 @@
                 this.x += this.vx; this.y += this.vy;
                 const dist = Math.sqrt((this.x - this.targetX)**2 + (this.y - this.targetY)**2);
 
-                // Phase 1: Hitting the object
-                if (!this.isReflectedPhase && dist < PARTICLE_SPEED * 1.5) {
+                // Hit Object
+                if (!this.isReflected && dist < SPEED * 1.5) {
                     this.active = false; 
                     
-                    let objectReflectance = 0;
-                    if (this.colorType === 'r') objectReflectance = currentObject.r;
-                    if (this.colorType === 'g') objectReflectance = currentObject.g;
-                    if (this.colorType === 'b') objectReflectance = currentObject.b;
+                    // Does it reflect based on object's properties?
+                    let reflectionChance = 0;
+                    if (this.colorType === 'r') reflectionChance = currentObject.r;
+                    if (this.colorType === 'g') reflectionChance = currentObject.g;
+                    if (this.colorType === 'b') reflectionChance = currentObject.b;
 
-                    // Probability of reflection matches the object's inherent reflectance
-                    if (Math.random() * 100 < objectReflectance) {
-                        let spreadY = eyeY; let spreadX = eyeX;
-                        // Add slight spread for visual separation
-                        if(this.colorType === 'r') { spreadX -= 15; spreadY -= 15; }
-                        if(this.colorType === 'b') { spreadX += 15; spreadY += 15; }
-                        particles.push(new Photon(this.colorType, this.x, this.y, spreadX, spreadY, true));
+                    if (Math.random() * 100 < reflectionChance) {
+                        let sx = eyeX, sy = eyeY;
+                        // Add spread so lines don't stack perfectly on return trip
+                        if(this.colorType === 'r') { sx -= 20; sy -= 15; }
+                        if(this.colorType === 'b') { sx += 20; sy += 15; }
+                        particles.push(new Particle(this.colorType, this.x, this.y, sx, sy, true));
                     }
                 }
                 
-                // Phase 2: Arriving at the eye
-                if (this.isReflectedPhase && dist < PARTICLE_SPEED * 1.5) {
+                // Hit Eye
+                if (this.isReflected && dist < SPEED * 1.5) {
                     this.active = false;
                 }
             }
@@ -536,13 +519,9 @@
             ctx.save();
             ctx.translate(x, y);
             ctx.rotate(angle);
-            
-            // Flashlight body
-            ctx.fillStyle = '#cbd5e1';
+            ctx.fillStyle = '#475569'; // slate-600
             ctx.fillRect(-30, -15, 40, 30);
-            
-            // Flashlight head
-            ctx.fillStyle = '#94a3b8';
+            ctx.fillStyle = '#94a3b8'; // slate-400
             ctx.beginPath();
             ctx.moveTo(10, -15);
             ctx.lineTo(25, -25);
@@ -550,51 +529,47 @@
             ctx.lineTo(10, 15);
             ctx.fill();
             
-            // Light source glow matching current lightSource properties
-            const realR = Math.round(lightSource.r * 2.55);
-            const realG = Math.round(lightSource.g * 2.55);
-            const realB = Math.round(lightSource.b * 2.55);
+            // Ambient light glow matching the light source
+            const cR = Math.round(lightSource.r * 2.55);
+            const cG = Math.round(lightSource.g * 2.55);
+            const cB = Math.round(lightSource.b * 2.55);
             
-            const gradient = ctx.createRadialGradient(25, 0, 0, 70, 0, 50);
-            gradient.addColorStop(0, `rgba(${realR}, ${realG}, ${realB}, 0.5)`);
-            gradient.addColorStop(1, `rgba(${realR}, ${realG}, ${realB}, 0)`);
+            const gradient = ctx.createRadialGradient(25, 0, 0, 80, 0, 50);
+            gradient.addColorStop(0, `rgba(${cR}, ${cG}, ${cB}, 0.5)`);
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
             ctx.fillStyle = gradient;
             ctx.beginPath();
             ctx.arc(25, 0, 50, 0, Math.PI * 2);
             ctx.fill();
-            
             ctx.restore();
         }
 
         let frameCount = 0;
-
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Re-anchored to map physically to the new floating UI panels
-            const fX = canvas.width * 0.22;  const fY = canvas.height * 0.40;
-            const oX = canvas.width * 0.50;  const oY = canvas.height * 0.65;
-            const eX = canvas.width * 0.78;  const eY = canvas.height * 0.40;
+            // Coordinates inside canvas safe zone
+            const fX = canvas.width * 0.15;
+            const fY = canvas.height * 0.2;
+            const oX = canvas.width * 0.5;
+            const oY = canvas.height * 0.8;
+            const eX = canvas.width * 0.85;
+            const eY = canvas.height * 0.2;
 
             const angle = Math.atan2(oY - fY, oX - fX);
             drawFlashlight(fX, fY, angle);
 
-            // Spawn photons. The probability of spawning a specific color photon matches the Light Source intensity!
-            if (frameCount % 4 === 0) {
+            // Spawn Particles Based on Light Source Intensity
+            if (frameCount % 5 === 0) {
                 const perpX = -Math.sin(angle); const perpY = Math.cos(angle);
-                const spread = 10;
+                const spread = 12;
 
-                if (Math.random() * 100 < lightSource.r) {
-                    particles.push(new Photon('r', fX + perpX*spread, fY + perpY*spread, oX + perpX*spread, oY + perpY*spread));
-                }
-                if (Math.random() * 100 < lightSource.g) {
-                    particles.push(new Photon('g', fX, fY, oX, oY));
-                }
-                if (Math.random() * 100 < lightSource.b) {
-                    particles.push(new Photon('b', fX - perpX*spread, fY - perpY*spread, oX - perpX*spread, oY - perpY*spread));
-                }
+                if (Math.random() * 100 < lightSource.r) particles.push(new Particle('r', fX + perpX*spread, fY + perpY*spread, oX + perpX*spread, oY + perpY*spread));
+                if (Math.random() * 100 < lightSource.g) particles.push(new Particle('g', fX, fY, oX, oY));
+                if (Math.random() * 100 < lightSource.b) particles.push(new Particle('b', fX - perpX*spread, fY - perpY*spread, oX - perpX*spread, oY - perpY*spread));
             }
 
+            // Update & Draw
             for (let i = particles.length - 1; i >= 0; i--) {
                 const p = particles[i];
                 p.update(eX, eY);
@@ -602,33 +577,35 @@
                 if (!p.active) particles.splice(i, 1);
             }
 
-            // Draw Object
-            ctx.beginPath();
-            ctx.arc(oX, oY, 45, 0, Math.PI * 2);
-            ctx.fillStyle = currentObject.hex;
-            ctx.fill();
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-            ctx.stroke();
-
-            ctx.font = currentObject.isCustom ? "28px Arial" : "40px Arial";
+            // Draw Object (No colored circle, just the emoji)
+            ctx.font = "60px Arial";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText(currentObject.emoji, oX, oY);
-
-            // Draw Eye
-            ctx.font = "60px Arial";
+            if (currentObject.isCustom) {
+                ctx.fillText("🎨", oX, oY);
+                // Underline with the custom color so they see it on the canvas
+                const r = Math.round(currentObject.r * 2.55);
+                const g = Math.round(currentObject.g * 2.55);
+                const b = Math.round(currentObject.b * 2.55);
+                ctx.fillStyle = `rgb(${r},${g},${b})`;
+                ctx.fillRect(oX - 25, oY + 35, 50, 6);
+            } else {
+                ctx.fillText(currentObject.emoji, oX, oY);
+            }
+            
+            // Draw Observer (Eye)
+            ctx.font = "70px Arial";
             ctx.fillText("👁️", eX, eY);
 
             frameCount++;
             requestAnimationFrame(animate);
         }
 
-        // --- STREAMING_CHUNK:Bootstrapping... ---
+        // Init
         window.onload = () => {
-            buildPalette();
-            // Start default in French
-            setLang('fr'); 
+            generatePalette();
+            setLang('fr'); // Initialize in French
+            resizeCanvas();
             animate();
         };
 
