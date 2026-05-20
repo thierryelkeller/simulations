@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; padding: 0; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; padding: 0; background-color: #0f172a; }
         
         /* Smooth bar transitions */
         .bar-transition { transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease; }
@@ -16,49 +16,50 @@
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
-            background: #ffffff; border: 2px solid #334155; cursor: pointer; margin-top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            background: #e2e8f0; border: 2px solid #1e293b; cursor: pointer; margin-top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #cbd5e1; border-radius: 3px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #475569; border-radius: 3px; }
         input[type=range]:focus { outline: none; }
         
         /* Scrollbar for objects (1 line) */
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
-        .hide-scroll::-webkit-scrollbar { height: 6px; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: thin; scrollbar-color: #475569 transparent; }
+        .hide-scroll::-webkit-scrollbar { height: 8px; }
         .hide-scroll::-webkit-scrollbar-track { background: transparent; }
-        .hide-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .hide-scroll::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 10px; }
+        .hide-scroll::-webkit-scrollbar-thumb:hover { background-color: #64748b; }
     </style>
 </head>
-<body class="w-screen h-screen flex flex-col text-slate-800">
+<body class="w-screen h-screen flex flex-col text-slate-200 bg-slate-900">
 
-    <header class="bg-slate-900 text-white p-3 px-6 flex justify-between items-center shadow-md z-20 shrink-0">
+    <header class="bg-slate-950 text-white p-3 px-6 flex justify-between items-center shadow-md z-20 shrink-0 border-b border-slate-800">
         <h1 id="app-title" class="text-xl font-bold tracking-tight">Simulation de la perception des couleurs</h1>
-        <div class="flex gap-2 bg-slate-800 p-1 rounded-lg">
+        <div class="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-800">
             <button onclick="setLang('fr')" id="btn-fr" class="px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow">FR</button>
-            <button onclick="setLang('en')" id="btn-en" class="px-3 py-1 text-xs font-bold text-slate-300 hover:text-white rounded">EN</button>
+            <button onclick="setLang('en')" id="btn-en" class="px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded">EN</button>
         </div>
     </header>
 
     <div class="flex-1 flex flex-row overflow-hidden">
         
         <!-- BLOCK 1: Left Panel (Light Source) -->
-        <aside class="w-80 bg-white border-r border-slate-200 shadow-sm z-10 flex flex-col shrink-0 overflow-y-auto">
+        <aside class="w-80 bg-slate-800 border-r border-slate-700 shadow-lg z-10 flex flex-col shrink-0 overflow-y-auto">
             <div class="p-6 flex flex-col gap-6">
-                <h2 id="ui-source-title" class="text-sm font-bold text-slate-500 uppercase tracking-widest border-b pb-2">Source de lumière</h2>
+                <h2 id="ui-source-title" class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b border-slate-700 pb-2">Source de lumière</h2>
                 
                 <div class="flex flex-col items-center gap-2">
-                    <div id="source-swatch" class="w-24 h-24 rounded-2xl border-2 border-slate-100 shadow-inner transition-colors duration-300"></div>
-                    <p id="source-color-name" class="font-bold text-slate-700 capitalize text-center h-6">Blanc</p>
+                    <div id="source-swatch" class="w-32 h-32 rounded-2xl border-4 border-slate-700 shadow-inner transition-colors duration-300"></div>
+                    <p id="source-color-name" class="font-bold text-slate-200 capitalize text-center h-6">Blanc</p>
                 </div>
 
-                <div class="flex bg-slate-100 p-1 rounded-lg">
-                    <button onclick="setLightMode('white')" id="tab-white" class="flex-1 py-1.5 text-xs font-bold bg-white rounded shadow-sm text-slate-800 transition-all">Lumière Blanche</button>
-                    <button onclick="setLightMode('color')" id="tab-color" class="flex-1 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700 transition-all">Lumière Colorée</button>
+                <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
+                    <button onclick="setLightMode('white')" id="tab-white" class="flex-1 py-1.5 text-xs font-bold bg-slate-700 rounded shadow-sm text-white transition-all">Lumière Blanche</button>
+                    <button onclick="setLightMode('color')" id="tab-color" class="flex-1 py-1.5 text-xs font-bold text-slate-400 hover:text-slate-200 transition-all">Lumière Colorée</button>
                 </div>
 
                 <div id="controls-white" class="space-y-2 mt-2">
                     <div class="flex justify-between items-center">
-                        <label id="lbl-intensity" class="text-sm font-semibold text-slate-600">Intensité Globale</label>
-                        <span id="val-intensity" class="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600">100%</span>
+                        <label id="lbl-intensity" class="text-sm font-semibold text-slate-300">Intensité Globale</label>
+                        <span id="val-intensity" class="text-xs font-mono bg-slate-900 px-2 py-1 rounded text-slate-300 border border-slate-700">100%</span>
                     </div>
                     <input type="range" id="slider-intensity" min="0" max="100" value="100" oninput="updateLight()">
                 </div>
@@ -67,21 +68,21 @@
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="text-xs font-bold text-red-500">R</label>
-                            <span id="val-r" class="text-xs font-mono text-slate-500">255</span>
+                            <span id="val-r" class="text-xs font-mono text-slate-400">255</span>
                         </div>
                         <input type="range" id="slider-r" min="0" max="255" value="255" oninput="updateLight()">
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="text-xs font-bold text-green-500">G</label>
-                            <span id="val-g" class="text-xs font-mono text-slate-500">255</span>
+                            <span id="val-g" class="text-xs font-mono text-slate-400">255</span>
                         </div>
                         <input type="range" id="slider-g" min="0" max="255" value="255" oninput="updateLight()">
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="text-xs font-bold text-blue-500">B</label>
-                            <span id="val-b" class="text-xs font-mono text-slate-500">255</span>
+                            <span id="val-b" class="text-xs font-mono text-slate-400">255</span>
                         </div>
                         <input type="range" id="slider-b" min="0" max="255" value="255" oninput="updateLight()">
                     </div>
@@ -89,55 +90,55 @@
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col relative min-w-0">
+        <main class="flex-1 flex flex-col relative min-w-0 bg-slate-950">
             <!-- Animation Block -->
-            <div class="flex-1 bg-slate-900 relative overflow-hidden" id="canvas-container">
+            <div class="flex-1 relative overflow-hidden" id="canvas-container">
                 <canvas id="simCanvas" class="absolute inset-0 w-full h-full block"></canvas>
             </div>
             
             <!-- BLOCK 2: Bottom Panel (Object Selection - 1 Line) -->
-            <div class="h-32 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 flex flex-col justify-center px-4 shrink-0">
-                <h2 id="ui-object-title" class="text-xs font-bold text-slate-500 uppercase tracking-widest text-center mb-3">Sélection de l'objet (Filtre)</h2>
-                <!-- Horizontal scroll container -->
-                <div id="object-buttons" class="flex flex-nowrap gap-3 overflow-x-auto hide-scroll pb-2 items-center px-2 snap-x">
+            <div class="h-36 bg-slate-800 border-t border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] z-10 flex flex-col justify-center px-4 shrink-0">
+                <h2 id="ui-object-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-3">Sélection de l'objet (Filtre)</h2>
+                <!-- Horizontal scroll container, centered on desktop -->
+                <div id="object-buttons" class="flex flex-nowrap md:justify-center gap-3 overflow-x-auto hide-scroll pb-2 items-center px-2 snap-x mx-auto w-full max-w-full">
                     <!-- Buttons injected by JS -->
                 </div>
             </div>
         </main>
 
-        <aside class="w-80 bg-white border-l border-slate-200 shadow-sm z-10 flex flex-col shrink-0 overflow-y-auto">
+        <aside class="w-80 bg-slate-800 border-l border-slate-700 shadow-lg z-10 flex flex-col shrink-0 overflow-y-auto">
             <div class="p-6 flex flex-col gap-6">
-                <h2 id="ui-perception-title" class="text-sm font-bold text-slate-500 uppercase tracking-widest border-b pb-2">Perception</h2>
+                <h2 id="ui-perception-title" class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b border-slate-700 pb-2">Perception</h2>
                 
                 <div class="flex flex-col items-center gap-2">
-                    <div id="perceived-swatch" class="w-24 h-24 rounded-2xl border-2 border-slate-100 shadow-inner transition-colors duration-300"></div>
-                    <p id="perceived-color-name" class="font-bold text-slate-700 capitalize text-center h-6">Blanc</p>
+                    <div id="perceived-swatch" class="w-32 h-32 rounded-2xl border-4 border-slate-700 shadow-inner transition-colors duration-300"></div>
+                    <p id="perceived-color-name" class="font-bold text-slate-200 capitalize text-center h-6">Blanc</p>
                 </div>
 
                 <div class="mt-4">
                     <h3 id="ui-analyzer-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-6">Analyseur RGB (Lumière réfléchie)</h3>
                     
-                    <div class="h-40 flex items-end justify-around border-b-2 border-slate-200 pb-2 relative">
-                        <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-slate-400 pb-2">
+                    <div class="h-40 flex items-end justify-around border-b-2 border-slate-700 pb-2 relative">
+                        <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-slate-500 pb-2">
                             <span>100%</span><span>50%</span><span>0%</span>
                         </div>
                         <!-- R -->
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
                             <span id="lbl-bar-r" class="text-[10px] font-bold text-red-500 mb-1">100%</span>
-                            <div class="w-full bg-red-50 rounded-t-md h-full flex items-end"><div id="bar-r" class="w-full bg-red-500 rounded-t-md bar-transition" style="height: 100%;"></div></div>
-                            <span class="text-xs font-bold text-slate-600 mt-2">R</span>
+                            <div class="w-full bg-red-900/20 rounded-t-md h-full flex items-end"><div id="bar-r" class="w-full bg-red-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(239,68,68,0.5)]" style="height: 100%;"></div></div>
+                            <span class="text-xs font-bold text-slate-300 mt-2">R</span>
                         </div>
                         <!-- G -->
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
                             <span id="lbl-bar-g" class="text-[10px] font-bold text-green-500 mb-1">100%</span>
-                            <div class="w-full bg-green-50 rounded-t-md h-full flex items-end"><div id="bar-g" class="w-full bg-green-500 rounded-t-md bar-transition" style="height: 100%;"></div></div>
-                            <span class="text-xs font-bold text-slate-600 mt-2">G</span>
+                            <div class="w-full bg-green-900/20 rounded-t-md h-full flex items-end"><div id="bar-g" class="w-full bg-green-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(34,197,94,0.5)]" style="height: 100%;"></div></div>
+                            <span class="text-xs font-bold text-slate-300 mt-2">G</span>
                         </div>
                         <!-- B -->
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
                             <span id="lbl-bar-b" class="text-[10px] font-bold text-blue-500 mb-1">100%</span>
-                            <div class="w-full bg-blue-50 rounded-t-md h-full flex items-end"><div id="bar-b" class="w-full bg-blue-500 rounded-t-md bar-transition" style="height: 100%;"></div></div>
-                            <span class="text-xs font-bold text-slate-600 mt-2">B</span>
+                            <div class="w-full bg-blue-900/20 rounded-t-md h-full flex items-end"><div id="bar-b" class="w-full bg-blue-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(59,130,246,0.5)]" style="height: 100%;"></div></div>
+                            <span class="text-xs font-bold text-slate-300 mt-2">B</span>
                         </div>
                     </div>
                 </div>
@@ -145,11 +146,11 @@
         </aside>
     </div>
 
-    <div id="color-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h3 id="modal-title" class="font-bold text-lg text-slate-800">Couleur personnalisée</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-800 text-2xl font-bold leading-none">&times;</button>
+    <div id="color-modal" class="fixed inset-0 bg-slate-950/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity">
+        <div class="bg-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl border border-slate-700">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                <h3 id="modal-title" class="font-bold text-lg text-white">Couleur personnalisée</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
             </div>
             <p id="modal-subtitle-gray" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Nuances de gris</p>
             <div id="gray-grid" class="flex gap-2 mb-4 justify-between"></div>
@@ -256,8 +257,8 @@
             document.getElementById('modal-subtitle-gray').innerText = t.grayTitle;
             document.getElementById('modal-subtitle-color').innerText = t.colorTitle;
             
-            document.getElementById('btn-fr').className = lang === 'fr' ? "px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow" : "px-3 py-1 text-xs font-bold text-slate-300 hover:text-white rounded";
-            document.getElementById('btn-en').className = lang === 'en' ? "px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow" : "px-3 py-1 text-xs font-bold text-slate-300 hover:text-white rounded";
+            document.getElementById('btn-fr').className = lang === 'fr' ? "px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow" : "px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded";
+            document.getElementById('btn-en').className = lang === 'en' ? "px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow" : "px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded";
             
             buildObjectButtons();
             updateSimulation();
@@ -271,12 +272,12 @@
             const cColor = document.getElementById('controls-color');
 
             if (mode === 'white') {
-                tWhite.className = "flex-1 py-1.5 text-xs font-bold bg-white rounded shadow-sm text-slate-800";
-                tColor.className = "flex-1 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700";
+                tWhite.className = "flex-1 py-1.5 text-xs font-bold bg-slate-700 rounded shadow-sm text-white transition-all";
+                tColor.className = "flex-1 py-1.5 text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
                 cWhite.classList.remove('hidden'); cColor.classList.add('hidden');
             } else {
-                tColor.className = "flex-1 py-1.5 text-xs font-bold bg-white rounded shadow-sm text-slate-800";
-                tWhite.className = "flex-1 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700";
+                tColor.className = "flex-1 py-1.5 text-xs font-bold bg-slate-700 rounded shadow-sm text-white transition-all";
+                tWhite.className = "flex-1 py-1.5 text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
                 cColor.classList.remove('hidden'); cWhite.classList.add('hidden');
             }
             updateLight();
@@ -336,19 +337,19 @@
                 const btn = document.createElement('button');
                 const isSelected = currentObject.id === obj.id;
                 
-                // One line flex-shrink-0 for scrollable row
-                btn.className = `flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all shrink-0 snap-center w-[72px] ${isSelected ? 'border-blue-500 bg-blue-50 shadow-md transform -translate-y-1' : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50'}`;
+                // One line flex-shrink-0 for scrollable row, updated dark mode classes
+                btn.className = `flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all shrink-0 snap-center w-[72px] ${isSelected ? 'border-blue-500 bg-blue-900/40 shadow-lg transform -translate-y-1' : 'border-slate-700 bg-slate-800 hover:border-slate-500 hover:bg-slate-700'}`;
                 
                 if (obj.isCustom) {
                     btn.innerHTML = `
-                        <div class="w-8 h-8 rounded-full shadow-sm mb-1 border border-slate-300 flex items-center justify-center text-xs" style="background-color: rgb(${obj.r*2.55},${obj.g*2.55},${obj.b*2.55})">🎨</div>
-                        <span class="text-[10px] font-semibold text-slate-600 text-center truncate w-full">${i18n[currentLang].names[obj.id]}</span>
+                        <div class="w-8 h-8 rounded-full shadow-sm mb-1 border-2 border-slate-600 flex items-center justify-center text-xs" style="background-color: rgb(${obj.r*2.55},${obj.g*2.55},${obj.b*2.55})">🎨</div>
+                        <span class="text-[10px] font-semibold text-slate-300 text-center truncate w-full">${i18n[currentLang].names[obj.id]}</span>
                     `;
                     btn.onclick = () => { selectObject(obj); openModal(); };
                 } else {
                     btn.innerHTML = `
                         <span class="text-2xl mb-1">${obj.emoji}</span>
-                        <span class="text-[10px] font-semibold text-slate-600 text-center truncate w-full">${i18n[currentLang].names[obj.id]}</span>
+                        <span class="text-[10px] font-semibold text-slate-300 text-center truncate w-full">${i18n[currentLang].names[obj.id]}</span>
                     `;
                     btn.onclick = () => selectObject(obj);
                 }
@@ -370,7 +371,7 @@
             const grays = [255, 204, 153, 102, 51, 0]; // 6 steps
             grays.forEach(val => {
                 const btn = document.createElement('button');
-                btn.className = "w-10 h-10 rounded-full border border-slate-200 hover:scale-110 transition-transform shadow-sm";
+                btn.className = "w-10 h-10 rounded-full border border-slate-600 hover:scale-110 transition-transform shadow-sm";
                 btn.style.backgroundColor = `rgb(${val},${val},${val})`;
                 btn.onclick = () => applyCustomColor(val, val, val);
                 grayGrid.appendChild(btn);
@@ -381,7 +382,7 @@
                 [0.75, 0.5, 0.25].forEach(l => {
                     const rgb = hslToRgb(h/360, 0.9, l);
                     const btn = document.createElement('button');
-                    btn.className = "w-10 h-10 rounded-full border border-slate-200 hover:scale-110 transition-transform shadow-sm";
+                    btn.className = "w-10 h-10 rounded-full border border-slate-600 hover:scale-110 transition-transform shadow-sm";
                     btn.style.backgroundColor = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
                     btn.onclick = () => applyCustomColor(rgb[0], rgb[1], rgb[2]);
                     colorGrid.appendChild(btn);
@@ -494,18 +495,18 @@
             ctx.save();
             ctx.translate(fX, fY);
             ctx.beginPath();
-            ctx.arc(0, 0, 100, 0, Math.PI*2);
-            let glow = ctx.createRadialGradient(0, 0, 10, 0, 0, 100);
-            glow.addColorStop(0, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.5)`);
+            ctx.arc(0, 0, 120, 0, Math.PI*2);
+            let glow = ctx.createRadialGradient(0, 0, 10, 0, 0, 120);
+            glow.addColorStop(0, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.6)`);
             glow.addColorStop(1, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0)`);
             ctx.fillStyle = glow;
             ctx.fill();
 
             // Draw Flashlight Body
             ctx.rotate(angle);
-            ctx.fillStyle = '#cbd5e1';
+            ctx.fillStyle = '#475569';
             ctx.fillRect(-25, -15, 35, 30);
-            ctx.fillStyle = '#94a3b8';
+            ctx.fillStyle = '#64748b';
             ctx.beginPath(); ctx.moveTo(10, -15); ctx.lineTo(25, -25); ctx.lineTo(25, 25); ctx.lineTo(10, 15); ctx.fill();
             ctx.restore();
 
