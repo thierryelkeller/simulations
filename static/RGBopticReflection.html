@@ -12,13 +12,13 @@
         /* Smooth bar transitions */
         .bar-transition { transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease; }
         
-        /* Custom ranges */
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        /* Custom horizontal/rotated ranges */
+        input[type=range] { -webkit-appearance: none; background: transparent; cursor: pointer; }
         input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
-            background: #e2e8f0; border: 2px solid #1e293b; cursor: pointer; margin-top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%;
+            background: #e2e8f0; border: 2px solid #1e293b; margin-top: -6px; box-shadow: 0 2px 4px rgba(0,0,0,0.6);
         }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #475569; border-radius: 3px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #475569; border-radius: 3px; }
         input[type=range]:focus { outline: none; }
         
         /* Scrollbar for objects (1 line) */
@@ -36,12 +36,12 @@
         <div class="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-800">
             <button onclick="setLang('fr')" id="btn-fr" class="px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow">FR</button>
             <button onclick="setLang('en')" id="btn-en" class="px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded">EN</button>
+            <button onclick="setLang('es')" id="btn-es" class="px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded">ES</button>
         </div>
     </header>
 
     <div class="flex-1 flex flex-row overflow-hidden">
         
-        <!-- BLOCK 1: Left Panel (Light Source) -->
         <aside class="w-80 bg-slate-800 border-r border-slate-700 shadow-lg z-10 flex flex-col shrink-0 overflow-y-auto">
             <div class="p-6 flex flex-col gap-6">
                 <h2 id="ui-source-title" class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b border-slate-700 pb-2">Source de lumière</h2>
@@ -56,35 +56,37 @@
                     <button onclick="setLightMode('color')" id="tab-color" class="flex-1 py-1.5 text-xs font-bold text-slate-400 hover:text-slate-200 transition-all">Lumière Colorée</button>
                 </div>
 
-                <div id="controls-white" class="space-y-2 mt-2">
-                    <div class="flex justify-between items-center">
-                        <label id="lbl-intensity" class="text-sm font-semibold text-slate-300">Intensité Globale</label>
-                        <span id="val-intensity" class="text-xs font-mono bg-slate-900 px-2 py-1 rounded text-slate-300 border border-slate-700">100%</span>
+                <!-- Vertical Sliders for White Light -->
+                <div id="controls-white" class="flex flex-col items-center justify-center mt-2 space-y-2">
+                    <span id="val-intensity" class="text-xs font-mono bg-slate-900 px-2 py-1 rounded text-slate-300 border border-slate-700 mb-2">100%</span>
+                    <div class="relative w-8 h-32">
+                        <input type="range" id="slider-intensity" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-90">
                     </div>
-                    <input type="range" id="slider-intensity" min="0" max="100" value="100" oninput="updateLight()">
+                    <label id="lbl-intensity" class="text-sm font-semibold text-slate-300 mt-2">Intensité Globale</label>
                 </div>
 
-                <div id="controls-color" class="space-y-5 hidden mt-2">
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-xs font-bold text-red-500">R</label>
-                            <span id="val-r" class="text-xs font-mono text-slate-400">100%</span>
+                <!-- Vertical Sliders for RGB Light -->
+                <div id="controls-color" class="flex justify-around items-end h-48 mt-2 hidden">
+                    <div class="flex flex-col items-center h-full">
+                        <span id="val-r" class="text-xs font-mono text-slate-400 mb-4">100%</span>
+                        <div class="relative w-8 flex-1">
+                            <input type="range" id="slider-r" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-90">
                         </div>
-                        <input type="range" id="slider-r" min="0" max="100" value="100" oninput="updateLight()">
+                        <label id="lbl-slider-r" class="text-xs font-bold text-red-500 mt-4 text-center">Rouge</label>
                     </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-xs font-bold text-green-500">G</label>
-                            <span id="val-g" class="text-xs font-mono text-slate-400">100%</span>
+                    <div class="flex flex-col items-center h-full">
+                        <span id="val-g" class="text-xs font-mono text-slate-400 mb-4">100%</span>
+                        <div class="relative w-8 flex-1">
+                            <input type="range" id="slider-g" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-90">
                         </div>
-                        <input type="range" id="slider-g" min="0" max="100" value="100" oninput="updateLight()">
+                        <label id="lbl-slider-g" class="text-xs font-bold text-green-500 mt-4 text-center">Vert</label>
                     </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-xs font-bold text-blue-500">B</label>
-                            <span id="val-b" class="text-xs font-mono text-slate-400">100%</span>
+                    <div class="flex flex-col items-center h-full">
+                        <span id="val-b" class="text-xs font-mono text-slate-400 mb-4">100%</span>
+                        <div class="relative w-8 flex-1">
+                            <input type="range" id="slider-b" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-90">
                         </div>
-                        <input type="range" id="slider-b" min="0" max="100" value="100" oninput="updateLight()">
+                        <label id="lbl-slider-b" class="text-xs font-bold text-blue-500 mt-4 text-center">Bleu</label>
                     </div>
                 </div>
             </div>
@@ -96,10 +98,9 @@
                 <canvas id="simCanvas" class="absolute inset-0 w-full h-full block"></canvas>
             </div>
             
-            <!-- BLOCK 2: Bottom Panel (Object Selection - 1 Line) -->
+            <!-- Bottom Panel (Object Selection) -->
             <div class="h-36 bg-slate-800 border-t border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] z-10 flex flex-col justify-center px-4 shrink-0">
                 <h2 id="ui-object-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-3">Sélection de l'objet (Filtre)</h2>
-                <!-- Horizontal scroll container, centered on desktop -->
                 <div id="object-buttons" class="flex flex-nowrap md:justify-center gap-3 overflow-x-auto hide-scroll pb-2 items-center px-2 snap-x mx-auto w-full max-w-full">
                     <!-- Buttons injected by JS -->
                 </div>
@@ -108,9 +109,9 @@
 
         <aside class="w-80 bg-slate-800 border-l border-slate-700 shadow-lg z-10 flex flex-col shrink-0 overflow-y-auto">
             <div class="p-6 flex flex-col gap-6">
-                <h2 id="ui-perception-title" class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b border-slate-700 pb-2">Perception</h2>
+                <h2 id="ui-perception-title" class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b border-slate-700 pb-2">Perception visuelle</h2>
                 
-                <div class="flex flex-col items-center w-full gap-4">
+                <div class="flex flex-col items-center gap-4 w-full">
                     <!-- Objet Simulé Dynamique (Teinté au pixel) -->
                     <div class="flex items-center justify-center h-32 w-full">
                         <canvas id="tinted-object-canvas" width="160" height="160" class="w-32 h-32 drop-shadow-xl"></canvas>
@@ -124,29 +125,26 @@
                 </div>
 
                 <div class="mt-4">
-                    <h3 id="ui-analyzer-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-6">Analyseur RGB (Lumière réfléchie)</h3>
+                    <h3 id="ui-analyzer-title" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center mb-6 leading-tight">Analyseur Rouge, Vert, Bleu<br><span class="text-[9px]">(Lumière réfléchie)</span></h3>
                     
                     <div class="h-40 flex items-end justify-around border-b-2 border-slate-700 pb-2 relative">
                         <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-slate-500 pb-2">
                             <span>100%</span><span>50%</span><span>0%</span>
                         </div>
-                        <!-- R -->
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
                             <span id="lbl-bar-r" class="text-[10px] font-bold text-red-500 mb-1">100%</span>
                             <div class="w-full bg-red-900/20 rounded-t-md h-full flex items-end"><div id="bar-r" class="w-full bg-red-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(239,68,68,0.5)]" style="height: 100%;"></div></div>
-                            <span class="text-xs font-bold text-slate-300 mt-2">R</span>
+                            <span id="lbl-bar-r-name" class="text-[10px] font-bold text-slate-300 mt-2">Rouge</span>
                         </div>
-                        <!-- G -->
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
                             <span id="lbl-bar-g" class="text-[10px] font-bold text-green-500 mb-1">100%</span>
                             <div class="w-full bg-green-900/20 rounded-t-md h-full flex items-end"><div id="bar-g" class="w-full bg-green-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(34,197,94,0.5)]" style="height: 100%;"></div></div>
-                            <span class="text-xs font-bold text-slate-300 mt-2">G</span>
+                            <span id="lbl-bar-g-name" class="text-[10px] font-bold text-slate-300 mt-2">Vert</span>
                         </div>
-                        <!-- B -->
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
                             <span id="lbl-bar-b" class="text-[10px] font-bold text-blue-500 mb-1">100%</span>
                             <div class="w-full bg-blue-900/20 rounded-t-md h-full flex items-end"><div id="bar-b" class="w-full bg-blue-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(59,130,246,0.5)]" style="height: 100%;"></div></div>
-                            <span class="text-xs font-bold text-slate-300 mt-2">B</span>
+                            <span id="lbl-bar-b-name" class="text-[10px] font-bold text-slate-300 mt-2">Bleu</span>
                         </div>
                     </div>
                 </div>
@@ -156,14 +154,16 @@
 
     <div id="color-modal" class="fixed inset-0 bg-slate-950/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity">
         <div class="bg-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl border border-slate-700">
-            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-2">
                 <h3 id="modal-title" class="font-bold text-lg text-white">Couleur personnalisée</h3>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
             </div>
-            <p id="modal-subtitle-gray" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Nuances de gris</p>
-            <div id="gray-grid" class="flex gap-2 mb-4 justify-between"></div>
-            <p id="modal-subtitle-color" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Couleurs</p>
-            <div id="color-grid" class="grid grid-cols-6 gap-2"></div>
+            
+            <p id="modal-subtitle-gray" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Nuances de gris</p>
+            <div id="gray-grid" class="flex gap-3 mb-6 justify-center"></div>
+            
+            <p id="modal-subtitle-color" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Spectre complet</p>
+            <div id="color-grid" class="grid grid-cols-12 gap-2 justify-items-center"></div>
         </div>
     </div>
 
@@ -179,33 +179,55 @@
             { id: 'leaf', emoji: '🍃', r: 10, g: 85, b: 20 },
             { id: 'cap', emoji: '🧢', r: 10, g: 30, b: 90 },
             { id: 'grapes', emoji: '🍇', r: 50, g: 15, b: 70 },
+            { id: 'multicolor', emoji: '🍭', r: 100, g: 100, b: 100 }, // Lollipop containing rainbow bands
             { id: 'wood', emoji: '🪵', r: 54, g: 27, b: 7 },
-            { id: 'elephant', emoji: '🐘', r: 50, g: 50, b: 50 }, // Better Grey
-            { id: 'milk', emoji: '🥛', r: 95, g: 95, b: 95 }, // Better White
-            { id: 'ball8', emoji: '🎱', r: 5, g: 5, b: 5 }, // Better Black
+            { id: 'elephant', emoji: '🐘', r: 50, g: 50, b: 50 },
+            { id: 'milk', emoji: '🥛', r: 95, g: 95, b: 95 },
+            { id: 'ball8', emoji: '🎱', r: 5, g: 5, b: 5 },
             { id: 'custom', isCustom: true, r: 128, g: 128, b: 128 }
         ];
         let currentObject = simObjects[0];
 
+        // Advanced Translation Dictionary
         const i18n = {
             fr: { 
-                title: "Simulation : Couleur et Lumière", source: "Source lumineuse", object: "Objet", perception: "Perception visuelle", analyzer: "Lumière Réfléchie (Analyseur RGB)", 
-                tabWhite: "Lumière Blanche", tabColor: "Lumière Colorée", intensity: "Intensité",
-                modalTitle: "Créer une couleur", grayTitle: "Nuances de gris", colorTitle: "Spectre",
-                names: { strawberry: "Fraise", carrot: "Carotte", lemon: "Citron", leaf: "Feuille", cap: "Casquette", grapes: "Raisin", wood: "Bois", elephant: "Éléphant", milk: "Lait", ball8: "Boule 8", custom: "Perso" }
+                title: "Simulation : Couleur et Lumière", source: "Source de lumière", object: "Sélection de l'objet (Filtre)", perception: "Perception visuelle", 
+                analyzer: "Analyseur Rouge, Vert, Bleu<br><span class='text-[9px]'>(Lumière réfléchie)</span>", 
+                tabWhite: "Lumière Blanche", tabColor: "Lumière Colorée", intensity: "Intensité Globale",
+                modalTitle: "Créer une couleur", grayTitle: "Nuances de gris", colorTitle: "Spectre complet",
+                red: "Rouge", green: "Vert", blue: "Bleu",
+                names: { strawberry: "Fraise", carrot: "Carotte", lemon: "Citron", leaf: "Feuille", cap: "Casquette", grapes: "Raisin", multicolor: "Multicolore", wood: "Bois", elephant: "Éléphant", milk: "Lait", ball8: "Boule 8", custom: "Perso" }
             },
             en: { 
-                title: "Simulation: Color and Light", source: "Light Source", object: "Target Object", perception: "Visual Perception", analyzer: "Reflected Light (RGB Analyzer)", 
-                tabWhite: "White Light", tabColor: "Colored Light", intensity: "Intensity",
-                modalTitle: "Create Custom Color", grayTitle: "Grayscale", colorTitle: "Spectrum",
-                names: { strawberry: "Strawberry", carrot: "Carrot", lemon: "Lemon", leaf: "Leaf", cap: "Cap", grapes: "Grapes", wood: "Wood", elephant: "Elephant", milk: "Milk", ball8: "8-Ball", custom: "Custom" }
+                title: "Simulation: Color and Light", source: "Light Source", object: "Target Object (Filter)", perception: "Visual Perception", 
+                analyzer: "Red, Green, Blue Analyzer<br><span class='text-[9px]'>(Reflected Light)</span>", 
+                tabWhite: "White Light", tabColor: "Colored Light", intensity: "Overall Intensity",
+                modalTitle: "Create Custom Color", grayTitle: "Grayscale", colorTitle: "Full Spectrum",
+                red: "Red", green: "Green", blue: "Blue",
+                names: { strawberry: "Strawberry", carrot: "Carrot", lemon: "Lemon", leaf: "Leaf", cap: "Cap", grapes: "Grapes", multicolor: "Multicolor", wood: "Wood", elephant: "Elephant", milk: "Milk", ball8: "8-Ball", custom: "Custom" }
+            },
+            es: {
+                title: "Simulación: Color y Luz", source: "Fuente de luz", object: "Selección de objeto (Filtro)", perception: "Percepción visual", 
+                analyzer: "Analizador Rojo, Verde, Azul<br><span class='text-[9px]'>(Luz reflejada)</span>", 
+                tabWhite: "Luz Blanca", tabColor: "Luz Coloreada", intensity: "Intensidad Global",
+                modalTitle: "Crear color", grayTitle: "Escala de grises", colorTitle: "Espectro completo",
+                red: "Rojo", green: "Verde", blue: "Azul",
+                names: { strawberry: "Fresa", carrot: "Zanahoria", lemon: "Limón", leaf: "Hoja", cap: "Gorra", grapes: "Uvas", multicolor: "Multicolor", wood: "Madera", elephant: "Elefante", milk: "Leche", ball8: "Bola 8", custom: "Perso" }
             }
+        };
+
+        // Grammar-aware color naming logic
+        const colorVocab = {
+            fr: { black: 'Noir', white: 'Blanc', darkGray: 'Gris foncé', lightGray: 'Gris clair', gray: 'Gris', red: 'Rouge', orange: 'Orange', yellow: 'Jaune', green: 'Vert', cyan: 'Cyan', blue: 'Bleu', purple: 'Violet', magenta: 'Magenta', dark: ' foncé', light: ' clair', pink: 'Rose', peach: 'Pêche' },
+            en: { black: 'Black', white: 'White', darkGray: 'Dark Gray', lightGray: 'Light Gray', gray: 'Gray', red: 'Red', orange: 'Orange', yellow: 'Yellow', green: 'Green', cyan: 'Cyan', blue: 'Blue', purple: 'Purple', magenta: 'Magenta', dark: 'Dark ', light: 'Light ', pink: 'Pink', peach: 'Peach' },
+            es: { black: 'Negro', white: 'Blanco', darkGray: 'Gris oscuro', lightGray: 'Gris claro', gray: 'Gris', red: 'Rojo', orange: 'Naranja', yellow: 'Amarillo', green: 'Verde', cyan: 'Cian', blue: 'Azul', purple: 'Morado', magenta: 'Magenta', dark: ' oscuro', light: ' claro', pink: 'Rosa', peach: 'Melocotón' }
         };
 
         function getColorName(r, g, b, lang) {
             r /= 255; g /= 255; b /= 255;
             const max = Math.max(r, g, b), min = Math.min(r, g, b);
             let h, s, l = (max + min) / 2;
+            const v = colorVocab[lang];
 
             if (max === min) { h = s = 0; }
             else {
@@ -221,32 +243,31 @@
             
             h = Math.round(h * 360); s = Math.round(s * 100); l = Math.round(l * 100);
 
-            if (l < 5) return lang === 'fr' ? 'Noir' : 'Black';
-            if (l > 95) return lang === 'fr' ? 'Blanc' : 'White';
+            if (l < 5) return v.black;
+            if (l > 95) return v.white;
             if (s < 10) {
-                if (l < 30) return lang === 'fr' ? 'Gris très foncé' : 'Very Dark Gray';
-                if (l < 50) return lang === 'fr' ? 'Gris foncé' : 'Dark Gray';
-                if (l > 75) return lang === 'fr' ? 'Gris clair' : 'Light Gray';
-                return lang === 'fr' ? 'Gris' : 'Gray';
+                if (l < 30) return v.darkGray;
+                if (l > 75) return v.lightGray;
+                return v.gray;
             }
 
-            let baseNameFr, baseNameEn;
-            if (h < 15 || h >= 345) { baseNameFr = 'Rouge'; baseNameEn = 'Red'; }
-            else if (h < 40) { baseNameFr = 'Orange'; baseNameEn = 'Orange'; }
-            else if (h < 65) { baseNameFr = 'Jaune'; baseNameEn = 'Yellow'; }
-            else if (h < 150) { baseNameFr = 'Vert'; baseNameEn = 'Green'; }
-            else if (h < 200) { baseNameFr = 'Cyan'; baseNameEn = 'Cyan'; }
-            else if (h < 255) { baseNameFr = 'Bleu'; baseNameEn = 'Blue'; }
-            else if (h < 290) { baseNameFr = 'Violet'; baseNameEn = 'Purple'; }
-            else { baseNameFr = 'Magenta'; baseNameEn = 'Magenta'; }
+            let base;
+            if (h < 15 || h >= 345) { base = v.red; }
+            else if (h < 40) { base = v.orange; }
+            else if (h < 65) { base = v.yellow; }
+            else if (h < 150) { base = v.green; }
+            else if (h < 200) { base = v.cyan; }
+            else if (h < 255) { base = v.blue; }
+            else if (h < 290) { base = v.purple; }
+            else { base = v.magenta; }
 
-            if (l < 30) return lang === 'fr' ? baseNameFr + ' foncé' : 'Dark ' + baseNameEn;
+            if (l < 30) return lang === 'en' ? v.dark + base : base + v.dark;
             if (l > 75) {
-                if (baseNameEn === 'Red') return lang === 'fr' ? 'Rose' : 'Pink';
-                if (baseNameEn === 'Orange') return lang === 'fr' ? 'Pêche' : 'Peach';
-                return lang === 'fr' ? baseNameFr + ' clair' : 'Light ' + baseNameEn;
+                if (base === v.red) return v.pink;
+                if (base === v.orange) return v.peach;
+                return lang === 'en' ? v.light + base : base + v.light;
             }
-            return lang === 'fr' ? baseNameFr : baseNameEn;
+            return base;
         }
 
         function setLang(lang) {
@@ -257,7 +278,7 @@
             document.getElementById('ui-source-title').innerText = t.source;
             document.getElementById('ui-object-title').innerText = t.object;
             document.getElementById('ui-perception-title').innerText = t.perception;
-            document.getElementById('ui-analyzer-title').innerText = t.analyzer;
+            document.getElementById('ui-analyzer-title').innerHTML = t.analyzer;
             document.getElementById('tab-white').innerText = t.tabWhite;
             document.getElementById('tab-color').innerText = t.tabColor;
             document.getElementById('lbl-intensity').innerText = t.intensity;
@@ -265,8 +286,20 @@
             document.getElementById('modal-subtitle-gray').innerText = t.grayTitle;
             document.getElementById('modal-subtitle-color').innerText = t.colorTitle;
             
-            document.getElementById('btn-fr').className = lang === 'fr' ? "px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow" : "px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded";
-            document.getElementById('btn-en').className = lang === 'en' ? "px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow" : "px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded";
+            // Update explicit color names
+            document.getElementById('lbl-slider-r').innerText = t.red;
+            document.getElementById('lbl-slider-g').innerText = t.green;
+            document.getElementById('lbl-slider-b').innerText = t.blue;
+            document.getElementById('lbl-bar-r-name').innerText = t.red;
+            document.getElementById('lbl-bar-g-name').innerText = t.green;
+            document.getElementById('lbl-bar-b-name').innerText = t.blue;
+
+            // Handle button states
+            ['fr', 'en', 'es'].forEach(l => {
+                document.getElementById(`btn-${l}`).className = lang === l 
+                    ? "px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow" 
+                    : "px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded";
+            });
             
             buildObjectButtons();
             updateSimulation();
@@ -298,40 +331,34 @@
                 const val = Math.round((intensity / 100) * 255);
                 lightRGB = { r: val, g: val, b: val };
             } else {
-                const r = parseInt(document.getElementById('slider-r').value);
-                const g = parseInt(document.getElementById('slider-g').value);
-                const b = parseInt(document.getElementById('slider-b').value);
-                document.getElementById('val-r').innerText = `${r}%`;
-                document.getElementById('val-g').innerText = `${g}%`;
-                document.getElementById('val-b').innerText = `${b}%`;
-                // Convert 0-100 to 0-255 for simulation logic
+                const rPct = parseInt(document.getElementById('slider-r').value);
+                const gPct = parseInt(document.getElementById('slider-g').value);
+                const bPct = parseInt(document.getElementById('slider-b').value);
+                document.getElementById('val-r').innerText = `${rPct}%`;
+                document.getElementById('val-g').innerText = `${gPct}%`;
+                document.getElementById('val-b').innerText = `${bPct}%`;
                 lightRGB = { 
-                    r: Math.round(r * 2.55), 
-                    g: Math.round(g * 2.55), 
-                    b: Math.round(b * 2.55) 
+                    r: Math.round((rPct / 100) * 255), 
+                    g: Math.round((gPct / 100) * 255), 
+                    b: Math.round((bPct / 100) * 255) 
                 };
             }
             updateSimulation();
         }
 
         function updateSimulation() {
-            // Source Swatch
             document.getElementById('source-swatch').style.backgroundColor = `rgb(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b})`;
             document.getElementById('source-color-name').innerText = getColorName(lightRGB.r, lightRGB.g, lightRGB.b, currentLang);
 
-            // Reflection Math
             const pr = Math.round(lightRGB.r * (currentObject.r / 100));
             const pg = Math.round(lightRGB.g * (currentObject.g / 100));
             const pb = Math.round(lightRGB.b * (currentObject.b / 100));
 
-            // Update Swatch & Text
             document.getElementById('perceived-swatch').style.backgroundColor = `rgb(${pr}, ${pg}, ${pb})`;
             document.getElementById('perceived-color-name').innerText = getColorName(pr, pg, pb, currentLang);
 
-            // Update Tinted Canvas Object
             drawTintedObject();
 
-            // Update Bars
             const pctR = Math.round((pr / 255) * 100);
             const pctG = Math.round((pg / 255) * 100);
             const pctB = Math.round((pb / 255) * 100);
@@ -345,6 +372,38 @@
             document.getElementById('lbl-bar-b').innerText = `${pctB}%`;
         }
 
+        function drawTintedObject() {
+            const canvas = document.getElementById('tinted-object-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (currentObject.isCustom) {
+                ctx.beginPath();
+                ctx.arc(80, 80, 60, 0, Math.PI*2);
+                ctx.fillStyle = `rgb(${currentObject.r*2.55}, ${currentObject.g*2.55}, ${currentObject.b*2.55})`;
+                ctx.fill();
+            } else {
+                ctx.font = "110px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(currentObject.emoji, 80, 85);
+            }
+            
+            // Optical Filter Magic: Multiply pixel data by light source color
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i+3] > 0) { 
+                    data[i] = Math.round((data[i] * lightRGB.r) / 255);     
+                    data[i+1] = Math.round((data[i+1] * lightRGB.g) / 255); 
+                    data[i+2] = Math.round((data[i+2] * lightRGB.b) / 255); 
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+
         function buildObjectButtons() {
             const container = document.getElementById('object-buttons');
             container.innerHTML = '';
@@ -352,9 +411,7 @@
             simObjects.forEach(obj => {
                 const btn = document.createElement('button');
                 const isSelected = currentObject.id === obj.id;
-                
-                // One line flex-shrink-0 for scrollable row, updated dark mode classes
-                btn.className = `flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all shrink-0 snap-center w-[72px] ${isSelected ? 'border-blue-500 bg-blue-900/40 shadow-lg transform -translate-y-1' : 'border-slate-700 bg-slate-800 hover:border-slate-500 hover:bg-slate-700'}`;
+                btn.className = `flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all shrink-0 snap-center w-[76px] ${isSelected ? 'border-blue-500 bg-blue-900/40 shadow-lg transform -translate-y-1' : 'border-slate-700 bg-slate-800 hover:border-slate-500 hover:bg-slate-700'}`;
                 
                 if (obj.isCustom) {
                     btn.innerHTML = `
@@ -364,7 +421,7 @@
                     btn.onclick = () => { selectObject(obj); openModal(); };
                 } else {
                     btn.innerHTML = `
-                        <span class="text-2xl mb-1">${obj.emoji}</span>
+                        <span class="text-3xl mb-1">${obj.emoji}</span>
                         <span class="text-[10px] font-semibold text-slate-300 text-center truncate w-full">${i18n[currentLang].names[obj.id]}</span>
                     `;
                     btn.onclick = () => selectObject(obj);
@@ -384,25 +441,27 @@
 
         function generatePalette() {
             const grayGrid = document.getElementById('gray-grid');
-            const grays = [255, 204, 153, 102, 51, 0]; // 6 steps
+            grayGrid.innerHTML = '';
+            const grays = [255, 212, 170, 128, 85, 42, 0];
             grays.forEach(val => {
                 const btn = document.createElement('button');
-                btn.className = "w-10 h-10 rounded-full border border-slate-600 hover:scale-110 transition-transform shadow-sm";
+                btn.className = "w-7 h-7 rounded-full border border-slate-600 hover:scale-125 transition-transform shadow-sm";
                 btn.style.backgroundColor = `rgb(${val},${val},${val})`;
                 btn.onclick = () => applyCustomColor(val, val, val);
                 grayGrid.appendChild(btn);
             });
 
             const colorGrid = document.getElementById('color-grid');
-            for(let h=0; h<360; h+=30) { // 12 hues * 3 brightness levels = 36 colors
-                [0.75, 0.5, 0.25].forEach(l => {
+            colorGrid.innerHTML = '';
+            for(let l of [0.75, 0.5, 0.25]) { 
+                for(let h=0; h<360; h+=30) { 
                     const rgb = hslToRgb(h/360, 0.9, l);
                     const btn = document.createElement('button');
-                    btn.className = "w-10 h-10 rounded-full border border-slate-600 hover:scale-110 transition-transform shadow-sm";
+                    btn.className = "w-7 h-7 rounded-full border border-slate-600 hover:scale-125 transition-transform shadow-sm";
                     btn.style.backgroundColor = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
                     btn.onclick = () => applyCustomColor(rgb[0], rgb[1], rgb[2]);
                     colorGrid.appendChild(btn);
-                });
+                }
             }
         }
 
@@ -426,38 +485,6 @@
             return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
         }
 
-        function drawTintedObject() {
-            const canvas = document.getElementById('tinted-object-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 1. Dessiner l'objet de base avec sa couleur intrinsèque
-            if (currentObject.isCustom) {
-                ctx.beginPath();
-                ctx.arc(80, 80, 50, 0, Math.PI*2);
-                ctx.fillStyle = `rgb(${currentObject.r*2.55}, ${currentObject.g*2.55}, ${currentObject.b*2.55})`;
-                ctx.fill();
-            } else {
-                ctx.font = "100px Arial";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText(currentObject.emoji, 80, 85);
-            }
-            
-            // 2. Appliquer le filtre optique en multipliant les pixels par la couleur de la lumière
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imgData.data;
-            for (let i = 0; i < data.length; i += 4) {
-                if (data[i+3] > 0) { // Si le pixel n'est pas transparent
-                    data[i] = Math.round((data[i] * lightRGB.r) / 255);     // R
-                    data[i+1] = Math.round((data[i+1] * lightRGB.g) / 255); // G
-                    data[i+2] = Math.round((data[i+2] * lightRGB.b) / 255); // B
-                }
-            }
-            ctx.putImageData(imgData, 0, 0);
-        }
-
         const canvasContainer = document.getElementById('canvas-container');
         const canvas = document.getElementById('simCanvas');
         const ctx = canvas.getContext('2d');
@@ -468,7 +495,6 @@
             canvas.height = rect.height;
         }
         window.addEventListener('resize', resizeCanvas);
-        // Ensure initial sizing
         setTimeout(resizeCanvas, 0);
 
         let particles = [];
@@ -502,27 +528,19 @@
                     if(this.type === 'b') chance = currentObject.b;
 
                     if(Math.random() * 100 < chance) {
-                        // Calcule un vecteur de réflexion avec le même espacement parallèle
                         const refAngle = Math.atan2(eY - oY, eX - oX);
                         const refPerpX = -Math.sin(refAngle);
                         const refPerpY = Math.cos(refAngle);
-                        const offset = 20; // Correspond à l'écartement initial
+                        const offset = 20;
                         
-                        let startX = oX;
-                        let startY = oY;
-                        let targetX = eX;
-                        let targetY = eY;
+                        let startX = oX, startY = oY, targetX = eX, targetY = eY;
 
                         if (this.type === 'r') {
-                            startX = oX + refPerpX * offset;
-                            startY = oY + refPerpY * offset;
-                            targetX = eX + refPerpX * offset;
-                            targetY = eY + refPerpY * offset;
+                            startX = oX + refPerpX * offset; startY = oY + refPerpY * offset;
+                            targetX = eX + refPerpX * offset; targetY = eY + refPerpY * offset;
                         } else if (this.type === 'b') {
-                            startX = oX - refPerpX * offset;
-                            startY = oY - refPerpY * offset;
-                            targetX = eX - refPerpX * offset;
-                            targetY = eY - refPerpY * offset;
+                            startX = oX - refPerpX * offset; startY = oY - refPerpY * offset;
+                            targetX = eX - refPerpX * offset; targetY = eY - refPerpY * offset;
                         }
 
                         particles.push(new Photon(startX, startY, targetX, targetY, true, this.type));
@@ -530,7 +548,6 @@
                 }
                 
                 if(this.isReflected) {
-                    // Les rayons disparaissent proprement en arrivant au centre de l'œil
                     if (dist < SPEED*1.5 || this.x > canvas.width || this.y < 0 || this.x > eX + 10) {
                         this.active = false;
                     }
@@ -555,58 +572,78 @@
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Because the canvas is neatly in the middle block, we can use simple percentages!
-            const fX = canvas.width * 0.15; // Flashlight top left
+            const fX = canvas.width * 0.15; 
             const fY = canvas.height * 0.2; 
-            const oX = canvas.width * 0.5;  // Object bottom center
+            const oX = canvas.width * 0.5;  
             const oY = canvas.height * 0.8; 
-            const eX = canvas.width * 0.85; // Eye top right
+            const eX = canvas.width * 0.85; 
             const eY = canvas.height * 0.2;
 
             const angle = Math.atan2(oY - fY, oX - fX);
 
-            // Draw Flashlight Glow
             ctx.save();
             ctx.translate(fX, fY);
+            
             ctx.beginPath();
             ctx.arc(0, 0, 250, 0, Math.PI*2);
             let glow = ctx.createRadialGradient(0, 0, 20, 0, 0, 250);
-            glow.addColorStop(0, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.7)`);
+            glow.addColorStop(0, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.6)`);
             glow.addColorStop(1, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0)`);
             ctx.fillStyle = glow;
             ctx.fill();
 
-            // Draw Flashlight Body
             ctx.rotate(angle);
-            ctx.fillStyle = '#475569';
-            ctx.fillRect(-25, -25, 45, 50); // Corps de lampe plus large
-            ctx.fillStyle = '#64748b';
-            ctx.beginPath(); ctx.moveTo(20, -25); ctx.lineTo(35, -35); ctx.lineTo(35, 35); ctx.lineTo(20, 25); ctx.fill();
+            
+            ctx.fillStyle = '#1e293b'; 
+            ctx.beginPath();
+            ctx.arc(-15, 0, 25, Math.PI/2, -Math.PI/2); 
+            ctx.fill();
+
+            const bodyGrad = ctx.createLinearGradient(0, -25, 0, 25);
+            bodyGrad.addColorStop(0, '#64748b');
+            bodyGrad.addColorStop(0.5, '#cbd5e1'); 
+            bodyGrad.addColorStop(1, '#475569');
+            ctx.fillStyle = bodyGrad;
+            ctx.fillRect(-15, -25, 35, 50);
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(-5, -26, 4, 52);
+            ctx.fillRect(5, -26, 4, 52);
+
+            ctx.fillStyle = '#020617';
+            ctx.fillRect(20, -30, 10, 60);
+
+            ctx.fillStyle = `rgb(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b})`;
+            ctx.beginPath();
+            ctx.ellipse(30, 0, 4, 26, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = ctx.fillStyle;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
             ctx.restore();
 
-            // Emit Particles (Faisceaux Parallèles)
             if(frame % 3 === 0) {
                 const perpX = -Math.sin(angle);
                 const perpY = Math.cos(angle);
-                const offset = 20; // Ecartement entre les faisceaux
+                const offset = 20; 
                 
                 if(Math.random() * 255 < lightRGB.r) particles.push(new Photon(fX + perpX*offset, fY + perpY*offset, oX + perpX*offset, oY + perpY*offset, false, 'r'));
                 if(Math.random() * 255 < lightRGB.g) particles.push(new Photon(fX, fY, oX, oY, false, 'g'));
                 if(Math.random() * 255 < lightRGB.b) particles.push(new Photon(fX - perpX*offset, fY - perpY*offset, oX - perpX*offset, oY - perpY*offset, false, 'b'));
             }
 
-            // Update & Draw Particles
             for(let i=particles.length-1; i>=0; i--) {
                 particles[i].update(eX, eY, oX, oY);
                 particles[i].draw(ctx);
                 if(!particles[i].active) particles.splice(i, 1);
             }
 
-            // Draw Object
-            ctx.font = "80px Arial";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
             if(!currentObject.isCustom) {
+                ctx.font = "80px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
                 ctx.fillText(currentObject.emoji, oX, oY);
             } else {
                 ctx.beginPath();
@@ -618,8 +655,9 @@
                 ctx.stroke();
             }
 
-            // Draw Eye
             ctx.font = "70px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
             ctx.fillText("👁️", eX, eY);
 
             frame++;
@@ -628,7 +666,7 @@
 
         window.onload = () => {
             generatePalette();
-            setLang('fr'); // Default French
+            setLang('fr'); 
             updateLight();
             animate();
         };
