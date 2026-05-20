@@ -583,16 +583,17 @@
 
             ctx.save();
             ctx.translate(fX, fY);
+            ctx.rotate(angle); // Rotate first to align the glow with the flashlight output
             
+            // Intense glow emitted from the lens (x=30)
             ctx.beginPath();
-            ctx.arc(0, 0, 250, 0, Math.PI*2);
-            let glow = ctx.createRadialGradient(0, 0, 20, 0, 0, 250);
-            glow.addColorStop(0, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.6)`);
+            ctx.arc(30, 0, 300, 0, Math.PI*2);
+            let glow = ctx.createRadialGradient(30, 0, 15, 30, 0, 300);
+            glow.addColorStop(0, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.95)`);
+            glow.addColorStop(0.35, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.35)`);
             glow.addColorStop(1, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0)`);
             ctx.fillStyle = glow;
             ctx.fill();
-
-            ctx.rotate(angle);
             
             ctx.fillStyle = '#1e293b'; 
             ctx.beginPath();
@@ -627,11 +628,16 @@
             if(frame % 3 === 0) {
                 const perpX = -Math.sin(angle);
                 const perpY = Math.cos(angle);
+                const forwardX = Math.cos(angle) * 30; // Offset particles to start exactly at the lens
+                const forwardY = Math.sin(angle) * 30;
                 const offset = 20; 
                 
-                if(Math.random() * 255 < lightRGB.r) particles.push(new Photon(fX + perpX*offset, fY + perpY*offset, oX + perpX*offset, oY + perpY*offset, false, 'r'));
-                if(Math.random() * 255 < lightRGB.g) particles.push(new Photon(fX, fY, oX, oY, false, 'g'));
-                if(Math.random() * 255 < lightRGB.b) particles.push(new Photon(fX - perpX*offset, fY - perpY*offset, oX - perpX*offset, oY - perpY*offset, false, 'b'));
+                const startX = fX + forwardX;
+                const startY = fY + forwardY;
+                
+                if(Math.random() * 255 < lightRGB.r) particles.push(new Photon(startX + perpX*offset, startY + perpY*offset, oX + perpX*offset, oY + perpY*offset, false, 'r'));
+                if(Math.random() * 255 < lightRGB.g) particles.push(new Photon(startX, startY, oX, oY, false, 'g'));
+                if(Math.random() * 255 < lightRGB.b) particles.push(new Photon(startX - perpX*offset, startY - perpY*offset, oX - perpX*offset, oY - perpY*offset, false, 'b'));
             }
 
             for(let i=particles.length-1; i>=0; i--) {
