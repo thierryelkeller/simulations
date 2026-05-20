@@ -592,14 +592,19 @@
             const baseG = maxVal > 0 ? Math.round((lightRGB.g / maxVal) * 255) : 0;
             const baseB = maxVal > 0 ? Math.round((lightRGB.b / maxVal) * 255) : 0;
 
-            // Halo lumineux (Glow) plus progressif et respectant l'intensité
+            // Halo lumineux (Glow) ultra-progressif, large et sans aucune marque (banding)
+            const glowRadius = 600; // Rayon massivement élargi
             ctx.beginPath();
-            ctx.arc(30, 0, 350, 0, Math.PI*2);
-            let glow = ctx.createRadialGradient(30, 0, 10, 30, 0, 350);
-            glow.addColorStop(0, `rgba(${baseR}, ${baseG}, ${baseB}, ${0.9 * intensity})`);
-            glow.addColorStop(0.15, `rgba(${baseR}, ${baseG}, ${baseB}, ${0.5 * intensity})`);
-            glow.addColorStop(0.4, `rgba(${baseR}, ${baseG}, ${baseB}, ${0.15 * intensity})`);
-            glow.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, 0)`);
+            ctx.arc(30, 0, glowRadius, 0, Math.PI*2);
+            let glow = ctx.createRadialGradient(30, 0, 10, 30, 0, glowRadius);
+            
+            // Génère 20 étapes invisibles calculées mathématiquement pour une douceur parfaite
+            for (let i = 0; i <= 20; i++) {
+                let step = i / 20;
+                // Formule de décroissance cubique imitant la dispersion naturelle de la lumière
+                let alpha = Math.pow(1 - step, 3) * 0.95 * intensity;
+                glow.addColorStop(step, `rgba(${baseR}, ${baseG}, ${baseB}, ${alpha})`);
+            }
             
             ctx.globalCompositeOperation = 'screen'; // Mode de fusion "Écran" pour simuler la vraie lumière
             ctx.fillStyle = glow;
