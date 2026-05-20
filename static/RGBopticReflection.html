@@ -436,11 +436,12 @@
 
                 const dx = targetX - startX;
                 const dy = targetY - startY;
-                const dist = Math.sqrt(dx*dx + dy*dy);
+                const dist = Math.sqrt(dx*dx + dy*dy) || 1;
                 this.vx = (dx/dist) * SPEED;
                 this.vy = (dy/dist) * SPEED;
             }
-            update(eX, eY) {
+
+            update(eX, eY, oX, oY) {
                 if(!this.active) return;
                 this.x += this.vx; this.y += this.vy;
                 const dist = Math.sqrt((this.x - this.targetX)**2 + (this.y - this.targetY)**2);
@@ -453,13 +454,18 @@
                     if(this.type === 'b') chance = currentObject.b;
 
                     if(Math.random() * 100 < chance) {
-                        let spreadX = eX + (Math.random() * 20 - 10);
-                        let spreadY = eY + (Math.random() * 20 - 10);
-                        particles.push(new Photon(this.x, this.y, spreadX, spreadY, true, this.type));
+                        // Calcule un vecteur de réflexion parfaitement parallèle
+                        let dirX = eX - oX;
+                        let dirY = eY - oY;
+                        particles.push(new Photon(this.x, this.y, this.x + dirX, this.y + dirY, true, this.type));
                     }
                 }
-                if(this.isReflected && dist < SPEED*1.5) {
-                    this.active = false;
+                
+                if(this.isReflected) {
+                    // Les rayons parallèles disparaissent proprement en arrivant au niveau de l'oeil
+                    if (this.x > eX - 20 || this.x > canvas.width || this.y < 0) {
+                        this.active = false;
+                    }
                 }
             }
             draw(ctx) {
@@ -495,9 +501,9 @@
             ctx.save();
             ctx.translate(fX, fY);
             ctx.beginPath();
-            ctx.arc(0, 0, 120, 0, Math.PI*2);
-            let glow = ctx.createRadialGradient(0, 0, 10, 0, 0, 120);
-            glow.addColorStop(0, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.6)`);
+            ctx.arc(0, 0, 250, 0, Math.PI*2);
+            let glow = ctx.createRadialGradient(0, 0, 20, 0, 0, 250);
+            glow.addColorStop(0, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.7)`);
             glow.addColorStop(1, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0)`);
             ctx.fillStyle = glow;
             ctx.fill();
@@ -505,23 +511,25 @@
             // Draw Flashlight Body
             ctx.rotate(angle);
             ctx.fillStyle = '#475569';
-            ctx.fillRect(-25, -15, 35, 30);
+            ctx.fillRect(-25, -25, 45, 50); // Corps de lampe plus large
             ctx.fillStyle = '#64748b';
-            ctx.beginPath(); ctx.moveTo(10, -15); ctx.lineTo(25, -25); ctx.lineTo(25, 25); ctx.lineTo(10, 15); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(20, -25); ctx.lineTo(35, -35); ctx.lineTo(35, 35); ctx.lineTo(20, 25); ctx.fill();
             ctx.restore();
 
-            // Emit Particles
+            // Emit Particles (Faisceaux Parallèles)
             if(frame % 3 === 0) {
                 const perpX = -Math.sin(angle);
                 const perpY = Math.cos(angle);
-                if(Math.random() * 255 < lightRGB.r) particles.push(new Photon(fX + perpX*10, fY + perpY*10, oX, oY, false, 'r'));
+                const offset = 20; // Ecartement entre les faisceaux
+                
+                if(Math.random() * 255 < lightRGB.r) particles.push(new Photon(fX + perpX*offset, fY + perpY*offset, oX + perpX*offset, oY + perpY*offset, false, 'r'));
                 if(Math.random() * 255 < lightRGB.g) particles.push(new Photon(fX, fY, oX, oY, false, 'g'));
-                if(Math.random() * 255 < lightRGB.b) particles.push(new Photon(fX - perpX*10, fY - perpY*10, oX, oY, false, 'b'));
+                if(Math.random() * 255 < lightRGB.b) particles.push(new Photon(fX - perpX*offset, fY - perpY*offset, oX - perpX*offset, oY - perpY*offset, false, 'b'));
             }
 
             // Update & Draw Particles
             for(let i=particles.length-1; i>=0; i--) {
-                particles[i].update(eX, eY);
+                particles[i].update(eX, eY, oX, oY);
                 particles[i].draw(ctx);
                 if(!particles[i].active) particles.splice(i, 1);
             }
