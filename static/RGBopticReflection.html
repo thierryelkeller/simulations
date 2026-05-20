@@ -110,9 +110,17 @@
             <div class="p-6 flex flex-col gap-6">
                 <h2 id="ui-perception-title" class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b border-slate-700 pb-2">Perception</h2>
                 
-                <div class="flex flex-col items-center gap-2">
-                    <div id="perceived-swatch" class="w-32 h-32 rounded-2xl border-4 border-slate-700 shadow-inner transition-colors duration-300"></div>
-                    <p id="perceived-color-name" class="font-bold text-slate-200 capitalize text-center h-6">Blanc</p>
+                <div class="flex flex-col items-center w-full gap-4">
+                    <!-- Objet Simulé Dynamique (Teinté au pixel) -->
+                    <div class="flex items-center justify-center h-32 w-full">
+                        <canvas id="tinted-object-canvas" width="160" height="160" class="w-32 h-32 drop-shadow-xl"></canvas>
+                    </div>
+                    
+                    <!-- Rectangle de la couleur perçue -->
+                    <div class="w-full flex flex-col gap-2 items-center bg-slate-900/80 p-3 rounded-xl border border-slate-700 shadow-sm">
+                        <div id="perceived-swatch" class="w-full h-12 rounded-lg shadow-inner transition-colors duration-300 border border-slate-950"></div>
+                        <p id="perceived-color-name" class="font-bold text-slate-200 capitalize text-center text-sm">Blanc</p>
+                    </div>
                 </div>
 
                 <div class="mt-4">
@@ -311,9 +319,12 @@
             const pg = Math.round(lightRGB.g * (currentObject.g / 100));
             const pb = Math.round(lightRGB.b * (currentObject.b / 100));
 
-            // Perception Swatch
+            // Update Swatch & Text
             document.getElementById('perceived-swatch').style.backgroundColor = `rgb(${pr}, ${pg}, ${pb})`;
             document.getElementById('perceived-color-name').innerText = getColorName(pr, pg, pb, currentLang);
+
+            // Update Tinted Canvas Object
+            drawTintedObject();
 
             // Update Bars
             const pctR = Math.round((pr / 255) * 100);
@@ -408,6 +419,38 @@
                 r = f(h + 1/3); g = f(h); b = f(h - 1/3);
             }
             return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
+        function drawTintedObject() {
+            const canvas = document.getElementById('tinted-object-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 1. Dessiner l'objet de base avec sa couleur intrinsèque
+            if (currentObject.isCustom) {
+                ctx.beginPath();
+                ctx.arc(80, 80, 50, 0, Math.PI*2);
+                ctx.fillStyle = `rgb(${currentObject.r*2.55}, ${currentObject.g*2.55}, ${currentObject.b*2.55})`;
+                ctx.fill();
+            } else {
+                ctx.font = "100px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(currentObject.emoji, 80, 85);
+            }
+            
+            // 2. Appliquer le filtre optique en multipliant les pixels par la couleur de la lumière
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i+3] > 0) { // Si le pixel n'est pas transparent
+                    data[i] = Math.round((data[i] * lightRGB.r) / 255);     // R
+                    data[i+1] = Math.round((data[i+1] * lightRGB.g) / 255); // G
+                    data[i+2] = Math.round((data[i+2] * lightRGB.b) / 255); // B
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
         }
 
         const canvasContainer = document.getElementById('canvas-container');
