@@ -585,15 +585,26 @@
             ctx.translate(fX, fY);
             ctx.rotate(angle); // Rotate first to align the glow with the flashlight output
             
-            // Intense glow emitted from the lens (x=30)
+            // Calcul de l'intensité réelle et de la couleur pure pour un éclairage réaliste
+            const maxVal = Math.max(lightRGB.r, lightRGB.g, lightRGB.b);
+            const intensity = maxVal / 255;
+            const baseR = maxVal > 0 ? Math.round((lightRGB.r / maxVal) * 255) : 0;
+            const baseG = maxVal > 0 ? Math.round((lightRGB.g / maxVal) * 255) : 0;
+            const baseB = maxVal > 0 ? Math.round((lightRGB.b / maxVal) * 255) : 0;
+
+            // Halo lumineux (Glow) plus progressif et respectant l'intensité
             ctx.beginPath();
-            ctx.arc(30, 0, 300, 0, Math.PI*2);
-            let glow = ctx.createRadialGradient(30, 0, 15, 30, 0, 300);
-            glow.addColorStop(0, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.95)`);
-            glow.addColorStop(0.35, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0.35)`);
-            glow.addColorStop(1, `rgba(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b}, 0)`);
+            ctx.arc(30, 0, 350, 0, Math.PI*2);
+            let glow = ctx.createRadialGradient(30, 0, 10, 30, 0, 350);
+            glow.addColorStop(0, `rgba(${baseR}, ${baseG}, ${baseB}, ${0.9 * intensity})`);
+            glow.addColorStop(0.15, `rgba(${baseR}, ${baseG}, ${baseB}, ${0.5 * intensity})`);
+            glow.addColorStop(0.4, `rgba(${baseR}, ${baseG}, ${baseB}, ${0.15 * intensity})`);
+            glow.addColorStop(1, `rgba(${baseR}, ${baseG}, ${baseB}, 0)`);
+            
+            ctx.globalCompositeOperation = 'screen'; // Mode de fusion "Écran" pour simuler la vraie lumière
             ctx.fillStyle = glow;
             ctx.fill();
+            ctx.globalCompositeOperation = 'source-over'; // Réinitialisation
             
             ctx.fillStyle = '#1e293b'; 
             ctx.beginPath();
