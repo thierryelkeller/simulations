@@ -454,16 +454,36 @@
                     if(this.type === 'b') chance = currentObject.b;
 
                     if(Math.random() * 100 < chance) {
-                        // Calcule un vecteur de réflexion parfaitement parallèle
-                        let dirX = eX - oX;
-                        let dirY = eY - oY;
-                        particles.push(new Photon(this.x, this.y, this.x + dirX, this.y + dirY, true, this.type));
+                        // Calcule un vecteur de réflexion avec le même espacement parallèle
+                        const refAngle = Math.atan2(eY - oY, eX - oX);
+                        const refPerpX = -Math.sin(refAngle);
+                        const refPerpY = Math.cos(refAngle);
+                        const offset = 20; // Correspond à l'écartement initial
+                        
+                        let startX = oX;
+                        let startY = oY;
+                        let targetX = eX;
+                        let targetY = eY;
+
+                        if (this.type === 'r') {
+                            startX = oX + refPerpX * offset;
+                            startY = oY + refPerpY * offset;
+                            targetX = eX + refPerpX * offset;
+                            targetY = eY + refPerpY * offset;
+                        } else if (this.type === 'b') {
+                            startX = oX - refPerpX * offset;
+                            startY = oY - refPerpY * offset;
+                            targetX = eX - refPerpX * offset;
+                            targetY = eY - refPerpY * offset;
+                        }
+
+                        particles.push(new Photon(startX, startY, targetX, targetY, true, this.type));
                     }
                 }
                 
                 if(this.isReflected) {
-                    // Les rayons parallèles disparaissent proprement en arrivant au niveau de l'oeil
-                    if (this.x > eX - 20 || this.x > canvas.width || this.y < 0) {
+                    // Les rayons disparaissent proprement en arrivant au centre de l'œil
+                    if (dist < SPEED*1.5 || this.x > canvas.width || this.y < 0 || this.x > eX + 10) {
                         this.active = false;
                     }
                 }
