@@ -11,26 +11,46 @@
         
         .bar-transition { transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease; }
         
+        /* Elegant Slider Styling */
         input[type=range] { -webkit-appearance: none; background: transparent; cursor: pointer; }
         input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%;
-            background: #e2e8f0; border: 2px solid #1e293b; margin-top: -6px; box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #ffffff; border: 2px solid #ffffff; margin-top: -6px;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #475569; border-radius: 3px; }
+        input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.3); }
+        input[type=range]::-webkit-slider-runnable-track { 
+            width: 100%; height: 4px; background: rgba(15, 23, 42, 0.9); 
+            border: 1px solid rgba(51, 65, 85, 0.8); border-radius: 2px; box-shadow: inset 0 0 5px rgba(0,0,0,0.8); 
+        }
         input[type=range]:focus { outline: none; }
         
+        /* Specific glowing colors for sliders */
+        #slider-intensity::-webkit-slider-thumb { border-color: #e0f2fe; box-shadow: 0 0 15px 3px rgba(186, 230, 253, 0.6); }
+        #slider-r::-webkit-slider-thumb { border-color: #fee2e2; box-shadow: 0 0 15px 3px rgba(239, 68, 68, 0.8); }
+        #slider-g::-webkit-slider-thumb { border-color: #dcfce3; box-shadow: 0 0 15px 3px rgba(34, 197, 94, 0.8); }
+        #slider-b::-webkit-slider-thumb { border-color: #dbeafe; box-shadow: 0 0 15px 3px rgba(59, 130, 246, 0.8); }
+        
+        /* Horizontal Scrollbar */
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: thin; scrollbar-color: #475569 transparent; }
         .hide-scroll::-webkit-scrollbar { height: 8px; }
         .hide-scroll::-webkit-scrollbar-track { background: transparent; }
         .hide-scroll::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 10px; }
         .hide-scroll::-webkit-scrollbar-thumb:hover { background-color: #64748b; }
+
+        /* Stacking Increments for RGB Bars (10% gaps) */
+        .stack-grid {
+            background: repeating-linear-gradient(to bottom, #1e293b 0px, #1e293b 3px, transparent 3px, transparent 10%);
+        }
     </style>
 </head>
 <body class="w-screen h-screen flex flex-col text-slate-200 bg-slate-900">
 
+    <!-- Language Selection Splash Screen -->
     <div id="splash-lang" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center transition-opacity duration-500 overflow-hidden">
         <!-- Dynamic Pointer Lights -->
         <div id="splash-blobs" class="absolute inset-0 overflow-hidden pointer-events-none opacity-80">
+            <!-- Blobs are sized 40rem (640px) so half is 320px for centering -->
             <div id="blob-r" class="absolute top-0 left-0 w-[40rem] h-[40rem] bg-red-600/30 rounded-full mix-blend-screen filter blur-[150px] transition-transform duration-0"></div>
             <div id="blob-g" class="absolute top-0 left-0 w-[40rem] h-[40rem] bg-green-500/30 rounded-full mix-blend-screen filter blur-[150px] transition-transform duration-0"></div>
             <div id="blob-b" class="absolute top-0 left-0 w-[40rem] h-[40rem] bg-blue-600/30 rounded-full mix-blend-screen filter blur-[150px] transition-transform duration-0"></div>
@@ -46,22 +66,23 @@
                 <span class="text-lg text-blue-200 block mt-2">Choisis ta langue / Elige tu idioma</span>
             </p>
             <div class="flex flex-col md:flex-row gap-6">
-                <button onclick="initLang('fr')" class="group relative px-8 py-5 text-2xl font-bold text-white rounded-2xl shadow-[0_0_20px_rgba(37,99,235,0.5)] transition-all hover:scale-110 hover:-translate-y-2 bg-gradient-to-br from-blue-600 to-blue-800 border-4 border-blue-400/50 overflow-hidden">
+                <button onclick="initLang('fr')" class="group relative px-10 py-5 text-2xl font-bold text-white rounded-2xl shadow-[0_0_20px_rgba(37,99,235,0.5)] transition-all hover:scale-110 bg-gradient-to-br from-blue-600 to-blue-800 border-4 border-blue-400/50 overflow-hidden">
                     <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
-                    <span class="relative drop-shadow-md">🇫🇷 Français</span>
+                    <span class="relative drop-shadow-md">Français</span>
                 </button>
-                <button onclick="initLang('en')" class="group relative px-8 py-5 text-2xl font-bold text-white rounded-2xl shadow-[0_0_20px_rgba(79,70,229,0.5)] transition-all hover:scale-110 hover:-translate-y-2 bg-gradient-to-br from-indigo-600 to-indigo-800 border-4 border-indigo-400/50 overflow-hidden">
+                <button onclick="initLang('en')" class="group relative px-10 py-5 text-2xl font-bold text-white rounded-2xl shadow-[0_0_20px_rgba(79,70,229,0.5)] transition-all hover:scale-110 bg-gradient-to-br from-indigo-600 to-indigo-800 border-4 border-indigo-400/50 overflow-hidden">
                     <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
-                    <span class="relative drop-shadow-md">🇬🇧 English</span>
+                    <span class="relative drop-shadow-md">English</span>
                 </button>
-                <button onclick="initLang('es')" class="group relative px-8 py-5 text-2xl font-bold text-white rounded-2xl shadow-[0_0_20px_rgba(124,58,237,0.5)] transition-all hover:scale-110 hover:-translate-y-2 bg-gradient-to-br from-violet-600 to-violet-800 border-4 border-violet-400/50 overflow-hidden">
+                <button onclick="initLang('es')" class="group relative px-10 py-5 text-2xl font-bold text-white rounded-2xl shadow-[0_0_20px_rgba(124,58,237,0.5)] transition-all hover:scale-110 bg-gradient-to-br from-violet-600 to-violet-800 border-4 border-violet-400/50 overflow-hidden">
                     <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
-                    <span class="relative drop-shadow-md">🇪🇸 Español</span>
+                    <span class="relative drop-shadow-md">Español</span>
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Intro Instructions Splash -->
     <div id="splash-intro" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[90] hidden flex-col items-center justify-center p-4 transition-opacity duration-500 opacity-0">
         <div class="bg-slate-800 p-8 md:p-10 rounded-[2rem] max-w-3xl w-full border-t-8 border-t-blue-500 border-x border-b border-slate-600 shadow-2xl relative overflow-hidden">
             <div class="absolute -top-10 -right-10 text-9xl opacity-10">💡</div>
@@ -76,10 +97,10 @@
             <div class="mb-10">
                 <h3 id="intro-inst-title" class="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">🕹️ Comment jouer ?</h3>
                 <ul class="text-slate-300 space-y-3 text-base md:text-lg">
-                    <li id="intro-inst-1" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50 hover:bg-slate-700/60 transition-colors">...</li>
-                    <li id="intro-inst-2" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50 hover:bg-slate-700/60 transition-colors">...</li>
-                    <li id="intro-inst-3" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50 hover:bg-slate-700/60 transition-colors">...</li>
-                    <li id="intro-inst-4" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50 hover:bg-slate-700/60 transition-colors">...</li>
+                    <li id="intro-inst-1" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50">...</li>
+                    <li id="intro-inst-2" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50">...</li>
+                    <li id="intro-inst-3" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50">...</li>
+                    <li id="intro-inst-4" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50">...</li>
                 </ul>
             </div>
             
@@ -105,6 +126,7 @@
         
         <aside class="w-80 bg-slate-800 border-r border-slate-700 shadow-lg z-10 flex flex-col shrink-0 overflow-y-auto">
             <div class="p-6 flex flex-col gap-6">
+                <!-- Instructions & Power Box -->
                 <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-700 shadow-inner">
                     <h3 id="ui-panel-intro-title" class="text-sm font-bold text-blue-400 mb-3 uppercase tracking-wider">Instructions</h3>
                     <ul class="text-sm text-slate-200 space-y-2 list-decimal pl-5">
@@ -113,6 +135,7 @@
                         <li id="ui-panel-inst-3">Observez l'analyseur à droite.</li>
                     </ul>
                 </div>
+                
                 <button id="btn-power" onclick="togglePower()" class="w-full py-3 rounded-xl font-bold text-white transition-all shadow-lg bg-green-600 hover:bg-green-500 shadow-green-900/30 border border-green-400/50">
                     💡 Allumer la lumière
                 </button>
@@ -130,34 +153,47 @@
                 </div>
 
                 <!-- Vertical Sliders for White Light -->
-                <div id="controls-white" class="flex flex-col items-center justify-center mt-2 space-y-2">
-                    <span id="val-intensity" class="text-xs font-mono bg-slate-900 px-2 py-1 rounded text-slate-300 border border-slate-700 mb-2">100%</span>
-                    <div class="relative w-8 h-32">
-                        <input type="range" id="slider-intensity" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-90">
+                <div id="controls-white" class="flex flex-col items-center justify-center mt-4">
+                    <span id="val-intensity" class="text-xs font-mono bg-slate-900 px-2 py-1 rounded text-slate-300 border border-slate-700 mb-3">100%</span>
+                    <div class="relative w-12 h-40 flex justify-center shrink-0">
+                        <!-- HUD Ticks Background -->
+                        <div class="absolute inset-y-2 w-5 flex flex-col justify-between pointer-events-none z-0">
+                            <div class="h-[2px] bg-cyan-400/70 w-full shadow-[0_0_5px_rgba(34,211,238,0.5)]"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-[2px] bg-cyan-400/70 w-full shadow-[0_0_5px_rgba(34,211,238,0.5)]"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-[2px] bg-cyan-400/70 w-full shadow-[0_0_5px_rgba(34,211,238,0.5)]"></div>
+                        </div>
+                        <input type="range" id="slider-intensity" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-40 -translate-x-1/2 -translate-y-1/2 -rotate-90 z-10">
                     </div>
-                    <label id="lbl-intensity" class="text-sm font-semibold text-slate-300 mt-2">Intensité Globale</label>
+                    <label id="lbl-intensity" class="text-sm font-semibold text-slate-300 mt-4">Intensité Globale</label>
                 </div>
 
                 <!-- Vertical Sliders for RGB Light -->
-                <div id="controls-color" class="flex justify-around items-end h-48 mt-2 hidden">
-                    <div class="flex flex-col items-center h-full">
-                        <span id="val-r" class="text-xs font-mono text-slate-400 mb-4">100%</span>
-                        <div class="relative w-8 flex-1">
-                            <input type="range" id="slider-r" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-90">
+                <div id="controls-color" class="flex justify-around mt-4 hidden">
+                    <div class="flex flex-col items-center">
+                        <span id="val-r" class="text-xs font-mono text-slate-400 mb-3">100%</span>
+                        <div class="relative w-8 h-40 flex justify-center shrink-0">
+                            <div class="absolute inset-y-2 w-4 flex flex-col justify-between pointer-events-none z-0">
+                                <div class="h-[2px] bg-red-500/70 w-full shadow-[0_0_5px_rgba(239,68,68,0.6)]"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-[2px] bg-red-500/70 w-full shadow-[0_0_5px_rgba(239,68,68,0.6)]"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-[2px] bg-red-500/70 w-full shadow-[0_0_5px_rgba(239,68,68,0.6)]"></div>
+                            </div>
+                            <input type="range" id="slider-r" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-40 -translate-x-1/2 -translate-y-1/2 -rotate-90 z-10">
                         </div>
                         <label id="lbl-slider-r" class="text-xs font-bold text-red-500 mt-4 text-center">Rouge</label>
                     </div>
-                    <div class="flex flex-col items-center h-full">
-                        <span id="val-g" class="text-xs font-mono text-slate-400 mb-4">100%</span>
-                        <div class="relative w-8 flex-1">
-                            <input type="range" id="slider-g" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-90">
+                    <div class="flex flex-col items-center">
+                        <span id="val-g" class="text-xs font-mono text-slate-400 mb-3">100%</span>
+                        <div class="relative w-8 h-40 flex justify-center shrink-0">
+                            <div class="absolute inset-y-2 w-4 flex flex-col justify-between pointer-events-none z-0">
+                                <div class="h-[2px] bg-green-500/70 w-full shadow-[0_0_5px_rgba(34,197,94,0.6)]"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-[2px] bg-green-500/70 w-full shadow-[0_0_5px_rgba(34,197,94,0.6)]"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-[2px] bg-green-500/70 w-full shadow-[0_0_5px_rgba(34,197,94,0.6)]"></div>
+                            </div>
+                            <input type="range" id="slider-g" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-40 -translate-x-1/2 -translate-y-1/2 -rotate-90 z-10">
                         </div>
                         <label id="lbl-slider-g" class="text-xs font-bold text-green-500 mt-4 text-center">Vert</label>
                     </div>
-                    <div class="flex flex-col items-center h-full">
-                        <span id="val-b" class="text-xs font-mono text-slate-400 mb-4">100%</span>
-                        <div class="relative w-8 flex-1">
-                            <input type="range" id="slider-b" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-90">
+                    <div class="flex flex-col items-center">
+                        <span id="val-b" class="text-xs font-mono text-slate-400 mb-3">100%</span>
+                        <div class="relative w-8 h-40 flex justify-center shrink-0">
+                            <div class="absolute inset-y-2 w-4 flex flex-col justify-between pointer-events-none z-0">
+                                <div class="h-[2px] bg-blue-500/70 w-full shadow-[0_0_5px_rgba(59,130,246,0.6)]"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-[2px] bg-blue-500/70 w-full shadow-[0_0_5px_rgba(59,130,246,0.6)]"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-px bg-slate-600 w-2/3 mx-auto"></div><div class="h-[2px] bg-blue-500/70 w-full shadow-[0_0_5px_rgba(59,130,246,0.6)]"></div>
+                            </div>
+                            <input type="range" id="slider-b" min="0" max="100" value="100" oninput="updateLight()" class="absolute top-1/2 left-1/2 w-40 -translate-x-1/2 -translate-y-1/2 -rotate-90 z-10">
                         </div>
                         <label id="lbl-slider-b" class="text-xs font-bold text-blue-500 mt-4 text-center">Bleu</label>
                     </div>
@@ -189,7 +225,7 @@
                     
                     <div class="w-full flex flex-col gap-2 items-center bg-slate-900/80 p-3 rounded-xl border border-slate-700 shadow-sm">
                         <div id="perceived-swatch" class="w-full h-12 rounded-lg shadow-inner transition-colors duration-300 border border-slate-950"></div>
-                        <p id="perceived-color-name" class="font-bold text-slate-200 capitalize text-center text-sm">Blanc</p>
+                        <p id="perceived-color-name" class="font-bold text-slate-200 capitalize text-center text-sm">---</p>
                     </div>
                 </div>
 
@@ -197,22 +233,30 @@
                     <h3 id="ui-analyzer-title" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center mb-6 leading-tight">Analyseur Rouge, Vert, Bleu<br><span class="text-[9px]">(Lumière réfléchie)</span></h3>
                     
                     <div class="h-40 flex items-end justify-around border-b-2 border-slate-700 pb-2 relative">
-                        <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-slate-500 pb-2">
-                            <span>100%</span><span>50%</span><span>0%</span>
-                        </div>
+                        <!-- No vertical scale numbers, using stacking grid overlay inside bars -->
+                        
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
-                            <span id="lbl-bar-r" class="text-[10px] font-bold text-red-500 mb-1">100%</span>
-                            <div class="w-full bg-red-900/20 rounded-t-md h-full flex items-end"><div id="bar-r" class="w-full bg-red-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(239,68,68,0.5)]" style="height: 100%;"></div></div>
+                            <span id="lbl-bar-r" class="text-[10px] font-bold text-red-500 mb-1">0%</span>
+                            <div class="w-full bg-red-900/20 rounded-t-md h-full flex items-end relative overflow-hidden">
+                                <div id="bar-r" class="w-full bg-red-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(239,68,68,0.5)]" style="height: 0%;"></div>
+                                <div class="absolute inset-0 stack-grid pointer-events-none"></div>
+                            </div>
                             <span id="lbl-bar-r-name" class="text-[10px] font-bold text-slate-300 mt-2 uppercase">Rouge</span>
                         </div>
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
-                            <span id="lbl-bar-g" class="text-[10px] font-bold text-green-500 mb-1">100%</span>
-                            <div class="w-full bg-green-900/20 rounded-t-md h-full flex items-end"><div id="bar-g" class="w-full bg-green-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(34,197,94,0.5)]" style="height: 100%;"></div></div>
+                            <span id="lbl-bar-g" class="text-[10px] font-bold text-green-500 mb-1">0%</span>
+                            <div class="w-full bg-green-900/20 rounded-t-md h-full flex items-end relative overflow-hidden">
+                                <div id="bar-g" class="w-full bg-green-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(34,197,94,0.5)]" style="height: 0%;"></div>
+                                <div class="absolute inset-0 stack-grid pointer-events-none"></div>
+                            </div>
                             <span id="lbl-bar-g-name" class="text-[10px] font-bold text-slate-300 mt-2 uppercase">Vert</span>
                         </div>
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
-                            <span id="lbl-bar-b" class="text-[10px] font-bold text-blue-500 mb-1">100%</span>
-                            <div class="w-full bg-blue-900/20 rounded-t-md h-full flex items-end"><div id="bar-b" class="w-full bg-blue-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(59,130,246,0.5)]" style="height: 100%;"></div></div>
+                            <span id="lbl-bar-b" class="text-[10px] font-bold text-blue-500 mb-1">0%</span>
+                            <div class="w-full bg-blue-900/20 rounded-t-md h-full flex items-end relative overflow-hidden">
+                                <div id="bar-b" class="w-full bg-blue-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(59,130,246,0.5)]" style="height: 0%;"></div>
+                                <div class="absolute inset-0 stack-grid pointer-events-none"></div>
+                            </div>
                             <span id="lbl-bar-b-name" class="text-[10px] font-bold text-slate-300 mt-2 uppercase">Bleu</span>
                         </div>
                     </div>
@@ -293,7 +337,6 @@
 
             requestAnimationFrame(animateSplashLights);
         }
-        // ------------------------------
 
         const simObjects = [
             { id: 'strawberry', emoji: '🍓', r: 90, g: 10, b: 15 },
@@ -309,7 +352,7 @@
             { id: 'ball8', emoji: '🎱', r: 5, g: 5, b: 5 },
             { id: 'custom', isCustom: true, r: 128, g: 128, b: 128 }
         ];
-        let currentObject = null;
+        let currentObject = null; // Start with nothing selected
 
         const i18n = {
             fr: { 
@@ -428,7 +471,7 @@
         function initLang(lang) {
             const splashLang = document.getElementById('splash-lang');
             splashLang.style.opacity = '0';
-            splashActive = false; // Stop tracking mouse for better performance
+            splashActive = false; // Stop tracking mouse for performance
             setTimeout(() => {
                 splashLang.classList.add('hidden');
                 setLang(lang);
@@ -444,7 +487,6 @@
             
             intro.classList.remove('hidden');
             intro.classList.add('flex');
-            // Small delay for CSS transition to catch
             setTimeout(() => { intro.style.opacity = '1'; }, 50);
         }
 
@@ -577,6 +619,7 @@
         function updateSimulation() {
             const t = i18n[currentLang];
 
+            // Source Display
             if (isLightOn) {
                 document.getElementById('source-swatch').style.backgroundColor = `rgb(${lightRGB.r}, ${lightRGB.g}, ${lightRGB.b})`;
                 document.getElementById('source-color-name').innerText = getColorName(lightRGB.r, lightRGB.g, lightRGB.b, currentLang);
@@ -585,6 +628,7 @@
                 document.getElementById('source-color-name').innerText = t.stateOff;
             }
 
+            // Calculation (if light is ON and object is selected)
             let pr = 0, pg = 0, pb = 0;
 
             if (isLightOn && currentObject) {
@@ -602,6 +646,7 @@
 
             drawTintedObject();
 
+            // Update Bars
             const pctR = Math.round((pr / 255) * 100);
             const pctG = Math.round((pg / 255) * 100);
             const pctB = Math.round((pb / 255) * 100);
@@ -622,7 +667,7 @@
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            if (!currentObject) return;
+            if (!currentObject) return; // Draw nothing if no object selected
 
             if (currentObject.isCustom) {
                 ctx.beginPath();
@@ -646,6 +691,7 @@
                         data[i+1] = Math.round((data[i+1] * lightRGB.g) / 255); 
                         data[i+2] = Math.round((data[i+2] * lightRGB.b) / 255); 
                     } else {
+                        // Completely black if light is off
                         data[i] = 0;
                         data[i+1] = 0;
                         data[i+2] = 0;
@@ -773,6 +819,10 @@
 
                 if(!this.isReflected && dist < SPEED*1.5) {
                     this.active = false;
+                    
+                    // If no object is selected, light just passes/stops.
+                    if (!currentObject) return;
+
                     let chance = 0;
                     if(this.type === 'r') chance = currentObject.r;
                     if(this.type === 'g') chance = currentObject.g;
@@ -913,7 +963,8 @@
             }
 
             for(let i=particles.length-1; i>=0; i--) {
-                if (!currentObject) {
+                // If light turned off or object removed, kill particles
+                if (!isLightOn || !currentObject) {
                     particles[i].active = false;
                 } else {
                     particles[i].update(eX, eY, oX, oY);
