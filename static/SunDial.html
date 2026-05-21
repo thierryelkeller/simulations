@@ -17,8 +17,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; background-color: #0f172a; }
-        /* Hide scrollbar for the UI panels */
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #020617; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
@@ -29,9 +28,9 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useCallback } = React;
 
-        // --- INLINE SVG ICONS (Replaces lucide-react) ---
+        // --- INLINE SVG ICONS ---
         const IconWrap = ({ children, className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 {children}
@@ -64,7 +63,7 @@
                 horizontal: "Horizontal Dial", equatorial: "Equatorial Dial", altitude: "Altitude",
                 azimuth: "Azimuth", shadow_len: "Shadow (1m stick)", north: "N", south: "S", east: "E", west: "W",
                 sun_height: "Sun Height", high: "High", low: "Low", below_horizon: "Below Horizon",
-                drag_hint: "Click & Drag to rotate | Scroll to zoom", spring: "Spring", summer: "Summer",
+                drag_hint: "Drag to rotate | Scroll to zoom", spring: "Spring", summer: "Summer",
                 autumn: "Autumn", winter: "Winter", seasons: "Seasons", instructions: "Instructions",
                 start_lab: "Start Lab", back: "Back", elem_instr_title: "How to Explore!",
                 elem_instr_1: "Move the sun using the quick time buttons or slide it smoothly using the bottom bar.",
@@ -74,11 +73,11 @@
                 mid_instr_title: "Scientific Missions!",
                 mid_instr_1: "Track precise astronomical data including solar Altitude and Azimuth angles.",
                 mid_instr_2: "Change your Latitude to see how the sun behaves at the Equator, Poles, or your home town.",
-                mid_instr_3: "Cycle through three different historical sundials (Stick, Horizontal, Equatorial).",
-                mid_instr_4: "Toggle active Ruler and Protractor helpers to physically measure the shadow's properties in 3D.",
+                mid_instr_3: "Cycle through three different historical sundials.",
+                mid_instr_4: "Toggle Ruler/Protractor and CLICK & DRAG on the ground to measure shadow properties in 3D.",
                 measure_tools: "Measurement Tools", ruler_tool: "Interactive Ruler", protractor_tool: "Interactive Protractor",
                 shadow_angle: "Shadow Direction", align_ruler: "Measure Ruler Length", align_protractor: "Measure Shadow Angle",
-                measure_hint: "Move sliders to line up tools with shadow!", measure_match: "Perfect Match!",
+                measure_hint: "Click & drag on the ground to measure!", measure_match: "Perfect Match!",
                 from_north: "from North", from_south: "from South"
             },
             fr: {
@@ -101,11 +100,11 @@
                 mid_instr_title: "Missions Scientifiques !",
                 mid_instr_1: "Mesure des données astronomiques précises comme l'Altitude et l'Azimut du soleil.",
                 mid_instr_2: "Modifie la Latitude pour voir le soleil à l'Équateur, aux Pôles ou chez toi.",
-                mid_instr_3: "Alterne entre trois cadrans solaires historiques (Bâton, Horizontal, Équatorial).",
-                mid_instr_4: "Activez la règle et le rapporteur 3D pour mesurer physiquement les propriétés de l'ombre.",
+                mid_instr_3: "Alterne entre trois cadrans solaires historiques.",
+                mid_instr_4: "Activez la règle et le rapporteur, puis CLIQUEZ ET GLISSEZ sur le sol pour mesurer l'ombre.",
                 measure_tools: "Outils de Mesure", ruler_tool: "Règle Interactive", protractor_tool: "Rapporteur Interactif",
                 shadow_angle: "Direction de l'ombre", align_ruler: "Ajuster la Règle", align_protractor: "Ajuster l'Angle",
-                measure_hint: "Ajustez les outils sur l'ombre !", measure_match: "Mesure Parfaite !",
+                measure_hint: "Cliquez et glissez sur le sol pour mesurer !", measure_match: "Mesure Parfaite !",
                 from_north: "du Nord", from_south: "du Sud"
             },
             es: {
@@ -128,11 +127,11 @@
                 mid_instr_title: "¡Misiones Científicas!",
                 mid_instr_1: "Sigue datos astronómicos precisos como los ángulos de Altitud y Azimut.",
                 mid_instr_2: "Cambia tu Latitud para ver cómo se comporta el sol en el Ecuador, los Polos o tu ciudad.",
-                mid_instr_3: "Alterna entre tres tipos de relojes de sol históricos (Palo, Horizontal, Ecuatorial).",
-                mid_instr_4: "Usa la regla y el transportador 3D para medir físicamente las propiedades de la sombra.",
+                mid_instr_3: "Alterna entre tres tipos de relojes de sol históricos.",
+                mid_instr_4: "Activa las herramientas y HAZ CLIC Y ARRASTRA en el suelo para medir la sombra 3D.",
                 measure_tools: "Herramientas de Medida", ruler_tool: "Regla Interactiva", protractor_tool: "Transportador Interactivo",
                 shadow_angle: "Dirección de la sombra", align_ruler: "Ajustar Regla", align_protractor: "Ajustar Ángulo",
-                measure_hint: "¡Alinea las herramientas con la sombra!", measure_match: "¡Medición Perfecta!",
+                measure_hint: "¡Haz clic y arrastra en el suelo para medir!", measure_match: "¡Medición Perfecta!",
                 from_north: "del Norte", from_south: "del Sur"
             }
         };
@@ -161,6 +160,21 @@
             return { altitude: altDeg, azimuth: azDeg, declination: decDeg };
         };
 
+        // --- 3D INTERACTIVE MEASUREMENT HELPERS ---
+        const getMeasuredAngle = (start, end, lat) => {
+            const dx = end.x - start.x;
+            const dz = end.z - start.z;
+            let angleRad;
+            if (lat >= 0) {
+                angleRad = Math.atan2(dx, -dz);
+            } else {
+                angleRad = Math.atan2(-dx, dz);
+            }
+            let angleDeg = angleRad * (180 / Math.PI);
+            if (angleDeg < 0) angleDeg += 360;
+            return angleDeg;
+        };
+
         // --- MAIN APP COMPONENT ---
         function App() {
             const [screen, setScreen] = useState(1); 
@@ -168,10 +182,10 @@
             const [mode, setMode] = useState(null);
             const [showModal, setShowModal] = useState(false);
 
-            const t = (key) => TRANSLATIONS[lang]?.[key] || key;
+            const t = useCallback((key) => TRANSLATIONS[lang]?.[key] || key, [lang]);
 
             return (
-                <div className="w-full h-screen overflow-hidden bg-slate-900 text-slate-100 font-sans selection:bg-amber-500">
+                <div className="w-full h-screen overflow-hidden bg-[#020617] text-slate-100 font-sans selection:bg-amber-500">
                     {screen === 1 && <LanguageScreen lang={lang} setLang={(l) => { setLang(l); setScreen(2); }} t={t} />}
                     {screen === 2 && <LevelScreen setMode={(m) => { setMode(m); setScreen(3); }} t={t} onBack={() => setScreen(1)} />}
                     {screen === 3 && <InstructionScreen mode={mode} t={t} onBack={() => setScreen(2)} onStart={() => setScreen(4)} />}
@@ -180,26 +194,32 @@
             );
         }
 
-        // --- SCREENS ---
+        // --- ELEGANT LANGUAGE SPLASH SCREEN ---
         function LanguageScreen({ lang, setLang, t }) {
             const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
             return (
-                <div className="relative flex flex-col items-center justify-center h-full bg-slate-950 overflow-hidden" onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}>
-                    <div className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300" style={{ background: `radial-gradient(800px circle at ${mousePos.x}px ${mousePos.y}px, rgba(251,191,36,0.08), transparent 40%)` }} />
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl" />
-                    <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-orange-500/10 rounded-full blur-3xl" />
-                    <div className="z-10 text-center space-y-6 mb-16">
-                        <div className="relative inline-block">
-                            <div className="absolute inset-0 bg-amber-400 blur-xl opacity-30 animate-pulse rounded-full" />
-                            <Sun className="relative w-28 h-28 mx-auto text-amber-400 animate-[spin_40s_linear_infinite]" />
+                <div className="relative flex flex-col items-center justify-center h-full bg-[#020617] overflow-hidden" onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}>
+                    <div className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300" style={{ background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(251,191,36,0.18), transparent 50%), radial-gradient(800px circle at ${mousePos.x}px ${mousePos.y}px, rgba(236,72,153,0.1), transparent 60%)` }} />
+                    
+                    <div className="absolute top-[10%] left-[15%] w-[45rem] h-[45rem] bg-indigo-600/30 rounded-full blur-[120px] mix-blend-screen animate-[pulse_8s_ease-in-out_infinite]" />
+                    <div className="absolute bottom-[5%] right-[5%] w-[50rem] h-[50rem] bg-amber-500/25 rounded-full blur-[140px] mix-blend-screen animate-[pulse_10s_ease-in-out_infinite]" />
+                    <div className="absolute top-[40%] right-[25%] w-[30rem] h-[30rem] bg-pink-500/20 rounded-full blur-[100px] mix-blend-screen animate-[pulse_6s_ease-in-out_infinite]" />
+                    
+                    <div className="z-10 text-center space-y-6 mb-16 mt-8">
+                        <div className="relative inline-flex items-center justify-center mb-6">
+                            <div className="absolute inset-0 bg-amber-400 blur-3xl opacity-70 animate-[pulse_3s_ease-in-out_infinite] rounded-full scale-[2.0]" />
+                            <div className="absolute inset-0 bg-orange-500 blur-[50px] opacity-50 animate-[pulse_4s_ease-in-out_infinite] rounded-full scale-[2.8]" />
+                            <div className="absolute inset-0 bg-white blur-xl opacity-80 rounded-full scale-[1.2]" />
+                            <Sun className="relative w-36 h-36 mx-auto text-amber-100 animate-[spin_40s_linear_infinite] drop-shadow-[0_0_30px_rgba(251,191,36,1)]" />
                         </div>
-                        <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-orange-400 to-rose-500 drop-shadow-sm">{t('title')}</h1>
-                        <p className="text-xl md:text-2xl text-amber-100/80 font-semibold tracking-[0.2em] uppercase">{t('subtitle')}</p>
+                        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-amber-100 via-amber-400 to-rose-600 drop-shadow-2xl">{t('title')}</h1>
+                        <p className="text-xl md:text-3xl text-amber-200/90 font-bold tracking-[0.3em] uppercase">{t('subtitle')}</p>
                     </div>
-                    <div className="z-10 flex flex-col sm:flex-row gap-6">
+
+                    <div className="z-10 flex flex-col sm:flex-row gap-6 mt-6">
                         {['en', 'fr', 'es'].map(l => (
-                            <button key={l} onClick={() => setLang(l)} className="group relative px-10 py-5 bg-slate-900/50 hover:bg-slate-800/80 border border-slate-700/50 hover:border-amber-500/50 rounded-3xl text-2xl font-bold transition-all hover:-translate-y-2 hover:shadow-[0_10px_40px_-10px_rgba(251,191,36,0.3)] backdrop-blur-md overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <button key={l} onClick={() => setLang(l)} className="group relative px-10 py-5 bg-slate-900/60 hover:bg-slate-800/90 border border-slate-700/50 hover:border-amber-500/50 rounded-3xl text-2xl font-bold transition-all hover:-translate-y-2 hover:shadow-[0_10px_50px_-10px_rgba(251,191,36,0.5)] backdrop-blur-xl overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <span className={lang === l ? "text-amber-400" : "text-slate-300 group-hover:text-amber-200"}>{l === 'en' ? 'English' : l === 'fr' ? 'Français' : 'Español'}</span>
                             </button>
                         ))}
@@ -210,16 +230,16 @@
 
         function LevelScreen({ setMode, t, onBack }) {
             return (
-                <div className="flex flex-col items-center justify-center h-full p-6 bg-gradient-to-br from-indigo-950 via-slate-900 to-black relative">
+                <div className="flex flex-col items-center justify-center h-full p-6 bg-gradient-to-br from-[#0a1128] via-[#020617] to-black relative">
                     <button onClick={onBack} className="absolute top-8 left-8 text-slate-400 hover:text-white transition-colors">← {t('back')}</button>
                     <h2 className="text-4xl font-bold mb-12 text-white">{t('choose_age')}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
-                        <button onClick={() => setMode('elementary')} className="group flex flex-col items-center p-10 bg-slate-800/50 hover:bg-sky-900/40 border border-slate-700 hover:border-sky-400 rounded-3xl transition-all hover:-translate-y-2">
+                        <button onClick={() => setMode('elementary')} className="group flex flex-col items-center p-10 bg-slate-800/50 hover:bg-sky-900/40 border border-slate-700 hover:border-sky-400 rounded-3xl transition-all hover:-translate-y-2 shadow-xl">
                             <div className="w-24 h-24 bg-sky-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><Globe className="w-12 h-12 text-sky-400" /></div>
                             <h3 className="text-3xl font-bold text-white mb-2">{t('age_8_11')}</h3>
                             <p className="text-lg text-sky-200">{t('age_8_11_sub')}</p>
                         </button>
-                        <button onClick={() => setMode('middle')} className="group flex flex-col items-center p-10 bg-slate-800/50 hover:bg-amber-900/40 border border-slate-700 hover:border-amber-400 rounded-3xl transition-all hover:-translate-y-2">
+                        <button onClick={() => setMode('middle')} className="group flex flex-col items-center p-10 bg-slate-800/50 hover:bg-amber-900/40 border border-slate-700 hover:border-amber-400 rounded-3xl transition-all hover:-translate-y-2 shadow-xl">
                             <div className="w-24 h-24 bg-amber-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><Compass className="w-12 h-12 text-amber-400" /></div>
                             <h3 className="text-3xl font-bold text-white mb-2">{t('age_12_14')}</h3>
                             <p className="text-lg text-amber-200">{t('age_12_14_sub')}</p>
@@ -232,7 +252,7 @@
         function InstructionScreen({ mode, t, onBack, onStart }) {
             const isElem = mode === 'elementary';
             return (
-                <div className="flex flex-col items-center justify-center h-full p-6 bg-gradient-to-br from-indigo-950 via-slate-900 to-black relative">
+                <div className="flex flex-col items-center justify-center h-full p-6 bg-gradient-to-br from-[#0a1128] via-[#020617] to-black relative">
                     <button onClick={onBack} className="absolute top-8 left-8 text-slate-400 hover:text-white transition-colors">← {t('back')}</button>
                     <div className="max-w-xl w-full bg-slate-800/80 border border-slate-700 p-8 rounded-3xl shadow-2xl text-center space-y-6 backdrop-blur-sm">
                         <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto"><Info className="w-8 h-8 text-amber-400" /></div>
@@ -257,25 +277,54 @@
             const [day, setDay] = useState(172); 
             const [latitude, setLatitude] = useState(40);
             const [sundialType, setSundialType] = useState('stick'); 
+            
             const [showRuler, setShowRuler] = useState(false);
             const [showProtractor, setShowProtractor] = useState(false);
-            const [userRulerLength, setUserRulerLength] = useState(4.0);
+            
+            const [userRulerLength, setUserRulerLength] = useState(0);
             const [userShadowAngle, setUserShadowAngle] = useState(0);
             const [solarData, setSolarData] = useState({ altitude: 0, azimuth: 0 });
 
+            // Refs for ThreeJS state handling
+            const syncDataRef = useRef(null);
+            const interactionState = useRef({
+                showRuler: false,
+                showProtractor: false,
+                latitude: 40,
+                isMeasuringDrag: false,
+                mStart: new THREE.Vector3(),
+                mEnd: new THREE.Vector3(),
+                isCameraDragging: false,
+                camRadius: 35,
+                dragStart: {x: 0, y: 0},
+                cameraAngles: { theta: Math.PI / 4, phi: Math.PI / 3 }
+            });
+
             const sceneRef = useRef(null);
+            const cameraRef = useRef(null);
+            const rendererRef = useRef(null);
+            const groundRef = useRef(null);
+            
             const sunLightRef = useRef(null);
             const sunMeshRef = useRef(null);
+            const skyMatRef = useRef(null);
+            const starsMatRef = useRef(null);
             const stickDialRef = useRef(null);
             const horizontalDialRef = useRef(null);
             const equatorialDialRef = useRef(null);
             const trajectoryRef = useRef(null);
-            const decorGroupRef = useRef(null);
-            const starsMatRef = useRef(null);
-            const skyMatRef = useRef(null);
+            
             const rulerGroupRef = useRef(null);
             const protractorMeshRef = useRef(null);
+            const textBadgeRef = useRef(null);
 
+            // Sync React state down to mutable refs for 60fps event handlers without re-rendering closures
+            useEffect(() => { interactionState.current.showRuler = showRuler; }, [showRuler]);
+            useEffect(() => { interactionState.current.showProtractor = showProtractor; }, [showProtractor]);
+            useEffect(() => { interactionState.current.latitude = latitude; }, [latitude]);
+            useEffect(() => { syncDataRef.current = ({length, angle}) => { setUserRulerLength(length); setUserShadowAngle(angle); }; }, []);
+
+            // Main ThreeJS Initialization
             useEffect(() => {
                 if (!mountRef.current) return;
                 const scene = new THREE.Scene();
@@ -283,7 +332,6 @@
 
                 const vertexShader = `varying vec3 vWorldPosition; void main() { vec4 worldPosition = modelMatrix * vec4( position, 1.0 ); vWorldPosition = worldPosition.xyz; gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); }`;
                 const fragmentShader = `uniform vec3 topColor; uniform vec3 bottomColor; uniform float offset; uniform float exponent; varying vec3 vWorldPosition; void main() { float h = normalize( vWorldPosition + vec3(0.0, offset, 0.0) ).y; gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h, 0.0 ), exponent ), 0.0 ) ), 1.0 ); }`;
-                
                 const skyMat = new THREE.ShaderMaterial({
                     uniforms: { topColor: { value: new THREE.Color(0x0a1a3a) }, bottomColor: { value: new THREE.Color(0x87CEEB) }, offset: { value: 0.0 }, exponent: { value: 0.85 } },
                     vertexShader, fragmentShader, side: THREE.BackSide, depthWrite: false
@@ -295,6 +343,7 @@
                 const width = mountRef.current.clientWidth || window.innerWidth;
                 const height = mountRef.current.clientHeight || window.innerHeight;
                 const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+                cameraRef.current = camera;
                 
                 const renderer = new THREE.WebGLRenderer({ antialias: true });
                 renderer.setPixelRatio(window.devicePixelRatio);
@@ -302,6 +351,7 @@
                 renderer.shadowMap.enabled = true;
                 renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
                 mountRef.current.appendChild(renderer.domElement);
+                rendererRef.current = renderer;
 
                 scene.add(new THREE.AmbientLight(0xffffff, 0.03)); 
 
@@ -310,7 +360,7 @@
                 sunLight.shadow.mapSize.width = 2048;
                 sunLight.shadow.mapSize.height = 2048;
                 sunLight.shadow.camera.near = 0.5;
-                sunLight.shadow.camera.far = 180;
+                sunLight.shadow.camera.far = 250;
                 sunLight.shadow.bias = -0.0003; 
                 const d = 14; 
                 sunLight.shadow.camera.left = -d; sunLight.shadow.camera.right = d;
@@ -364,6 +414,7 @@
                 }
                 ground.receiveShadow = true;
                 scene.add(ground);
+                groundRef.current = ground;
 
                 const decorGroup = new THREE.Group();
                 if (isElem) {
@@ -389,7 +440,6 @@
                     }
                 }
                 scene.add(decorGroup);
-                decorGroupRef.current = decorGroup;
 
                 if (!isElem) {
                     const grid = new THREE.GridHelper(130, 65, 0x9ca3af, 0xd1d5db);
@@ -426,20 +476,20 @@
 
                 const stickGroup = new THREE.Group();
                 if (isElem) {
-                    let currentY = 0; let prevRadius = 0.16;
-                    for (let i = 0; i < 6; i++) {
+                    let currentY = 0; let prevRadius = 0.05;
+                    for (let i = 0; i < 4; i++) {
                         const nextRadius = prevRadius * 0.85;
-                        const segment = new THREE.Mesh(new THREE.CylinderGeometry(nextRadius, prevRadius, 4.0/6, 8), new THREE.MeshStandardMaterial({ color: 0x5a3d28, roughness: 0.95, flatShading: true }));
-                        segment.position.y = (4.0/6) / 2;
+                        const segment = new THREE.Mesh(new THREE.CylinderGeometry(nextRadius, prevRadius, 1.0/4, 8), new THREE.MeshStandardMaterial({ color: 0x5a3d28, roughness: 0.95, flatShading: true }));
+                        segment.position.y = (1.0/4) / 2;
                         const segmentAnchor = new THREE.Group(); segmentAnchor.position.y = currentY;
-                        if (i > 0) { segmentAnchor.rotation.z = Math.sin(i * 1.7) * 0.1; segmentAnchor.rotation.x = Math.cos(i * 1.3) * 0.1; }
+                        if (i > 0) { segmentAnchor.rotation.z = Math.sin(i * 1.7) * 0.05; segmentAnchor.rotation.x = Math.cos(i * 1.3) * 0.05; }
                         segment.castShadow = true; segment.receiveShadow = true; segmentAnchor.add(segment); stickGroup.add(segmentAnchor);
-                        currentY += 4.0/6; prevRadius = nextRadius;
+                        currentY += 1.0/4; prevRadius = nextRadius;
                     }
                 } else {
                     const straightMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.2 });
-                    const straightMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 4.0, 16), straightMat); straightMesh.position.y = 2.0;
-                    const tipMesh = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.3, 16), straightMat); tipMesh.position.y = 4.15;
+                    const straightMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.9, 16), straightMat); straightMesh.position.y = 0.45;
+                    const tipMesh = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.1, 16), straightMat); tipMesh.position.y = 0.95;
                     straightMesh.castShadow = true; straightMesh.receiveShadow = true; tipMesh.castShadow = true; tipMesh.receiveShadow = true;
                     stickGroup.add(straightMesh, tipMesh);
                 }
@@ -457,34 +507,126 @@
                 const eqStand = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 3, 16), new THREE.MeshStandardMaterial({ color: 0x555555 })); eqStand.position.y = 1.5; eqStand.castShadow = true; eqGroup.add(eqStand);
                 eqGroup.visible = false; scene.add(eqGroup); equatorialDialRef.current = { group: eqGroup, pivot: eqPivot };
 
+                // Measurement Tools Init (Middle School)
                 const rulerGroup = new THREE.Group();
                 const rulerStrip = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.02, 1.0), new THREE.MeshBasicMaterial({ color: 0xff00b3, transparent: true, opacity: 0.8 })); rulerStrip.position.z = 0.5; rulerGroup.add(rulerStrip);
-                for (let i = 1; i <= 15; i++) { const tick = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.04), new THREE.MeshBasicMaterial({ color: 0xffffff })); tick.position.set(0, 0.02, i); rulerGroup.add(tick); }
+                for (let i = 1; i <= 30; i++) { const tick = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.04), new THREE.MeshBasicMaterial({ color: 0xffffff })); tick.position.set(0, 0.02, i); rulerGroup.add(tick); }
                 rulerGroup.position.y = 0.09; rulerGroup.visible = false; scene.add(rulerGroup); rulerGroupRef.current = rulerGroup;
 
-                const protractorMesh = new THREE.Mesh(new THREE.RingGeometry(4, 12, 32, 1, 0, Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.45, side: THREE.DoubleSide, depthWrite: false }));
+                const protractorMesh = new THREE.Mesh(new THREE.RingGeometry(2.5, 12, 64, 1, 0, 0.1), new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.45, side: THREE.DoubleSide, depthWrite: false }));
                 protractorMesh.rotation.x = -Math.PI / 2; protractorMesh.position.y = 0.07; protractorMesh.visible = false; scene.add(protractorMesh); protractorMeshRef.current = protractorMesh;
 
-                let isDragging = false; let dragStart = { x: 0, y: 0 }; let cameraAngles = { theta: Math.PI / 4, phi: Math.PI / 3 }; let camRadius = 35; 
+                const badgeCanvas = document.createElement('canvas'); badgeCanvas.width = 512; badgeCanvas.height = 128;
+                const badgeTex = new THREE.CanvasTexture(badgeCanvas);
+                const textBadge = new THREE.Mesh(new THREE.PlaneGeometry(16, 4), new THREE.MeshBasicMaterial({ map: badgeTex, transparent: true, opacity: 0.95, depthWrite: false }));
+                textBadge.rotation.x = -Math.PI / 2; textBadge.visible = false; scene.add(textBadge); textBadgeRef.current = textBadge;
+
                 const updateCamera = () => {
-                    camera.position.x = camRadius * Math.sin(cameraAngles.phi) * Math.sin(cameraAngles.theta);
-                    camera.position.y = camRadius * Math.cos(cameraAngles.phi);
-                    camera.position.z = camRadius * Math.sin(cameraAngles.phi) * Math.cos(cameraAngles.theta);
+                    const st = interactionState.current;
+                    camera.position.x = st.camRadius * Math.sin(st.cameraAngles.phi) * Math.sin(st.cameraAngles.theta);
+                    camera.position.y = st.camRadius * Math.cos(st.cameraAngles.phi);
+                    camera.position.z = st.camRadius * Math.sin(st.cameraAngles.phi) * Math.cos(st.cameraAngles.theta);
                     camera.lookAt(0, 0, 0);
                 };
                 updateCamera();
-                const onMouseDown = (e) => { isDragging = true; dragStart = { x: e.clientX, y: e.clientY }; };
-                const onMouseMove = (e) => {
-                    if (!isDragging) return;
-                    cameraAngles.theta -= (e.clientX - dragStart.x) * 0.01; cameraAngles.phi -= (e.clientY - dragStart.y) * 0.01;
-                    dragStart = { x: e.clientX, y: e.clientY }; cameraAngles.phi = Math.max(0.1, Math.min(Math.PI / 2 - 0.1, cameraAngles.phi)); updateCamera();
+
+                const updateMeasurementVisuals = () => {
+                    const st = interactionState.current;
+                    if (!st.showRuler && !st.showProtractor) {
+                        rulerGroupRef.current.visible = false; protractorMeshRef.current.visible = false; textBadgeRef.current.visible = false; return;
+                    }
+                    const dist = st.mStart.distanceTo(st.mEnd);
+                    const ang = getMeasuredAngle(st.mStart, st.mEnd, st.latitude);
+                    
+                    if (dist > 0.05) {
+                        if (st.showRuler) {
+                            rulerGroupRef.current.visible = true; rulerGroupRef.current.position.copy(st.mStart); rulerGroupRef.current.position.y = 0.09;
+                            const target = st.mEnd.clone(); target.y = 0.09; rulerGroupRef.current.lookAt(target);
+                            rulerGroupRef.current.children[0].scale.z = dist; rulerGroupRef.current.children[0].position.z = dist / 2;
+                            for (let i = 1; i <= 30; i++) rulerGroupRef.current.children[i].visible = i <= dist;
+                        } else rulerGroupRef.current.visible = false;
+
+                        if (st.showProtractor) {
+                            protractorMeshRef.current.visible = true;
+                            protractorMeshRef.current.geometry.dispose();
+                            const dx = st.mEnd.x - st.mStart.x; const dz = st.mEnd.z - st.mStart.z;
+                            const angleRad = st.latitude >= 0 ? Math.atan2(dx, -dz) : Math.atan2(-dx, dz);
+                            let sTh, lTh;
+                            if (st.latitude >= 0) {
+                                if (angleRad >= 0) { sTh = Math.PI / 2 - angleRad; lTh = angleRad; } else { sTh = Math.PI / 2; lTh = -angleRad; }
+                            } else {
+                                if (angleRad >= 0) { sTh = 3 * Math.PI / 2 - angleRad; lTh = angleRad; } else { sTh = 3 * Math.PI / 2; lTh = -angleRad; }
+                            }
+                            if (lTh < 0.01) lTh = 0.01;
+                            protractorMeshRef.current.geometry = new THREE.RingGeometry(2.5, 12, 64, 1, sTh, lTh);
+                            protractorMeshRef.current.position.copy(st.mStart); protractorMeshRef.current.position.y = 0.07;
+                        } else protractorMeshRef.current.visible = false;
+
+                        const ctx = badgeCanvas.getContext('2d'); ctx.clearRect(0, 0, 512, 128);
+                        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)'; ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; ctx.lineWidth = 4;
+                        const r = 24; ctx.beginPath(); ctx.moveTo(r, 0); ctx.lineTo(512 - r, 0); ctx.quadraticCurveTo(512, 0, 512, r); ctx.lineTo(512, 128 - r); ctx.quadraticCurveTo(512, 128, 512 - r, 128); ctx.lineTo(r, 128); ctx.quadraticCurveTo(0, 128, 0, 128 - r); ctx.lineTo(0, r); ctx.quadraticCurveTo(0, 0, r, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+                        ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold 36px sans-serif';
+                        const refDir = st.latitude >= 0 ? t('north') : t('south');
+                        ctx.fillText(`${dist.toFixed(2)}m  |  ${ang.toFixed(1)}° (${refDir})`, 256, 64);
+                        badgeTex.needsUpdate = true;
+                        
+                        const dir = new THREE.Vector3().subVectors(st.mEnd, st.mStart).normalize();
+                        const mid = new THREE.Vector3().addVectors(st.mStart, st.mEnd).multiplyScalar(0.5);
+                        const perp = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar(4);
+                        textBadgeRef.current.position.copy(mid).add(perp); textBadgeRef.current.position.y = 0.12;
+                        textBadgeRef.current.rotation.z = Math.atan2(dir.x, dir.z) + Math.PI / 2;
+                        textBadgeRef.current.visible = true;
+
+                        if(syncDataRef.current) syncDataRef.current({length: dist, angle: ang});
+                    } else {
+                        textBadgeRef.current.visible = false;
+                    }
                 };
-                const onMouseUp = () => isDragging = false;
-                const onWheel = (e) => { camRadius = Math.max(10, Math.min(150, camRadius + e.deltaY * 0.05)); updateCamera(); };
+
+                const getRaycastPoint = (e) => {
+                    const rect = renderer.domElement.getBoundingClientRect();
+                    const mouse = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+                    const raycaster = new THREE.Raycaster(); raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObject(ground);
+                    return intersects.length > 0 ? intersects[0].point : null;
+                };
+
+                const onMouseDown = (e) => { 
+                    if(e.target !== renderer.domElement) return;
+                    const st = interactionState.current;
+                    const pt = getRaycastPoint(e);
+                    if (pt && (st.showRuler || st.showProtractor)) {
+                        st.isMeasuringDrag = true;
+                        st.mStart.copy(pt); st.mStart.y = 0;
+                        st.mEnd.copy(st.mStart);
+                        updateMeasurementVisuals();
+                    } else {
+                        st.isCameraDragging = true; 
+                        st.dragStart = { x: e.clientX, y: e.clientY }; 
+                    }
+                };
+                const onMouseMove = (e) => {
+                    const st = interactionState.current;
+                    if (st.isMeasuringDrag) {
+                        const pt = getRaycastPoint(e);
+                        if (pt) { st.mEnd.copy(pt); st.mEnd.y = 0; updateMeasurementVisuals(); }
+                    } else if (st.isCameraDragging) {
+                        st.cameraAngles.theta -= (e.clientX - st.dragStart.x) * 0.01; st.cameraAngles.phi -= (e.clientY - st.dragStart.y) * 0.01;
+                        st.cameraAngles.phi = Math.max(0.1, Math.min(Math.PI / 2 - 0.1, st.cameraAngles.phi));
+                        st.dragStart = { x: e.clientX, y: e.clientY }; updateCamera();
+                    }
+                };
+                const onMouseUp = () => { 
+                    interactionState.current.isMeasuringDrag = false;
+                    interactionState.current.isCameraDragging = false; 
+                };
+                const onWheel = (e) => { 
+                    const st = interactionState.current;
+                    st.camRadius = Math.max(10, Math.min(350, st.camRadius + e.deltaY * 0.1)); updateCamera(); 
+                };
 
                 mountRef.current.addEventListener('mousedown', onMouseDown); mountRef.current.addEventListener('wheel', onWheel, { passive: true });
                 window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp);
-
                 const handleResize = () => { if (!mountRef.current) return; camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight); };
                 window.addEventListener('resize', handleResize); handleResize();
 
@@ -498,6 +640,16 @@
                     renderer.dispose(); if (mountRef.current && mountRef.current.contains(renderer.domElement)) mountRef.current.removeChild(renderer.domElement);
                 };
             }, [mode]);
+
+            // Clean up drawing on tool toggle
+            useEffect(() => {
+                if(!showRuler && !showProtractor && rulerGroupRef.current) {
+                    rulerGroupRef.current.visible = false;
+                    protractorMeshRef.current.visible = false;
+                    textBadgeRef.current.visible = false;
+                    if(syncDataRef.current) syncDataRef.current({length:0, angle:0});
+                }
+            }, [showRuler, showProtractor]);
 
             useEffect(() => {
                 if (!sceneRef.current) return;
@@ -546,25 +698,7 @@
                     }
                     if (sundialType === 'equatorial') equatorialDialRef.current.pivot.rotation.x = - (Math.PI / 2 - (latitude * Math.PI / 180));
                 }
-
-                if (mode === 'middle') {
-                    const userAngleRad = userShadowAngle * (Math.PI / 180);
-                    if (rulerGroupRef.current) {
-                        if (showRuler) {
-                            rulerGroupRef.current.visible = true;
-                            rulerGroupRef.current.rotation.y = (latitude >= 0 ? userShadowAngle : (userShadowAngle + 180) % 360) * (Math.PI / 180);
-                            rulerGroupRef.current.children[0].scale.z = userRulerLength; rulerGroupRef.current.children[0].position.z = userRulerLength / 2;
-                            for (let i = 1; i <= 15; i++) rulerGroupRef.current.children[i].visible = i <= userRulerLength;
-                        } else rulerGroupRef.current.visible = false;
-                    }
-                    if (protractorMeshRef.current) {
-                        if (showProtractor) {
-                            protractorMeshRef.current.visible = true; protractorMeshRef.current.geometry.dispose();
-                            protractorMeshRef.current.geometry = new THREE.RingGeometry(2.5, 12, 64, 1, (latitude >= 0 ? Math.PI / 2 : -Math.PI / 2), -userAngleRad);
-                        } else protractorMeshRef.current.visible = false;
-                    }
-                }
-            }, [time, day, latitude, sundialType, mode, showRuler, showProtractor, userRulerLength, userShadowAngle]);
+            }, [time, day, latitude, sundialType, mode]);
 
             return (
                 <div className="w-full h-full relative flex">
@@ -586,7 +720,7 @@
                     {mode === 'elementary' ? (
                         <ElementaryUI time={time} setTime={setTime} day={day} setDay={setDay} t={t} solarData={solarData} />
                     ) : (
-                        <MiddleSchoolUI time={time} setTime={setTime} day={day} setDay={setDay} latitude={latitude} setLatitude={setLatitude} sundialType={sundialType} setSundialType={setSundialType} showRuler={showRuler} setShowRuler={setShowRuler} showProtractor={showProtractor} setShowProtractor={setShowProtractor} userRulerLength={userRulerLength} setUserRulerLength={setUserRulerLength} userShadowAngle={userShadowAngle} setUserShadowAngle={setUserShadowAngle} t={t} solarData={solarData} />
+                        <MiddleSchoolUI time={time} setTime={setTime} day={day} setDay={setDay} latitude={latitude} setLatitude={setLatitude} sundialType={sundialType} setSundialType={setSundialType} showRuler={showRuler} setShowRuler={setShowRuler} showProtractor={showProtractor} setShowProtractor={setShowProtractor} userRulerLength={userRulerLength} userShadowAngle={userShadowAngle} t={t} solarData={solarData} />
                     )}
                     {showModal && (
                         <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
@@ -639,18 +773,19 @@
             );
         }
 
-        function MiddleSchoolUI({ time, setTime, day, setDay, latitude, setLatitude, sundialType, setSundialType, showRuler, setShowRuler, showProtractor, setShowProtractor, userRulerLength, setUserRulerLength, userShadowAngle, setUserShadowAngle, t, solarData }) {
+        function MiddleSchoolUI({ time, setTime, day, setDay, latitude, setLatitude, sundialType, setSundialType, showRuler, setShowRuler, showProtractor, setShowProtractor, userRulerLength, userShadowAngle, t, solarData }) {
             const formatTime = (dh) => `${Math.floor(dh).toString().padStart(2, '0')}:${Math.round((dh - Math.floor(dh)) * 60).toString().padStart(2, '0')}`;
             const getMonth = (d) => new Date(2023, 0, d).toLocaleString('default', { month: 'short', day: 'numeric' });
             
-            const activeHeight = sundialType === 'stick' ? 4.0 : (sundialType === 'horizontal' ? 3.5 : 4.5);
+            // True Heights: Straight stick was changed to exactly 1.0 (Body 0.9 + Tip 0.1) 
+            const activeHeight = sundialType === 'stick' ? 1.0 : (sundialType === 'horizontal' ? 3.5 : 4.5);
             const rawShadowLen = solarData.altitude > 0 ? (activeHeight / Math.tan(solarData.altitude * (Math.PI / 180))) : 0;
             const calculatedShadowVal = (solarData.altitude > 0 && isFinite(rawShadowLen)) ? rawShadowLen.toFixed(2) + "m" : '∞';
             const rawShadowAngle = (solarData.azimuth + 180) % 360;
             const targetUserAngle = latitude >= 0 ? rawShadowAngle : (rawShadowAngle + 180) % 360;
 
-            const isAngleMatched = solarData.altitude > 0 && Math.abs(userShadowAngle - targetUserAngle) < 4;
-            const isLengthMatched = solarData.altitude > 0 && Math.abs(userRulerLength - rawShadowLen) < 0.25;
+            const isAngleMatched = solarData.altitude > 0 && (Math.abs(userShadowAngle - targetUserAngle) < 5 || Math.abs(userShadowAngle - targetUserAngle) > 355);
+            const isLengthMatched = solarData.altitude > 0 && Math.abs(userRulerLength - rawShadowLen) < 0.4;
             const showMatchBadge = showRuler && showProtractor && isAngleMatched && isLengthMatched;
 
             return (
@@ -689,12 +824,22 @@
                             {(showRuler || showProtractor) && (
                                 <div className="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 space-y-4">
                                     <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block">{t('measure_hint')}</span>
-                                    {showRuler && (
-                                        <div><div className="flex justify-between text-[11px] mb-1 font-semibold"><span className="text-slate-300">{t('align_ruler')}</span><span className="font-mono text-pink-400 font-bold">{userRulerLength.toFixed(2)}m</span></div><input type="range" min="0" max="15" step="0.05" value={userRulerLength} onChange={(e) => setUserRulerLength(parseFloat(e.target.value))} className="w-full h-1 cursor-pointer accent-pink-500 bg-slate-700" /></div>
-                                    )}
-                                    {showProtractor && (
-                                        <div><div className="flex justify-between text-[11px] mb-1 font-semibold"><span className="text-slate-300">{t('align_protractor')}</span><span className="font-mono text-blue-400 font-bold">{userShadowAngle.toFixed(0)}°</span></div><input type="range" min="0" max="360" step="1" value={userShadowAngle} onChange={(e) => setUserShadowAngle(parseInt(e.target.value))} className="w-full h-1 cursor-pointer accent-blue-500 bg-slate-700" /></div>
-                                    )}
+                                    
+                                    <div className="space-y-2 text-xs">
+                                        {showRuler && (
+                                            <div className="flex justify-between font-semibold">
+                                                <span className="text-slate-400">{t('align_ruler')}</span>
+                                                <span className="font-mono text-pink-400 font-bold">{userRulerLength.toFixed(2)}m</span>
+                                            </div>
+                                        )}
+                                        {showProtractor && (
+                                            <div className="flex justify-between font-semibold">
+                                                <span className="text-slate-400">{t('align_protractor')}</span>
+                                                <span className="font-mono text-blue-400 font-bold">{userShadowAngle.toFixed(1)}°</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
                                     {showMatchBadge && (
                                         <div className="bg-emerald-500/20 border border-emerald-500 p-2 rounded-lg flex items-center justify-center gap-2 text-emerald-300 text-xs font-bold animate-bounce"><CheckCircle className="w-4 h-4" /><span>{t('measure_match')}</span></div>
                                     )}
