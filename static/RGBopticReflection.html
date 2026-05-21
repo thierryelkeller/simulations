@@ -9,10 +9,8 @@
     <style>
         body { font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; padding: 0; background-color: #0f172a; }
         
-        /* Smooth bar transitions */
         .bar-transition { transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease; }
         
-        /* Custom horizontal/rotated ranges */
         input[type=range] { -webkit-appearance: none; background: transparent; cursor: pointer; }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%;
@@ -21,7 +19,6 @@
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #475569; border-radius: 3px; }
         input[type=range]:focus { outline: none; }
         
-        /* Scrollbar for objects (1 line) */
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: thin; scrollbar-color: #475569 transparent; }
         .hide-scroll::-webkit-scrollbar { height: 8px; }
         .hide-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -31,12 +28,74 @@
 </head>
 <body class="w-screen h-screen flex flex-col text-slate-200 bg-slate-900">
 
+    <div id="splash-lang" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center transition-opacity duration-500 overflow-hidden">
+        <!-- Ambient glowing blobs -->
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-red-500/20 rounded-full mix-blend-screen filter blur-[100px] animate-pulse"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full mix-blend-screen filter blur-[100px] animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-500/10 rounded-full mix-blend-screen filter blur-[100px] animate-pulse" style="animation-delay: 2s;"></div>
+        
+        <div class="relative z-10 flex flex-col items-center">
+            <div class="text-7xl mb-6 drop-shadow-2xl">🌈</div>
+            <h1 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-green-400 to-blue-500 mb-8 text-center tracking-tight drop-shadow-sm pb-2">
+                Virtual Light Lab
+            </h1>
+            <p class="text-xl md:text-2xl text-slate-200 font-medium mb-10 text-center bg-slate-900/50 p-4 rounded-2xl backdrop-blur-sm border border-slate-700/50">
+                Choose your language <br>
+                <span class="text-lg text-slate-400 block mt-2">Choisis ta langue / Elige tu idioma</span>
+            </p>
+            <div class="flex flex-col md:flex-row gap-5">
+                <button onclick="initLang('fr')" class="group relative px-8 py-4 text-xl font-bold text-white rounded-2xl shadow-xl transition-all hover:scale-110 hover:-translate-y-1 bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-400 overflow-hidden">
+                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                    <span class="relative">🇫🇷 Français</span>
+                </button>
+                <button onclick="initLang('en')" class="group relative px-8 py-4 text-xl font-bold text-white rounded-2xl shadow-xl transition-all hover:scale-110 hover:-translate-y-1 bg-gradient-to-br from-indigo-600 to-indigo-800 border-2 border-indigo-400 overflow-hidden">
+                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                    <span class="relative">🇬🇧 English</span>
+                </button>
+                <button onclick="initLang('es')" class="group relative px-8 py-4 text-xl font-bold text-white rounded-2xl shadow-xl transition-all hover:scale-110 hover:-translate-y-1 bg-gradient-to-br from-violet-600 to-violet-800 border-2 border-violet-400 overflow-hidden">
+                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                    <span class="relative">🇪🇸 Español</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="splash-intro" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[90] hidden flex-col items-center justify-center p-4 transition-opacity duration-500 opacity-0">
+        <div class="bg-slate-800 p-8 md:p-10 rounded-[2rem] max-w-3xl w-full border-t-8 border-t-blue-500 border-x border-b border-slate-600 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 text-9xl opacity-10">💡</div>
+            
+            <h2 id="intro-main-title" class="text-3xl md:text-4xl font-extrabold text-white mb-6 text-center drop-shadow-md">Bienvenue dans le Labo !</h2>
+            
+            <div class="mb-8 bg-slate-900/60 p-6 rounded-2xl border border-slate-700 shadow-inner">
+                <h3 id="intro-goal-title" class="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2">🎯 Ta Mission</h3>
+                <p id="intro-goal-text" class="text-slate-200 text-lg leading-relaxed">...</p>
+            </div>
+            
+            <div class="mb-10">
+                <h3 id="intro-inst-title" class="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">🕹️ Comment jouer ?</h3>
+                <ul class="text-slate-300 space-y-3 text-base md:text-lg">
+                    <li id="intro-inst-1" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50 hover:bg-slate-700/60 transition-colors">...</li>
+                    <li id="intro-inst-2" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50 hover:bg-slate-700/60 transition-colors">...</li>
+                    <li id="intro-inst-3" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50 hover:bg-slate-700/60 transition-colors">...</li>
+                    <li id="intro-inst-4" class="flex items-center gap-4 bg-slate-700/40 p-3 rounded-xl border border-slate-600/50 hover:bg-slate-700/60 transition-colors">...</li>
+                </ul>
+            </div>
+            
+            <div class="flex justify-center">
+                <button id="btn-start-sim" onclick="closeIntro()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold py-4 px-12 rounded-2xl text-xl shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] border-b-4 border-green-700 active:translate-y-1 active:border-b-0">🚀 Lancer le Labo !</button>
+            </div>
+        </div>
+    </div>
+
     <header class="bg-slate-950 text-white p-3 px-6 flex justify-between items-center shadow-md z-20 shrink-0 border-b border-slate-800">
         <h1 id="app-title" class="text-xl font-bold tracking-tight">Simulation de la perception des couleurs</h1>
-        <div class="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-800">
-            <button onclick="setLang('fr')" id="btn-fr" class="px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow">FR</button>
-            <button onclick="setLang('en')" id="btn-en" class="px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded">EN</button>
-            <button onclick="setLang('es')" id="btn-es" class="px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded">ES</button>
+        <div class="flex items-center gap-4">
+            <button onclick="openIntro()" id="btn-info" class="flex items-center justify-center w-8 h-8 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-600 rounded-full font-bold shadow transition-colors" title="Instructions">ℹ️</button>
+            <div class="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-800">
+                <button onclick="setLang('fr')" id="btn-fr" class="px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow">FR</button>
+                <button onclick="setLang('en')" id="btn-en" class="px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded">EN</button>
+                <button onclick="setLang('es')" id="btn-es" class="px-3 py-1 text-xs font-bold text-slate-400 hover:text-white rounded">ES</button>
+            </div>
         </div>
     </header>
 
@@ -47,13 +106,13 @@
                 <h2 id="ui-source-title" class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b border-slate-700 pb-2">Source de lumière</h2>
                 
                 <div class="flex flex-col items-center gap-2">
-                    <div id="source-swatch" class="w-32 h-32 rounded-2xl border-4 border-slate-700 shadow-inner transition-colors duration-300"></div>
+                    <div id="source-swatch" class="w-32 h-32 rounded-2xl border-4 border-slate-700 shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-colors duration-300"></div>
                     <p id="source-color-name" class="font-bold text-slate-200 capitalize text-center h-6">Blanc</p>
                 </div>
 
                 <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
-                    <button onclick="setLightMode('white')" id="tab-white" class="flex-1 py-1.5 text-xs font-bold bg-slate-700 rounded shadow-sm text-white transition-all">Lumière Blanche</button>
-                    <button onclick="setLightMode('color')" id="tab-color" class="flex-1 py-1.5 text-xs font-bold text-slate-400 hover:text-slate-200 transition-all">Lumière Colorée</button>
+                    <button onclick="setLightMode('white')" id="tab-white" class="flex-1 py-1.5 text-[11px] font-bold bg-slate-700 rounded shadow-sm text-white transition-all uppercase tracking-wide">Lumière Blanche</button>
+                    <button onclick="setLightMode('color')" id="tab-color" class="flex-1 py-1.5 text-[11px] font-bold text-slate-400 hover:text-slate-200 transition-all uppercase tracking-wide">Lumière Colorée</button>
                 </div>
 
                 <!-- Vertical Sliders for White Light -->
@@ -93,15 +152,13 @@
         </aside>
 
         <main class="flex-1 flex flex-col relative min-w-0 bg-slate-950">
-            <!-- Animation Block -->
             <div class="flex-1 relative overflow-hidden" id="canvas-container">
                 <canvas id="simCanvas" class="absolute inset-0 w-full h-full block"></canvas>
             </div>
             
-            <!-- Bottom Panel (Object Selection) -->
-            <div class="h-36 bg-slate-800 border-t border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] z-10 flex flex-col justify-center px-4 shrink-0">
+            <div class="h-40 bg-slate-800 border-t border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] z-10 flex flex-col justify-center px-4 shrink-0">
                 <h2 id="ui-object-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-3">Sélection de l'objet (Filtre)</h2>
-                <div id="object-buttons" class="flex flex-nowrap md:justify-center gap-3 overflow-x-auto hide-scroll pb-2 items-center px-2 snap-x mx-auto w-full max-w-full">
+                <div id="object-buttons" class="flex flex-nowrap md:justify-center gap-3 overflow-x-auto hide-scroll pb-2 items-center px-2 mx-auto w-full max-w-full">
                     <!-- Buttons injected by JS -->
                 </div>
             </div>
@@ -112,12 +169,10 @@
                 <h2 id="ui-perception-title" class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b border-slate-700 pb-2">Perception visuelle</h2>
                 
                 <div class="flex flex-col items-center gap-4 w-full">
-                    <!-- Objet Simulé Dynamique (Teinté au pixel) -->
                     <div class="flex items-center justify-center h-32 w-full">
-                        <canvas id="tinted-object-canvas" width="160" height="160" class="w-32 h-32 drop-shadow-xl"></canvas>
+                        <canvas id="tinted-object-canvas" width="160" height="160" class="w-32 h-32 drop-shadow-2xl"></canvas>
                     </div>
                     
-                    <!-- Rectangle de la couleur perçue -->
                     <div class="w-full flex flex-col gap-2 items-center bg-slate-900/80 p-3 rounded-xl border border-slate-700 shadow-sm">
                         <div id="perceived-swatch" class="w-full h-12 rounded-lg shadow-inner transition-colors duration-300 border border-slate-950"></div>
                         <p id="perceived-color-name" class="font-bold text-slate-200 capitalize text-center text-sm">Blanc</p>
@@ -134,17 +189,17 @@
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
                             <span id="lbl-bar-r" class="text-[10px] font-bold text-red-500 mb-1">100%</span>
                             <div class="w-full bg-red-900/20 rounded-t-md h-full flex items-end"><div id="bar-r" class="w-full bg-red-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(239,68,68,0.5)]" style="height: 100%;"></div></div>
-                            <span id="lbl-bar-r-name" class="text-[10px] font-bold text-slate-300 mt-2">Rouge</span>
+                            <span id="lbl-bar-r-name" class="text-[10px] font-bold text-slate-300 mt-2 uppercase">Rouge</span>
                         </div>
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
                             <span id="lbl-bar-g" class="text-[10px] font-bold text-green-500 mb-1">100%</span>
                             <div class="w-full bg-green-900/20 rounded-t-md h-full flex items-end"><div id="bar-g" class="w-full bg-green-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(34,197,94,0.5)]" style="height: 100%;"></div></div>
-                            <span id="lbl-bar-g-name" class="text-[10px] font-bold text-slate-300 mt-2">Vert</span>
+                            <span id="lbl-bar-g-name" class="text-[10px] font-bold text-slate-300 mt-2 uppercase">Vert</span>
                         </div>
                         <div class="flex flex-col items-center w-1/4 h-full justify-end z-10">
                             <span id="lbl-bar-b" class="text-[10px] font-bold text-blue-500 mb-1">100%</span>
                             <div class="w-full bg-blue-900/20 rounded-t-md h-full flex items-end"><div id="bar-b" class="w-full bg-blue-500 rounded-t-md bar-transition shadow-[0_0_10px_rgba(59,130,246,0.5)]" style="height: 100%;"></div></div>
-                            <span id="lbl-bar-b-name" class="text-[10px] font-bold text-slate-300 mt-2">Bleu</span>
+                            <span id="lbl-bar-b-name" class="text-[10px] font-bold text-slate-300 mt-2 uppercase">Bleu</span>
                         </div>
                     </div>
                 </div>
@@ -153,16 +208,16 @@
     </div>
 
     <div id="color-modal" class="fixed inset-0 bg-slate-950/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity">
-        <div class="bg-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl border border-slate-700">
-            <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-2">
-                <h3 id="modal-title" class="font-bold text-lg text-white">Couleur personnalisée</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+        <div class="bg-slate-800 rounded-3xl p-8 max-w-lg w-full shadow-2xl border border-slate-600">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
+                <h3 id="modal-title" class="font-bold text-xl text-white">Couleur personnalisée</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white text-3xl font-bold leading-none">&times;</button>
             </div>
             
-            <p id="modal-subtitle-gray" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Nuances de gris</p>
-            <div id="gray-grid" class="flex gap-3 mb-6 justify-center"></div>
+            <p id="modal-subtitle-gray" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Nuances de gris</p>
+            <div id="gray-grid" class="flex gap-2 mb-6 justify-center"></div>
             
-            <p id="modal-subtitle-color" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Spectre complet</p>
+            <p id="modal-subtitle-color" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Spectre complet</p>
             <div id="color-grid" class="grid grid-cols-12 gap-2 justify-items-center"></div>
         </div>
     </div>
@@ -171,6 +226,7 @@
         let currentLang = 'fr';
         let lightMode = 'white'; 
         let lightRGB = { r: 255, g: 255, b: 255 };
+        let isFirstLaunch = true;
         
         const simObjects = [
             { id: 'strawberry', emoji: '🍓', r: 90, g: 10, b: 15 },
@@ -179,7 +235,7 @@
             { id: 'leaf', emoji: '🍃', r: 10, g: 85, b: 20 },
             { id: 'cap', emoji: '🧢', r: 10, g: 30, b: 90 },
             { id: 'grapes', emoji: '🍇', r: 50, g: 15, b: 70 },
-            { id: 'multicolor', emoji: '🍭', r: 100, g: 100, b: 100 }, // Lollipop containing rainbow bands
+            { id: 'multicolor', emoji: '🍭', r: 100, g: 100, b: 100 }, 
             { id: 'wood', emoji: '🪵', r: 54, g: 27, b: 7 },
             { id: 'elephant', emoji: '🐘', r: 50, g: 50, b: 50 },
             { id: 'milk', emoji: '🥛', r: 95, g: 95, b: 95 },
@@ -188,35 +244,60 @@
         ];
         let currentObject = simObjects[0];
 
-        // Advanced Translation Dictionary
         const i18n = {
             fr: { 
-                title: "Simulation : Couleur et Lumière", source: "Source de lumière", object: "Sélection de l'objet (Filtre)", perception: "Perception visuelle", 
-                analyzer: "Analyseur Rouge, Vert, Bleu<br><span class='text-[9px]'>(Lumière réfléchie)</span>", 
-                tabWhite: "Lumière Blanche", tabColor: "Lumière Colorée", intensity: "Intensité Globale",
-                modalTitle: "Créer une couleur", grayTitle: "Nuances de gris", colorTitle: "Spectre complet",
+                title: "Éclat de Couleurs : Labo Virtuel", source: "Source lumineuse", object: "Objet (Filtre)", perception: "Perception visuelle", analyzer: "Lumière Réfléchie (Analyseur RGB)", 
+                tabWhite: "Lumière Blanche", tabColor: "Lumière Colorée", intensity: "Intensité",
+                modalTitle: "Créer une couleur", grayTitle: "Nuances de gris", colorTitle: "Spectre",
                 red: "Rouge", green: "Vert", blue: "Bleu",
-                names: { strawberry: "Fraise", carrot: "Carotte", lemon: "Citron", leaf: "Feuille", cap: "Casquette", grapes: "Raisin", multicolor: "Multicolore", wood: "Bois", elephant: "Éléphant", milk: "Lait", ball8: "Boule 8", custom: "Perso" }
+                names: { strawberry: "Fraise", carrot: "Carotte", lemon: "Citron", leaf: "Feuille", cap: "Casquette", grapes: "Raisin", multicolor: "Multicolore", wood: "Bois", elephant: "Éléphant", milk: "Lait", ball8: "Boule 8", custom: "Perso" },
+                intro: {
+                    main: "Bienvenue dans le Labo ! 👋", goalTitle: "🎯 Ta Mission",
+                    goalText: "Découvre le secret des couleurs ! Tu vas voir que les objets ne fabriquent pas leur propre couleur, ils trichent en renvoyant seulement une partie de la lumière dans tes yeux.",
+                    instTitle: "🕹️ Comment jouer ?",
+                    inst1: "<span class='text-2xl'>💡</span> <div><strong>Allume la lumière :</strong> Joue avec le projecteur (lumière blanche ou colorée).</div>",
+                    inst2: "<span class='text-2xl'>🍎</span> <div><strong>Choisis un objet :</strong> Clique sur les objets en bas pour les mettre sous les projecteurs.</div>",
+                    inst3: "<span class='text-2xl'>🔍</span> <div><strong>Observe la physique :</strong> Regarde quels rayons rebondissent (réflexion) et lesquels sont bloqués (absorption).</div>",
+                    inst4: "<span class='text-2xl'>📊</span> <div><strong>Analyse les données :</strong> Vérifie la couleur finale perçue et lis les jauges Rouge, Vert, Bleu !</div>",
+                    btnStart: "🚀 Lancer le Labo !", btnClose: "✨ Reprendre"
+                }
             },
             en: { 
-                title: "Simulation: Color and Light", source: "Light Source", object: "Target Object (Filter)", perception: "Visual Perception", 
-                analyzer: "Red, Green, Blue Analyzer<br><span class='text-[9px]'>(Reflected Light)</span>", 
-                tabWhite: "White Light", tabColor: "Colored Light", intensity: "Overall Intensity",
-                modalTitle: "Create Custom Color", grayTitle: "Grayscale", colorTitle: "Full Spectrum",
+                title: "Color Splash: Virtual Light Lab", source: "Light Source", object: "Target Object (Filter)", perception: "Visual Perception", analyzer: "Reflected Light (RGB Analyzer)", 
+                tabWhite: "White Light", tabColor: "Colored Light", intensity: "Intensity",
+                modalTitle: "Create Custom Color", grayTitle: "Grayscale", colorTitle: "Spectrum",
                 red: "Red", green: "Green", blue: "Blue",
-                names: { strawberry: "Strawberry", carrot: "Carrot", lemon: "Lemon", leaf: "Leaf", cap: "Cap", grapes: "Grapes", multicolor: "Multicolor", wood: "Wood", elephant: "Elephant", milk: "Milk", ball8: "8-Ball", custom: "Custom" }
+                names: { strawberry: "Strawberry", carrot: "Carrot", lemon: "Lemon", leaf: "Leaf", cap: "Cap", grapes: "Grapes", multicolor: "Multicolor", wood: "Wood", elephant: "Elephant", milk: "Milk", ball8: "8-Ball", custom: "Custom" },
+                intro: {
+                    main: "Welcome to the Lab! 👋", goalTitle: "🎯 Your Mission",
+                    goalText: "Uncover the secret of colors! You'll discover that objects don't make their own color—they trick us by bouncing only specific parts of light into our eyes.",
+                    instTitle: "🕹️ How to play?",
+                    inst1: "<span class='text-2xl'>💡</span> <div><strong>Control the light:</strong> Play with the spotlight (white or colored light).</div>",
+                    inst2: "<span class='text-2xl'>🍎</span> <div><strong>Pick an object:</strong> Click the items at the bottom to put them on stage.</div>",
+                    inst3: "<span class='text-2xl'>🔍</span> <div><strong>Observe the physics:</strong> Watch which light rays bounce off (reflection) and which get blocked (absorption).</div>",
+                    inst4: "<span class='text-2xl'>📊</span> <div><strong>Analyze the data:</strong> Check the final color your eye sees and read the Red, Green, Blue gauges!</div>",
+                    btnStart: "🚀 Start the Lab!", btnClose: "✨ Resume"
+                }
             },
             es: {
-                title: "Simulación: Color y Luz", source: "Fuente de luz", object: "Selección de objeto (Filtro)", perception: "Percepción visual", 
-                analyzer: "Analizador Rojo, Verde, Azul<br><span class='text-[9px]'>(Luz reflejada)</span>", 
-                tabWhite: "Luz Blanca", tabColor: "Luz Coloreada", intensity: "Intensidad Global",
-                modalTitle: "Crear color", grayTitle: "Escala de grises", colorTitle: "Espectro completo",
+                title: "Estallido de Colores: Lab Virtual", source: "Fuente de luz", object: "Objeto (Filtro)", perception: "Percepción visual", analyzer: "Luz Reflejada (Analizador RGB)", 
+                tabWhite: "Luz Blanca", tabColor: "Luz Coloreada", intensity: "Intensidad",
+                modalTitle: "Crear color", grayTitle: "Escala de grises", colorTitle: "Espectro",
                 red: "Rojo", green: "Verde", blue: "Azul",
-                names: { strawberry: "Fresa", carrot: "Zanahoria", lemon: "Limón", leaf: "Hoja", cap: "Gorra", grapes: "Uvas", multicolor: "Multicolor", wood: "Madera", elephant: "Elefante", milk: "Leche", ball8: "Bola 8", custom: "Perso" }
+                names: { strawberry: "Fresa", carrot: "Zanahoria", lemon: "Limón", leaf: "Hoja", cap: "Gorra", grapes: "Uvas", multicolor: "Multicolor", wood: "Madera", elephant: "Elefante", milk: "Leche", ball8: "Bola 8", custom: "Perso" },
+                intro: {
+                    main: "¡Bienvenido al Laboratorio! 👋", goalTitle: "🎯 Tu Misión",
+                    goalText: "¡Descubre el secreto de los colores! Verás que los objetos no tienen color propio, sino que rebotan ciertas partes de la luz hacia nuestros ojos.",
+                    instTitle: "🕹️ ¿Cómo jugar?",
+                    inst1: "<span class='text-2xl'>💡</span> <div><strong>Controla la luz:</strong> Ajusta el proyector (luz blanca o de color).</div>",
+                    inst2: "<span class='text-2xl'>🍎</span> <div><strong>Elige un objeto:</strong> Haz clic en los objetos de abajo para ponerlos bajo el foco.</div>",
+                    inst3: "<span class='text-2xl'>🔍</span> <div><strong>Observa la física:</strong> Mira qué rayos rebotan (reflexión) y cuáles se bloquean (absorción).</div>",
+                    inst4: "<span class='text-2xl'>📊</span> <div><strong>Analiza los datos:</strong> ¡Revisa el color final percibido y lee los medidores Rojo, Verde, Azul!</div>",
+                    btnStart: "🚀 ¡Iniciar el Lab!", btnClose: "✨ Reanudar"
+                }
             }
         };
 
-        // Grammar-aware color naming logic
         const colorVocab = {
             fr: { black: 'Noir', white: 'Blanc', darkGray: 'Gris foncé', lightGray: 'Gris clair', gray: 'Gris', red: 'Rouge', orange: 'Orange', yellow: 'Jaune', green: 'Vert', cyan: 'Cyan', blue: 'Bleu', purple: 'Violet', magenta: 'Magenta', dark: ' foncé', light: ' clair', pink: 'Rose', peach: 'Pêche' },
             en: { black: 'Black', white: 'White', darkGray: 'Dark Gray', lightGray: 'Light Gray', gray: 'Gray', red: 'Red', orange: 'Orange', yellow: 'Yellow', green: 'Green', cyan: 'Cyan', blue: 'Blue', purple: 'Purple', magenta: 'Magenta', dark: 'Dark ', light: 'Light ', pink: 'Pink', peach: 'Peach' },
@@ -270,10 +351,44 @@
             return base;
         }
 
+        // Initialize from language splash screen
+        function initLang(lang) {
+            const splashLang = document.getElementById('splash-lang');
+            splashLang.style.opacity = '0';
+            setTimeout(() => {
+                splashLang.classList.add('hidden');
+                setLang(lang);
+                openIntro();
+            }, 500);
+        }
+
+        function openIntro() {
+            const intro = document.getElementById('splash-intro');
+            const btnStart = document.getElementById('btn-start-sim');
+            
+            btnStart.innerText = isFirstLaunch ? i18n[currentLang].intro.btnStart : i18n[currentLang].intro.btnClose;
+            
+            intro.classList.remove('hidden');
+            intro.classList.add('flex');
+            // Small delay for CSS transition to catch
+            setTimeout(() => { intro.style.opacity = '1'; }, 50);
+        }
+
+        function closeIntro() {
+            const intro = document.getElementById('splash-intro');
+            intro.style.opacity = '0';
+            setTimeout(() => {
+                intro.classList.add('hidden');
+                intro.classList.remove('flex');
+                isFirstLaunch = false;
+            }, 500);
+        }
+
         function setLang(lang) {
             currentLang = lang;
             const t = i18n[lang];
             
+            // UI text
             document.getElementById('app-title').innerText = t.title;
             document.getElementById('ui-source-title').innerText = t.source;
             document.getElementById('ui-object-title').innerText = t.object;
@@ -286,7 +401,6 @@
             document.getElementById('modal-subtitle-gray').innerText = t.grayTitle;
             document.getElementById('modal-subtitle-color').innerText = t.colorTitle;
             
-            // Update explicit color names
             document.getElementById('lbl-slider-r').innerText = t.red;
             document.getElementById('lbl-slider-g').innerText = t.green;
             document.getElementById('lbl-slider-b').innerText = t.blue;
@@ -294,7 +408,22 @@
             document.getElementById('lbl-bar-g-name').innerText = t.green;
             document.getElementById('lbl-bar-b-name').innerText = t.blue;
 
-            // Handle button states
+            // Intro Modal text
+            document.getElementById('intro-main-title').innerText = t.intro.main;
+            document.getElementById('intro-goal-title').innerText = t.intro.goalTitle;
+            document.getElementById('intro-goal-text').innerText = t.intro.goalText;
+            document.getElementById('intro-inst-title').innerText = t.intro.instTitle;
+            document.getElementById('intro-inst-1').innerHTML = t.intro.inst1;
+            document.getElementById('intro-inst-2').innerHTML = t.intro.inst2;
+            document.getElementById('intro-inst-3').innerHTML = t.intro.inst3;
+            document.getElementById('intro-inst-4').innerHTML = t.intro.inst4;
+            
+            if (!isFirstLaunch) {
+                 document.getElementById('btn-start-sim').innerText = t.intro.btnClose;
+            } else {
+                 document.getElementById('btn-start-sim').innerText = t.intro.btnStart;
+            }
+
             ['fr', 'en', 'es'].forEach(l => {
                 document.getElementById(`btn-${l}`).className = lang === l 
                     ? "px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded shadow" 
@@ -313,12 +442,12 @@
             const cColor = document.getElementById('controls-color');
 
             if (mode === 'white') {
-                tWhite.className = "flex-1 py-1.5 text-xs font-bold bg-slate-700 rounded shadow-sm text-white transition-all";
-                tColor.className = "flex-1 py-1.5 text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
+                tWhite.className = "flex-1 py-1.5 text-[11px] font-bold bg-slate-700 rounded shadow-sm text-white transition-all uppercase tracking-wide";
+                tColor.className = "flex-1 py-1.5 text-[11px] font-bold text-slate-400 hover:text-slate-200 transition-all uppercase tracking-wide";
                 cWhite.classList.remove('hidden'); cColor.classList.add('hidden');
             } else {
-                tColor.className = "flex-1 py-1.5 text-xs font-bold bg-slate-700 rounded shadow-sm text-white transition-all";
-                tWhite.className = "flex-1 py-1.5 text-xs font-bold text-slate-400 hover:text-slate-200 transition-all";
+                tColor.className = "flex-1 py-1.5 text-[11px] font-bold bg-slate-700 rounded shadow-sm text-white transition-all uppercase tracking-wide";
+                tWhite.className = "flex-1 py-1.5 text-[11px] font-bold text-slate-400 hover:text-slate-200 transition-all uppercase tracking-wide";
                 cColor.classList.remove('hidden'); cWhite.classList.add('hidden');
             }
             updateLight();
@@ -583,33 +712,29 @@
 
             ctx.save();
             ctx.translate(fX, fY);
-            ctx.rotate(angle); // Rotate first to align the glow with the flashlight output
+            ctx.rotate(angle); 
             
-            // Calcul de l'intensité réelle et de la couleur pure pour un éclairage réaliste
             const maxVal = Math.max(lightRGB.r, lightRGB.g, lightRGB.b);
             const intensity = maxVal / 255;
             const baseR = maxVal > 0 ? Math.round((lightRGB.r / maxVal) * 255) : 0;
             const baseG = maxVal > 0 ? Math.round((lightRGB.g / maxVal) * 255) : 0;
             const baseB = maxVal > 0 ? Math.round((lightRGB.b / maxVal) * 255) : 0;
 
-            // Halo lumineux (Glow) ultra-progressif, large et sans aucune marque (banding)
-            const glowRadius = 600; // Rayon massivement élargi
+            const glowRadius = 600; 
             ctx.beginPath();
             ctx.arc(30, 0, glowRadius, 0, Math.PI*2);
             let glow = ctx.createRadialGradient(30, 0, 10, 30, 0, glowRadius);
             
-            // Génère 20 étapes invisibles calculées mathématiquement pour une douceur parfaite
             for (let i = 0; i <= 20; i++) {
                 let step = i / 20;
-                // Formule de décroissance cubique imitant la dispersion naturelle de la lumière
                 let alpha = Math.pow(1 - step, 3) * 0.95 * intensity;
                 glow.addColorStop(step, `rgba(${baseR}, ${baseG}, ${baseB}, ${alpha})`);
             }
             
-            ctx.globalCompositeOperation = 'screen'; // Mode de fusion "Écran" pour simuler la vraie lumière
+            ctx.globalCompositeOperation = 'screen'; 
             ctx.fillStyle = glow;
             ctx.fill();
-            ctx.globalCompositeOperation = 'source-over'; // Réinitialisation
+            ctx.globalCompositeOperation = 'source-over'; 
             
             ctx.fillStyle = '#1e293b'; 
             ctx.beginPath();
@@ -644,7 +769,7 @@
             if(frame % 3 === 0) {
                 const perpX = -Math.sin(angle);
                 const perpY = Math.cos(angle);
-                const forwardX = Math.cos(angle) * 30; // Offset particles to start exactly at the lens
+                const forwardX = Math.cos(angle) * 30; 
                 const forwardY = Math.sin(angle) * 30;
                 const offset = 20; 
                 
@@ -688,7 +813,7 @@
 
         window.onload = () => {
             generatePalette();
-            setLang('fr'); 
+            // Start the physics animation in the background so it looks cool behind the blur
             updateLight();
             animate();
         };
