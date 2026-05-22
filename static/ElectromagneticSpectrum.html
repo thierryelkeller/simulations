@@ -475,10 +475,10 @@
         // --- Size Scale Data ---
         const SCALE_DATA = [
             { threshold: 1000, icon: 'fa-mountain', name: { en: 'Mountain', fr: 'Montagne', es: 'Montaña' } },
-            { threshold: 10, icon: 'fa-building', name: { en: 'Building', fr: 'Bâtiment', es: 'Edificio' } },
+            { threshold: 10, icon: 'fa-house', name: { en: 'House', fr: 'Maison', es: 'Casa' } },
             { threshold: 1, icon: 'fa-person', name: { en: 'Human', fr: 'Humain', es: 'Humano' } },
-            { threshold: 0.01, icon: 'fa-baseball', name: { en: 'Baseball', fr: 'Balle de baseball', es: 'Pelota de béisbol' } },
-            { threshold: 0.0001, icon: 'fa-circle-dot', name: { en: 'Grain of Sand', fr: 'Grain de sable', es: 'Grano de arena' } },
+            { threshold: 0.01, icon: 'fa-circle', name: { en: 'Marble', fr: 'Bille', es: 'Canica' } },
+            { threshold: 0.001, icon: 'fa-bug', name: { en: 'Ant', fr: 'Fourmi', es: 'Hormiga' } },
             { threshold: 1e-5, icon: 'fa-disease', name: { en: 'Cell', fr: 'Cellule', es: 'Célula' } },
             { threshold: 1e-7, icon: 'fa-virus', name: { en: 'Virus', fr: 'Virus', es: 'Virus' } },
             { threshold: 1e-8, icon: 'fa-dna', name: { en: 'Protein', fr: 'Protéine', es: 'Proteína' } },
@@ -594,6 +594,24 @@
         const splashCtx = splashCanvas.getContext('2d');
         let splashTime = 0;
         let isSplashActive = true;
+        
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        
+        const splashScreenEl = document.getElementById('splashScreen');
+        splashScreenEl.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // Initialize particles
+        const particles = Array.from({ length: 60 }, () => ({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            size: Math.random() * 2 + 1,
+            speedX: Math.random() * 1.5 - 0.75,
+            speedY: Math.random() * 1.5 - 0.75
+        }));
 
         function resizeSplash() {
             splashCanvas.width = window.innerWidth;
@@ -610,27 +628,77 @@
             const w = splashCanvas.width;
             const h = splashCanvas.height;
             
+            // Draw Interactive Mouse Glow
+            const gradient = splashCtx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 250);
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
+            gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+            splashCtx.fillStyle = gradient;
+            splashCtx.beginPath();
+            splashCtx.arc(mouseX, mouseY, 250, 0, Math.PI * 2);
+            splashCtx.fill();
+            
             // Draw multiple overlapping waves
-            const colors = ['rgba(59, 130, 246, 0.2)', 'rgba(168, 85, 247, 0.2)', 'rgba(236, 72, 153, 0.2)'];
+            const colors = ['rgba(59, 130, 246, 0.15)', 'rgba(168, 85, 247, 0.15)', 'rgba(236, 72, 153, 0.15)'];
             
             for(let i=0; i<3; i++) {
                 splashCtx.beginPath();
                 splashCtx.strokeStyle = colors[i];
-                splashCtx.lineWidth = 3;
+                splashCtx.lineWidth = 4;
                 
-                let yOff = h/2 + (i-1)*50;
+                let yOff = h/2 + (i-1)*60;
                 let freq = 0.002 + (i*0.001);
                 let amp = 80 + (i*20);
                 
                 for(let x=0; x<w; x+=10) {
                     let y = yOff + Math.sin(x*freq + splashTime + i) * amp;
+                    // Make waves react slightly to mouse position
+                    if (Math.abs(x - mouseX) < 200) {
+                        const dist = Math.abs(x - mouseX);
+                        const influence = (200 - dist) / 200;
+                        y += (mouseY - h/2) * influence * 0.3;
+                    }
                     if(x===0) splashCtx.moveTo(x, y);
                     else splashCtx.lineTo(x, y);
                 }
                 splashCtx.stroke();
             }
+
+            // Draw Particles & Interactive Web
+            particles.forEach(p => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                
+                // Wrap edges
+                if(p.x < 0) p.x = w;
+                if(p.x > w) p.x = 0;
+                if(p.y < 0) p.y = h;
+                if(p.y > h) p.y = 0;
+                
+                // Mouse Interaction: Connect lines
+                const dx = mouseX - p.x;
+                const dy = mouseY - p.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < 180) {
+                    // Gentle attraction
+                    p.x += dx * 0.01;
+                    p.y += dy * 0.01;
+                    
+                    splashCtx.beginPath();
+                    splashCtx.strokeStyle = `rgba(168, 85, 247, ${0.4 * (1 - dist/180)})`;
+                    splashCtx.lineWidth = 1;
+                    splashCtx.moveTo(p.x, p.y);
+                    splashCtx.lineTo(mouseX, mouseY);
+                    splashCtx.stroke();
+                }
+                
+                splashCtx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                splashCtx.beginPath();
+                splashCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                splashCtx.fill();
+            });
             
-            splashTime += 0.02;
+            splashTime += 0.015;
             requestAnimationFrame(drawSplashWaves);
         }
 
@@ -646,12 +714,13 @@
             };
         }
 
-        function formatReadable(number, dict) {
-            if (number >= 1) return number.toLocaleString(undefined, {maximumFractionDigits: 0}) + " " + dict.units.meters;
-            else if (number >= 0.001) return (number * 1000).toFixed(2) + " milli" + dict.units.meters;
-            else if (number >= 0.000001) return (number * 1000000).toFixed(2) + " micro" + dict.units.meters;
-            else if (number >= 0.000000001) return (number * 1000000000).toFixed(2) + " nano" + dict.units.meters;
-            else return (number * 1000000000000).toFixed(2) + " pico" + dict.units.meters;
+        function formatReadable(number) {
+            if (number >= 1) return number.toLocaleString(undefined, {maximumFractionDigits: 0}) + " m";
+            else if (number >= 0.01) return (number * 100).toFixed(1) + " cm";
+            else if (number >= 0.001) return (number * 1000).toFixed(1) + " mm";
+            else if (number >= 0.000001) return (number * 1000000).toFixed(1) + " µm";
+            else if (number >= 0.000000001) return (number * 1000000000).toFixed(1) + " nm";
+            else return (number * 1000000000000).toFixed(1) + " pm";
         }
 
         function getCategory(value) {
@@ -691,8 +760,29 @@
             const val = parseFloat(slider.value);
             const dict = I18N[currentLang];
             
-            // 1. Math Calculations (Logarithmic mapping)
-            const exponent = 4 - (val / 100) * 16; 
+            // 1. Piecewise Math Engine (Scientifically Accurate Mappings)
+            const SPECTRUM_ANCHORS = [
+                { val: 0, exp: 4 },     // Radio: 10,000 m
+                { val: 15, exp: 0 },    // Radio/Micro threshold: 1 m
+                { val: 30, exp: -3 },   // Micro/IR threshold: 1 mm
+                { val: 45, exp: -6.15 },// IR/Visible threshold: ~700 nm
+                { val: 55, exp: -6.40 },// Visible/UV threshold: ~400 nm
+                { val: 70, exp: -8 },   // UV/X-Ray threshold: 10 nm
+                { val: 85, exp: -11 },  // X-Ray/Gamma threshold: 10 pm
+                { val: 100, exp: -13 }  // Gamma limit: 0.1 pm
+            ];
+
+            let exponent = -13;
+            for (let i = 0; i < SPECTRUM_ANCHORS.length - 1; i++) {
+                const curr = SPECTRUM_ANCHORS[i];
+                const next = SPECTRUM_ANCHORS[i+1];
+                if (val >= curr.val && val <= next.val) {
+                    const t = (val - curr.val) / (next.val - curr.val);
+                    exponent = curr.exp + t * (next.exp - curr.exp);
+                    break;
+                }
+            }
+            
             const wavelength = Math.pow(10, exponent);
             const frequency = SPEED_OF_LIGHT / wavelength;
 
@@ -707,7 +797,7 @@
             // 3. Update Metric Cards
             const waveSci = formatScientific(wavelength);
             elValWavelength.innerHTML = `${waveSci.mantissa} &times; 10<sup>${waveSci.exponent}</sup> m`;
-            elValWavelengthRaw.innerText = formatReadable(wavelength, dict);
+            elValWavelengthRaw.innerText = formatReadable(wavelength);
 
             // Update Real-World Size Scale
             let scaleObj = SCALE_DATA[SCALE_DATA.length - 1];
