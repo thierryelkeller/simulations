@@ -400,6 +400,16 @@
             const treeMatPineRef = useRef(null);
             const treeMatRoundRef = useRef(null);
             const decorGroupRef = useRef(null);
+
+            const birdsRef = useRef([]);
+            const rabbitsRef = useRef([]);
+            
+            const getTerrainY = useCallback((x, y) => {
+                const dist = Math.sqrt(x * x + y * y);
+                let waveHeight = 0;
+                if (dist > 14) waveHeight = Math.sin(x * 0.08) * Math.cos(y * 0.08) * 3.5 + Math.sin(x * 0.03) * Math.cos(y * 0.04) * 2.5 + Math.sin(x * 0.2) * Math.sin(y * 0.18) * 0.8;
+                return waveHeight;
+            }, []);
             
             useEffect(() => {
                 if (mode === 'elementary') setLatitude(45);
@@ -432,6 +442,18 @@
                 if (!mountRef.current) return;
                 const scene = new THREE.Scene();
                 sceneRef.current = scene;
+
+                const getNextSkyTarget = (currentY = 18) => {
+                    const radius = 20 + Math.random() * 35;
+                    const angle = Math.random() * Math.PI * 2;
+                    let newY = currentY + (Math.random() - 0.5) * 8; 
+                    newY = Math.max(12, Math.min(28, newY)); // Smooth altitude bounds
+                    return new THREE.Vector3(
+                        Math.cos(angle) * radius,
+                        newY,
+                        Math.sin(angle) * radius
+                    );
+                };
 
                 const vertexShader = `varying vec3 vWorldPosition; void main() { vec4 worldPosition = modelMatrix * vec4( position, 1.0 ); vWorldPosition = worldPosition.xyz; gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); }`;
                 const fragmentShader = `uniform vec3 topColor; uniform vec3 bottomColor; uniform float offset; uniform float exponent; varying vec3 vWorldPosition; void main() { float h = normalize( vWorldPosition + vec3(0.0, offset, 0.0) ).y; gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h, 0.0 ), exponent ), 0.0 ) ), 1.0 ); }`;
@@ -481,6 +503,10 @@
 
                 const isElem = mode === 'elementary';
                 let ground;
+                
+                const birds = [];
+                const rabbits = [];
+
                 if (isElem) {
                     const groundGeo = new THREE.PlaneGeometry(130, 130, 60, 60); const pos = groundGeo.attributes.position; const colors = []; const baseColor = new THREE.Color();
                     const hash = (x, y) => Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1;
@@ -501,6 +527,7 @@
                     ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1.0, flatShading: true }));
                     ground.rotation.x = -Math.PI / 2;
                     groundGeoRef.current = groundGeo;
+
                 } else {
                     const innerGround = new THREE.Mesh(
                         new THREE.CylinderGeometry(25, 25, 0.4, 64), 
@@ -518,7 +545,9 @@
                 }
                 ground.receiveShadow = true; scene.add(ground); groundRef.current = ground;
 
+                const treePerches = [];
                 const decorGroup = new THREE.Group();
+                
                 if (isElem) {
                     const treeMatConifer = new THREE.MeshStandardMaterial({ color: 0x1b4d3e, roughness: 0.95, flatShading: true }); 
                     const treeMatPine = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.9, flatShading: true });    
@@ -553,6 +582,8 @@
 
                         const heightScale = 0.5 + Math.random() * 0.95; const widthScale = 0.65 + Math.random() * 0.6;
                         
+                        treePerches.push(new THREE.Vector3(x, 2.5 * heightScale + groundY + 0.2, z));
+
                         const treeGroup = new THREE.Group();
                         treeGroup.position.set(x, groundY, z);
 
@@ -614,9 +645,116 @@
                         treeGroup.add(foliageMesh);
                         decorGroup.add(treeGroup);
                     }
+                    scene.add(decorGroup);
+                    decorGroupRef.current = decorGroup;
+
+                    const numBirds = 6;
+                    for(let i=0; i<numBirds; i++) {
+                        const birdGroup = new THREE.Group();
+                        
+                        const bodyGeo = new THREE.ConeGeometry(0.12, 0.6, 4);
+                        bodyGeo.rotateX(Math.PI / 2);
+                        const bodyMat = new THREE.MeshLambertMaterial({color: 0xf8fafc});
+                        const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+                        bodyMesh.castShadow = true;
+                        birdGroup.add(bodyMesh);
+
+                        const wingMat = new THREE.MeshLambertMaterial({color: 0x94a3b8, side: THREE.DoubleSide});
+                        
+                        const wingPivotL = new THREE.Group();
+                        wingPivotL.position.set(-0.05, 0, 0.1);
+                        const wingLGeo = new THREE.BufferGeometry();
+                        const lVerts = new Float32Array([0, 0, 0, -0.8, 0, -0.4, 0, 0, -0.3]);
+                        wingLGeo.setAttribute('position', new THREE.BufferAttribute(lVerts, 3));
+                        wingLGeo.computeVertexNormals();
+                        const wingL = new THREE.Mesh(wingLGeo, wingMat);
+                        wingL.castShadow = true;
+                        wingPivotL.add(wingL);
+                        birdGroup.add(wingPivotL);
+
+                        const wingPivotR = new THREE.Group();
+                        wingPivotR.position.set(0.05, 0, 0.1);
+                        const wingRGeo = new THREE.BufferGeometry();
+                        const rVerts = new Float32Array([0, 0, 0, 0.8, 0, -0.4, 0, 0, -0.3]);
+                        wingRGeo.setAttribute('position', new THREE.BufferAttribute(rVerts, 3));
+                        wingRGeo.computeVertexNormals();
+                        const wingR = new THREE.Mesh(wingRGeo, wingMat);
+                        wingR.castShadow = true;
+                        wingPivotR.add(wingR);
+                        birdGroup.add(wingPivotR);
+
+                        const isLeader = (i % 3 === 0);
+                        const leaderId = isLeader ? -1 : i - (i % 3);
+                        const offset = new THREE.Vector3();
+                        if (!isLeader) {
+                            const side = (i % 3 === 1) ? -1 : 1; 
+                            offset.set(side * 1.5, (Math.random() - 0.5) * 1.0, -1.8);
+                        }
+
+                        const startPos = getNextSkyTarget();
+                        birdGroup.position.copy(startPos);
+                        scene.add(birdGroup);
+                        
+                        birds.push({
+                            mesh: birdGroup,
+                            wingL: wingPivotL,
+                            wingR: wingPivotR,
+                            velocity: new THREE.Vector3(Math.random()-0.5, 0, Math.random()-0.5).normalize().multiplyScalar(0.1),
+                            target: getNextSkyTarget(),
+                            targetType: 'SKY',
+                            state: 'FLYING',
+                            timer: 0,
+                            speed: 0.08 + Math.random() * 0.04, 
+                            wingPhase: Math.random() * Math.PI * 2,
+                            isLeader: isLeader,
+                            leaderId: leaderId,
+                            offset: offset,
+                            treePerches: treePerches
+                        });
+                    }
+                    birdsRef.current = birds;
+
+                    const numRabbits = 6;
+                    const rabbitMat = new THREE.MeshStandardMaterial({color: 0xe5e7eb, roughness: 0.9});
+                    for(let i=0; i<numRabbits; i++) {
+                        const rabbitGroup = new THREE.Group();
+                        
+                        const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.8), rabbitMat);
+                        body.position.y = 0.2;
+                        body.castShadow = true;
+                        
+                        const head = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.4), rabbitMat);
+                        head.position.set(0, 0.45, 0.35);
+                        head.castShadow = true;
+                        
+                        const earL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.4, 0.1), rabbitMat);
+                        earL.position.set(-0.1, 0.35, -0.1);
+                        earL.castShadow = true;
+                        
+                        const earR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.4, 0.1), rabbitMat);
+                        earR.position.set(0.1, 0.35, -0.1);
+                        earR.castShadow = true;
+                        
+                        head.add(earL, earR);
+                        rabbitGroup.add(body, head);
+                        
+                        scene.add(rabbitGroup);
+
+                        const startAngle = Math.random() * Math.PI * 2;
+                        const startDist = 20 + Math.random() * 30;
+
+                        rabbits.push({
+                            mesh: rabbitGroup,
+                            angle: Math.random() * Math.PI * 2,
+                            hopPhase: 0,
+                            hopSpeed: 0.1 + Math.random() * 0.05,
+                            x: Math.cos(startAngle) * startDist,
+                            z: Math.sin(startAngle) * startDist,
+                            pauseTimer: Math.random() * 100
+                        });
+                    }
+                    rabbitsRef.current = rabbits;
                 }
-                scene.add(decorGroup);
-                decorGroupRef.current = decorGroup;
 
                 if (!isElem) {
                     const createTextSprite = (text, color) => {
@@ -647,31 +785,6 @@
                     
                     const geoEW = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-55, 0.02, 0), new THREE.Vector3(55, 0.02, 0)]);
                     scene.add(new THREE.Line(geoEW, lineMatWhite));
-                }
-
-                if (isElem) {
-                    const elemCompassCanvas = document.createElement('canvas'); elemCompassCanvas.width = 1024; elemCompassCanvas.height = 1024;
-                    const ctxE = elemCompassCanvas.getContext('2d'); const cCenter = 512; const cRadius = 480;
-                    ctxE.translate(cCenter, cCenter); ctxE.textAlign = 'center'; ctxE.textBaseline = 'middle'; ctxE.lineJoin = 'round';
-
-                    ctxE.strokeStyle = 'rgba(255,255,255,0.4)'; ctxE.lineWidth = 10;
-                    ctxE.beginPath(); ctxE.arc(0, 0, cRadius - 120, 0, Math.PI * 2); ctxE.stroke();
-                    ctxE.beginPath(); ctxE.moveTo(0, -cRadius + 120); ctxE.lineTo(0, cRadius - 120); ctxE.stroke();
-                    ctxE.beginPath(); ctxE.moveTo(-cRadius + 120, 0); ctxE.lineTo(cRadius - 120, 0); ctxE.stroke();
-
-                    const n = t('north')[0]; const s = t('south')[0]; const e = t('east')[0]; const w = t('west')[0];
-                    const compLabels = {0: n, 45: n+e, 90: e, 135: s+e, 180: s, 225: s+w, 270: w, 315: n+w};
-
-                    for (let ang in compLabels) {
-                        const numAng = parseInt(ang); ctxE.save(); ctxE.rotate((numAng * Math.PI) / 180); ctxE.translate(0, -cRadius + 40); ctxE.rotate(-(numAng * Math.PI) / 180);
-                        const isCardinal = numAng % 90 === 0;
-                        ctxE.font = isCardinal ? 'bold 98px sans-serif' : 'bold 63px sans-serif';
-                        ctxE.fillStyle = 'white'; ctxE.strokeStyle = 'black'; ctxE.lineWidth = isCardinal ? 14 : 10;
-                        ctxE.strokeText(compLabels[ang], 0, 0); ctxE.fillText(compLabels[ang], 0, 0); ctxE.restore();
-                    }
-                    const elemTex = new THREE.CanvasTexture(elemCompassCanvas); elemTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-                    const elemPlane = new THREE.Mesh(new THREE.PlaneGeometry(25.2, 25.2), new THREE.MeshBasicMaterial({ map: elemTex, transparent: true, opacity: 0.9, depthWrite: false }));
-                    elemPlane.rotation.x = -Math.PI / 2; elemPlane.position.y = 0.05; scene.add(elemPlane);
                 }
 
                 if (!isElem) {
@@ -841,6 +954,18 @@
                 const handleResize = () => { if (!mountRef.current) return; camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight); };
                 window.addEventListener('resize', handleResize); handleResize();
 
+                const getNextSkyTargetForBird = (currentY = 18) => {
+                    const radius = 20 + Math.random() * 35;
+                    const angle = Math.random() * Math.PI * 2;
+                    let newY = currentY + (Math.random() - 0.5) * 8; 
+                    newY = Math.max(12, Math.min(28, newY)); 
+                    return new THREE.Vector3(
+                        Math.cos(angle) * radius,
+                        newY,
+                        Math.sin(angle) * radius
+                    );
+                };
+
                 let animationFrameId;
                 const animate = () => { 
                     animationFrameId = requestAnimationFrame(animate); 
@@ -863,6 +988,124 @@
                         }
                     }
 
+                    if (isElem) {
+                        birdsRef.current.forEach(b => {
+                            if (b.state === 'FLYING') {
+                                let currentTarget;
+
+                                if (b.isLeader) {
+                                    const dist = b.mesh.position.distanceTo(b.target);
+                                    if (dist < 4.0) {
+                                        if (b.targetType === 'TREE') {
+                                            b.state = 'PERCHED';
+                                            b.timer = 150 + Math.random() * 300;
+                                            b.wingL.rotation.z = -0.4;
+                                            b.wingR.rotation.z = 0.4;
+                                            b.velocity.set(0,0,0);
+                                            b.mesh.position.copy(b.target);
+                                            return;
+                                        } else {
+                                            b.targetType = Math.random() > 0.35 ? 'SKY' : 'TREE';
+                                            if (b.targetType === 'TREE' && b.treePerches && b.treePerches.length > 0) {
+                                                b.target = b.treePerches[Math.floor(Math.random() * b.treePerches.length)].clone();
+                                                b.target.y += 0.5; 
+                                            } else {
+                                                b.targetType = 'SKY'; 
+                                                b.target = getNextSkyTargetForBird(b.mesh.position.y);
+                                            }
+                                        }
+                                    }
+                                    currentTarget = b.target;
+                                } else {
+                                    const leader = birdsRef.current[b.leaderId];
+                                    if (leader.state === 'FLYING') {
+                                        const worldOffset = b.offset.clone().applyEuler(leader.mesh.rotation);
+                                        currentTarget = leader.mesh.position.clone().add(worldOffset);
+                                    } else {
+                                        currentTarget = leader.mesh.position.clone().add(new THREE.Vector3(b.offset.x * 0.5, 0, b.offset.z * 0.5));
+                                        if (b.mesh.position.distanceTo(currentTarget) < 0.5) {
+                                            b.state = 'PERCHED';
+                                            b.timer = leader.timer;
+                                            b.wingL.rotation.z = -0.4;
+                                            b.wingR.rotation.z = 0.4;
+                                            b.velocity.set(0,0,0);
+                                            b.mesh.position.copy(currentTarget);
+                                            b.mesh.rotation.copy(leader.mesh.rotation);
+                                            return;
+                                        }
+                                    }
+                                }
+
+                                const desired = new THREE.Vector3().subVectors(currentTarget, b.mesh.position);
+                                desired.y *= 0.4; 
+                                desired.normalize().multiplyScalar(b.speed);
+                                
+                                const steerForce = b.isLeader ? 0.008 : 0.025; 
+                                const steer = new THREE.Vector3().subVectors(desired, b.velocity).multiplyScalar(steerForce); 
+                                
+                                b.velocity.add(steer);
+                                b.velocity.clampLength(0, b.speed * (b.isLeader ? 1 : 1.2)); 
+                                b.mesh.position.add(b.velocity);
+                                
+                                if (b.velocity.lengthSq() > 0.0001) {
+                                    const lookAtPos = new THREE.Vector3().addVectors(b.mesh.position, b.velocity);
+                                    const targetMatrix = new THREE.Matrix4().lookAt(b.mesh.position, lookAtPos, new THREE.Vector3(0, 1, 0));
+                                    const targetQuaternion = new THREE.Quaternion().setFromRotationMatrix(targetMatrix);
+                                    b.mesh.quaternion.slerp(targetQuaternion, 0.08);
+                                }
+
+                                b.wingPhase += 0.18; 
+                                b.wingL.rotation.z = Math.sin(b.wingPhase) * 0.6;
+                                b.wingR.rotation.z = -Math.sin(b.wingPhase) * 0.6;
+                                
+                            } else if (b.state === 'PERCHED') {
+                                if (b.isLeader) {
+                                    b.timer--;
+                                    if (b.timer <= 0) {
+                                        b.state = 'FLYING';
+                                        b.targetType = 'SKY';
+                                        b.target = getNextSkyTargetForBird(b.mesh.position.y);
+                                        b.velocity.set(0, b.speed, 0); 
+                                    }
+                                } else {
+                                    const leader = birdsRef.current[b.leaderId];
+                                    if (leader.state === 'FLYING') {
+                                         b.state = 'FLYING';
+                                         b.velocity.set(0, b.speed, 0); 
+                                    }
+                                }
+                            }
+                        });
+
+                        rabbitsRef.current.forEach(r => {
+                            if (r.pauseTimer > 0) {
+                                r.pauseTimer--;
+                                r.mesh.position.y = getTerrainY(r.x, r.z);
+                            } else {
+                                r.hopPhase += r.hopSpeed;
+                                if (r.hopPhase > Math.PI) {
+                                    r.hopPhase = 0;
+                                    r.pauseTimer = 30 + Math.random() * 100;
+                                    r.angle += (Math.random() - 0.5) * 1.5;
+                                }
+                                
+                                const step = 0.2 * Math.sin(r.hopPhase);
+                                r.x += Math.cos(r.angle) * step;
+                                r.z += Math.sin(r.angle) * step;
+                                
+                                const dist = Math.sqrt(r.x*r.x + r.z*r.z);
+                                if (dist < 18 || dist > 60) {
+                                    r.angle += Math.PI; 
+                                }
+                                
+                                r.mesh.rotation.y = -r.angle + Math.PI / 2;
+                                r.mesh.position.x = r.x;
+                                r.mesh.position.z = r.z;
+                                r.mesh.position.y = getTerrainY(r.x, r.z) + Math.sin(r.hopPhase) * 0.6; 
+                            }
+                        });
+                    }
+
                     renderer.render(scene, camera); 
                 };
                 animate();
@@ -873,7 +1116,7 @@
                     if (mountRef.current) { mountRef.current.removeEventListener('mousedown', onMouseDown); mountRef.current.removeEventListener('wheel', onWheel); }
                     renderer.dispose(); if (mountRef.current && mountRef.current.contains(renderer.domElement)) mountRef.current.removeChild(renderer.domElement);
                 };
-            }, [mode]);
+            }, [mode, getTerrainY]);
 
             useEffect(() => {
                 if (!sceneRef.current) return;
