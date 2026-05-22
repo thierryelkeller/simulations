@@ -17,11 +17,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; background-color: #020617; }
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #0f172a; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+        canvas { display: block; outline: none; }
     </style>
 </head>
 <body>
@@ -74,10 +75,12 @@
                 mid_instr_1: "Track precise astronomical data including solar Altitude and Azimuth angles.",
                 mid_instr_2: "Change your Latitude to see how the sun behaves at the Equator, Poles, or your home town.",
                 mid_instr_3: "Cycle through three different historical sundials.",
-                mid_instr_4: "Toggle Ruler/Protractor and CLICK & DRAG on the ground to measure shadow properties in 3D.",
-                measure_tools: "Measurement Tools", ruler_tool: "Interactive Ruler", protractor_tool: "Interactive Protractor",
+                mid_instr_4: "Toggle tools and CLICK on the ground to measure shadow properties from the center.",
+                measure_tools: "Measurement Tools", measure_tool: "Measure Shadow (Angle & Length)", 
+                mark_dots: "Mark Crosses", clear_dots: "Clear Crosses", mark_hint: "Click to place a cross marker!",
+                trace_shadow: "Trace Shadow",
                 shadow_angle: "Shadow Direction", align_ruler: "Measure Ruler Length", align_protractor: "Measure Shadow Angle",
-                measure_hint: "Click & drag on the ground to measure!", measure_match: "Perfect Match!",
+                measure_hint: "Click and drag from the center on the ground to measure!", measure_match: "Perfect Match!",
                 from_north: "from North", from_south: "from South",
                 view_sky: "Sky View", view_stick: "Compass View"
             },
@@ -102,10 +105,12 @@
                 mid_instr_1: "Mesure des données astronomiques précises comme l'Altitude et l'Azimut du soleil.",
                 mid_instr_2: "Modifie la Latitude pour voir le soleil à l'Équateur, aux Pôles ou chez toi.",
                 mid_instr_3: "Alterne entre trois cadrans solaires historiques.",
-                mid_instr_4: "Activez la règle et le rapporteur, puis CLIQUEZ ET GLISSEZ sur le sol pour mesurer l'ombre.",
-                measure_tools: "Outils de Mesure", ruler_tool: "Règle Interactive", protractor_tool: "Rapporteur Interactif",
+                mid_instr_4: "Activez les outils, puis CLIQUEZ sur le sol pour mesurer l'ombre depuis le centre.",
+                measure_tools: "Outils de Mesure", measure_tool: "Mesurer (Angle et Longueur)", 
+                mark_dots: "Marquer Croix", clear_dots: "Effacer Croix", mark_hint: "Cliquez pour placer une croix !",
+                trace_shadow: "Tracer l'Ombre",
                 shadow_angle: "Direction de l'ombre", align_ruler: "Ajuster la Règle", align_protractor: "Ajuster l'Angle",
-                measure_hint: "Cliquez et glissez sur le sol pour mesurer !", measure_match: "Mesure Parfaite !",
+                measure_hint: "Cliquez et glissez sur le sol pour mesurer depuis le centre !", measure_match: "Mesure Parfaite !",
                 from_north: "du Nord", from_south: "du Sud",
                 view_sky: "Vue du Ciel", view_stick: "Vue Boussole"
             },
@@ -130,10 +135,12 @@
                 mid_instr_1: "Sigue datos astronómicos precisos como los ángulos de Altitud y Azimut.",
                 mid_instr_2: "Cambia tu Latitud para ver cómo se comporta el sol en el Ecuador, los Polos o tu ciudad.",
                 mid_instr_3: "Alterna entre tres tipos de relojes de sol históricos.",
-                mid_instr_4: "Activa las herramientas y HAZ CLIC Y ARRASTRA en el suelo para medir la sombra 3D.",
-                measure_tools: "Herramientas de Medida", ruler_tool: "Regla Interactiva", protractor_tool: "Transportador Interactivo",
-                shadow_angle: "Dirección de la sombra", align_ruler: "Ajustar Regla", align_protractor: "Ajustar Ángulo",
-                measure_hint: "¡Haz clic y arrastra en el suelo para medir!", measure_match: "¡Medición Perfecta!",
+                mid_instr_4: "Activa las herramientas y HAZ CLIC en el suelo para medir la sombra desde el centro.",
+                measure_tools: "Herramientas de Medida", measure_tool: "Medir Sombra (Ángulo y Longitud)", 
+                mark_dots: "Marcar Cruces", clear_dots: "Borrar Cruces", mark_hint: "¡Haz clic para poner una cruz!",
+                trace_shadow: "Trazar Sombra",
+                shadow_angle: "Dirección de la sombra", align_ruler: "Ajuster Regla", align_protractor: "Ajustar Ángulo",
+                measure_hint: "¡Haz clic y arrastra en el suelo para medir desde el centro!", measure_match: "¡Medición Perfecta!",
                 from_north: "del Norte", from_south: "del Sur",
                 view_sky: "Vista del Cielo", view_stick: "Vista Brújula"
             }
@@ -214,8 +221,9 @@
             if (lengthTheta < 0.01) lengthTheta = 0.01; 
 
             const geometry = new THREE.RingGeometry(1.5, 6, 64, 1, startTheta, lengthTheta);
-            const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.5, side: THREE.DoubleSide, depthWrite: false }));
+            const mesh = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.5, side: THREE.DoubleSide, depthWrite: false }));
             mesh.rotation.x = -Math.PI / 2; mesh.position.copy(center); mesh.position.y = 0.04;
+            mesh.receiveShadow = true;
             return mesh;
         };
 
@@ -231,12 +239,12 @@
             const refDirection = lat >= 0 ? t('north') : t('south');
             ctx.fillText(`${length.toFixed(2)}m  |  ${angle.toFixed(1)}° (${refDirection})`, 256, 64);
             
-            const mesh = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, opacity: 0.95, depthWrite: false }));
+            const mesh = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 1.1), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, opacity: 0.95, depthWrite: false }));
             mesh.rotation.x = -Math.PI / 2;
             
             const dir = new THREE.Vector3().subVectors(pointB, pointA).normalize();
             const midpoint = new THREE.Vector3().addVectors(pointA, pointB).multiplyScalar(0.5);
-            const perp = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar(1.0);
+            const perp = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar(1.5);
             mesh.position.copy(midpoint).add(perp); mesh.position.y = 0.06; 
             
             let textRotation = Math.atan2(dir.x, dir.z) + Math.PI / 2;
@@ -351,11 +359,12 @@
             const [latitude, setLatitude] = useState(45); 
             const [sundialType, setSundialType] = useState('stick'); 
             
-            const [showRuler, setShowRuler] = useState(false);
-            const [showProtractor, setShowProtractor] = useState(false);
+            const [showMeasureTool, setShowMeasureTool] = useState(false);
+            const [showDotMarker, setShowDotMarker] = useState(false);
+            const [showTrace, setShowTrace] = useState(false);
+            const [traceStartTime, setTraceStartTime] = useState(null);
+            const [dots, setDots] = useState([]);
             
-            const [userRulerLength, setUserRulerLength] = useState(0);
-            const [userShadowAngle, setUserShadowAngle] = useState(0);
             const [solarData, setSolarData] = useState({ altitude: 0, azimuth: 0 });
 
             const [measureStart, setMeasureStart] = useState(null); 
@@ -375,6 +384,14 @@
             const horizontalDialRef = useRef(null);
             const equatorialDialRef = useRef(null);
             const trajectoryRef = useRef(null);
+            const shadowTraceRef = useRef(null);
+            const onAddDotRef = useRef(null);
+            
+            const groundGeoRef = useRef(null);
+            const treeMatConiferRef = useRef(null);
+            const treeMatPineRef = useRef(null);
+            const treeMatRoundRef = useRef(null);
+            const decorGroupRef = useRef(null);
             
             useEffect(() => {
                 if (mode === 'elementary') setLatitude(45);
@@ -387,28 +404,20 @@
             }, [mode]);
 
             const interactionState = useRef({
-                showRuler: false, showProtractor: false, latitude: 45,
+                showMeasureTool: false, showDotMarker: false, latitude: 45,
                 isMeasuringDrag: false, mStart: new THREE.Vector3(), mEnd: new THREE.Vector3(),
                 isCameraDragging: false, camRadius: mode === 'middle' ? 35 : 55,
                 dragStart: {x: 0, y: 0}, cameraAngles: { theta: Math.PI / 4, phi: Math.PI / 3 }
             });
 
-            useEffect(() => { interactionState.current.showRuler = showRuler; }, [showRuler]);
-            useEffect(() => { interactionState.current.showProtractor = showProtractor; }, [showProtractor]);
+            useEffect(() => { interactionState.current.showMeasureTool = showMeasureTool; }, [showMeasureTool]);
+            useEffect(() => { interactionState.current.showDotMarker = showDotMarker; }, [showDotMarker]);
             useEffect(() => { interactionState.current.latitude = latitude; }, [latitude]);
-
-            useEffect(() => {
-                if (measureStart && measureEnd) {
-                    setUserRulerLength(measureStart.distanceTo(measureEnd));
-                    setUserShadowAngle(getMeasuredAngle(measureStart, measureEnd, latitude));
-                } else {
-                    setUserRulerLength(0); setUserShadowAngle(0);
-                }
-            }, [measureStart, measureEnd, latitude]);
+            useEffect(() => { onAddDotRef.current = (pt) => setDots(prev => [...prev, pt]); }, []);
 
             useEffect(() => {
                 setMeasureStart(null); setMeasureEnd(null);
-            }, [time, day, latitude, sundialType, showRuler, showProtractor]);
+            }, [time, day, latitude, sundialType, showMeasureTool]);
 
             // Main ThreeJS Initialization
             useEffect(() => {
@@ -432,19 +441,32 @@
                 mountRef.current.appendChild(renderer.domElement);
                 rendererRef.current = renderer;
 
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.08); 
+                const ambientLight = new THREE.AmbientLight(0xd0e0ff, 0.08); 
                 scene.add(ambientLight);
                 ambientLightRef.current = ambientLight;
 
                 const sunLight = new THREE.DirectionalLight(0xffffff, 2.5);
-                sunLight.castShadow = true; sunLight.shadow.mapSize.width = 2048; sunLight.shadow.mapSize.height = 2048; sunLight.shadow.camera.near = 0.5; sunLight.shadow.camera.far = 250; sunLight.shadow.bias = -0.0003; 
+                sunLight.castShadow = true; 
+                sunLight.shadow.mapSize.width = 4096;
+                sunLight.shadow.mapSize.height = 4096; 
+                sunLight.shadow.camera.near = 0.5; sunLight.shadow.camera.far = 250; sunLight.shadow.bias = -0.0003; 
+                
                 const d = 20; sunLight.shadow.camera.left = -d; sunLight.shadow.camera.right = d; sunLight.shadow.camera.top = d; sunLight.shadow.camera.bottom = -d;
                 scene.add(sunLight); sunLightRef.current = sunLight;
 
-                const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(2.5, 32, 32), new THREE.MeshBasicMaterial({ color: 0xfff5b5 })); scene.add(sunMesh); sunMeshRef.current = sunMesh;
+                const sunRadius = mode === 'elementary' ? 2.5 : 0.8;
+                const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(sunRadius, 32, 32), new THREE.MeshBasicMaterial({ color: 0xfff5b5 })); scene.add(sunMesh); sunMeshRef.current = sunMesh;
 
-                const starsGeo = new THREE.BufferGeometry(); const posArray = new Float32Array(600 * 3);
-                for(let i = 0; i < 1800; i++) { posArray[i] = (Math.random() - 0.5) * 300; if (i % 3 === 1) posArray[i] = Math.abs(posArray[i]) + 20; }
+                const starsGeo = new THREE.BufferGeometry(); 
+                const posArray = new Float32Array(600 * 3);
+                for(let i = 0; i < 600; i++) { 
+                    const u = Math.random(); const v = Math.random();
+                    const theta = 2 * Math.PI * u; const phi = Math.acos(Math.random()); 
+                    const r = 400 + Math.random() * 50; 
+                    posArray[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+                    posArray[i * 3 + 1] = r * Math.cos(phi);
+                    posArray[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+                }
                 starsGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
                 const starsMat = new THREE.PointsMaterial({ size: 0.8, color: 0xffffff, transparent: true, opacity: 0 });
                 scene.add(new THREE.Points(starsGeo, starsMat)); starsMatRef.current = starsMat;
@@ -453,24 +475,38 @@
                 let ground;
                 if (isElem) {
                     const groundGeo = new THREE.PlaneGeometry(130, 130, 60, 60); const pos = groundGeo.attributes.position; const colors = []; const baseColor = new THREE.Color();
+                    const hash = (x, y) => Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1;
                     for (let i = 0; i < pos.count; i++) {
                         const x = pos.getX(i); const y = pos.getY(i); const dist = Math.sqrt(x * x + y * y);
                         let waveHeight = 0;
                         if (dist > 14) waveHeight = Math.sin(x * 0.08) * Math.cos(y * 0.08) * 3.5 + Math.sin(x * 0.03) * Math.cos(y * 0.04) * 2.5 + Math.sin(x * 0.2) * Math.sin(y * 0.18) * 0.8;
                         pos.setZ(i, waveHeight);
                         const mixFactor = (Math.sin(x * 0.1) * Math.cos(y * 0.1) + 1) / 2;
+                        const rand = hash(x, y);
                         if (dist <= 14) baseColor.setHSL(0.25, 0.60, 0.35);
-                        else if (waveHeight > 2.8) baseColor.setHSL(0.24 + mixFactor * 0.03, 0.65, 0.35 + Math.random() * 0.05);
-                        else if (waveHeight < -1.5) baseColor.setHSL(0.28 + mixFactor * 0.02, 0.45, 0.25 + Math.random() * 0.03);
-                        else baseColor.setHSL(0.26 + mixFactor * 0.04, 0.55 - mixFactor * 0.15, 0.32 + Math.random() * 0.04);
+                        else if (waveHeight > 2.8) baseColor.setHSL(0.24 + mixFactor * 0.03, 0.65, 0.35 + rand * 0.05);
+                        else if (waveHeight < -1.5) baseColor.setHSL(0.28 + mixFactor * 0.02, 0.45, 0.25 + rand * 0.03);
+                        else baseColor.setHSL(0.26 + mixFactor * 0.04, 0.55 - mixFactor * 0.15, 0.32 + rand * 0.04);
                         colors.push(baseColor.r, baseColor.g, baseColor.b);
                     }
                     groundGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); groundGeo.computeVertexNormals();
                     ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1.0, flatShading: true }));
                     ground.rotation.x = -Math.PI / 2;
+                    groundGeoRef.current = groundGeo;
                 } else {
-                    ground = new THREE.Mesh(new THREE.CylinderGeometry(25, 25, 0.4, 64), new THREE.MeshStandardMaterial({ color: 0xa1a1aa, roughness: 0.9, metalness: 0.05 }));
-                    ground.position.y = -0.2; 
+                    const innerGround = new THREE.Mesh(
+                        new THREE.CylinderGeometry(25, 25, 0.4, 64), 
+                        new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85, metalness: 0.1 })
+                    );
+                    innerGround.receiveShadow = true;
+                    innerGround.position.y = -0.2;
+                    scene.add(innerGround);
+
+                    ground = new THREE.Mesh(
+                        new THREE.CylinderGeometry(55, 55, 0.38, 64),
+                        new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85, metalness: 0.1, transparent: true, opacity: 0.4 })
+                    );
+                    ground.position.y = -0.21;
                 }
                 ground.receiveShadow = true; scene.add(ground); groundRef.current = ground;
 
@@ -481,6 +517,10 @@
                     const treeMatRound = new THREE.MeshStandardMaterial({ color: 0x40916c, roughness: 0.9, flatShading: true });   
                     const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.9 });                         
                     
+                    treeMatConiferRef.current = treeMatConifer;
+                    treeMatPineRef.current = treeMatPine;
+                    treeMatRoundRef.current = treeMatRound;
+
                     ground.updateMatrixWorld(true);
                     const raycaster = new THREE.Raycaster();
                     const downVector = new THREE.Vector3(0, -1, 0);
@@ -494,68 +534,90 @@
                         const groundY = intersects.length > 0 ? intersects[0].point.y : 0;
 
                         const heightScale = 0.5 + Math.random() * 0.95; const widthScale = 0.65 + Math.random() * 0.6;
-                        let foliageMesh;
-                        if (i % 3 === 0) foliageMesh = new THREE.Mesh(new THREE.ConeGeometry(1.2 * widthScale, 4 * heightScale, 6), treeMatConifer);
-                        else if (i % 3 === 1) foliageMesh = new THREE.Mesh(new THREE.ConeGeometry(1.8 * widthScale, 3.2 * heightScale, 8), treeMatPine);
-                        else { foliageMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(1.5 * widthScale, 1), treeMatRound); foliageMesh.scale.set(1, 1.3, 1); }
                         
-                        foliageMesh.position.set(x, 2.5 * heightScale + groundY, z);
-                        if (i % 3 === 1) foliageMesh.position.y = 2.1 * heightScale + groundY;
-                        if (i % 3 === 2) foliageMesh.position.y = 2.8 * heightScale + groundY;
+                        const treeGroup = new THREE.Group();
+                        treeGroup.position.set(x, groundY, z);
 
                         const trunkMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.18 * widthScale, 0.25 * widthScale, 1.5 * heightScale, 6), trunkMat);
-                        trunkMesh.position.set(x, (1.5 * heightScale) / 2 + groundY, z); 
-                        trunkMesh.castShadow = true; trunkMesh.receiveShadow = true; foliageMesh.castShadow = true; foliageMesh.receiveShadow = true;
-                        decorGroup.add(trunkMesh, foliageMesh);
+                        trunkMesh.position.y = (1.5 * heightScale) / 2;
+                        trunkMesh.castShadow = true; trunkMesh.receiveShadow = true;
+                        treeGroup.add(trunkMesh);
+
+                        let foliageMesh;
+                        if (i % 3 === 0) {
+                            foliageMesh = new THREE.Mesh(new THREE.ConeGeometry(1.2 * widthScale, 4 * heightScale, 6), treeMatConifer);
+                            foliageMesh.position.y = 2.5 * heightScale;
+                        } else if (i % 3 === 1) {
+                            foliageMesh = new THREE.Mesh(new THREE.ConeGeometry(1.8 * widthScale, 3.2 * heightScale, 8), treeMatPine);
+                            foliageMesh.position.y = 2.1 * heightScale;
+                        } else {
+                            foliageMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(1.5 * widthScale, 1), treeMatRound);
+                            foliageMesh.scale.set(1, 1.3, 1);
+                            foliageMesh.position.y = 2.8 * heightScale;
+                            foliageMesh.name = 'broadleafFoliage';
+                            
+                            const branchesMesh = new THREE.Group();
+                            const branchGeo = new THREE.CylinderGeometry(0.04 * widthScale, 0.08 * widthScale, 1.8 * heightScale, 4);
+                            const subBranchGeo = new THREE.CylinderGeometry(0.02 * widthScale, 0.04 * widthScale, 1.2 * heightScale, 4);
+                            
+                            const b1 = new THREE.Mesh(branchGeo, trunkMat); b1.rotation.z = 0.5; b1.position.set(0.4 * widthScale, 0.6 * heightScale, 0); b1.castShadow = true;
+                            const sb1a = new THREE.Mesh(subBranchGeo, trunkMat); sb1a.rotation.z = 0.6; sb1a.position.set(0, 0.4 * heightScale, 0); sb1a.castShadow = true; b1.add(sb1a);
+                            const sb1b = new THREE.Mesh(subBranchGeo, trunkMat); sb1b.rotation.z = -0.4; sb1b.position.set(0, 0.2 * heightScale, 0.1); sb1b.castShadow = true; b1.add(sb1b);
+
+                            const b2 = new THREE.Mesh(branchGeo, trunkMat); b2.rotation.z = -0.6; b2.position.set(-0.4 * widthScale, 0.5 * heightScale, 0.2 * widthScale); b2.castShadow = true;
+                            const sb2a = new THREE.Mesh(subBranchGeo, trunkMat); sb2a.rotation.z = -0.5; sb2a.rotation.x = 0.3; sb2a.position.set(0, 0.3 * heightScale, 0); sb2a.castShadow = true; b2.add(sb2a);
+                            const sb2b = new THREE.Mesh(subBranchGeo, trunkMat); sb2b.rotation.z = 0.4; sb2b.position.set(0, 0.6 * heightScale, -0.1); sb2b.castShadow = true; b2.add(sb2b);
+
+                            const b3 = new THREE.Mesh(branchGeo, trunkMat); b3.rotation.x = 0.4; b3.rotation.z = 0.2; b3.position.set(0, 0.7 * heightScale, 0.4 * widthScale); b3.castShadow = true;
+                            const sb3a = new THREE.Mesh(subBranchGeo, trunkMat); sb3a.rotation.x = 0.5; sb3a.position.set(0, 0.5 * heightScale, 0); sb3a.castShadow = true; b3.add(sb3a);
+                            const sb3b = new THREE.Mesh(subBranchGeo, trunkMat); sb3b.rotation.x = -0.3; sb3b.position.set(0, 0.3 * heightScale, 0); sb3b.castShadow = true; b3.add(sb3b);
+
+                            branchesMesh.add(b1, b2, b3);
+                            branchesMesh.position.y = 1.3 * heightScale;
+                            branchesMesh.name = 'broadleafBranches';
+                            branchesMesh.visible = false;
+                            treeGroup.add(branchesMesh);
+                        }
+                        
+                        foliageMesh.castShadow = true; foliageMesh.receiveShadow = true;
+                        treeGroup.add(foliageMesh);
+                        decorGroup.add(treeGroup);
                     }
                 }
                 scene.add(decorGroup);
+                decorGroupRef.current = decorGroup;
 
+                // --- MIDDLE SCHOOL COMPASS CARDINAL SIGNALS AND THIN LINES ---
                 if (!isElem) {
-                    const polar05 = new THREE.PolarGridHelper(25, 24, 50, 64, 0x9ca3af, 0xd1d5db); polar05.position.y = 0.005; scene.add(polar05);
-                    const polar1 = new THREE.PolarGridHelper(25, 24, 25, 64, 0x6b7280, 0x9ca3af); polar1.position.y = 0.01; scene.add(polar1);
-                    const polar5 = new THREE.PolarGridHelper(25, 24, 5, 64, 0x374151, 0x4b5563); polar5.position.y = 0.015; scene.add(polar5);
-                    
                     const createTextSprite = (text, color) => {
-                        const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 256;
+                        const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512;
                         const ctx = canvas.getContext('2d'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                        ctx.font = 'bold 160px sans-serif'; ctx.lineJoin = 'round'; ctx.lineWidth = 20; ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-                        ctx.strokeText(text, 128, 128); ctx.fillStyle = color; ctx.fillText(text, 128, 128);
-                        const tex = new THREE.CanvasTexture(canvas); const mat = new THREE.SpriteMaterial({ map: tex, depthTest: false, sizeAttenuation: false });
-                        const sprite = new THREE.Sprite(mat); sprite.scale.set(0.08, 0.08, 1); return sprite;
+                        ctx.font = 'bold 240px sans-serif'; ctx.lineJoin = 'round'; ctx.lineWidth = 15; ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+                        ctx.strokeText(text, 256, 256); ctx.fillStyle = color; ctx.fillText(text, 256, 256);
+                        const tex = new THREE.CanvasTexture(canvas); 
+                        const mat = new THREE.SpriteMaterial({ map: tex, depthTest: false, sizeAttenuation: true });
+                        const sprite = new THREE.Sprite(mat); 
+                        sprite.scale.set(8, 8, 1); 
+                        return sprite;
                     };
-                    const sDist = 26;
-                    const nSprite = createTextSprite(t('north')[0], '#ef4444'); nSprite.position.set(0, 1.5, -sDist); scene.add(nSprite);
-                    const sSprite = createTextSprite(t('south')[0], '#1e3a8a'); sSprite.position.set(0, 1.5, sDist); scene.add(sSprite);
-                    const eSprite = createTextSprite(t('east')[0], '#1e3a8a'); eSprite.position.set(sDist, 1.5, 0); scene.add(eSprite);
-                    const wSprite = createTextSprite(t('west')[0], '#1e3a8a'); wSprite.position.set(-sDist, 1.5, 0); scene.add(wSprite);
+                    const sDist = 58; 
+                    const nSprite = createTextSprite(t('north')[0], '#ef4444'); nSprite.position.set(0, 0.5, -sDist); scene.add(nSprite);
+                    const sSprite = createTextSprite(t('south')[0], '#f8fafc'); sSprite.position.set(0, 0.5, sDist); scene.add(sSprite);
+                    const eSprite = createTextSprite(t('east')[0], '#f8fafc'); eSprite.position.set(sDist, 0.5, 0); scene.add(eSprite);
+                    const wSprite = createTextSprite(t('west')[0], '#f8fafc'); wSprite.position.set(-sDist, 0.5, 0); scene.add(wSprite);
 
-                    const gridCanvas = document.createElement('canvas'); gridCanvas.width = 4096; gridCanvas.height = 4096;
-                    const gCtx = gridCanvas.getContext('2d'); const gCenter = 2048; const gScale = 2048 / 25; 
-                    gCtx.translate(gCenter, gCenter); gCtx.textAlign = 'center'; gCtx.textBaseline = 'middle';
-                    gCtx.lineJoin = 'round';
-                    const drawLabel = (txt, x, y, color = 'rgba(15,23,42,0.9)', fSize = 36) => { 
-                        gCtx.font = `bold ${fSize}px sans-serif`; gCtx.lineWidth = Math.max(2, fSize/6); 
-                        gCtx.strokeStyle = 'rgba(255,255,255,0.9)'; gCtx.strokeText(txt, x, y); 
-                        gCtx.fillStyle = color; gCtx.fillText(txt, x, y); 
-                    };
-
-                    for(let di=5; di<=25; di+=5) {
-                        const r = di * gScale;
-                        for(let ang=15; ang<360; ang+=15) {
-                            if (ang % 90 === 0) continue; 
-                            gCtx.save(); gCtx.rotate((ang * Math.PI) / 180); gCtx.translate(0, -r); gCtx.rotate(-(ang * Math.PI) / 180);
-                            drawLabel(`${ang}°`, 0, 0, '#1e3a8a', 28 + di); 
-                            gCtx.restore();
-                        }
-                        gCtx.save(); gCtx.translate(0, -r); drawLabel(`${di}m`, 0, 0, '#475569', 30 + di); gCtx.restore();
-                        gCtx.save(); gCtx.translate(0, r); drawLabel(`${di}m`, 0, 0, '#475569', 30 + di); gCtx.restore();
-                        gCtx.save(); gCtx.translate(r, 0); drawLabel(`${di}m`, 0, 0, '#475569', 30 + di); gCtx.restore();
-                        gCtx.save(); gCtx.translate(-r, 0); drawLabel(`${di}m`, 0, 0, '#475569', 30 + di); gCtx.restore();
-                    }
-                    const gridTex = new THREE.CanvasTexture(gridCanvas); gridTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-                    const gridPlane = new THREE.Mesh(new THREE.PlaneGeometry(50, 50), new THREE.MeshBasicMaterial({ map: gridTex, transparent: true, opacity: 0.9, depthWrite: false }));
-                    gridPlane.rotation.x = -Math.PI / 2; gridPlane.position.y = 0.02; scene.add(gridPlane);
+                    // Thinner 3D physical axes perfectly scaled with zoom using THREE.Line
+                    const lineMatRed = new THREE.LineBasicMaterial({ color: 0xef4444 });
+                    const lineMatWhite = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+                    
+                    const geoN = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0.02, 0), new THREE.Vector3(0, 0.02, -55)]);
+                    scene.add(new THREE.Line(geoN, lineMatRed));
+                    
+                    const geoS = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0.02, 0), new THREE.Vector3(0, 0.02, 55)]);
+                    scene.add(new THREE.Line(geoS, lineMatWhite));
+                    
+                    const geoEW = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-55, 0.02, 0), new THREE.Vector3(55, 0.02, 0)]);
+                    scene.add(new THREE.Line(geoEW, lineMatWhite));
                 }
 
                 if (isElem) {
@@ -611,9 +673,19 @@
                         ctxC.restore();
                     }
                     const centralTex = new THREE.CanvasTexture(centralCanvas); centralTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-                    const centralPlane = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 2.5), new THREE.MeshBasicMaterial({ map: centralTex, transparent: true, opacity: 0.9, depthWrite: false }));
-                    centralPlane.rotation.x = -Math.PI / 2; centralPlane.position.y = 0.03; scene.add(centralPlane);
+                    const centralPlane = new THREE.Mesh(new THREE.PlaneGeometry(5.0, 5.0), new THREE.MeshLambertMaterial({ map: centralTex, transparent: true, opacity: 0.9, depthWrite: false }));
+                    centralPlane.rotation.x = -Math.PI / 2; centralPlane.position.y = 0.03; 
+                    centralPlane.receiveShadow = true;
+                    scene.add(centralPlane);
                 }
+
+                // TRACE SHADOW LINE
+                const shadowTraceMat = new THREE.LineBasicMaterial({ color: 0xff6a00, linewidth: 2, transparent: true, opacity: 0.9 });
+                const shadowTraceGeo = new THREE.BufferGeometry();
+                const shadowTraceLine = new THREE.Line(shadowTraceGeo, shadowTraceMat);
+                shadowTraceLine.position.y = 0.05;
+                scene.add(shadowTraceLine);
+                shadowTraceRef.current = shadowTraceLine;
 
                 const trajLine = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineDashedMaterial({ color: 0xffd700, dashSize: 1.5, gapSize: 0.8, transparent: true, opacity: 0.95 }));
                 scene.add(trajLine); trajectoryRef.current = trajLine;
@@ -654,8 +726,10 @@
                 let targetCamParams = null;
                 const onSetCamera = (e) => {
                     const view = e.detail.view;
-                    if (view === 'sky') targetCamParams = { radius: 180, theta: Math.PI, phi: Math.PI / 2.2 };
-                    else if (view === 'stick') targetCamParams = { radius: 35, theta: Math.PI / 4, phi: Math.PI / 3 };
+                    const rSky = mode === 'elementary' ? 180 : 130;
+                    const rStick = mode === 'elementary' ? 35 : 15;
+                    if (view === 'sky') targetCamParams = { radius: rSky, theta: Math.PI, phi: Math.PI / 2.2 };
+                    else if (view === 'stick') targetCamParams = { radius: rStick, theta: Math.PI / 4, phi: Math.PI / 3 };
                 };
                 window.addEventListener('setCamera', onSetCamera);
 
@@ -681,18 +755,40 @@
                     if(e.target !== renderer.domElement) return;
                     const st = interactionState.current;
                     const pt = getRaycastPoint(e);
-                    if (pt && (st.showRuler || st.showProtractor)) {
-                        st.isMeasuringDrag = true; st.mStart.copy(pt); st.mStart.y = 0; st.mEnd.copy(st.mStart);
-                        setMeasureStart(st.mStart.clone()); setMeasureEnd(st.mEnd.clone());
+                    if (pt) {
+                        if (st.showDotMarker) {
+                            onAddDotRef.current?.(pt);
+                        } else if (st.showMeasureTool) {
+                            st.isMeasuringDrag = true; 
+                            const startPt = new THREE.Vector3(0, pt.y, 0); // Always start from center
+                            st.mStart.copy(startPt);
+                            st.mEnd.copy(pt);
+                            setMeasureStart(st.mStart.clone()); 
+                            setMeasureEnd(st.mEnd.clone());
+                        } else {
+                            st.isCameraDragging = true; 
+                            st.dragStart = { x: e.clientX, y: e.clientY }; 
+                        }
                     } else {
                         st.isCameraDragging = true; st.dragStart = { x: e.clientX, y: e.clientY }; 
                     }
                 };
                 const onMouseMove = (e) => {
                     const st = interactionState.current;
+
+                    if (st.showMeasureTool || st.showDotMarker) {
+                        renderer.domElement.style.cursor = 'crosshair';
+                    } else {
+                        renderer.domElement.style.cursor = st.isCameraDragging ? 'grabbing' : 'grab';
+                    }
+
                     if (st.isMeasuringDrag) {
                         const pt = getRaycastPoint(e);
-                        if (pt) { st.mEnd.copy(pt); st.mEnd.y = 0; setMeasureEnd(st.mEnd.clone()); }
+                        if (pt) { 
+                            st.mEnd.copy(pt); 
+                            st.mEnd.y = st.mStart.y; 
+                            setMeasureEnd(st.mEnd.clone()); 
+                        }
                     } else if (st.isCameraDragging) {
                         st.cameraAngles.theta -= (e.clientX - st.dragStart.x) * 0.01; st.cameraAngles.phi -= (e.clientY - st.dragStart.y) * 0.01;
                         st.cameraAngles.phi = Math.max(0.1, Math.min(Math.PI / 2 - 0.1, st.cameraAngles.phi));
@@ -701,6 +797,9 @@
                 };
                 const onMouseUp = () => { 
                     interactionState.current.isMeasuringDrag = false; interactionState.current.isCameraDragging = false; 
+                    if (!interactionState.current.showMeasureTool && !interactionState.current.showDotMarker) {
+                        renderer.domElement.style.cursor = 'grab';
+                    }
                 };
                 const onWheel = (e) => { 
                     targetCamParams = null; 
@@ -753,11 +852,42 @@
                 const { altitude, azimuth } = getSolarPosition(day, time, latitude); setSolarData({ altitude, azimuth });
 
                 const altRad = altitude * (Math.PI / 180); const azRad = azimuth * (Math.PI / 180); 
-                const y = SUN_ORBIT_RADIUS * Math.sin(altRad); const groundDist = SUN_ORBIT_RADIUS * Math.cos(altRad);
+                const orbitRadius = mode === 'elementary' ? 95 : 70; 
+
+                const y = orbitRadius * Math.sin(altRad); const groundDist = orbitRadius * Math.cos(altRad);
                 const x = groundDist * Math.sin(azRad); const z = -groundDist * Math.cos(azRad); 
 
                 if (sunMeshRef.current) sunMeshRef.current.position.set(x, y, z);
-                if (sunLightRef.current) { sunLightRef.current.position.set(x, y, z); sunLightRef.current.intensity = altitude > 0 ? 2.5 : 0; }
+                
+                const activeHeight = sundialType === 'stick' ? 1.0 : (sundialType === 'horizontal' ? 3.5 : 4.5);
+                const calculatedShadowLen = altitude > 0 ? (activeHeight / Math.tan(altRad)) : 0;
+
+                if (sunLightRef.current) { 
+                    sunLightRef.current.position.set(x, y, z); 
+                    sunLightRef.current.intensity = altitude > 0 ? 2.5 : 0; 
+
+                    const sunsetColor = new THREE.Color(0xff6a00);
+                    const dayColor = new THREE.Color(0xffffff);
+                    const finalColor = new THREE.Color();
+                    if (altitude > 12) {
+                        finalColor.copy(dayColor);
+                    } else if (altitude > 0) {
+                        finalColor.lerpColors(sunsetColor, dayColor, altitude / 12);
+                    } else {
+                        finalColor.copy(sunsetColor);
+                    }
+                    sunLightRef.current.color.copy(finalColor);
+
+                    const shadowCam = sunLightRef.current.shadow.camera;
+                    const shadowBoundary = Math.max(15, Math.min(80, calculatedShadowLen + 10));
+                    shadowCam.left = -shadowBoundary;
+                    shadowCam.right = shadowBoundary;
+                    shadowCam.top = shadowBoundary;
+                    shadowCam.bottom = -shadowBoundary;
+                    shadowCam.near = 0.5;
+                    shadowCam.far = orbitRadius + shadowBoundary + 50;
+                    shadowCam.updateProjectionMatrix();
+                }
 
                 if (ambientLightRef.current) {
                     if (altitude > 0) {
@@ -787,13 +917,92 @@
 
                 if (trajectoryRef.current) {
                     const points = [];
+                    const orbitRadius = mode === 'elementary' ? 95 : 70; 
                     for (let ts = 0; ts <= 24; ts += 0.25) { 
                         const solar = getSolarPosition(day, ts, latitude);
                         const aR = solar.altitude * (Math.PI / 180); const zR = solar.azimuth * (Math.PI / 180);
-                        const pY = SUN_ORBIT_RADIUS * Math.sin(aR); const gD = SUN_ORBIT_RADIUS * Math.cos(aR);
+                        const pY = orbitRadius * Math.sin(aR); const gD = orbitRadius * Math.cos(aR);
                         points.push(new THREE.Vector3(gD * Math.sin(zR), pY, -gD * Math.cos(zR)));
                     }
                     trajectoryRef.current.geometry.setFromPoints(points); trajectoryRef.current.computeLineDistances(); 
+                }
+
+                if (mode === 'elementary') {
+                    let season = 'summer';
+                    if (day < 120) season = 'spring';
+                    else if (day < 220) season = 'summer';
+                    else if (day < 300) season = 'autumn';
+                    else season = 'winter';
+
+                    if (treeMatConiferRef.current && treeMatPineRef.current && treeMatRoundRef.current) {
+                        if (season === 'spring') {
+                            treeMatConiferRef.current.color.setHex(0x2d6a4f);
+                            treeMatPineRef.current.color.setHex(0x1b4d3e);
+                            treeMatRoundRef.current.color.setHex(0x74c69d);
+                        } else if (season === 'summer') {
+                            treeMatConiferRef.current.color.setHex(0x1b4d3e);
+                            treeMatPineRef.current.color.setHex(0x2d6a4f);
+                            treeMatRoundRef.current.color.setHex(0x40916c);
+                        } else if (season === 'autumn') {
+                            treeMatConiferRef.current.color.setHex(0x143625); // Darker, duller green
+                            treeMatPineRef.current.color.setHex(0x1e4533);   // Darker, duller green
+                            treeMatRoundRef.current.color.setHex(0xe28f26);  // Orange/Yellow
+                        } else if (season === 'winter') {
+                            treeMatConiferRef.current.color.setHex(0x4a5d6a);
+                            treeMatPineRef.current.color.setHex(0x6b8296);
+                            treeMatRoundRef.current.color.setHex(0xa9bccc);
+                        }
+                    }
+
+                    if (decorGroupRef.current) {
+                        decorGroupRef.current.traverse((child) => {
+                            if (child.name === 'broadleafFoliage') child.visible = season !== 'winter';
+                            if (child.name === 'broadleafBranches') child.visible = season === 'winter';
+                        });
+                    }
+
+                    if (groundGeoRef.current) {
+                        const pos = groundGeoRef.current.attributes.position;
+                        const colors = groundGeoRef.current.attributes.color.array;
+                        const baseColor = new THREE.Color();
+                        const hash = (x, y) => Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1;
+                        
+                        for (let i = 0; i < pos.count; i++) {
+                            const x = pos.getX(i);
+                            const y = pos.getY(i);
+                            const zVal = pos.getZ(i);
+                            const dist = Math.sqrt(x * x + y * y);
+                            const mixFactor = (Math.sin(x * 0.1) * Math.cos(y * 0.1) + 1) / 2;
+                            const rand = hash(x, y);
+
+                            if (season === 'spring') {
+                                if (dist <= 14) baseColor.setHSL(0.28, 0.60, 0.45);
+                                else if (zVal > 2.8) baseColor.setHSL(0.27 + mixFactor * 0.03, 0.65, 0.45 + rand * 0.05);
+                                else if (zVal < -1.5) baseColor.setHSL(0.30 + mixFactor * 0.02, 0.50, 0.35 + rand * 0.03);
+                                else baseColor.setHSL(0.29 + mixFactor * 0.04, 0.55 - mixFactor * 0.15, 0.42 + rand * 0.04);
+                            } else if (season === 'summer') {
+                                if (dist <= 14) baseColor.setHSL(0.25, 0.60, 0.35);
+                                else if (zVal > 2.8) baseColor.setHSL(0.24 + mixFactor * 0.03, 0.65, 0.35 + rand * 0.05);
+                                else if (zVal < -1.5) baseColor.setHSL(0.28 + mixFactor * 0.02, 0.45, 0.25 + rand * 0.03);
+                                else baseColor.setHSL(0.26 + mixFactor * 0.04, 0.55 - mixFactor * 0.15, 0.32 + rand * 0.04);
+                            } else if (season === 'autumn') {
+                                if (dist <= 14) baseColor.setHSL(0.20, 0.35, 0.30);
+                                else if (zVal > 2.8) baseColor.setHSL(0.18 + mixFactor * 0.05, 0.40, 0.30 + rand * 0.05);
+                                else if (zVal < -1.5) baseColor.setHSL(0.22 + mixFactor * 0.02, 0.25, 0.20 + rand * 0.03);
+                                else baseColor.setHSL(0.19 + mixFactor * 0.04, 0.35 - mixFactor * 0.15, 0.25 + rand * 0.04);
+                            } else if (season === 'winter') {
+                                if (dist <= 14) baseColor.setHSL(0.60, 0.20, 0.85); 
+                                else if (zVal > 2.8) baseColor.setHSL(0.60, 0.15, 0.95 - rand * 0.05); 
+                                else if (zVal < -1.5) baseColor.setHSL(0.60, 0.30, 0.70 + rand * 0.03); 
+                                else baseColor.setHSL(0.60, 0.20, 0.85 + mixFactor * 0.1 - rand * 0.04); 
+                            }
+
+                            colors[i * 3] = baseColor.r;
+                            colors[i * 3 + 1] = baseColor.g;
+                            colors[i * 3 + 2] = baseColor.b;
+                        }
+                        groundGeoRef.current.attributes.color.needsUpdate = true;
+                    }
                 }
 
                 if (stickDialRef.current && horizontalDialRef.current && equatorialDialRef.current) {
@@ -806,26 +1015,94 @@
                     if (sundialType === 'equatorial') equatorialDialRef.current.pivot.rotation.x = - (Math.PI / 2 - (latitude * Math.PI / 180));
                 }
 
-                const oldMarkers = sceneRef.current.children.filter(child => child.name === 'measureStartMarker' || child.name === 'measureEndMarker' || child.name === 'measureLine' || child.name === 'measureProtractor' || child.name === 'measureTextBadge');
-                oldMarkers.forEach(marker => sceneRef.current.remove(marker));
+                // --- SHADOW TRACE LOGIC ---
+                if (shadowTraceRef.current) {
+                    if (showTrace && mode === 'middle' && traceStartTime !== null) {
+                        shadowTraceRef.current.visible = true;
+                        const points = [];
+                        let traceHeight = 4.3; // match stick visual height perfectly
+                        if (sundialType === 'horizontal') traceHeight = 5 * Math.sin(Math.abs(latitude * Math.PI / 180));
+                        if (sundialType === 'equatorial') traceHeight = 4.5;
+                        
+                        const startT = Math.min(traceStartTime, time);
+                        const endT = Math.max(traceStartTime, time);
 
-                if (mode === 'middle' && measureStart && measureEnd) {
-                    const startMesh = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0x00f0ff })); startMesh.position.copy(measureStart); startMesh.position.y = 0.12; startMesh.name = 'measureStartMarker'; sceneRef.current.add(startMesh);
-                    const endMesh = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0xff00b3 })); endMesh.position.copy(measureEnd); endMesh.position.y = 0.12; endMesh.name = 'measureEndMarker'; sceneRef.current.add(endMesh);
-
-                    const dist = measureStart.distanceTo(measureEnd);
-                    if (dist > 0.05) {
-                        if (showRuler) {
-                            const rulerLine = connectPointsWithCylinder(measureStart, measureEnd, 0.08, new THREE.MeshBasicMaterial({ color: 0xff00b3, transparent: true, opacity: 0.8 })); rulerLine.name = 'measureLine'; sceneRef.current.add(rulerLine);
+                        for (let ts = startT; ts <= endT; ts += 0.05) {
+                            const solar = getSolarPosition(day, ts, latitude);
+                            if (solar.altitude > 0) { 
+                                const altR = solar.altitude * (Math.PI / 180);
+                                const azR = solar.azimuth * (Math.PI / 180);
+                                const shadowLen = traceHeight / Math.tan(altR);
+                                
+                                if (shadowLen < 150) { 
+                                    const pX = -shadowLen * Math.sin(azR);
+                                    const pZ = shadowLen * Math.cos(azR);
+                                    points.push(new THREE.Vector3(pX, 0, pZ));
+                                }
+                            }
                         }
-                        if (showProtractor) {
-                            const localProt = createLocalProtractor(measureStart, measureEnd, latitude); localProt.name = 'measureProtractor'; sceneRef.current.add(localProt);
+                        if (points.length > 0) {
+                            shadowTraceRef.current.geometry.setFromPoints(points);
+                        } else {
+                            shadowTraceRef.current.geometry.setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0)]);
                         }
-                        const measuredAngle = getMeasuredAngle(measureStart, measureEnd, latitude);
-                        const textBadge = createGroundTextBadge(measureStart, measureEnd, dist, measuredAngle, latitude, t); textBadge.name = 'measureTextBadge'; sceneRef.current.add(textBadge);
+                    } else {
+                        shadowTraceRef.current.visible = false;
                     }
                 }
-            }, [time, day, latitude, sundialType, mode, showRuler, showProtractor, measureStart, measureEnd]);
+
+                const oldMarkers = sceneRef.current.children.filter(child => child.name === 'measureStartMarker' || child.name === 'measureEndMarker' || child.name === 'measureLine' || child.name === 'measureProtractor' || child.name === 'measureTextBadge' || child.name === 'userDot');
+                oldMarkers.forEach(marker => sceneRef.current.remove(marker));
+
+                if (mode === 'middle') {
+                    // Mark golden tracker points (Thin Crosses)
+                    dots.forEach(pt => {
+                        const crossMat = new THREE.LineBasicMaterial({ color: 0xffd700 });
+                        const cSize = 0.8;
+                        const p1 = new THREE.Vector3(pt.x - cSize, 0.03, pt.z);
+                        const p2 = new THREE.Vector3(pt.x + cSize, 0.03, pt.z);
+                        const p3 = new THREE.Vector3(pt.x, 0.03, pt.z - cSize);
+                        const p4 = new THREE.Vector3(pt.x, 0.03, pt.z + cSize);
+
+                        const crossGroup = new THREE.Group();
+                        crossGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([p1, p2]), crossMat));
+                        crossGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([p3, p4]), crossMat));
+                        crossGroup.name = 'userDot';
+                        sceneRef.current.add(crossGroup);
+                    });
+
+                    if (showMeasureTool && measureEnd) {
+                        const startPt = new THREE.Vector3(0, measureEnd.y, 0);
+                        
+                        // Crosshair for End Marker
+                        const chMat = new THREE.LineBasicMaterial({ color: 0x00f0ff });
+                        const chSize = 1.5;
+                        const p1 = new THREE.Vector3(measureEnd.x - chSize, 0.05, measureEnd.z);
+                        const p2 = new THREE.Vector3(measureEnd.x + chSize, 0.05, measureEnd.z);
+                        const p3 = new THREE.Vector3(measureEnd.x, 0.05, measureEnd.z - chSize);
+                        const p4 = new THREE.Vector3(measureEnd.x, 0.05, measureEnd.z + chSize);
+                        
+                        const chGroup = new THREE.Group();
+                        chGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([p1, p2]), chMat));
+                        chGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([p3, p4]), chMat));
+                        chGroup.name = 'measureEndMarker';
+                        sceneRef.current.add(chGroup);
+
+                        const dist = startPt.distanceTo(measureEnd);
+                        if (dist > 0.05) {
+                            const rulerLine = connectPointsWithCylinder(startPt, measureEnd, 0.04, new THREE.MeshLambertMaterial({ color: 0xff00b3, transparent: true, opacity: 0.8 })); 
+                            rulerLine.name = 'measureLine'; rulerLine.receiveShadow = true; sceneRef.current.add(rulerLine);
+                            
+                            const localProt = createLocalProtractor(startPt, measureEnd, latitude); 
+                            localProt.name = 'measureProtractor'; localProt.receiveShadow = true; sceneRef.current.add(localProt);
+                            
+                            const measuredAngle = getMeasuredAngle(startPt, measureEnd, latitude);
+                            const textBadge = createGroundTextBadge(startPt, measureEnd, dist, measuredAngle, latitude, t); 
+                            textBadge.name = 'measureTextBadge'; sceneRef.current.add(textBadge);
+                        }
+                    }
+                }
+            }, [time, day, latitude, sundialType, mode, showMeasureTool, measureStart, measureEnd, dots, showTrace, traceStartTime]);
 
             return (
                 <div className="w-full h-full relative flex">
@@ -837,7 +1114,7 @@
                         </div>
                         <div className="pointer-events-auto flex items-center gap-3">
                             <div className="hidden md:flex bg-slate-900/70 text-white/90 px-4 py-2 rounded-full text-xs backdrop-blur-sm items-center gap-2 shadow-lg border border-slate-700/50"><Navigation className="w-3.5 h-3.5 text-sky-400" />{t('drag_hint')}</div>
-                            <div className="bg-slate-900/80 backdrop-blur-sm border border-slate-700 p-1 rounded-lg flex gap-1 shadow-lg text-xs font-bold">
+                            <div className="bg-slate-900/80 backdrop-blur-sm border border-slate-700 p-1.5 rounded-lg flex gap-1 shadow-lg text-xs font-bold">
                                 {['en', 'fr', 'es'].map(l => (
                                     <button key={l} onClick={() => setLang(l)} className={`px-2 py-1 rounded transition-colors ${lang === l ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:text-white'}`}>{l.toUpperCase()}</button>
                                 ))}
@@ -847,7 +1124,7 @@
                     {mode === 'elementary' ? (
                         <ElementaryUI time={time} setTime={setTime} day={day} setDay={setDay} t={t} solarData={solarData} />
                     ) : (
-                        <MiddleSchoolUI time={time} setTime={setTime} day={day} setDay={setDay} latitude={latitude} setLatitude={setLatitude} sundialType={sundialType} setSundialType={setSundialType} showRuler={showRuler} setShowRuler={setShowRuler} showProtractor={showProtractor} setShowProtractor={setShowProtractor} userRulerLength={userRulerLength} userShadowAngle={userShadowAngle} t={t} solarData={solarData} measureStart={measureStart} />
+                        <MiddleSchoolUI time={time} setTime={setTime} day={day} setDay={setDay} latitude={latitude} setLatitude={setLatitude} sundialType={sundialType} setSundialType={setSundialType} showMeasureTool={showMeasureTool} setShowMeasureTool={setShowMeasureTool} showDotMarker={showDotMarker} setShowDotMarker={setShowDotMarker} showTrace={showTrace} setShowTrace={setShowTrace} setTraceStartTime={setTraceStartTime} dots={dots} setDots={setDots} t={t} solarData={solarData} measureStart={measureStart} measureEnd={measureEnd} />
                     )}
                     {showModal && (
                         <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
@@ -894,7 +1171,6 @@
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-[98%] max-w-5xl pointer-events-auto">
                         <div className="bg-white/95 border border-white p-3 sm:p-4 rounded-[2rem] shadow-2xl backdrop-blur-md flex flex-col md:flex-row gap-4 lg:gap-6 text-slate-800 items-stretch">
                             
-                            {/* Panel 1: Sun Height & Time */}
                             <div className="flex flex-row md:flex-col items-center justify-between md:justify-center gap-2 md:w-1/4 border-b md:border-b-0 md:border-r border-slate-200 pb-3 md:pb-0 md:pr-4">
                                 <div className="flex items-center gap-3">
                                     <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center border border-slate-200 shadow-sm">{isNight ? <Moon className="text-slate-500 w-6 h-6" /> : <Sun className="w-6 h-6 text-amber-500 animate-[spin_10s_linear_infinite]" />}</div>
@@ -906,7 +1182,6 @@
                                 </div>
                             </div>
 
-                            {/* Panel 2: Slider & Presets */}
                             <div className="flex-1 flex flex-col justify-center gap-3 border-b md:border-b-0 md:border-r border-slate-200 pb-3 md:pb-0 md:pr-4">
                                 <div className="grid grid-cols-5 gap-1.5 lg:gap-2">
                                     <button onClick={() => setTime(6)} className={`flex flex-col items-center py-2 px-1 rounded-xl transition-all border shadow-sm ${time >= 5 && time < 8 ? 'bg-sky-100 border-sky-400 text-sky-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}><Sunrise className="w-6 h-6 mb-1 text-sky-500" /><span className="text-[9px] lg:text-[10px] font-extrabold leading-none">{t('early_morning')}</span></button>
@@ -923,7 +1198,6 @@
                                 </div>
                             </div>
 
-                            {/* Panel 3: Seasons */}
                             <div className="flex flex-col justify-center md:w-1/4 lg:w-1/5">
                                 <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold flex items-center justify-center gap-1 mb-2"><Calendar className="w-3.5 h-3.5 text-amber-500" /> {t('seasons')}</div>
                                 <div className="grid grid-cols-2 gap-2">
@@ -940,7 +1214,7 @@
             );
         }
 
-        function MiddleSchoolUI({ time, setTime, day, setDay, latitude, setLatitude, sundialType, setSundialType, showRuler, setShowRuler, showProtractor, setShowProtractor, userRulerLength, userShadowAngle, t, solarData, measureStart }) {
+        function MiddleSchoolUI({ time, setTime, day, setDay, latitude, setLatitude, sundialType, setSundialType, showMeasureTool, setShowMeasureTool, showDotMarker, setShowDotMarker, showTrace, setShowTrace, setTraceStartTime, dots, setDots, t, solarData, measureStart, measureEnd }) {
             const getMonth = (d) => new Date(2023, 0, d).toLocaleString('default', { month: 'short', day: 'numeric' });
             
             const activeHeight = sundialType === 'stick' ? 1.0 : (sundialType === 'horizontal' ? 3.5 : 4.5);
@@ -949,12 +1223,44 @@
             const rawShadowAngle = (solarData.azimuth + 180) % 360;
             const targetUserAngle = latitude >= 0 ? rawShadowAngle : (rawShadowAngle + 180) % 360;
 
-            const isAngleMatched = solarData.altitude > 0 && (Math.abs(userShadowAngle - targetUserAngle) < 5 || Math.abs(userShadowAngle - targetUserAngle) > 355);
-            const isLengthMatched = solarData.altitude > 0 && Math.abs(userRulerLength - rawShadowLen) < 0.4;
-            const showMatchBadge = showRuler && showProtractor && isAngleMatched && isLengthMatched;
+            const startPt = measureStart || (measureEnd ? new THREE.Vector3(0, measureEnd.y, 0) : null);
+            const measuredDist = startPt && measureEnd ? startPt.distanceTo(measureEnd) : 0;
+            const measuredAng = startPt && measureEnd ? getMeasuredAngle(startPt, measureEnd, latitude) : 0;
+
+            const isAngleMatched = solarData.altitude > 0 && (Math.abs(measuredAng - targetUserAngle) < 4 || Math.abs(measuredAng - targetUserAngle) > 356);
+            const isLengthMatched = solarData.altitude > 0 && Math.abs(measuredDist - rawShadowLen) < 0.25;
+            const showMatchBadge = showMeasureTool && startPt && measureEnd && isAngleMatched && isLengthMatched;
+
+            const handleToggleMeasure = () => {
+                setShowMeasureTool(!showMeasureTool);
+                setShowDotMarker(false);
+            };
+
+            const handleToggleDotMarker = () => {
+                setShowDotMarker(!showDotMarker);
+                setShowMeasureTool(false);
+            };
+
+            const handleToggleTrace = () => {
+                if (!showTrace) {
+                    setTraceStartTime(time); // Lock the trace start time to exactly when it was activated
+                }
+                setShowTrace(!showTrace);
+            };
 
             return (
                 <>
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-10 pointer-events-auto">
+                        <button onClick={() => window.dispatchEvent(new CustomEvent('setCamera', {detail:{view:'sky'}}))} className="bg-slate-900/80 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-700 transition-transform hover:scale-105 backdrop-blur-md">
+                            <Globe className="w-5 h-5 text-sky-400" />
+                            <span className="text-xs font-bold uppercase tracking-wider">{t('view_sky')}</span>
+                        </button>
+                        <button onClick={() => window.dispatchEvent(new CustomEvent('setCamera', {detail:{view:'stick'}}))} className="bg-slate-900/80 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-700 transition-transform hover:scale-105 backdrop-blur-md">
+                            <CompassIcon className="w-5 h-5 text-amber-400" />
+                            <span className="text-xs font-bold uppercase tracking-wider">{t('view_stick')}</span>
+                        </button>
+                    </div>
+
                     <div className="absolute top-20 left-6 z-10 w-80 bg-slate-900/85 backdrop-blur-md p-6 rounded-2xl border border-slate-700 shadow-2xl pointer-events-auto flex flex-col gap-6 max-h-[82vh] overflow-y-auto">
                         <div><div className="flex justify-between mb-2"><label className="text-xs font-bold text-sky-300 uppercase tracking-wider flex items-center gap-2"><Clock className="w-4 h-4" /> {t('time_of_day')}</label><span className="font-mono bg-slate-800 px-2 rounded text-xs text-sky-100">{formatTime24(time)}</span></div><input type="range" min="0" max="24" step="0.25" value={time} onChange={(e) => setTime(parseFloat(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500" /></div>
                         <div><div className="flex justify-between mb-2"><label className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2"><BookOpen className="w-4 h-4" /> {t('day_of_year')}</label><span className="font-mono bg-slate-800 px-2 rounded text-xs text-amber-100">{getMonth(day)}</span></div><input type="range" min="1" max="365" step="1" value={day} onChange={(e) => setDay(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500" /></div>
@@ -972,8 +1278,14 @@
                         <div>
                             <label className="text-xs font-bold text-pink-400 uppercase tracking-wider flex items-center gap-2 mb-3"><Ruler className="w-4 h-4" /> {t('measure_tools')}</label>
                             <div className="flex flex-col gap-2">
-                                <button onClick={() => setShowRuler(!showRuler)} className={`px-3 py-2 text-xs text-left rounded-lg transition-colors font-bold border flex justify-between items-center ${showRuler ? 'bg-pink-600/20 border-pink-500 text-pink-200' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}><span>{t('ruler_tool')}</span><span className={`w-2.5 h-2.5 rounded-full ${showRuler ? 'bg-pink-400 animate-pulse' : 'bg-slate-600'}`}></span></button>
-                                <button onClick={() => setShowProtractor(!showProtractor)} className={`px-3 py-2 text-xs text-left rounded-lg transition-colors font-bold border flex justify-between items-center ${showProtractor ? 'bg-blue-600/20 border-blue-500 text-blue-200' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}><span>{t('protractor_tool')}</span><span className={`w-2.5 h-2.5 rounded-full ${showProtractor ? 'bg-blue-400 animate-pulse' : 'bg-slate-600'}`}></span></button>
+                                <button onClick={handleToggleMeasure} className={`px-3 py-2 text-xs text-left rounded-lg transition-colors font-bold border flex justify-between items-center ${showMeasureTool ? 'bg-pink-600/20 border-pink-500 text-pink-200' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}><span>{t('measure_tool')}</span><span className={`w-2.5 h-2.5 rounded-full ${showMeasureTool ? 'bg-pink-400 animate-pulse' : 'bg-slate-600'}`}></span></button>
+                                <button onClick={handleToggleDotMarker} className={`px-3 py-2 text-xs text-left rounded-lg transition-colors font-bold border flex justify-between items-center ${showDotMarker ? 'bg-amber-600/20 border-amber-500 text-amber-200' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}><span>{t('mark_dots')}</span><span className={`w-2.5 h-2.5 rounded-full ${showDotMarker ? 'bg-amber-400 animate-pulse' : 'bg-slate-600'}`}></span></button>
+                                <button onClick={handleToggleTrace} className={`px-3 py-2 text-xs text-left rounded-lg transition-colors font-bold border flex justify-between items-center ${showTrace ? 'bg-orange-600/20 border-orange-500 text-orange-200' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}><span>{t('trace_shadow')}</span><span className={`w-2.5 h-2.5 rounded-full ${showTrace ? 'bg-orange-400 animate-pulse' : 'bg-slate-600'}`}></span></button>
+                                {dots.length > 0 && (
+                                    <button onClick={() => setDots([])} className="px-3 py-1.5 mt-1 text-xs text-center rounded-lg bg-red-900/40 hover:bg-red-800 text-red-200 border border-red-700 transition-colors">
+                                        {t('clear_dots')}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -986,11 +1298,13 @@
                                 <div><div className="text-[10px] text-slate-500 uppercase font-bold">{t('azimuth')}</div><div className="text-2xl font-mono font-bold text-sky-400">{solarData.azimuth.toFixed(1)}°</div></div>
                             </div>
 
-                            {(showRuler || showProtractor) && (
+                            {(showMeasureTool || showDotMarker) && (
                                 <div className="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50 space-y-4">
-                                    <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block leading-tight">{t('measure_hint')}</span>
+                                    <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block leading-tight">
+                                        {showDotMarker ? t('mark_hint') : t('measure_hint')}
+                                    </span>
                                     
-                                    {(!measureStart) && (
+                                    {(!measureStart && !showDotMarker) && (
                                         <div className="text-xs text-slate-300 animate-pulse pt-2 text-center font-bold">CLICK & DRAG to measure!</div>
                                     )}
                                     
