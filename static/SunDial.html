@@ -98,7 +98,7 @@
                 autumn: "Automne", winter: "Hiver", seasons: "Saisons", instructions: "Instructions",
                 start_lab: "Lancer le Labo", back: "Retour", elem_instr_title: "Comment explorer !",
                 elem_instr_1: "Déplace le soleil avec les boutons rapides ou fais-le glisser avec la barre du bas.",
-                elem_instr_2: "Choisis différentes saisons pour voir comment le soleil monte plus haut en été et reste bas en hiver.",
+                elem_instr_2: "Choisis différentes seasons pour voir comment le soleil monte plus haut en été et reste bas en hiver.",
                 elem_instr_3: "Observe l'ombre du bâton de bois se déformer et tourner en direct !",
                 elem_instr_4: "Clique et glisse sur l'écran pour tourner la caméra, utilise la molette pour zoomer.",
                 mid_instr_title: "Missions Scientifiques !",
@@ -305,20 +305,28 @@
         }
 
         function LevelScreen({ setMode, t, onBack }) {
+            const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
             return (
-                <div className="flex flex-col items-center justify-center h-full p-6 bg-gradient-to-br from-[#0a1128] via-[#020617] to-black relative">
-                    <button onClick={onBack} className="absolute top-8 left-8 text-slate-400 hover:text-white transition-colors">← {t('back')}</button>
-                    <h2 className="text-4xl font-bold mb-12 text-white">{t('choose_age')}</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
-                        <button onClick={() => setMode('elementary')} className="group flex flex-col items-center p-10 bg-slate-800/50 hover:bg-sky-900/40 border border-slate-700 hover:border-sky-400 rounded-3xl transition-all hover:-translate-y-2 shadow-xl">
-                            <div className="w-24 h-24 bg-sky-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><Globe className="w-12 h-12 text-sky-400" /></div>
-                            <h3 className="text-3xl font-bold text-white mb-2">{t('age_8_11')}</h3>
-                            <p className="text-lg text-sky-200">{t('age_8_11_sub')}</p>
+                <div className="relative flex flex-col items-center justify-center h-full bg-[#020617] overflow-hidden" onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}>
+                    <div className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300" style={{ background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(251,191,36,0.18), transparent 50%), radial-gradient(800px circle at ${mousePos.x}px ${mousePos.y}px, rgba(236,72,153,0.1), transparent 60%)` }} />
+                    <div className="absolute top-[10%] left-[15%] w-[45rem] h-[45rem] bg-indigo-600/30 rounded-full blur-[120px] mix-blend-screen animate-[pulse_8s_ease-in-out_infinite]" />
+                    <div className="absolute bottom-[5%] right-[5%] w-[50rem] h-[50rem] bg-amber-500/25 rounded-full blur-[140px] mix-blend-screen animate-[pulse_10s_ease-in-out_infinite]" />
+                    <div className="absolute top-[40%] right-[25%] w-[30rem] h-[30rem] bg-pink-500/20 rounded-full blur-[100px] mix-blend-screen animate-[pulse_6s_ease-in-out_infinite]" />
+                    
+                    <button onClick={onBack} className="absolute top-8 left-8 text-slate-400 hover:text-white transition-colors z-10 font-bold text-lg">← {t('back')}</button>
+                    
+                    <h2 className="text-4xl md:text-5xl font-extrabold mb-12 text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 drop-shadow-xl z-10">{t('choose_age')}</h2>
+                    
+                    <div className="z-10 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
+                        <button onClick={() => setMode('elementary')} className="group relative flex flex-col items-center p-12 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-700/50 hover:border-sky-500/50 rounded-3xl transition-all hover:-translate-y-2 shadow-2xl backdrop-blur-xl overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-b from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="w-28 h-28 bg-sky-500/20 rounded-full flex items-center justify-center mb-8 group-hover:scale-110 transition-transform"><Globe className="w-14 h-14 text-sky-400" /></div>
+                            <h3 className="text-3xl font-bold text-white group-hover:text-sky-300 transition-colors">{t('age_8_11_sub')}</h3>
                         </button>
-                        <button onClick={() => setMode('middle')} className="group flex flex-col items-center p-10 bg-slate-800/50 hover:bg-amber-900/40 border border-slate-700 hover:border-amber-400 rounded-3xl transition-all hover:-translate-y-2 shadow-xl">
-                            <div className="w-24 h-24 bg-amber-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><CompassIcon className="w-12 h-12 text-amber-400" /></div>
-                            <h3 className="text-3xl font-bold text-white mb-2">{t('age_12_14')}</h3>
-                            <p className="text-lg text-amber-200">{t('age_12_14_sub')}</p>
+                        <button onClick={() => setMode('middle')} className="group relative flex flex-col items-center p-12 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-700/50 hover:border-amber-500/50 rounded-3xl transition-all hover:-translate-y-2 shadow-2xl backdrop-blur-xl overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="w-28 h-28 bg-amber-500/20 rounded-full flex items-center justify-center mb-8 group-hover:scale-110 transition-transform"><CompassIcon className="w-14 h-14 text-amber-400" /></div>
+                            <h3 className="text-3xl font-bold text-white group-hover:text-amber-300 transition-colors">{t('age_12_14_sub')}</h3>
                         </button>
                     </div>
                 </div>
@@ -525,9 +533,19 @@
                     const raycaster = new THREE.Raycaster();
                     const downVector = new THREE.Vector3(0, -1, 0);
 
-                    for(let i = 0; i < 35; i++) {
-                        const angle = (i / 35) * Math.PI * 2 + (Math.random() - 0.5) * 0.4; const dist = 16 + Math.random() * 45; 
-                        const x = Math.cos(angle) * dist; const z = Math.sin(angle) * dist;
+                    const numTrees = 300;
+                    let treesPlaced = 0;
+                    
+                    while (treesPlaced < numTrees) {
+                        const xDist = Math.pow(Math.random(), 0.6) * 63 * (Math.random() < 0.5 ? 1 : -1);
+                        const zDist = Math.pow(Math.random(), 0.6) * 63 * (Math.random() < 0.5 ? 1 : -1);
+                        
+                        if (xDist * xDist + zDist * zDist < 320) continue;
+                        
+                        const x = xDist; 
+                        const z = zDist;
+                        const i = treesPlaced;
+                        treesPlaced++;
                         
                         raycaster.set(new THREE.Vector3(x, 50, z), downVector);
                         const intersects = raycaster.intersectObject(ground);
@@ -557,25 +575,38 @@
                             foliageMesh.name = 'broadleafFoliage';
                             
                             const branchesMesh = new THREE.Group();
-                            const branchGeo = new THREE.CylinderGeometry(0.04 * widthScale, 0.08 * widthScale, 1.8 * heightScale, 4);
-                            const subBranchGeo = new THREE.CylinderGeometry(0.02 * widthScale, 0.04 * widthScale, 1.2 * heightScale, 4);
-                            
-                            const b1 = new THREE.Mesh(branchGeo, trunkMat); b1.rotation.z = 0.5; b1.position.set(0.4 * widthScale, 0.6 * heightScale, 0); b1.castShadow = true;
-                            const sb1a = new THREE.Mesh(subBranchGeo, trunkMat); sb1a.rotation.z = 0.6; sb1a.position.set(0, 0.4 * heightScale, 0); sb1a.castShadow = true; b1.add(sb1a);
-                            const sb1b = new THREE.Mesh(subBranchGeo, trunkMat); sb1b.rotation.z = -0.4; sb1b.position.set(0, 0.2 * heightScale, 0.1); sb1b.castShadow = true; b1.add(sb1b);
-
-                            const b2 = new THREE.Mesh(branchGeo, trunkMat); b2.rotation.z = -0.6; b2.position.set(-0.4 * widthScale, 0.5 * heightScale, 0.2 * widthScale); b2.castShadow = true;
-                            const sb2a = new THREE.Mesh(subBranchGeo, trunkMat); sb2a.rotation.z = -0.5; sb2a.rotation.x = 0.3; sb2a.position.set(0, 0.3 * heightScale, 0); sb2a.castShadow = true; b2.add(sb2a);
-                            const sb2b = new THREE.Mesh(subBranchGeo, trunkMat); sb2b.rotation.z = 0.4; sb2b.position.set(0, 0.6 * heightScale, -0.1); sb2b.castShadow = true; b2.add(sb2b);
-
-                            const b3 = new THREE.Mesh(branchGeo, trunkMat); b3.rotation.x = 0.4; b3.rotation.z = 0.2; b3.position.set(0, 0.7 * heightScale, 0.4 * widthScale); b3.castShadow = true;
-                            const sb3a = new THREE.Mesh(subBranchGeo, trunkMat); sb3a.rotation.x = 0.5; sb3a.position.set(0, 0.5 * heightScale, 0); sb3a.castShadow = true; b3.add(sb3a);
-                            const sb3b = new THREE.Mesh(subBranchGeo, trunkMat); sb3b.rotation.x = -0.3; sb3b.position.set(0, 0.3 * heightScale, 0); sb3b.castShadow = true; b3.add(sb3b);
-
-                            branchesMesh.add(b1, b2, b3);
-                            branchesMesh.position.y = 1.3 * heightScale;
+                            branchesMesh.position.y = 1.4 * heightScale; 
                             branchesMesh.name = 'broadleafBranches';
                             branchesMesh.visible = false;
+
+                            const branchGeo = new THREE.CylinderGeometry(0.04 * widthScale, 0.08 * widthScale, 1.6 * heightScale, 5);
+                            branchGeo.translate(0, 0.8 * heightScale, 0); 
+                            const subBranchGeo = new THREE.CylinderGeometry(0.02 * widthScale, 0.04 * widthScale, 1.0 * heightScale, 4);
+                            subBranchGeo.translate(0, 0.5 * heightScale, 0); 
+
+                            for (let j = 0; j < 3; j++) {
+                                const branch = new THREE.Mesh(branchGeo, trunkMat);
+                                branch.rotation.y = (j * (Math.PI * 2 / 3)) + (Math.random() * 0.5);
+                                branch.rotation.z = 0.4 + Math.random() * 0.3; 
+                                branch.castShadow = true;
+
+                                const sb1 = new THREE.Mesh(subBranchGeo, trunkMat);
+                                sb1.position.y = 0.8 * heightScale;
+                                sb1.rotation.z = 0.5 + Math.random() * 0.2;
+                                sb1.rotation.x = 0.3;
+                                sb1.castShadow = true;
+                                branch.add(sb1);
+
+                                const sb2 = new THREE.Mesh(subBranchGeo, trunkMat);
+                                sb2.position.y = 1.2 * heightScale;
+                                sb2.rotation.z = -0.4 - Math.random() * 0.2;
+                                sb2.rotation.x = -0.3;
+                                sb2.castShadow = true;
+                                branch.add(sb2);
+
+                                branchesMesh.add(branch);
+                            }
+
                             treeGroup.add(branchesMesh);
                         }
                         
@@ -587,7 +618,6 @@
                 scene.add(decorGroup);
                 decorGroupRef.current = decorGroup;
 
-                // --- MIDDLE SCHOOL COMPASS CARDINAL SIGNALS AND THIN LINES ---
                 if (!isElem) {
                     const createTextSprite = (text, color) => {
                         const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512;
@@ -606,7 +636,6 @@
                     const eSprite = createTextSprite(t('east')[0], '#f8fafc'); eSprite.position.set(sDist, 0.5, 0); scene.add(eSprite);
                     const wSprite = createTextSprite(t('west')[0], '#f8fafc'); wSprite.position.set(-sDist, 0.5, 0); scene.add(wSprite);
 
-                    // Thinner 3D physical axes perfectly scaled with zoom using THREE.Line
                     const lineMatRed = new THREE.LineBasicMaterial({ color: 0xef4444 });
                     const lineMatWhite = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
                     
@@ -679,7 +708,6 @@
                     scene.add(centralPlane);
                 }
 
-                // TRACE SHADOW LINE
                 const shadowTraceMat = new THREE.LineBasicMaterial({ color: 0xff6a00, linewidth: 2, transparent: true, opacity: 0.9 });
                 const shadowTraceGeo = new THREE.BufferGeometry();
                 const shadowTraceLine = new THREE.Line(shadowTraceGeo, shadowTraceMat);
@@ -760,7 +788,7 @@
                             onAddDotRef.current?.(pt);
                         } else if (st.showMeasureTool) {
                             st.isMeasuringDrag = true; 
-                            const startPt = new THREE.Vector3(0, pt.y, 0); // Always start from center
+                            const startPt = new THREE.Vector3(0, pt.y, 0); 
                             st.mStart.copy(startPt);
                             st.mEnd.copy(pt);
                             setMeasureStart(st.mStart.clone()); 
@@ -944,9 +972,9 @@
                             treeMatPineRef.current.color.setHex(0x2d6a4f);
                             treeMatRoundRef.current.color.setHex(0x40916c);
                         } else if (season === 'autumn') {
-                            treeMatConiferRef.current.color.setHex(0x143625); // Darker, duller green
-                            treeMatPineRef.current.color.setHex(0x1e4533);   // Darker, duller green
-                            treeMatRoundRef.current.color.setHex(0xe28f26);  // Orange/Yellow
+                            treeMatConiferRef.current.color.setHex(0x143625); 
+                            treeMatPineRef.current.color.setHex(0x1e4533);   
+                            treeMatRoundRef.current.color.setHex(0xe28f26);  
                         } else if (season === 'winter') {
                             treeMatConiferRef.current.color.setHex(0x4a5d6a);
                             treeMatPineRef.current.color.setHex(0x6b8296);
@@ -1015,12 +1043,11 @@
                     if (sundialType === 'equatorial') equatorialDialRef.current.pivot.rotation.x = - (Math.PI / 2 - (latitude * Math.PI / 180));
                 }
 
-                // --- SHADOW TRACE LOGIC ---
                 if (shadowTraceRef.current) {
                     if (showTrace && mode === 'middle' && traceStartTime !== null) {
                         shadowTraceRef.current.visible = true;
                         const points = [];
-                        let traceHeight = 4.3; // match stick visual height perfectly
+                        let traceHeight = 4.3; 
                         if (sundialType === 'horizontal') traceHeight = 5 * Math.sin(Math.abs(latitude * Math.PI / 180));
                         if (sundialType === 'equatorial') traceHeight = 4.5;
                         
@@ -1243,7 +1270,7 @@
 
             const handleToggleTrace = () => {
                 if (!showTrace) {
-                    setTraceStartTime(time); // Lock the trace start time to exactly when it was activated
+                    setTraceStartTime(time); 
                 }
                 setShowTrace(!showTrace);
             };
