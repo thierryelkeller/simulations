@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spectrum Tuner</title>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Load FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Tailwind slate-900 */
+            color: #f8fafc; /* Tailwind slate-50 */
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Splash Screen Fade Out */
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        /* Custom Spectrum Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            position: relative;
+            z-index: 10;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 16px;
+            cursor: pointer;
+            border-radius: 9999px;
+            background: linear-gradient(to right, 
+                #1a1a1a 0%, #8b0000 20%, #ff0000 35%, #ff7f00 45%, 
+                #ffff00 48%, #00ff00 50%, #0000ff 52%, #4b0082 55%, 
+                #8a2be2 70%, #00ffff 85%, #ffffff 100%
+            );
+            border: 1px solid #334155;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 32px;
+            width: 32px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -9px;
+            border: 3px solid #0f172a;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+            transition: transform 0.1s ease;
+        }
+        
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.15);
+        }
+
+        /* Firefox specific slider styling */
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 16px;
+            cursor: pointer;
+            border-radius: 9999px;
+            background: linear-gradient(to right, #1a1a1a 0%, #8b0000 20%, #ff0000 35%, #ff7f00 45%, #ffff00 48%, #00ff00 50%, #0000ff 52%, #4b0082 55%, #8a2be2 70%, #00ffff 85%, #ffffff 100%);
+            border: 1px solid #334155;
+        }
+
+        input[type=range]::-moz-range-thumb {
+            height: 32px;
+            width: 32px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            border: 3px solid #0f172a;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .transition-all-fast {
+            transition: all 0.3s ease;
+        }
+
+        canvas {
+            display: block;
+        }
+        
+        /* Custom styling for the select dropdown */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem top 50%;
+            background-size: 0.65rem auto;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-50 relative">
+
+    <!-- SPLASH SCREEN -->
+    <div id="splashScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900 transition-opacity duration-700">
+        <!-- Canvas for splash background effects -->
+        <canvas id="splashCanvas" class="absolute inset-0 z-0 opacity-40"></canvas>
+        
+        <div class="relative z-10 text-center space-y-8 glass-panel p-10 rounded-3xl max-w-lg w-[90%] shadow-2xl border border-slate-700/50 backdrop-blur-xl">
+            <div class="space-y-2">
+                <i class="fa-solid fa-wave-square text-5xl text-blue-400 mb-4 animate-pulse"></i>
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                    Spectrum Tuner
+                </h1>
+                <p class="text-slate-400 text-lg">Select your language / Sélectionnez votre langue / Seleccione su idioma</p>
+            </div>
+            
+            <div class="flex flex-col gap-4">
+                <button onclick="startGame('en')" class="group relative px-6 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 transition-all shadow-lg hover:shadow-blue-500/20 overflow-hidden">
+                    <div class="absolute inset-0 w-0 bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 ease-out group-hover:w-full opacity-20"></div>
+                    <span class="relative z-10 text-lg font-bold flex items-center justify-center"><i class="fa-solid fa-earth-americas mr-3 text-blue-400"></i> English</span>
+                </button>
+                <button onclick="startGame('fr')" class="group relative px-6 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 transition-all shadow-lg hover:shadow-purple-500/20 overflow-hidden">
+                    <div class="absolute inset-0 w-0 bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-300 ease-out group-hover:w-full opacity-20"></div>
+                    <span class="relative z-10 text-lg font-bold flex items-center justify-center"><i class="fa-solid fa-earth-europe mr-3 text-purple-400"></i> Français</span>
+                </button>
+                <button onclick="startGame('es')" class="group relative px-6 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 transition-all shadow-lg hover:shadow-pink-500/20 overflow-hidden">
+                    <div class="absolute inset-0 w-0 bg-gradient-to-r from-pink-600 to-red-600 transition-all duration-300 ease-out group-hover:w-full opacity-20"></div>
+                    <span class="relative z-10 text-lg font-bold flex items-center justify-center"><i class="fa-solid fa-earth-americas mr-3 text-pink-400"></i> Español</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APPLICATION -->
+    <div id="mainApp" class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 opacity-0 hidden transition-opacity duration-1000">
+        
+        <!-- Header & Language Selector -->
+        <div class="w-full max-w-5xl flex justify-between items-start mb-6">
+            <header class="text-left space-y-1">
+                <h1 id="ui-title" class="text-3xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                    Spectrum Tuner
+                </h1>
+                <p id="ui-subtitle" class="text-slate-400 text-md md:text-lg">Discover the invisible universe. Slide to explore.</p>
+            </header>
+            
+            <select id="langSelector" class="bg-slate-800 text-slate-200 border border-slate-600 rounded-lg py-2 pl-4 pr-10 outline-none focus:border-blue-400 transition-colors shadow-lg cursor-pointer">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+            </select>
+        </div>
+
+        <div class="w-full max-w-5xl space-y-6">
+            
+            <!-- Main Interactive Viewfinder (The Contextual Lens) -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 shadow-2xl relative overflow-hidden border border-slate-700/60">
+                <!-- Background Glow Element -->
+                <div id="categoryGlow" class="absolute inset-0 opacity-20 transition-colors duration-500 blur-3xl pointer-events-none"></div>
+
+                <!-- Visual Icon/Representation -->
+                <div class="w-32 h-32 md:w-40 md:h-40 shrink-0 rounded-full flex items-center justify-center bg-slate-800 border-4 border-slate-700 shadow-[0_0_30px_rgba(0,0,0,0.5)] z-10 transition-all duration-300" id="iconContainer">
+                    <i id="categoryIcon" class="fa-solid fa-satellite-dish text-5xl md:text-6xl text-slate-300 transition-transform duration-300 transform scale-100"></i>
+                </div>
+
+                <!-- Description & Toggle Area -->
+                <div class="flex-1 space-y-4 z-10 text-center md:text-left w-full">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 id="categoryName" class="text-2xl md:text-3xl font-bold uppercase tracking-widest text-white drop-shadow-md">Radio Waves</h2>
+                        </div>
+                        
+                        <!-- Safety / Utility Toggle -->
+                        <div class="flex items-center justify-center bg-slate-800/80 rounded-full p-1 border border-slate-700 backdrop-blur-sm">
+                            <button id="btnUtility" class="px-4 py-2 rounded-full text-sm font-semibold bg-blue-500 text-white shadow-md transition-all">
+                                <i class="fa-solid fa-tools mr-2"></i><span id="ui-btn-utility">Utility</span>
+                            </button>
+                            <button id="btnSafety" class="px-4 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white transition-all">
+                                <i class="fa-solid fa-shield-virus mr-2"></i><span id="ui-btn-safety">Safety</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Description Text -->
+                    <div class="bg-slate-900/60 p-4 md:p-5 rounded-xl border border-slate-700/50 min-h-[90px] flex items-center shadow-inner">
+                        <p id="descriptionText" class="text-slate-200 text-base md:text-lg leading-relaxed">
+                            Radio waves have the longest wavelengths in the spectrum. We use them for long-distance communication.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIVE WAVE VISUALIZATION -->
+            <div class="glass-panel rounded-2xl p-4 shadow-xl relative overflow-hidden border border-slate-700/60">
+                <div class="absolute top-3 left-4 text-xs font-bold text-slate-400 uppercase tracking-widest z-10 flex items-center">
+                    <i class="fa-solid fa-chart-line mr-2"></i> <span id="ui-wave-vis">Wave Visualization</span>
+                </div>
+                <div class="w-full h-32 md:h-40 rounded-xl overflow-hidden bg-slate-900/80 border border-slate-800 relative">
+                    <!-- Glow behind canvas -->
+                    <div id="waveCanvasGlow" class="absolute inset-0 opacity-30 blur-2xl transition-colors duration-300 pointer-events-none"></div>
+                    <canvas id="waveCanvas" class="w-full h-full relative z-10"></canvas>
+                </div>
+            </div>
+
+            <!-- The Dynamic Metric Triad -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                <!-- Wavelength Card -->
+                <div class="glass-panel rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-2 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-3 opacity-10"><i class="fa-solid fa-ruler-horizontal text-4xl"></i></div>
+                    <div class="text-slate-400 text-sm font-semibold tracking-wider uppercase flex items-center z-10">
+                        <i class="fa-solid fa-ruler-horizontal mr-2 text-blue-400"></i> <span id="ui-wavelength">Wavelength (λ)</span>
+                    </div>
+                    <div class="text-2xl md:text-3xl font-mono font-bold text-blue-300 z-10 drop-shadow-[0_0_8px_rgba(147,197,253,0.3)]" id="valWavelength">
+                        10<sup>4</sup> m
+                    </div>
+                    <div class="text-xs text-blue-200/60 z-10 font-mono" id="valWavelengthRaw">10,000 meters</div>
+                    <!-- NEW SIZE COMPARISON ELEMENT -->
+                    <div class="mt-3 w-full bg-slate-900/60 rounded-xl p-2 flex flex-col items-center justify-center border border-slate-700/50 z-10 transition-all">
+                        <span id="ui-size-text" class="text-[10px] md:text-xs uppercase text-slate-400 font-bold tracking-wider mb-1">Scale:</span>
+                        <div class="flex items-center gap-2">
+                            <i id="sizeIcon" class="fa-solid fa-mountain text-blue-400 text-lg"></i>
+                            <span id="sizeName" class="text-sm md:text-base font-semibold text-slate-200">Mountain</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Frequency Card -->
+                <div class="glass-panel rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-2 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-3 opacity-10"><i class="fa-solid fa-wave-square text-4xl"></i></div>
+                    <div class="text-slate-400 text-sm font-semibold tracking-wider uppercase flex items-center z-10">
+                        <i class="fa-solid fa-wave-square mr-2 text-purple-400"></i> <span id="ui-frequency">Frequency (f)</span>
+                    </div>
+                    <div class="text-2xl md:text-3xl font-mono font-bold text-purple-300 z-10 drop-shadow-[0_0_8px_rgba(216,180,254,0.3)]" id="valFrequency">
+                        3 x 10<sup>4</sup> Hz
+                    </div>
+                    <div class="text-xs text-purple-200/60 z-10 font-mono" id="valFrequencyRaw">30,000 Hertz</div>
+                </div>
+
+                <!-- Energy Card -->
+                <div class="glass-panel rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-2 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-3 opacity-10"><i class="fa-solid fa-bolt text-4xl"></i></div>
+                    <div class="text-slate-400 text-sm font-semibold tracking-wider uppercase flex items-center z-10">
+                        <i class="fa-solid fa-bolt mr-2 text-yellow-400"></i> <span id="ui-energy">Energy Level</span>
+                    </div>
+                    <div class="text-xl md:text-2xl font-bold text-green-400 z-10 transition-colors duration-300" id="valEnergyText">
+                        Very Low
+                    </div>
+                    <!-- Energy Bar -->
+                    <div class="w-full bg-slate-800 h-3 rounded-full mt-2 overflow-hidden z-10 border border-slate-700">
+                        <div id="energyBar" class="bg-gradient-to-r from-green-400 via-yellow-400 to-red-600 h-full w-[5%] transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The Interactive Spectral Slider -->
+            <div class="glass-panel rounded-3xl p-6 md:p-8 space-y-4 shadow-xl border border-slate-700/60 relative">
+                
+                <div class="relative w-full z-20 pt-2">
+                    <input type="range" min="0" max="100" value="0" step="0.1" id="spectrumSlider">
+                    <!-- Dynamic Markers Container -->
+                    <div id="sliderMarkers" class="relative w-full h-10 mt-1 z-10 flex text-[10px] md:text-[11px] font-bold text-slate-500 uppercase tracking-wider"></div>
+                </div>
+                
+                <div class="text-center text-sm text-slate-400 italic mt-2">
+                    <span id="ui-drag-hint">Drag the slider to explore different frequencies of the electromagnetic spectrum.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Internationalization (i18n) Dictionary ---
+        const I18N = {
+            en: {
+                title: "Spectrum Tuner",
+                subtitle: "Discover the invisible universe. Slide to explore.",
+                btnUtility: "Utility",
+                btnSafety: "Safety",
+                waveVis: "Live Wave Visualization",
+                wavelength: "Wavelength (λ)",
+                frequency: "Frequency (f)",
+                energy: "Energy Level",
+                labelRadio: "Radio",
+                labelVisible: "Visible",
+                labelGamma: "Gamma",
+                dragHint: "Drag the slider to explore different frequencies of the electromagnetic spectrum.",
+                energyLevels: ["Very Low", "Low", "Moderate", "High (Ionizing)", "Extreme Hazard"],
+                units: { meters: "meters", hertz: "Hertz", khz: "kHz", mhz: "MHz", ghz: "GHz", thz: "THz", ehf: "Extremely High Freq." }
+            },
+            fr: {
+                title: "Syntoniseur de Spectre",
+                subtitle: "Découvrez l'univers invisible. Glissez pour explorer.",
+                btnUtility: "Utilité",
+                btnSafety: "Sécurité",
+                waveVis: "Visualisation de l'Onde en Direct",
+                wavelength: "Longueur d'onde (λ)",
+                frequency: "Fréquence (f)",
+                energy: "Niveau d'Énergie",
+                labelRadio: "Radio",
+                labelVisible: "Visible",
+                labelGamma: "Gamma",
+                dragHint: "Faites glisser le curseur pour explorer différentes fréquences du spectre électromagnétique.",
+                energyLevels: ["Très Faible", "Faible", "Modéré", "Élevé (Ionisant)", "Danger Extrême"],
+                units: { meters: "mètres", hertz: "Hertz", khz: "kHz", mhz: "MHz", ghz: "GHz", thz: "THz", ehf: "Fréq. Extrêmement Haute" }
+            },
+            es: {
+                title: "Sintonizador de Espectro",
+                subtitle: "Descubre el universo invisible. Desliza para explorar.",
+                btnUtility: "Utilidad",
+                btnSafety: "Seguridad",
+                waveVis: "Visualización de Onda en Vivo",
+                wavelength: "Longitud de onda (λ)",
+                frequency: "Frecuencia (f)",
+                energy: "Nivel de Energía",
+                labelRadio: "Radio",
+                labelVisible: "Visible",
+                labelGamma: "Gamma",
+                dragHint: "Arrastra el control deslizante para explorar diferentes frecuencias del espectro electromagnético.",
+                energyLevels: ["Muy Bajo", "Bajo", "Moderado", "Alto (Ionizante)", "Peligro Extremo"],
+                units: { meters: "metros", hertz: "Hertz", khz: "kHz", mhz: "MHz", ghz: "GHz", thz: "THz", ehf: "Frec. Extremadamente Alta" }
+            }
+        };
+
+        // --- Data Definitions (Multilingual) ---
+        const SPECTRUM_DATA = [
+            {
+                id: 'radio',
+                threshold: 15,
+                color: '#ef4444', // Used for wave tinting (Red)
+                iconUtility: 'fa-satellite-dish',
+                iconSafety: 'fa-thumbs-up',
+                name: { en: 'Radio Waves', fr: 'Ondes Radio', es: 'Ondas de Radio' },
+                descUtility: {
+                    en: "Radio waves have the longest wavelengths. We use them for long-distance communication, TV broadcasts, and mobile networks.",
+                    fr: "Les ondes radio ont les plus grandes longueurs d'onde. Utilisées pour les communications longue distance, la télévision et les réseaux mobiles.",
+                    es: "Las ondas de radio tienen las longitudes de onda más largas. Se usan para comunicaciones a larga distancia, TV y redes móviles."
+                },
+                descSafety: {
+                    en: "Safe & Non-ionizing. These waves pass through or bounce off objects harmlessly. They lack the energy to damage cells.",
+                    fr: "Sûr et non ionisant. Ces ondes traversent ou rebondissent sur les objets sans danger. Elles manquent d'énergie pour endommager les cellules.",
+                    es: "Seguro y no ionizante. Estas ondas atraviesan o rebotan en los objetos sin causar daño. Carecen de energía para dañar las células."
+                }
+            },
+            {
+                id: 'microwave',
+                threshold: 30,
+                color: '#f97316', // Orange
+                iconUtility: 'fa-wifi',
+                iconSafety: 'fa-temperature-arrow-up',
+                name: { en: 'Microwaves', fr: 'Micro-ondes', es: 'Microondas' },
+                descUtility: {
+                    en: "Used in Wi-Fi, GPS, radar, and cooking. Excellent at transmitting data over line-of-sight distances.",
+                    fr: "Utilisées dans le Wi-Fi, le GPS, les radars et la cuisson. Excellentes pour transmettre des données en visibilité directe.",
+                    es: "Utilizadas en Wi-Fi, GPS, radar y para cocinar. Excelentes para transmitir datos a distancias con línea de visión."
+                },
+                descSafety: {
+                    en: "Non-ionizing, but causes heating. High concentrations (inside an oven) vibrate water molecules to create intense heat. Safe in low doses.",
+                    fr: "Non ionisant, mais provoque un échauffement. À forte concentration, elles font vibrer l'eau pour créer de la chaleur. Sûr à faibles doses.",
+                    es: "No ionizante, pero causa calentamiento. En altas concentraciones hace vibrar el agua creando calor. Seguro en dosis bajas (Wi-Fi)."
+                }
+            },
+            {
+                id: 'infrared',
+                threshold: 45,
+                color: '#ef4444', // Red
+                iconUtility: 'fa-fire-flame-curved',
+                iconSafety: 'fa-temperature-half',
+                name: { en: 'Infrared', fr: 'Infrarouge', es: 'Infrarrojo' },
+                descUtility: {
+                    en: "Infrared (IR) is used in TV remotes, night-vision, and thermal imaging. We perceive it as heat.",
+                    fr: "L'infrarouge (IR) est utilisé dans les télécommandes, la vision nocturne et l'imagerie thermique. Nous le percevons comme de la chaleur.",
+                    es: "El infrarrojo (IR) se usa en controles remotos, visión nocturna y cámaras térmicas. Lo percibimos como calor."
+                },
+                descSafety: {
+                    en: "Non-ionizing. Felt as warmth. Prolonged exposure to intense IR (like an industrial laser) can damage the eyes.",
+                    fr: "Non ionisant. Ressenti comme de la chaleur. Une exposition prolongée à un IR intense peut endommager les yeux.",
+                    es: "No ionizante. Se siente como calor. La exposición prolongada a IR intenso puede dañar los ojos."
+                }
+            },
+            {
+                id: 'visible',
+                threshold: 55,
+                color: '#eab308', // Yellow
+                iconUtility: 'fa-eye',
+                iconSafety: 'fa-sun',
+                name: { en: 'Visible Light', fr: 'Lumière Visible', es: 'Luz Visible' },
+                descUtility: {
+                    en: "The only part of the spectrum human eyes can see! Used in photography, fiber optics, and illumination.",
+                    fr: "La seule partie du spectre visible par l'œil humain ! Utilisée en photographie, fibre optique et éclairage.",
+                    es: "¡La única parte del espectro que los humanos pueden ver! Usada en fotografía, fibra óptica e iluminación."
+                },
+                descSafety: {
+                    en: "Non-ionizing and generally safe. However, extremely bright light (like a laser) can permanently damage the retina.",
+                    fr: "Non ionisant et généralement sûr. Cependant, une lumière extrêmement vive peut endommager la rétine de façon permanente.",
+                    es: "No ionizante y generalmente seguro. Sin embargo, la luz extremadamente brillante puede dañar permanentemente la retina."
+                }
+            },
+            {
+                id: 'ultraviolet',
+                threshold: 70,
+                color: '#a855f7', // Purple
+                iconUtility: 'fa-microscope',
+                iconSafety: 'fa-triangle-exclamation',
+                name: { en: 'Ultraviolet (UV)', fr: 'Ultraviolet (UV)', es: 'Ultravioleta (UV)' },
+                descUtility: {
+                    en: "Used in forensics, sterilizing medical equipment (kills bacteria), and fluorescent blacklights.",
+                    fr: "Utilisé en médecine légale, pour stériliser l'équipement médical et dans les lumières noires.",
+                    es: "Usado en medicina forense, para esterilizar equipos médicos (mata bacterias) y luces negras."
+                },
+                descSafety: {
+                    en: "Warning: Ionizing. UV rays have enough energy to knock electrons off atoms. Causes sunburns and increases cancer risk.",
+                    fr: "Attention : Ionisant. Les rayons UV peuvent arracher des électrons aux atomes. Provoque des coups de soleil et augmente le risque de cancer.",
+                    es: "Advertencia: Ionizante. Los rayos UV tienen suficiente energía para arrancar electrones. Causa quemaduras solares y riesgo de cáncer."
+                }
+            },
+            {
+                id: 'xray',
+                threshold: 85,
+                color: '#06b6d4', // Cyan
+                iconUtility: 'fa-x-ray',
+                iconSafety: 'fa-skull-crossbones',
+                name: { en: 'X-Rays', fr: 'Rayons X', es: 'Rayos X' },
+                descUtility: {
+                    en: "Used heavily in medicine and security. They pass through soft tissue but are absorbed by denser materials like bone.",
+                    fr: "Très utilisés en médecine et sécurité. Ils traversent les tissus mous mais sont absorbés par les matériaux denses comme les os.",
+                    es: "Muy usados en medicina y seguridad. Atraviesan los tejidos blandos pero son absorbidos por materiales densos como los huesos."
+                },
+                descSafety: {
+                    en: "Danger: Highly Ionizing. Can easily damage DNA and cause cell mutations. Requires lead shielding during use.",
+                    fr: "Danger : Hautement ionisant. Peut facilement endommager l'ADN et provoquer des mutations. Nécessite un blindage en plomb.",
+                    es: "Peligro: Altamente ionizante. Puede dañar fácilmente el ADN y causar mutaciones. Requiere blindaje de plomo."
+                }
+            },
+            {
+                id: 'gamma',
+                threshold: 100,
+                color: '#ffffff', // White
+                iconUtility: 'fa-atom',
+                iconSafety: 'fa-radiation',
+                name: { en: 'Gamma Rays', fr: 'Rayons Gamma', es: 'Rayos Gamma' },
+                descUtility: {
+                    en: "Generated by black holes and nuclear reactions. Used in medicine for targeted cancer radiation therapy.",
+                    fr: "Générés par les trous noirs et les réactions nucléaires. Utilisés en médecine pour la radiothérapie ciblée contre le cancer.",
+                    es: "Generados por agujeros negros y reacciones nucleares. Usados en medicina para radioterapia dirigida contra el cáncer."
+                },
+                descSafety: {
+                    en: "Extreme Danger: Extremely Ionizing. The highest energy waves. They penetrate almost anything and cause severe cellular damage.",
+                    fr: "Danger Extrême : Extrêmement ionisant. Les ondes les plus énergétiques. Elles pénètrent presque tout et causent de graves dommages cellulaires.",
+                    es: "Peligro Extremo: Extremadamente ionizante. Las ondas de mayor energía. Penetran casi todo y causan daño celular severo."
+                }
+            }
+        ];
+
+        // --- Size Scale Data ---
+        const SCALE_DATA = [
+            { threshold: 1000, icon: 'fa-mountain', name: { en: 'Mountain', fr: 'Montagne', es: 'Montaña' } },
+            { threshold: 10, icon: 'fa-building', name: { en: 'Building', fr: 'Bâtiment', es: 'Edificio' } },
+            { threshold: 1, icon: 'fa-person', name: { en: 'Human', fr: 'Humain', es: 'Humano' } },
+            { threshold: 0.01, icon: 'fa-baseball', name: { en: 'Baseball', fr: 'Balle de baseball', es: 'Pelota de béisbol' } },
+            { threshold: 0.0001, icon: 'fa-circle-dot', name: { en: 'Grain of Sand', fr: 'Grain de sable', es: 'Grano de arena' } },
+            { threshold: 1e-5, icon: 'fa-disease', name: { en: 'Cell', fr: 'Cellule', es: 'Célula' } },
+            { threshold: 1e-7, icon: 'fa-virus', name: { en: 'Virus', fr: 'Virus', es: 'Virus' } },
+            { threshold: 1e-8, icon: 'fa-dna', name: { en: 'Protein', fr: 'Protéine', es: 'Proteína' } },
+            { threshold: 1e-10, icon: 'fa-atom', name: { en: 'Atom', fr: 'Atome', es: 'Átomo' } },
+            { threshold: 0, icon: 'fa-certificate', name: { en: 'Atomic Nucleus', fr: 'Noyau atomique', es: 'Núcleo atómico' } }
+        ];
+
+        let currentLang = 'en';
+        let currentMode = 'utility'; // 'utility' or 'safety'
+        const SPEED_OF_LIGHT = 299792458; // m/s
+
+        // UI Elements
+        const elTitle = document.getElementById('ui-title');
+        const elSubtitle = document.getElementById('ui-subtitle');
+        const elBtnUtility = document.getElementById('ui-btn-utility');
+        const elBtnSafety = document.getElementById('ui-btn-safety');
+        const elWaveVis = document.getElementById('ui-wave-vis');
+        const elWavelengthUI = document.getElementById('ui-wavelength');
+        const elFrequencyUI = document.getElementById('ui-frequency');
+        const elEnergyUI = document.getElementById('ui-energy');
+        const elDragHint = document.getElementById('ui-drag-hint');
+
+        const slider = document.getElementById('spectrumSlider');
+        const elCategoryName = document.getElementById('categoryName');
+        const elCategoryIcon = document.getElementById('categoryIcon');
+        const elIconContainer = document.getElementById('iconContainer');
+        const elCategoryGlow = document.getElementById('categoryGlow');
+        const elDescriptionText = document.getElementById('descriptionText');
+        
+        const elValWavelength = document.getElementById('valWavelength');
+        const elValWavelengthRaw = document.getElementById('valWavelengthRaw');
+        const elValFrequency = document.getElementById('valFrequency');
+        const elValFrequencyRaw = document.getElementById('valFrequencyRaw');
+        const elValEnergyText = document.getElementById('valEnergyText');
+        const elEnergyBar = document.getElementById('energyBar');
+
+        const elSizeText = document.getElementById('ui-size-text');
+        const elSizeIcon = document.getElementById('sizeIcon');
+        const elSizeName = document.getElementById('sizeName');
+        const sizeScaleTranslations = { en: "Approx. Size:", fr: "Taille Approx. :", es: "Tamaño Aprox.:" };
+
+        const btnUtilityWrapper = document.getElementById('btnUtility');
+        const btnSafetyWrapper = document.getElementById('btnSafety');
+        const langSelector = document.getElementById('langSelector');
+
+        // --- Wave Canvas System ---
+        const waveCanvas = document.getElementById('waveCanvas');
+        const waveCtx = waveCanvas.getContext('2d');
+        const waveGlow = document.getElementById('waveCanvasGlow');
+        
+        // Dynamic Wave Variables (smoothly interpolated)
+        let waveTime = 0;
+        let currentWavelength = 150; 
+        let targetWavelength = 150;
+        let currentFrequency = 0.05;
+        let targetFrequency = 0.05;
+        let currentAmplitude = 30;
+        let targetAmplitude = 30;
+        let waveHexColor = '#ef4444';
+
+        function resizeCanvas() {
+            // High DPI screen support
+            const rect = waveCanvas.parentElement.getBoundingClientRect();
+            waveCanvas.width = rect.width * (window.devicePixelRatio || 1);
+            waveCanvas.height = rect.height * (window.devicePixelRatio || 1);
+            waveCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function drawMainWave() {
+            const rect = waveCanvas.parentElement.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            const midY = h / 2;
+
+            waveCtx.clearRect(0, 0, w, h);
+
+            // Interpolate targets for smooth transition when slider moves
+            currentWavelength += (targetWavelength - currentWavelength) * 0.1;
+            currentFrequency += (targetFrequency - currentFrequency) * 0.1;
+            currentAmplitude += (targetAmplitude - currentAmplitude) * 0.1;
+
+            // Draw Background Grid
+            waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            waveCtx.lineWidth = 1;
+            waveCtx.beginPath();
+            waveCtx.moveTo(0, midY); waveCtx.lineTo(w, midY);
+            waveCtx.stroke();
+
+            // Draw Sine Wave
+            waveCtx.beginPath();
+            waveCtx.strokeStyle = waveHexColor;
+            waveCtx.lineWidth = 4;
+            waveCtx.shadowBlur = 15;
+            waveCtx.shadowColor = waveHexColor;
+
+            for (let x = 0; x < w; x++) {
+                // y = A * sin(kx - wt)
+                // k = 2PI / wavelength
+                const y = midY + Math.sin((x / currentWavelength) - waveTime) * currentAmplitude;
+                if (x === 0) waveCtx.moveTo(x, y);
+                else waveCtx.lineTo(x, y);
+            }
+            waveCtx.stroke();
+            waveCtx.shadowBlur = 0; // reset
+
+            waveTime += currentFrequency;
+            requestAnimationFrame(drawMainWave);
+        }
+
+        // --- Splash Screen Background Effect ---
+        const splashCanvas = document.getElementById('splashCanvas');
+        const splashCtx = splashCanvas.getContext('2d');
+        let splashTime = 0;
+        let isSplashActive = true;
+
+        function resizeSplash() {
+            splashCanvas.width = window.innerWidth;
+            splashCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeSplash);
+
+        function drawSplashWaves() {
+            if (!isSplashActive) return;
+            
+            splashCtx.fillStyle = '#0f172a';
+            splashCtx.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
+            
+            const w = splashCanvas.width;
+            const h = splashCanvas.height;
+            
+            // Draw multiple overlapping waves
+            const colors = ['rgba(59, 130, 246, 0.2)', 'rgba(168, 85, 247, 0.2)', 'rgba(236, 72, 153, 0.2)'];
+            
+            for(let i=0; i<3; i++) {
+                splashCtx.beginPath();
+                splashCtx.strokeStyle = colors[i];
+                splashCtx.lineWidth = 3;
+                
+                let yOff = h/2 + (i-1)*50;
+                let freq = 0.002 + (i*0.001);
+                let amp = 80 + (i*20);
+                
+                for(let x=0; x<w; x+=10) {
+                    let y = yOff + Math.sin(x*freq + splashTime + i) * amp;
+                    if(x===0) splashCtx.moveTo(x, y);
+                    else splashCtx.lineTo(x, y);
+                }
+                splashCtx.stroke();
+            }
+            
+            splashTime += 0.02;
+            requestAnimationFrame(drawSplashWaves);
+        }
+
+        // --- Core Application Logic ---
+
+        function formatScientific(number) {
+            if (number === 0) return { mantissa: "0", exponent: 0 };
+            const exponent = Math.floor(Math.log10(number));
+            const mantissa = number / Math.pow(10, exponent);
+            return {
+                mantissa: mantissa.toFixed(1),
+                exponent: exponent
+            };
+        }
+
+        function formatReadable(number, dict) {
+            if (number >= 1) return number.toLocaleString(undefined, {maximumFractionDigits: 0}) + " " + dict.units.meters;
+            else if (number >= 0.001) return (number * 1000).toFixed(2) + " milli" + dict.units.meters;
+            else if (number >= 0.000001) return (number * 1000000).toFixed(2) + " micro" + dict.units.meters;
+            else if (number >= 0.000000001) return (number * 1000000000).toFixed(2) + " nano" + dict.units.meters;
+            else return (number * 1000000000000).toFixed(2) + " pico" + dict.units.meters;
+        }
+
+        function getCategory(value) {
+            for (let i = 0; i < SPECTRUM_DATA.length; i++) {
+                if (value <= SPECTRUM_DATA[i].threshold) return SPECTRUM_DATA[i];
+            }
+            return SPECTRUM_DATA[SPECTRUM_DATA.length - 1];
+        }
+
+        function applyTranslations() {
+            const dict = I18N[currentLang];
+            
+            // Update static UI texts
+            elTitle.innerText = dict.title;
+            elSubtitle.innerText = dict.subtitle;
+            elBtnUtility.innerText = dict.btnUtility;
+            elBtnSafety.innerText = dict.btnSafety;
+            elWaveVis.innerText = dict.waveVis;
+            elWavelengthUI.innerText = dict.wavelength;
+            elFrequencyUI.innerText = dict.frequency;
+            elEnergyUI.innerText = dict.energy;
+            elDragHint.innerText = dict.dragHint;
+            
+            if(elSizeText) elSizeText.innerText = sizeScaleTranslations[currentLang];
+            
+            // Update slider markers text
+            SPECTRUM_DATA.forEach((cat) => {
+                const lbl = document.getElementById(`label-${cat.id}`);
+                if(lbl) lbl.innerText = cat.name[currentLang];
+            });
+
+            // Force data update to apply translated dynamic content
+            updateUI();
+        }
+
+        function updateUI() {
+            const val = parseFloat(slider.value);
+            const dict = I18N[currentLang];
+            
+            // 1. Math Calculations (Logarithmic mapping)
+            const exponent = 4 - (val / 100) * 16; 
+            const wavelength = Math.pow(10, exponent);
+            const frequency = SPEED_OF_LIGHT / wavelength;
+
+            // 2. Update Wave Canvas Targets
+            // Wavelength: from 200px (radio) down to 10px (gamma)
+            targetWavelength = 200 - (val / 100) * 190;
+            // Frequency (speed): from 0.02 (radio) up to 0.4 (gamma)
+            targetFrequency = 0.02 + (val / 100) * 0.38;
+            // Amplitude: Increases slightly at higher energies
+            targetAmplitude = 20 + (val / 100) * 20;
+
+            // 3. Update Metric Cards
+            const waveSci = formatScientific(wavelength);
+            elValWavelength.innerHTML = `${waveSci.mantissa} &times; 10<sup>${waveSci.exponent}</sup> m`;
+            elValWavelengthRaw.innerText = formatReadable(wavelength, dict);
+
+            // Update Real-World Size Scale
+            let scaleObj = SCALE_DATA[SCALE_DATA.length - 1];
+            for (let i = 0; i < SCALE_DATA.length; i++) {
+                if (wavelength >= SCALE_DATA[i].threshold) {
+                    scaleObj = SCALE_DATA[i];
+                    break;
+                }
+            }
+            
+            // Pop animation only if the icon changes
+            if(elSizeIcon.dataset.lastIcon !== scaleObj.icon) {
+                elSizeIcon.className = `fa-solid ${scaleObj.icon} text-blue-400 text-lg transition-transform duration-300 transform scale-150`;
+                setTimeout(() => elSizeIcon.classList.remove('scale-150'), 150);
+                elSizeIcon.dataset.lastIcon = scaleObj.icon;
+            } else {
+                elSizeIcon.className = `fa-solid ${scaleObj.icon} text-blue-400 text-lg transition-transform duration-300`;
+            }
+            elSizeName.innerText = scaleObj.name[currentLang];
+
+            const freqSci = formatScientific(frequency);
+            elValFrequency.innerHTML = `${freqSci.mantissa} &times; 10<sup>${freqSci.exponent}</sup> Hz`;
+            
+            if (frequency < 1e6) elValFrequencyRaw.innerText = (frequency/1000).toFixed(1) + " " + dict.units.khz;
+            else if (frequency < 1e9) elValFrequencyRaw.innerText = (frequency/1e6).toFixed(1) + " " + dict.units.mhz;
+            else if (frequency < 1e12) elValFrequencyRaw.innerText = (frequency/1e9).toFixed(1) + " " + dict.units.ghz;
+            else if (frequency < 1e15) elValFrequencyRaw.innerText = (frequency/1e12).toFixed(1) + " " + dict.units.thz;
+            else elValFrequencyRaw.innerText = dict.units.ehf;
+
+            // 4. Update Energy Bar
+            elEnergyBar.style.width = `${Math.max(val, 2)}%`; // Ensure a small sliver is always visible
+            let energyIndex = 0;
+            if (val < 20) { energyIndex = 0; elValEnergyText.className = "text-xl md:text-2xl font-bold text-green-400 z-10 transition-colors"; }
+            else if (val < 45) { energyIndex = 1; elValEnergyText.className = "text-xl md:text-2xl font-bold text-green-300 z-10 transition-colors"; }
+            else if (val < 55) { energyIndex = 2; elValEnergyText.className = "text-xl md:text-2xl font-bold text-yellow-400 z-10 transition-colors"; }
+            else if (val < 70) { energyIndex = 3; elValEnergyText.className = "text-xl md:text-2xl font-bold text-orange-500 z-10 transition-colors"; }
+            else { energyIndex = 4; elValEnergyText.className = "text-xl md:text-2xl font-bold text-red-500 z-10 transition-colors"; }
+            elValEnergyText.innerText = dict.energyLevels[energyIndex];
+
+            // 5. Update Contextual Lens
+            const category = getCategory(val);
+            
+            elCategoryName.innerText = category.name[currentLang];
+            waveHexColor = category.color; // Pass to canvas
+            waveGlow.style.backgroundColor = category.color;
+            elCategoryGlow.style.backgroundColor = category.color;
+            
+            // Bouncing icon effect on category change
+            if(!elIconContainer.dataset.lastCat || elIconContainer.dataset.lastCat !== category.id) {
+                elCategoryIcon.classList.remove('scale-100');
+                elCategoryIcon.classList.add('scale-75');
+                setTimeout(() => {
+                    elCategoryIcon.classList.remove('scale-75');
+                    elCategoryIcon.classList.add('scale-100');
+                }, 150);
+                elIconContainer.dataset.lastCat = category.id;
+            }
+
+            elIconContainer.style.borderColor = category.color;
+            elIconContainer.style.boxShadow = `0 0 30px ${category.color}40`;
+
+            // Highlight active marker on the slider track
+            SPECTRUM_DATA.forEach((c) => {
+                const lbl = document.getElementById(`label-${c.id}`);
+                if(lbl) {
+                    if(c.id === category.id) {
+                        lbl.style.color = category.color;
+                        lbl.style.textShadow = `0 0 8px ${category.color}80`;
+                        lbl.style.opacity = '1';
+                        lbl.style.transform = 'scale(1.05)';
+                    } else {
+                        lbl.style.color = '';
+                        lbl.style.textShadow = 'none';
+                        lbl.style.opacity = '0.5';
+                        lbl.style.transform = 'scale(1)';
+                    }
+                }
+            });
+
+            if (currentMode === 'utility') {
+                elCategoryIcon.className = `fa-solid ${category.iconUtility} text-5xl md:text-6xl text-slate-300 transition-all duration-300`;
+                elDescriptionText.innerText = category.descUtility[currentLang];
+            } else {
+                elCategoryIcon.className = `fa-solid ${category.iconSafety} text-5xl md:text-6xl text-slate-300 transition-all duration-300`;
+                elDescriptionText.innerText = category.descSafety[currentLang];
+                
+                if(val >= 55) {
+                    elCategoryIcon.classList.remove('text-slate-300');
+                    elCategoryIcon.classList.add(val >= 85 ? 'text-red-500' : 'text-orange-400');
+                }
+            }
+        }
+
+        // --- Event Listeners ---
+        slider.addEventListener('input', updateUI);
+
+        btnUtilityWrapper.addEventListener('click', () => {
+            currentMode = 'utility';
+            btnUtilityWrapper.className = "px-4 py-2 rounded-full text-sm font-semibold bg-blue-500 text-white shadow-md transition-all";
+            btnSafetyWrapper.className = "px-4 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white transition-all";
+            updateUI();
+        });
+
+        btnSafetyWrapper.addEventListener('click', () => {
+            currentMode = 'safety';
+            btnSafetyWrapper.className = "px-4 py-2 rounded-full text-sm font-semibold bg-red-500 text-white shadow-md transition-all";
+            btnUtilityWrapper.className = "px-4 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white transition-all";
+            updateUI();
+        });
+
+        langSelector.addEventListener('change', (e) => {
+            currentLang = e.target.value;
+            applyTranslations();
+        });
+
+        // --- Dynamic Slider Markers Setup ---
+        function initSliderMarkers() {
+            const container = document.getElementById('sliderMarkers');
+            if(!container) return;
+            container.innerHTML = '';
+            let prevThreshold = 0;
+            
+            SPECTRUM_DATA.forEach((cat) => {
+                const width = cat.threshold - prevThreshold;
+                
+                const segment = document.createElement('div');
+                segment.style.width = `${width}%`;
+                segment.className = `flex flex-col items-center justify-start border-l border-slate-600/50 pt-2 relative`;
+                
+                // Track tick mark
+                const tick = document.createElement('div');
+                tick.className = "absolute top-0 left-0 w-[1px] h-2 bg-slate-500/50";
+                segment.appendChild(tick);
+                
+                // Label
+                const label = document.createElement('span');
+                label.className = "text-[7px] sm:text-[9px] md:text-[11px] text-slate-500 truncate px-1 transition-all duration-300 w-full text-center origin-top";
+                label.id = `label-${cat.id}`;
+                label.innerText = cat.name[currentLang];
+                label.style.opacity = '0.5';
+                
+                segment.appendChild(label);
+                container.appendChild(segment);
+                
+                prevThreshold = cat.threshold;
+            });
+            
+            // Final tick mark at the very end
+            const finalTick = document.createElement('div');
+            finalTick.className = "absolute top-0 right-0 w-[1px] h-2 bg-slate-500/50";
+            container.appendChild(finalTick);
+        }
+
+        // --- Initialization flow ---
+        function startGame(lang) {
+            currentLang = lang;
+            langSelector.value = lang;
+            
+            // Hide Splash
+            const splash = document.getElementById('splashScreen');
+            splash.classList.add('fade-out');
+            
+            setTimeout(() => {
+                isSplashActive = false;
+                splash.style.display = 'none';
+                
+                // Show Main App
+                const mainApp = document.getElementById('mainApp');
+                mainApp.classList.remove('hidden');
+                // Trigger reflow
+                void mainApp.offsetWidth;
+                mainApp.classList.remove('opacity-0');
+                
+                // Initialize internal systems
+                initSliderMarkers();
+                applyTranslations();
+                resizeCanvas();
+                drawMainWave(); // Start main wave loop
+            }, 800);
+        }
+
+        // Boot the Splash Screen Canvas
+        resizeSplash();
+        drawSplashWaves();
+
+    </script>
+</body>
+</html>
