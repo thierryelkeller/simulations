@@ -787,6 +787,32 @@
                     scene.add(new THREE.Line(geoEW, lineMatWhite));
                 }
 
+                if (isElem) {
+                    const elemCompassCanvas = document.createElement('canvas'); elemCompassCanvas.width = 1024; elemCompassCanvas.height = 1024;
+                    const ctxE = elemCompassCanvas.getContext('2d'); const cCenter = 512; const cRadius = 480;
+                    ctxE.translate(cCenter, cCenter); ctxE.textAlign = 'center'; ctxE.textBaseline = 'middle'; ctxE.lineJoin = 'round';
+
+                    ctxE.strokeStyle = 'rgba(255,255,255,0.7)'; ctxE.lineWidth = 16;
+                    ctxE.beginPath(); ctxE.moveTo(0, -cRadius + 100); ctxE.lineTo(0, cRadius - 100); ctxE.stroke();
+                    ctxE.beginPath(); ctxE.moveTo(-cRadius + 100, 0); ctxE.lineTo(cRadius - 100, 0); ctxE.stroke();
+
+                    const n = t('north')[0]; const s = t('south')[0]; const e = t('east')[0]; const w = t('west')[0];
+                    const compLabels = {0: n, 90: e, 180: s, 270: w};
+
+                    for (let ang in compLabels) {
+                        const numAng = parseInt(ang); ctxE.save(); ctxE.rotate((numAng * Math.PI) / 180); ctxE.translate(0, -cRadius + 40); ctxE.rotate(-(numAng * Math.PI) / 180);
+                        ctxE.font = 'bold 120px sans-serif';
+                        ctxE.fillStyle = numAng === 0 ? '#ef4444' : 'white';
+                        ctxE.strokeStyle = 'black'; ctxE.lineWidth = 12;
+                        ctxE.strokeText(compLabels[ang], 0, 0); ctxE.fillText(compLabels[ang], 0, 0); ctxE.restore();
+                    }
+                    const elemTex = new THREE.CanvasTexture(elemCompassCanvas); elemTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+                    const elemPlane = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.MeshLambertMaterial({ map: elemTex, transparent: true, opacity: 0.9, depthWrite: false }));
+                    elemPlane.rotation.x = -Math.PI / 2; elemPlane.position.y = 0.05; 
+                    elemPlane.receiveShadow = true;
+                    scene.add(elemPlane);
+                }
+
                 if (!isElem) {
                     const centralCanvas = document.createElement('canvas'); centralCanvas.width = 1024; centralCanvas.height = 1024;
                     const ctxC = centralCanvas.getContext('2d'); const cCenter = 512; const cRadius = 480;
