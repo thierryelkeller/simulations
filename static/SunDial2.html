@@ -842,7 +842,8 @@
                             hopSpeed: 0.1 + Math.random() * 0.05,
                             x: rx,
                             z: rz,
-                            pauseTimer: Math.random() * 100
+                            pauseTimer: Math.random() * 100,
+                            isFleeing: false
                         });
                     }
                     rabbitsRef.current = rabbits;
@@ -924,10 +925,10 @@
 
                     const herdLeader = { x: -25, z: -15, angle: Math.PI / 4, state: 'GRAZE', timer: 100, speed: 0 };
                     const deerFamily = [
-                        { id: 'buck', ...buck, offset: new THREE.Vector3(0, 0, 0), wanderOffset: new THREE.Vector3(), isLeader: true },
-                        { id: 'doe', ...doe, offset: new THREE.Vector3(3.0, 0, -3.0), wanderOffset: new THREE.Vector3(), isLeader: false },
-                        { id: 'fawn1', ...fawn1, offset: new THREE.Vector3(-2.0, 0, -3.5), wanderOffset: new THREE.Vector3(), isLeader: false },
-                        { id: 'fawn2', ...fawn2, offset: new THREE.Vector3(1.5, 0, -4.5), wanderOffset: new THREE.Vector3(), isLeader: false }
+                        { id: 'buck', ...buck, offset: new THREE.Vector3(0, 0, 0), wanderOffset: new THREE.Vector3(), isLeader: true, isFleeing: false },
+                        { id: 'doe', ...doe, offset: new THREE.Vector3(3.0, 0, -3.0), wanderOffset: new THREE.Vector3(), isLeader: false, isFleeing: false },
+                        { id: 'fawn1', ...fawn1, offset: new THREE.Vector3(-2.0, 0, -3.5), wanderOffset: new THREE.Vector3(), isLeader: false, isFleeing: false },
+                        { id: 'fawn2', ...fawn2, offset: new THREE.Vector3(1.5, 0, -4.5), wanderOffset: new THREE.Vector3(), isLeader: false, isFleeing: false }
                     ];
 
                     deerFamily.forEach(d => {
@@ -1232,6 +1233,8 @@
                     }
 
                     if (isElem) {
+                        const w = wolfRef.current;
+
                         birdsRef.current.forEach(b => {
                             if (b.state === 'FLYING') {
                                 let currentTarget;
@@ -1358,34 +1361,58 @@
                         });
 
                         rabbitsRef.current.forEach(r => {
-                            if (r.pauseTimer > 0) {
-                                r.pauseTimer--;
-                                r.mesh.position.y = getTerrainY(r.x, r.z);
-                            } else {
-                                r.hopPhase += r.hopSpeed;
-                                if (r.hopPhase > Math.PI) {
-                                    r.hopPhase = 0;
-                                    r.pauseTimer = 30 + Math.random() * 100;
-                                    r.angle += (Math.random() - 0.5) * 1.5;
-                                }
-                                
-                                const step = 0.2 * Math.sin(r.hopPhase);
+                            if (w) {
+                                const distW = Math.sqrt(Math.pow(r.x - w.x, 2) + Math.pow(r.z - w.z, 2));
+                                if (distW < 10) r.isFleeing = true;
+                                else if (distW > 50) r.isFleeing = false;
+                            }
+
+                            if (r.isFleeing && w) {
+                                r.angle = Math.atan2(r.z - w.z, r.x - w.x);
+                                r.hopPhase += 0.3; 
+                                if (r.hopPhase > Math.PI) r.hopPhase = 0;
+                                const step = 0.6 * Math.sin(r.hopPhase); 
                                 r.x += Math.cos(r.angle) * step;
                                 r.z += Math.sin(r.angle) * step;
                                 
-                                const dist = Math.sqrt(r.x*r.x + r.z*r.z);
-                                if (dist < 18 || dist > 60) {
-                                    r.angle += Math.PI; 
+                                const edgeDist = Math.sqrt(r.x*r.x + r.z*r.z);
+                                if (edgeDist < 18 || edgeDist > 60) {
+                                    r.angle += Math.PI / 2; 
                                 }
                                 
                                 r.mesh.rotation.y = -r.angle + Math.PI / 2;
                                 r.mesh.position.x = r.x;
                                 r.mesh.position.z = r.z;
-                                r.mesh.position.y = getTerrainY(r.x, r.z) + Math.sin(r.hopPhase) * 0.42; 
+                                r.mesh.position.y = getTerrainY(r.x, r.z) + Math.sin(r.hopPhase) * 1.0; 
+                            } else {
+                                if (r.pauseTimer > 0) {
+                                    r.pauseTimer--;
+                                    r.mesh.position.y = getTerrainY(r.x, r.z);
+                                } else {
+                                    r.hopPhase += r.hopSpeed;
+                                    if (r.hopPhase > Math.PI) {
+                                        r.hopPhase = 0;
+                                        r.pauseTimer = 30 + Math.random() * 100;
+                                        r.angle += (Math.random() - 0.5) * 1.5;
+                                    }
+                                    
+                                    const step = 0.2 * Math.sin(r.hopPhase);
+                                    r.x += Math.cos(r.angle) * step;
+                                    r.z += Math.sin(r.angle) * step;
+                                    
+                                    const dist = Math.sqrt(r.x*r.x + r.z*r.z);
+                                    if (dist < 18 || dist > 60) {
+                                        r.angle += Math.PI; 
+                                    }
+                                    
+                                    r.mesh.rotation.y = -r.angle + Math.PI / 2;
+                                    r.mesh.position.x = r.x;
+                                    r.mesh.position.z = r.z;
+                                    r.mesh.position.y = getTerrainY(r.x, r.z) + Math.sin(r.hopPhase) * 0.42; 
+                                }
                             }
                         });
 
-                        const w = wolfRef.current;
                         if (w) {
                             if (w.timer <= 0) {
                                 if (Math.random() > 0.3) {
@@ -1419,24 +1446,38 @@
                         if (deerList.length > 0) {
                             const leader = deerList.find(d => d.isLeader) || deerList[0];
                             
-                            if (leader.timer <= 0) {
-                                const rValue = Math.random();
-                                if (rValue < 0.4) {
-                                    leader.state = 'GRAZE'; leader.timer = 100 + Math.random() * 200; leader.speed = 0;
-                                } else if (rValue < 0.8) {
-                                    leader.state = 'WALK'; leader.timer = 60 + Math.random() * 100; leader.speed = 0.02 + Math.random() * 0.02; leader.angle += (Math.random() - 0.5) * 1.5;
-                                } else {
-                                    leader.state = 'HOP'; leader.timer = 30 + Math.random() * 50; leader.speed = 0.06 + Math.random() * 0.04; leader.angle += (Math.random() - 0.5) * 1.5;
-                                }
+                            if (w) {
+                                const distToWolf = Math.sqrt(Math.pow(leader.x - w.x, 2) + Math.pow(leader.z - w.z, 2));
+                                if (distToWolf < 10) leader.isFleeing = true;
+                                else if (distToWolf > 50) leader.isFleeing = false;
                             }
-                            leader.timer--;
+
+                            if (leader.isFleeing && w) {
+                                leader.state = 'FLEE';
+                                leader.speed = 0.15;
+                                leader.angle = Math.atan2(leader.z - w.z, leader.x - w.x);
+                            } else {
+                                if (leader.timer <= 0) {
+                                    const rValue = Math.random();
+                                    if (rValue < 0.4) {
+                                        leader.state = 'GRAZE'; leader.timer = 100 + Math.random() * 200; leader.speed = 0;
+                                    } else if (rValue < 0.8) {
+                                        leader.state = 'WALK'; leader.timer = 60 + Math.random() * 100; leader.speed = 0.02 + Math.random() * 0.02; leader.angle += (Math.random() - 0.5) * 1.5;
+                                    } else {
+                                        leader.state = 'HOP'; leader.timer = 30 + Math.random() * 50; leader.speed = 0.06 + Math.random() * 0.04; leader.angle += (Math.random() - 0.5) * 1.5;
+                                    }
+                                }
+                                leader.timer--;
+                            }
 
                             if (leader.state !== 'GRAZE') {
                                 leader.x += Math.cos(leader.angle) * leader.speed;
                                 leader.z += Math.sin(leader.angle) * leader.speed;
                                 const dist = Math.sqrt(leader.x*leader.x + leader.z*leader.z);
                                 if (dist < 18 || dist > 60) {
-                                    leader.angle += Math.PI; 
+                                    if (leader.state === 'FLEE') leader.angle += Math.PI / 2;
+                                    else leader.angle += Math.PI; 
+                                    
                                     leader.x += Math.cos(leader.angle) * 1.0;
                                     leader.z += Math.sin(leader.angle) * 1.0;
                                 }
@@ -1444,30 +1485,50 @@
 
                             deerList.forEach(d => {
                                 if (!d.isLeader) {
-                                    d.wanderOffset.x += (Math.random() - 0.5) * 0.05;
-                                    d.wanderOffset.z += (Math.random() - 0.5) * 0.05;
-                                    d.wanderOffset.clampLength(0, 2.0); 
+                                    if (w) {
+                                        const distW = Math.sqrt(Math.pow(d.x - w.x, 2) + Math.pow(d.z - w.z, 2));
+                                        if (distW < 10) d.isFleeing = true;
+                                        else if (distW > 50) d.isFleeing = false;
+                                    }
 
-                                    const combinedOffsetX = d.offset.x + d.wanderOffset.x;
-                                    const combinedOffsetZ = d.offset.z + d.wanderOffset.z;
+                                    let targetX, targetZ;
 
-                                    const offsetX = Math.cos(leader.angle) * combinedOffsetX - Math.sin(leader.angle) * combinedOffsetZ;
-                                    const offsetZ = Math.sin(leader.angle) * combinedOffsetX + Math.cos(leader.angle) * combinedOffsetZ;
-                                    const targetX = leader.x + offsetX;
-                                    const targetZ = leader.z + offsetZ;
+                                    if (d.isFleeing && w) {
+                                        d.state = 'FLEE';
+                                        d.speed = 0.15;
+                                        targetX = d.x + (d.x - w.x);
+                                        targetZ = d.z + (d.z - w.z);
+                                    } else {
+                                        d.wanderOffset.x += (Math.random() - 0.5) * 0.05;
+                                        d.wanderOffset.z += (Math.random() - 0.5) * 0.05;
+                                        d.wanderOffset.clampLength(0, 2.0); 
+
+                                        const combinedOffsetX = d.offset.x + d.wanderOffset.x;
+                                        const combinedOffsetZ = d.offset.z + d.wanderOffset.z;
+
+                                        const offsetX = Math.cos(leader.angle) * combinedOffsetX - Math.sin(leader.angle) * combinedOffsetZ;
+                                        const offsetZ = Math.sin(leader.angle) * combinedOffsetX + Math.cos(leader.angle) * combinedOffsetZ;
+                                        targetX = leader.x + offsetX;
+                                        targetZ = leader.z + offsetZ;
+
+                                        const dx = targetX - d.x;
+                                        const dz = targetZ - d.z;
+                                        const distToTarget = Math.sqrt(dx*dx + dz*dz);
+
+                                        if (distToTarget > 0.5 || leader.state !== 'GRAZE') {
+                                            d.state = (leader.state === 'HOP' || distToTarget > 2) ? 'HOP' : 'WALK';
+                                            if (leader.state === 'FLEE') d.state = 'FLEE';
+                                            d.speed = Math.min(distToTarget * 0.05, (d.state === 'HOP' || d.state === 'FLEE') ? 0.08 : 0.03);
+                                            if (d.state === 'FLEE') d.speed = 0.12; 
+                                            if(d.speed < 0.01 && leader.state === 'GRAZE') d.speed = 0; 
+                                        } else {
+                                            d.state = 'GRAZE';
+                                            d.speed = 0;
+                                        }
+                                    }
 
                                     const dx = targetX - d.x;
                                     const dz = targetZ - d.z;
-                                    const distToTarget = Math.sqrt(dx*dx + dz*dz);
-
-                                    if (distToTarget > 0.5 || leader.state !== 'GRAZE') {
-                                        d.state = (leader.state === 'HOP' || distToTarget > 2) ? 'HOP' : 'WALK';
-                                        d.speed = Math.min(distToTarget * 0.05, d.state === 'HOP' ? 0.08 : 0.03);
-                                        if(d.speed < 0.01 && leader.state === 'GRAZE') d.speed = 0; 
-                                    } else {
-                                        d.state = 'GRAZE';
-                                        d.speed = 0;
-                                    }
 
                                     if (d.speed > 0) {
                                         d.angle = Math.atan2(dz, dx);
@@ -1488,11 +1549,11 @@
                                     targetNeckX = 0.2 + Math.sin(d.walkPhase) * 0.1; 
                                     d.walkPhase += 0.15;
                                     yOffset = Math.abs(Math.sin(d.walkPhase)) * 0.05 * d.sc;
-                                } else if (d.state === 'HOP') {
+                                } else if (d.state === 'HOP' || d.state === 'FLEE') {
                                     targetNeckX = -0.1; 
-                                    d.hopPhase += 0.2;
+                                    d.hopPhase += d.state === 'FLEE' ? 0.4 : 0.2;
                                     if (d.hopPhase > Math.PI) d.hopPhase = 0;
-                                    yOffset = Math.sin(d.hopPhase) * 0.5 * d.sc; 
+                                    yOffset = Math.sin(d.hopPhase) * (d.state === 'FLEE' ? 0.8 : 0.5) * d.sc; 
                                 }
 
                                 d.neckPivot.rotation.x += (targetNeckX - d.neckPivot.rotation.x) * 0.1;
