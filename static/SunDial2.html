@@ -407,6 +407,7 @@
             const decorGroupRef = useRef(null);
 
             const birdsRef = useRef([]);
+            const smallBirdsRef = useRef([]);
             const rabbitsRef = useRef([]);
             const deersRef = useRef([]);
             
@@ -470,18 +471,6 @@
                 const scene = new THREE.Scene();
                 sceneRef.current = scene;
 
-                const getNextSkyTarget = (currentY = 18) => {
-                    const radius = 20 + Math.random() * 35;
-                    const angle = Math.random() * Math.PI * 2;
-                    let newY = currentY + (Math.random() - 0.5) * 8; 
-                    newY = Math.max(12, Math.min(28, newY)); // Smooth altitude bounds
-                    return new THREE.Vector3(
-                        Math.cos(angle) * radius,
-                        newY,
-                        Math.sin(angle) * radius
-                    );
-                };
-
                 const vertexShader = `varying vec3 vWorldPosition; void main() { vec4 worldPosition = modelMatrix * vec4( position, 1.0 ); vWorldPosition = worldPosition.xyz; gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); }`;
                 const fragmentShader = `uniform vec3 topColor; uniform vec3 bottomColor; uniform float offset; uniform float exponent; varying vec3 vWorldPosition; void main() { float h = normalize( vWorldPosition + vec3(0.0, offset, 0.0) ).y; gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h, 0.0 ), exponent ), 0.0 ) ), 1.0 ); }`;
                 const skyMat = new THREE.ShaderMaterial({ uniforms: { topColor: { value: new THREE.Color(0x0a1a3a) }, bottomColor: { value: new THREE.Color(0x87CEEB) }, offset: { value: 0.0 }, exponent: { value: 0.85 } }, vertexShader, fragmentShader, side: THREE.BackSide, depthWrite: false });
@@ -532,6 +521,7 @@
                 let ground;
                 
                 const birds = [];
+                const smallBirds = [];
                 const rabbits = [];
                 const deers = [];
 
@@ -551,7 +541,10 @@
                         else baseColor.setHSL(0.26 + mixFactor * 0.04, 0.55 - mixFactor * 0.15, 0.32 + rand * 0.04);
                         colors.push(baseColor.r, baseColor.g, baseColor.b);
                     }
-                    groundGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); groundGeo.computeVertexNormals();
+                    groundGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); 
+                    groundGeo.computeVertexNormals();
+                    groundGeo.computeBoundingBox();
+                    groundGeo.computeBoundingSphere();
                     ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1.0, flatShading: true }));
                     ground.rotation.x = -Math.PI / 2;
                     groundGeoRef.current = groundGeo;
@@ -742,7 +735,60 @@
                     }
                     birdsRef.current = birds;
 
-                    // --- Add Rabbits ---
+                    // --- SMALL BIRDS (NATURAL COLORS) ---
+                    const birdColors = [0x3b82f6, 0xef4444, 0xf59e0b, 0x10b981, 0x8b5a2b];
+                    for(let i=0; i<20; i++) {
+                        const smallBirdGroup = new THREE.Group();
+                        const birdColor = birdColors[Math.floor(Math.random() * birdColors.length)];
+                        const bodyGeo = new THREE.ConeGeometry(0.06, 0.25, 4);
+                        bodyGeo.rotateX(Math.PI / 2);
+                        const bodyMat = new THREE.MeshLambertMaterial({color: birdColor});
+                        const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+                        smallBirdGroup.add(bodyMesh);
+
+                        const wingMat = new THREE.MeshLambertMaterial({color: birdColor, side: THREE.DoubleSide});
+                        
+                        const wingPivotL = new THREE.Group();
+                        wingPivotL.position.set(-0.03, 0, 0.05);
+                        const wingLGeo = new THREE.BufferGeometry();
+                        const lVerts = new Float32Array([0, 0, 0, -0.3, 0, -0.15, 0, 0, -0.1]);
+                        wingLGeo.setAttribute('position', new THREE.BufferAttribute(lVerts, 3));
+                        wingLGeo.computeVertexNormals();
+                        const wingL = new THREE.Mesh(wingLGeo, wingMat);
+                        wingPivotL.add(wingL);
+                        smallBirdGroup.add(wingPivotL);
+
+                        const wingPivotR = new THREE.Group();
+                        wingPivotR.position.set(0.03, 0, 0.05);
+                        const wingRGeo = new THREE.BufferGeometry();
+                        const rVerts = new Float32Array([0, 0, 0, 0.3, 0, -0.15, 0, 0, -0.1]);
+                        wingRGeo.setAttribute('position', new THREE.BufferAttribute(rVerts, 3));
+                        wingRGeo.computeVertexNormals();
+                        const wingR = new THREE.Mesh(wingRGeo, wingMat);
+                        wingPivotR.add(wingR);
+                        smallBirdGroup.add(wingPivotR);
+
+                        const startPerch = treePerches.length > 0 ? treePerches[Math.floor(Math.random() * treePerches.length)].clone() : new THREE.Vector3(0, 10, 0);
+                        startPerch.y += 0.5 + Math.random() * 1.5;
+                        smallBirdGroup.position.copy(startPerch);
+                        scene.add(smallBirdGroup);
+                        
+                        smallBirds.push({
+                            mesh: smallBirdGroup,
+                            wingL: wingPivotL,
+                            wingR: wingPivotR,
+                            velocity: new THREE.Vector3(),
+                            target: startPerch,
+                            state: 'PERCHED',
+                            timer: Math.random() * 200,
+                            speed: 0.1 + Math.random() * 0.05, 
+                            wingPhase: Math.random() * Math.PI * 2,
+                            treePerches: treePerches
+                        });
+                    }
+                    smallBirdsRef.current = smallBirds;
+
+                    // --- ADD RABBITS (SCALED 30% SMALLER) ---
                     const numRabbits = 6;
                     const rabbitMat = new THREE.MeshStandardMaterial({color: 0xe5e7eb, roughness: 0.9});
                     for(let i=0; i<numRabbits; i++) {
@@ -767,6 +813,8 @@
                         head.add(earL, earR);
                         rabbitGroup.add(body, head);
                         
+                        // SCALE RABBIT 30% SMALLER
+                        rabbitGroup.scale.set(0.7, 0.7, 0.7);
                         scene.add(rabbitGroup);
 
                         const startAngle = Math.random() * Math.PI * 2;
@@ -786,7 +834,7 @@
                     }
                     rabbitsRef.current = rabbits;
 
-                    // --- Add Deer Family ---
+                    // --- ADD DEER FAMILY (SCALED 30% LARGER) ---
                     const deerMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.9, flatShading: true });
                     const deerLightMat = new THREE.MeshStandardMaterial({ color: 0xcd853f, roughness: 0.9, flatShading: true });
                     const antlerMat = new THREE.MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.8 });
@@ -855,17 +903,18 @@
                         return { mesh: deer, neckPivot: neckPivot, sc: sc };
                     };
 
-                    const buck = createDeer('buck', 1.2);
-                    const doe = createDeer('doe', 1.0);
-                    const fawn1 = createDeer('fawn', 0.6);
-                    const fawn2 = createDeer('fawn', 0.5);
+                    // Scale deer up by 30% (+1.3 multiplier)
+                    const buck = createDeer('buck', 1.2 * 1.3);
+                    const doe = createDeer('doe', 1.0 * 1.3);
+                    const fawn1 = createDeer('fawn', 0.6 * 1.3);
+                    const fawn2 = createDeer('fawn', 0.5 * 1.3);
 
                     const herdLeader = { x: -25, z: -15, angle: Math.PI / 4, state: 'GRAZE', timer: 100, speed: 0 };
                     const deerFamily = [
-                        { id: 'buck', ...buck, offset: new THREE.Vector3(0, 0, 0), isLeader: true },
-                        { id: 'doe', ...doe, offset: new THREE.Vector3(2.5, 0, -2.5), isLeader: false },
-                        { id: 'fawn1', ...fawn1, offset: new THREE.Vector3(-1.5, 0, -3.0), isLeader: false },
-                        { id: 'fawn2', ...fawn2, offset: new THREE.Vector3(1.0, 0, -4.0), isLeader: false }
+                        { id: 'buck', ...buck, offset: new THREE.Vector3(0, 0, 0), wanderOffset: new THREE.Vector3(), isLeader: true },
+                        { id: 'doe', ...doe, offset: new THREE.Vector3(3.0, 0, -3.0), wanderOffset: new THREE.Vector3(), isLeader: false },
+                        { id: 'fawn1', ...fawn1, offset: new THREE.Vector3(-2.0, 0, -3.5), wanderOffset: new THREE.Vector3(), isLeader: false },
+                        { id: 'fawn2', ...fawn2, offset: new THREE.Vector3(1.5, 0, -4.5), wanderOffset: new THREE.Vector3(), isLeader: false }
                     ];
 
                     deerFamily.forEach(d => {
@@ -1214,6 +1263,43 @@
                             }
                         });
 
+                        smallBirdsRef.current.forEach(sb => {
+                            if (sb.state === 'FLYING') {
+                                const dist = sb.mesh.position.distanceTo(sb.target);
+                                if (dist < 1.0) {
+                                    sb.state = 'PERCHED';
+                                    sb.timer = 100 + Math.random() * 200;
+                                    sb.mesh.position.copy(sb.target);
+                                    sb.wingL.rotation.z = -0.4;
+                                    sb.wingR.rotation.z = 0.4;
+                                } else {
+                                    const desired = new THREE.Vector3().subVectors(sb.target, sb.mesh.position).normalize().multiplyScalar(sb.speed);
+                                    const steer = new THREE.Vector3().subVectors(desired, sb.velocity).multiplyScalar(0.05);
+                                    sb.velocity.add(steer);
+                                    sb.velocity.clampLength(0, sb.speed);
+                                    sb.mesh.position.add(sb.velocity);
+                                    
+                                    if (sb.velocity.lengthSq() > 0.0001) {
+                                        const lookAtPos = new THREE.Vector3().addVectors(sb.mesh.position, sb.velocity);
+                                        const targetMatrix = new THREE.Matrix4().lookAt(sb.mesh.position, lookAtPos, new THREE.Vector3(0, 1, 0));
+                                        const targetQuaternion = new THREE.Quaternion().setFromRotationMatrix(targetMatrix);
+                                        sb.mesh.quaternion.slerp(targetQuaternion, 0.1);
+                                    }
+
+                                    sb.wingPhase += 0.4;
+                                    sb.wingL.rotation.z = Math.sin(sb.wingPhase) * 0.8;
+                                    sb.wingR.rotation.z = -Math.sin(sb.wingPhase) * 0.8;
+                                }
+                            } else if (sb.state === 'PERCHED') {
+                                sb.timer--;
+                                if (sb.timer <= 0) {
+                                    sb.state = 'FLYING';
+                                    sb.target = sb.treePerches.length > 0 ? sb.treePerches[Math.floor(Math.random() * sb.treePerches.length)].clone() : new THREE.Vector3(0, 10, 0);
+                                    sb.target.y += 0.5 + Math.random() * 1.5; 
+                                }
+                            }
+                        });
+
                         rabbitsRef.current.forEach(r => {
                             if (r.pauseTimer > 0) {
                                 r.pauseTimer--;
@@ -1238,7 +1324,7 @@
                                 r.mesh.rotation.y = -r.angle + Math.PI / 2;
                                 r.mesh.position.x = r.x;
                                 r.mesh.position.z = r.z;
-                                r.mesh.position.y = getTerrainY(r.x, r.z) + Math.sin(r.hopPhase) * 0.6; 
+                                r.mesh.position.y = getTerrainY(r.x, r.z) + Math.sin(r.hopPhase) * 0.42; 
                             }
                         });
 
@@ -1271,8 +1357,15 @@
 
                             deerList.forEach(d => {
                                 if (!d.isLeader) {
-                                    const offsetX = Math.cos(leader.angle) * d.offset.x - Math.sin(leader.angle) * d.offset.z;
-                                    const offsetZ = Math.sin(leader.angle) * d.offset.x + Math.cos(leader.angle) * d.offset.z;
+                                    d.wanderOffset.x += (Math.random() - 0.5) * 0.05;
+                                    d.wanderOffset.z += (Math.random() - 0.5) * 0.05;
+                                    d.wanderOffset.clampLength(0, 2.0); 
+
+                                    const combinedOffsetX = d.offset.x + d.wanderOffset.x;
+                                    const combinedOffsetZ = d.offset.z + d.wanderOffset.z;
+
+                                    const offsetX = Math.cos(leader.angle) * combinedOffsetX - Math.sin(leader.angle) * combinedOffsetZ;
+                                    const offsetZ = Math.sin(leader.angle) * combinedOffsetX + Math.cos(leader.angle) * combinedOffsetZ;
                                     const targetX = leader.x + offsetX;
                                     const targetZ = leader.z + offsetZ;
 
