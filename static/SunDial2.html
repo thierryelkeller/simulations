@@ -83,7 +83,7 @@
                 shadow_angle: "Shadow Direction", align_ruler: "Measure Ruler Length", align_protractor: "Measure Shadow Angle",
                 measure_hint: "Click and drag from the center on the ground to measure!", measure_match: "Perfect Match!",
                 from_north: "from North", from_south: "from South",
-                view_sky: "Sky View", view_stick: "Compass View"
+                view_sky_ns: "Sky (N-S)", view_sky_ew: "Sky (E-W)", view_stick: "Compass View"
             },
             fr: {
                 title: "Voyage Solaire", subtitle: "Laboratoire Virtuel", choose_lang: "Choisir la Langue",
@@ -114,7 +114,7 @@
                 shadow_angle: "Direction de l'ombre", align_ruler: "Ajuster la Règle", align_protractor: "Ajuster l'Angle",
                 measure_hint: "Cliquez et glissez sur le sol pour mesurer depuis le centre !", measure_match: "Mesure Parfaite !",
                 from_north: "du Nord", from_south: "du Sud",
-                view_sky: "Vue du Ciel", view_stick: "Vue Boussole"
+                view_sky_ns: "Ciel (N-S)", view_sky_ew: "Ciel (E-O)", view_stick: "Vue Boussole"
             },
             es: {
                 title: "Viaje Solar", subtitle: "Laboratorio Virtual", choose_lang: "Seleccionar Idioma",
@@ -145,7 +145,7 @@
                 shadow_angle: "Dirección de la sombra", align_ruler: "Ajuster Regla", align_protractor: "Ajustar Ángulo",
                 measure_hint: "¡Haz clic y arrastra en el suelo para medir desde el centro!", measure_match: "¡Medición Perfecta!",
                 from_north: "del Norte", from_south: "del Sur",
-                view_sky: "Vista del Cielo", view_stick: "Vista Brújula"
+                view_sky_ns: "Cielo (N-S)", view_sky_ew: "Cielo (E-O)", view_stick: "Vista Brújula"
             }
         };
 
@@ -719,7 +719,7 @@
                             offset.set(side * 1.5, (Math.random() - 0.5) * 1.0, -1.8);
                         }
 
-                        const startPos = getNextSkyTarget();
+                        const startPos = getNextSkyTargetForBird();
                         birdGroup.position.copy(startPos);
                         scene.add(birdGroup);
                         
@@ -728,7 +728,7 @@
                             wingL: wingPivotL,
                             wingR: wingPivotR,
                             velocity: new THREE.Vector3(Math.random()-0.5, 0, Math.random()-0.5).normalize().multiplyScalar(0.1),
-                            target: getNextSkyTarget(),
+                            target: getNextSkyTargetForBird(),
                             targetType: 'SKY',
                             state: 'FLYING',
                             timer: 0,
@@ -875,7 +875,7 @@
                         d.angle = herdLeader.angle;
                         d.hopPhase = 0; d.walkPhase = Math.random() * Math.PI; d.timer = Math.random() * 50; d.state = 'GRAZE';
                     });
-                    deersRef.current = deerFamily; // Correctly initialize as a flat array of objects to resolve the forEach crash
+                    deersRef.current = deerFamily;
                 }
 
                 if (!isElem) {
@@ -1017,7 +1017,8 @@
                     const view = e.detail.view;
                     const rSky = mode === 'elementary' ? 180 : 130;
                     const rStick = mode === 'elementary' ? 35 : 15;
-                    if (view === 'sky') targetCamParams = { radius: rSky, theta: Math.PI, phi: Math.PI / 2.2 };
+                    if (view === 'sky_ns') targetCamParams = { radius: rSky, theta: Math.PI, phi: Math.PI / 2.2 };
+                    else if (view === 'sky_ew') targetCamParams = { radius: rSky, theta: Math.PI / 2, phi: Math.PI / 2.2 };
                     else if (view === 'stick') targetCamParams = { radius: rStick, theta: Math.PI / 4, phi: Math.PI / 3 };
                 };
                 window.addEventListener('setCamera', onSetCamera);
@@ -1213,7 +1214,6 @@
                             }
                         });
 
-                        // Rabbits Anim Loop - Grounded correctly
                         rabbitsRef.current.forEach(r => {
                             if (r.pauseTimer > 0) {
                                 r.pauseTimer--;
@@ -1242,67 +1242,87 @@
                             }
                         });
 
-                        // Deer Family Anim Loop - Grounded correctly
                         const deerList = Array.isArray(deersRef.current) ? deersRef.current : [];
-                        deerList.forEach(d => {
-                            if (d.timer <= 0) {
+                        if (deerList.length > 0) {
+                            const leader = deerList.find(d => d.isLeader) || deerList[0];
+                            
+                            if (leader.timer <= 0) {
                                 const rValue = Math.random();
                                 if (rValue < 0.4) {
-                                    d.state = 'GRAZE';
-                                    d.timer = 100 + Math.random() * 200; 
+                                    leader.state = 'GRAZE'; leader.timer = 100 + Math.random() * 200; leader.speed = 0;
                                 } else if (rValue < 0.8) {
-                                    d.state = 'WALK';
-                                    d.timer = 60 + Math.random() * 100;
-                                    d.speed = 0.02 + Math.random() * 0.02;
-                                    d.angle += (Math.random() - 0.5) * 1.5;
+                                    leader.state = 'WALK'; leader.timer = 60 + Math.random() * 100; leader.speed = 0.02 + Math.random() * 0.02; leader.angle += (Math.random() - 0.5) * 1.5;
                                 } else {
-                                    d.state = 'HOP';
-                                    d.timer = 30 + Math.random() * 50;
-                                    d.speed = 0.06 + Math.random() * 0.04;
-                                    d.angle += (Math.random() - 0.5) * 1.5;
+                                    leader.state = 'HOP'; leader.timer = 30 + Math.random() * 50; leader.speed = 0.06 + Math.random() * 0.04; leader.angle += (Math.random() - 0.5) * 1.5;
                                 }
                             }
-                            
-                            d.timer--;
+                            leader.timer--;
 
-                            let yOffset = 0;
-                            let targetNeckX = 0;
+                            if (leader.state !== 'GRAZE') {
+                                leader.x += Math.cos(leader.angle) * leader.speed;
+                                leader.z += Math.sin(leader.angle) * leader.speed;
+                                const dist = Math.sqrt(leader.x*leader.x + leader.z*leader.z);
+                                if (dist < 18 || dist > 60) {
+                                    leader.angle += Math.PI; 
+                                    leader.x += Math.cos(leader.angle) * 1.0;
+                                    leader.z += Math.sin(leader.angle) * 1.0;
+                                }
+                            }
 
-                            if (d.state === 'GRAZE') {
-                                targetNeckX = Math.PI / 2.5;
-                            } else if (d.state === 'WALK') {
-                                targetNeckX = 0.2 + Math.sin(d.walkPhase) * 0.1; 
-                                d.walkPhase += 0.15;
-                                d.x += Math.cos(d.angle) * d.speed;
-                                d.z += Math.sin(d.angle) * d.speed;
-                                yOffset = Math.abs(Math.sin(d.walkPhase)) * 0.05 * d.sc;
-                            } else if (d.state === 'HOP') {
-                                targetNeckX = -0.1; 
-                                d.hopPhase += 0.2;
-                                if (d.hopPhase > Math.PI) {
-                                    d.hopPhase = 0;
-                                } else {
-                                    const step = Math.sin(d.hopPhase) * d.speed;
-                                    d.x += Math.cos(d.angle) * step;
-                                    d.z += Math.sin(d.angle) * step;
+                            deerList.forEach(d => {
+                                if (!d.isLeader) {
+                                    const offsetX = Math.cos(leader.angle) * d.offset.x - Math.sin(leader.angle) * d.offset.z;
+                                    const offsetZ = Math.sin(leader.angle) * d.offset.x + Math.cos(leader.angle) * d.offset.z;
+                                    const targetX = leader.x + offsetX;
+                                    const targetZ = leader.z + offsetZ;
+
+                                    const dx = targetX - d.x;
+                                    const dz = targetZ - d.z;
+                                    const distToTarget = Math.sqrt(dx*dx + dz*dz);
+
+                                    if (distToTarget > 0.5 || leader.state !== 'GRAZE') {
+                                        d.state = (leader.state === 'HOP' || distToTarget > 2) ? 'HOP' : 'WALK';
+                                        d.speed = Math.min(distToTarget * 0.05, d.state === 'HOP' ? 0.08 : 0.03);
+                                        if(d.speed < 0.01 && leader.state === 'GRAZE') d.speed = 0; 
+                                    } else {
+                                        d.state = 'GRAZE';
+                                        d.speed = 0;
+                                    }
+
+                                    if (d.speed > 0) {
+                                        d.angle = Math.atan2(dz, dx);
+                                        d.x += Math.cos(d.angle) * d.speed;
+                                        d.z += Math.sin(d.angle) * d.speed;
+                                    } else {
+                                        const angleDiff = leader.angle - d.angle;
+                                        d.angle += Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff)) * 0.05;
+                                    }
+                                }
+
+                                let yOffset = 0;
+                                let targetNeckX = 0;
+
+                                if (d.state === 'GRAZE') {
+                                    targetNeckX = Math.PI / 2.5;
+                                } else if (d.state === 'WALK') {
+                                    targetNeckX = 0.2 + Math.sin(d.walkPhase) * 0.1; 
+                                    d.walkPhase += 0.15;
+                                    yOffset = Math.abs(Math.sin(d.walkPhase)) * 0.05 * d.sc;
+                                } else if (d.state === 'HOP') {
+                                    targetNeckX = -0.1; 
+                                    d.hopPhase += 0.2;
+                                    if (d.hopPhase > Math.PI) d.hopPhase = 0;
                                     yOffset = Math.sin(d.hopPhase) * 0.5 * d.sc; 
                                 }
-                            }
 
-                            const dist = Math.sqrt(d.x*d.x + d.z*d.z);
-                            if (dist < 18 || dist > 60) {
-                                d.angle += Math.PI; 
-                                d.x += Math.cos(d.angle) * 1.0;
-                                d.z += Math.sin(d.angle) * 1.0;
-                            }
-
-                            d.neckPivot.rotation.x += (targetNeckX - d.neckPivot.rotation.x) * 0.1;
-                            
-                            d.mesh.rotation.y = -d.angle + Math.PI / 2;
-                            d.mesh.position.x = d.x;
-                            d.mesh.position.z = d.z;
-                            d.mesh.position.y = getTerrainY(d.x, d.z) + yOffset;
-                        });
+                                d.neckPivot.rotation.x += (targetNeckX - d.neckPivot.rotation.x) * 0.1;
+                                
+                                d.mesh.rotation.y = -d.angle + Math.PI / 2;
+                                d.mesh.position.x = d.x;
+                                d.mesh.position.z = d.z;
+                                d.mesh.position.y = getTerrainY(d.x, d.z) + yOffset;
+                            });
+                        }
                     }
 
                     renderer.render(scene, camera); 
@@ -1561,14 +1581,14 @@
                         const dist = startPt.distanceTo(measureEnd);
                         if (dist > 0.05) {
                             const rulerLine = connectPointsWithCylinder(startPt, measureEnd, 0.04, new THREE.MeshLambertMaterial({ color: 0xff00b3, transparent: true, opacity: 0.8 })); 
-                            rulerLine.name = 'measureLine'; rulerLine.receiveShadow = true; sceneRef.add(rulerLine);
+                            rulerLine.name = 'measureLine'; rulerLine.receiveShadow = true; sceneRef.current.add(rulerLine);
                             
                             const localProt = createLocalProtractor(startPt, measureEnd, latitude); 
-                            localProt.name = 'measureProtractor'; localProt.receiveShadow = true; sceneRef.add(localProt);
+                            localProt.name = 'measureProtractor'; localProt.receiveShadow = true; sceneRef.current.add(localProt);
                             
                             const measuredAngle = getMeasuredAngle(startPt, measureEnd, latitude);
                             const textBadge = createGroundTextBadge(startPt, measureEnd, dist, measuredAngle, latitude, t); 
-                            textBadge.name = 'measureTextBadge'; sceneRef.add(textBadge);
+                            textBadge.name = 'measureTextBadge'; sceneRef.current.add(textBadge);
                         }
                     }
                 }
@@ -1597,7 +1617,7 @@
                         <MiddleSchoolUI time={time} setTime={setTime} day={day} setDay={setDay} latitude={latitude} setLatitude={setLatitude} sundialType={sundialType} setSundialType={setSundialType} showMeasureTool={showMeasureTool} setShowMeasureTool={setShowMeasureTool} showDotMarker={showDotMarker} setShowDotMarker={setShowDotMarker} showTrace={showTrace} setShowTrace={setShowTrace} setTraceStartTime={setTraceStartTime} dots={dots} setDots={setDots} t={t} solarData={solarData} measureStart={measureStart} measureEnd={measureEnd} />
                     )}
                     {showModal && (
-                        <div className="absolute inset-0 bg-[#020617]/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                        <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
                             <div className="max-w-md w-full bg-slate-900 border border-slate-700 p-6 rounded-3xl shadow-2xl space-y-4 pointer-events-auto">
                                 <h3 className="text-2xl font-bold text-white text-center flex items-center justify-center gap-2"><Info className="w-6 h-6 text-amber-400" />{mode === 'elementary' ? t('elem_instr_title') : t('mid_instr_title')}</h3>
                                 <ul className="space-y-3 text-slate-300 text-sm">
@@ -1628,9 +1648,13 @@
             return (
                 <>
                     <div className="absolute right-4 top-24 md:top-20 flex flex-col gap-4 z-10 pointer-events-auto">
-                        <button onClick={() => window.dispatchEvent(new CustomEvent('setCamera', {detail:{view:'sky'}}))} className="bg-white/95 hover:bg-white text-slate-800 p-3 sm:p-4 rounded-2xl shadow-xl flex flex-col items-center gap-2 border border-slate-200 transition-transform hover:scale-105">
+                        <button onClick={() => window.dispatchEvent(new CustomEvent('setCamera', {detail:{view:'sky_ns'}}))} className="bg-white/95 hover:bg-white text-slate-800 p-3 sm:p-4 rounded-2xl shadow-xl flex flex-col items-center gap-2 border border-slate-200 transition-transform hover:scale-105">
                             <Globe className="w-8 h-8 sm:w-10 sm:h-10 text-sky-500" />
-                            <span className="text-[10px] sm:text-xs font-bold uppercase">{t('view_sky')}</span>
+                            <span className="text-[10px] sm:text-xs font-bold uppercase">{t('view_sky_ns')}</span>
+                        </button>
+                        <button onClick={() => window.dispatchEvent(new CustomEvent('setCamera', {detail:{view:'sky_ew'}}))} className="bg-white/95 hover:bg-white text-slate-800 p-3 sm:p-4 rounded-2xl shadow-xl flex flex-col items-center gap-2 border border-slate-200 transition-transform hover:scale-105">
+                            <Globe className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500" />
+                            <span className="text-[10px] sm:text-xs font-bold uppercase">{t('view_sky_ew')}</span>
                         </button>
                         <button onClick={() => window.dispatchEvent(new CustomEvent('setCamera', {detail:{view:'stick'}}))} className="bg-white/95 hover:bg-white text-slate-800 p-3 sm:p-4 rounded-2xl shadow-xl flex flex-col items-center gap-2 border border-slate-200 transition-transform hover:scale-105">
                             <CompassIcon className="w-8 h-8 sm:w-10 sm:h-10 text-amber-500" />
@@ -1721,9 +1745,13 @@
             return (
                 <>
                     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-10 pointer-events-auto">
-                        <button onClick={() => window.dispatchEvent(new CustomEvent('setCamera', {detail:{view:'sky'}}))} className="bg-slate-900/80 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-700 transition-transform hover:scale-105 backdrop-blur-md">
+                        <button onClick={() => window.dispatchEvent(new CustomEvent('setCamera', {detail:{view:'sky_ns'}}))} className="bg-slate-900/80 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-700 transition-transform hover:scale-105 backdrop-blur-md">
                             <Globe className="w-5 h-5 text-sky-400" />
-                            <span className="text-xs font-bold uppercase tracking-wider">{t('view_sky')}</span>
+                            <span className="text-xs font-bold uppercase tracking-wider">{t('view_sky_ns')}</span>
+                        </button>
+                        <button onClick={() => window.dispatchEvent(new CustomEvent('setCamera', {detail:{view:'sky_ew'}}))} className="bg-slate-900/80 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-700 transition-transform hover:scale-105 backdrop-blur-md">
+                            <Globe className="w-5 h-5 text-emerald-400" />
+                            <span className="text-xs font-bold uppercase tracking-wider">{t('view_sky_ew')}</span>
                         </button>
                         <button onClick={() => window.dispatchEvent(new CustomEvent('setCamera', {detail:{view:'stick'}}))} className="bg-slate-900/80 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-700 transition-transform hover:scale-105 backdrop-blur-md">
                             <CompassIcon className="w-5 h-5 text-amber-400" />
