@@ -19,7 +19,7 @@
             font-family: 'Inter', sans-serif;
             background-color: #0f172a;
             color: #f8fafc;
-            overflow-x: hidden;
+            overflow: hidden;
             margin: 0;
             padding: 0;
         }
@@ -51,7 +51,7 @@
 
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
-            height: 20px;
+            height: 16px;
             cursor: pointer;
             border-radius: 9999px;
             background: linear-gradient(to right, 
@@ -60,19 +60,19 @@
                 #8a2be2 70%, #00ffff 85%, #ffffff 100%
             );
             border: 1px solid #334155;
-            box-shadow: 0 0 12px rgba(0,0,0,0.6);
+            box-shadow: 0 0 10px rgba(0,0,0,0.6);
         }
 
         input[type=range]::-webkit-slider-thumb {
-            height: 40px;
-            width: 40px;
+            height: 32px;
+            width: 32px;
             border-radius: 50%;
             background: #ffffff;
             cursor: pointer;
             -webkit-appearance: none;
-            margin-top: -11px;
+            margin-top: -9px;
             border: 4px solid #0f172a;
-            box-shadow: 0 0 25px rgba(255, 255, 255, 1);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 1);
             transition: transform 0.1s ease;
         }
         
@@ -100,36 +100,34 @@
         }
 
         /* Toggle Switch Styling */
-        .toggle-btn.active-utility { background-color: #3b82f6; color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-        .toggle-btn.active-safety { background-color: #ef4444; color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .toggle-btn.active-utility { background-color: #3b82f6; color: white; box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1); }
+        .toggle-btn.active-safety { background-color: #ef4444; color: white; box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1); }
         .toggle-btn.inactive { color: #94a3b8; }
         .toggle-btn.inactive:hover { color: #f8fafc; }
     </style>
 </head>
-<body class="min-h-screen text-slate-50 relative flex items-center justify-center">
+<body class="h-screen w-full text-slate-50 relative flex items-center justify-center overflow-hidden">
 
     <!-- SPLASH SCREEN 1: Language Selection -->
     <div id="splashScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 transition-opacity duration-700">
         <canvas id="splashCanvas" class="absolute inset-0 z-0 opacity-80"></canvas>
-        
-        <div class="relative z-10 text-center space-y-10 p-10 rounded-3xl max-w-4xl w-[95%]">
+        <div class="relative z-10 text-center space-y-8 p-10 rounded-3xl max-w-4xl w-[95%]">
             <div class="space-y-4">
                 <i class="fa-solid fa-wave-square text-6xl text-blue-400 mb-2 animate-pulse drop-shadow-[0_0_15px_rgba(96,165,250,0.8)]"></i>
                 <h1 class="text-5xl md:text-7xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-300 to-pink-500 drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]">
                     Spectrum Tuner
                 </h1>
-                <p class="text-slate-300 text-xl font-light">Select your language / Sélectionnez votre langue / Seleccione su idioma</p>
+                <p class="text-slate-300 text-lg font-light">Select your language / Sélectionnez votre langue / Seleccione su idioma</p>
             </div>
-            
-            <div class="flex flex-row flex-wrap justify-center gap-4 md:gap-6 mt-8">
-                <button onclick="showIntro('en')" class="group relative px-8 py-4 rounded-2xl glass-panel hover:bg-slate-800 border border-slate-500 transition-all shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:-translate-y-1 overflow-hidden">
-                    <span class="relative z-10 text-xl font-bold flex items-center"><i class="fa-solid fa-earth-americas mr-3 text-blue-400"></i> English</span>
+            <div class="flex flex-row flex-wrap justify-center gap-4 mt-6">
+                <button onclick="showIntro('en')" class="group relative px-6 py-3 rounded-2xl glass-panel hover:bg-slate-800 border border-slate-500 transition-all shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:-translate-y-1 overflow-hidden">
+                    <span class="relative z-10 text-lg font-bold flex items-center"><i class="fa-solid fa-earth-americas mr-3 text-blue-400"></i> English</span>
                 </button>
-                <button onclick="showIntro('fr')" class="group relative px-8 py-4 rounded-2xl glass-panel hover:bg-slate-800 border border-slate-500 transition-all shadow-[0_0_20px_rgba(168,85,247,0.15)] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:-translate-y-1 overflow-hidden">
-                    <span class="relative z-10 text-xl font-bold flex items-center"><i class="fa-solid fa-earth-europe mr-3 text-purple-400"></i> Français</span>
+                <button onclick="showIntro('fr')" class="group relative px-6 py-3 rounded-2xl glass-panel hover:bg-slate-800 border border-slate-500 transition-all shadow-[0_0_20px_rgba(168,85,247,0.15)] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:-translate-y-1 overflow-hidden">
+                    <span class="relative z-10 text-lg font-bold flex items-center"><i class="fa-solid fa-earth-europe mr-3 text-purple-400"></i> Français</span>
                 </button>
-                <button onclick="showIntro('es')" class="group relative px-8 py-4 rounded-2xl glass-panel hover:bg-slate-800 border border-slate-500 transition-all shadow-[0_0_20px_rgba(236,72,153,0.15)] hover:shadow-[0_0_30px_rgba(236,72,153,0.4)] hover:-translate-y-1 overflow-hidden">
-                    <span class="relative z-10 text-xl font-bold flex items-center"><i class="fa-solid fa-earth-americas mr-3 text-pink-400"></i> Español</span>
+                <button onclick="showIntro('es')" class="group relative px-6 py-3 rounded-2xl glass-panel hover:bg-slate-800 border border-slate-500 transition-all shadow-[0_0_20px_rgba(236,72,153,0.15)] hover:shadow-[0_0_30px_rgba(236,72,153,0.4)] hover:-translate-y-1 overflow-hidden">
+                    <span class="relative z-10 text-lg font-bold flex items-center"><i class="fa-solid fa-earth-americas mr-3 text-pink-400"></i> Español</span>
                 </button>
             </div>
         </div>
@@ -142,33 +140,31 @@
             <p id="introText" class="text-lg md:text-xl text-slate-300 leading-relaxed font-light">
                 Our eyes can only see a tiny fraction of the light that surrounds us. This laboratory lets you tune into the full electromagnetic spectrum to discover how different waves interact with matter, how we use them in daily life, and why some are dangerous.
             </p>
-            <div class="pt-8 flex justify-center gap-4">
-                <button onclick="startSimulation()" class="px-10 py-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-xl hover:from-blue-500 hover:to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all transform hover:scale-105 active:scale-95">
+            <div class="pt-6 flex justify-center gap-4">
+                <button onclick="startSimulation()" class="px-8 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg hover:from-blue-500 hover:to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all transform hover:scale-105 active:scale-95">
                     <i class="fa-solid fa-flask mr-3"></i> <span id="startLabBtn">Enter Laboratory</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APPLICATION -->
-    <div id="mainApp" class="w-full max-w-[1400px] mx-auto flex flex-col p-4 md:p-6 lg:p-8 opacity-0 hidden transition-opacity duration-1000 gap-5 lg:gap-6">
+    <!-- MAIN APPLICATION (Vertical Flex Layout) -->
+    <div id="mainApp" class="w-full h-full max-w-[1400px] mx-auto flex flex-col p-3 md:p-4 lg:p-5 opacity-0 hidden transition-opacity duration-1000 gap-3 md:gap-4 overflow-y-auto overflow-x-hidden">
         
         <!-- Row 1: Header, Instructions & Language Selector -->
-        <div class="w-full flex flex-col md:flex-row justify-between items-center md:items-start gap-4">
-            <header class="text-center md:text-left space-y-1">
-                <h1 id="ui-title" class="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+        <div class="w-full flex flex-col md:flex-row justify-between items-center md:items-start shrink-0">
+            <header class="text-center md:text-left space-y-0.5">
+                <h1 id="ui-title" class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
                     Spectrum Tuner
                 </h1>
-                <p id="ui-subtitle" class="text-slate-400 text-sm md:text-base lg:text-lg font-light">Discover the invisible universe. Slide to explore.</p>
+                <p id="ui-subtitle" class="text-slate-400 text-xs md:text-sm font-light">Discover the invisible universe. Slide to explore.</p>
             </header>
             
-            <div class="flex items-center gap-3">
-                <!-- Info Button -->
-                <button onclick="document.getElementById('introScreen').classList.remove('hidden', 'fade-out'); document.getElementById('introScreen').classList.add('fade-in'); document.getElementById('introScreen').style.display = 'flex';" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 text-slate-300 hover:text-white hover:border-blue-400 transition-all duration-300 shadow-lg flex items-center justify-center" title="Instructions">
-                    <i class="fa-solid fa-circle-info text-xl"></i>
+            <div class="flex items-center gap-3 mt-2 md:mt-0">
+                <button onclick="document.getElementById('introScreen').classList.remove('hidden', 'fade-out'); document.getElementById('introScreen').classList.add('fade-in'); document.getElementById('introScreen').style.display = 'flex';" class="w-9 h-9 rounded-full bg-slate-800 border border-slate-600 text-slate-300 hover:text-white hover:border-blue-400 transition-all duration-300 shadow-lg flex items-center justify-center" title="Instructions">
+                    <i class="fa-solid fa-circle-info text-lg"></i>
                 </button>
-                
-                <select id="langSelector" class="bg-slate-800 text-slate-200 border border-slate-600 rounded-lg py-2.5 pl-4 pr-10 outline-none focus:border-blue-400 transition-colors shadow-lg cursor-pointer text-sm font-semibold">
+                <select id="langSelector" class="bg-slate-800 text-slate-200 border border-slate-600 rounded-lg py-1.5 pl-3 pr-8 outline-none focus:border-blue-400 transition-colors shadow-lg cursor-pointer text-xs font-semibold">
                     <option value="en">English</option>
                     <option value="fr">Français</option>
                     <option value="es">Español</option>
@@ -177,110 +173,105 @@
         </div>
 
         <!-- Row 2: General Facts (The Contextual Lens) -->
-        <div class="w-full glass-panel rounded-3xl p-6 lg:p-8 flex flex-col sm:flex-row items-center gap-6 shadow-2xl relative overflow-hidden border border-slate-700/60 min-h-[220px]">
+        <div class="w-full shrink-0 glass-panel rounded-2xl p-4 lg:p-5 flex flex-col sm:flex-row items-center gap-5 shadow-lg relative overflow-hidden border border-slate-700/60">
             <div id="categoryGlow" class="absolute inset-0 opacity-20 transition-colors duration-500 blur-3xl pointer-events-none"></div>
 
             <!-- Icon -->
-            <div class="w-24 h-24 md:w-32 md:h-32 shrink-0 rounded-full flex items-center justify-center bg-slate-800 border-4 border-slate-700 shadow-[0_0_30px_rgba(0,0,0,0.5)] z-10 transition-all duration-300" id="iconContainer">
-                <i id="categoryIcon" class="fa-solid fa-satellite-dish text-5xl md:text-6xl text-slate-300 transition-transform duration-300 transform scale-100"></i>
+            <div class="w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-full flex items-center justify-center bg-slate-800 border-4 border-slate-700 shadow-[0_0_20px_rgba(0,0,0,0.5)] z-10 transition-all duration-300" id="iconContainer">
+                <i id="categoryIcon" class="fa-solid fa-satellite-dish text-4xl md:text-5xl text-slate-300 transition-transform duration-300 transform scale-100"></i>
             </div>
 
             <!-- Description & Content -->
-            <div class="flex-1 flex flex-col h-full justify-center w-full z-10 space-y-4 text-center sm:text-left">
-                <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-                    <h2 id="categoryName" class="text-3xl md:text-4xl font-bold uppercase tracking-widest text-white drop-shadow-md">Radio Waves</h2>
+            <div class="flex-1 flex flex-col h-full justify-center w-full z-10 space-y-3 text-center sm:text-left">
+                <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                    <h2 id="categoryName" class="text-2xl md:text-3xl font-bold uppercase tracking-widest text-white drop-shadow-md">Radio Waves</h2>
                     
-                    <!-- Prominent Toggle Switch -->
-                    <div class="flex bg-slate-900/80 p-1.5 rounded-xl border border-slate-700 shadow-inner w-full xl:w-auto shrink-0">
-                        <button id="btnUtility" class="toggle-btn active-utility flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300">
-                            <i class="fa-solid fa-tools mr-2"></i><span id="ui-btn-utility" class="ml-1">Utility</span>
+                    <!-- Toggle Switch -->
+                    <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700 shadow-inner w-full xl:w-auto shrink-0">
+                        <button id="btnUtility" class="toggle-btn active-utility flex-1 xl:flex-none px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all duration-300">
+                            <i class="fa-solid fa-tools mr-1.5"></i><span id="ui-btn-utility">Utility</span>
                         </button>
-                        <button id="btnSafety" class="toggle-btn inactive flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300">
-                            <i class="fa-solid fa-shield-virus mr-2"></i><span id="ui-btn-safety" class="ml-1">Safety</span>
+                        <button id="btnSafety" class="toggle-btn inactive flex-1 xl:flex-none px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all duration-300">
+                            <i class="fa-solid fa-shield-virus mr-1.5"></i><span id="ui-btn-safety">Safety</span>
                         </button>
                     </div>
                 </div>
 
-                <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-700/50 flex-1 flex items-center shadow-inner overflow-y-auto">
-                    <p id="descriptionText" class="text-slate-200 text-sm md:text-base leading-relaxed font-light">
+                <div class="bg-slate-900/60 p-3 md:p-4 rounded-xl border border-slate-700/50 flex-1 flex items-center shadow-inner">
+                    <p id="descriptionText" class="text-slate-200 text-xs md:text-sm leading-relaxed font-light">
                         <!-- Dynamic Description Goes Here -->
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- Row 3: Data (Wavelength, Frequency, Energy Level & Penetration) -->
-        <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
-            <!-- Wavelength & Scale Card -->
-            <div class="glass-panel rounded-3xl p-5 md:p-6 flex flex-col justify-center relative overflow-hidden border border-slate-700/60 h-full min-h-[140px]">
-                <div class="text-slate-400 text-xs font-bold tracking-wider uppercase flex items-center mb-2">
+        <!-- Row 3: Data Cards -->
+        <div class="w-full shrink-0 grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+            
+            <!-- Wavelength Card -->
+            <div class="glass-panel rounded-2xl p-4 flex flex-col justify-center relative overflow-hidden border border-slate-700/60">
+                <div class="text-slate-400 text-[10px] md:text-xs font-bold tracking-wider uppercase flex items-center mb-1">
                     <i class="fa-solid fa-ruler-horizontal mr-2 text-blue-400"></i> <span id="ui-wavelength">Wavelength (λ)</span>
                 </div>
-                <!-- Reduced size for power of 10 -->
-                <div class="text-2xl md:text-3xl font-mono font-bold text-blue-300 drop-shadow-[0_0_8px_rgba(147,197,253,0.3)]" id="valWavelength">
+                <!-- Smaller power of 10 -->
+                <div class="text-xl md:text-2xl font-mono font-bold text-blue-300 drop-shadow-[0_0_8px_rgba(147,197,253,0.3)]" id="valWavelength">
                     10<sup>4</sup> m
                 </div>
-                <!-- Increased size for human readable SI units -->
-                <div class="text-sm md:text-base font-semibold text-blue-200/80 font-mono mb-4" id="valWavelengthRaw">10,000 meters</div>
+                <!-- Larger SI unit -->
+                <div class="text-sm md:text-base font-semibold text-blue-200 font-mono mb-3" id="valWavelengthRaw">10,000 meters</div>
                 
-                <!-- Intuitive Size Visualization -->
-                <div class="bg-slate-900/80 rounded-xl p-4 flex items-center gap-5 border border-slate-700/50 mt-auto shadow-inner">
-                    <div class="relative flex items-center justify-center w-12 h-12 shrink-0">
+                <!-- Size Indicator -->
+                <div class="bg-slate-900/80 rounded-xl p-2.5 flex items-center gap-4 border border-slate-700/50 mt-auto shadow-inner">
+                    <div class="relative flex items-center justify-center w-10 h-10 shrink-0">
                         <div id="sizePulse" class="absolute inset-0 border-2 border-blue-500/40 rounded-full animate-ping opacity-75"></div>
                         <div class="absolute inset-0 bg-blue-500/10 rounded-full"></div>
-                        <i id="sizeIcon" class="fa-solid fa-mountain text-blue-400 text-2xl relative z-10 transition-transform duration-300"></i>
+                        <i id="sizeIcon" class="fa-solid fa-mountain text-blue-400 text-xl relative z-10 transition-transform duration-300"></i>
                     </div>
                     <div>
-                        <div id="ui-size-text" class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Approx. Scale</div>
-                        <div id="sizeName" class="text-sm md:text-base font-semibold text-slate-200 truncate">Mountain</div>
+                        <div id="ui-size-text" class="text-[9px] uppercase text-slate-500 font-bold tracking-wider">Approx. Scale</div>
+                        <div id="sizeName" class="text-sm font-semibold text-slate-200 truncate">Mountain</div>
                     </div>
                 </div>
             </div>
 
             <!-- Frequency Card -->
-            <div class="glass-panel rounded-3xl p-5 md:p-6 flex flex-col justify-center relative overflow-hidden border border-slate-700/60 h-full min-h-[140px]">
-                <div class="text-slate-400 text-xs font-bold tracking-wider uppercase flex items-center mb-2">
+            <div class="glass-panel rounded-2xl p-4 flex flex-col justify-center relative overflow-hidden border border-slate-700/60">
+                <div class="text-slate-400 text-[10px] md:text-xs font-bold tracking-wider uppercase flex items-center mb-1">
                     <i class="fa-solid fa-wave-square mr-2 text-purple-400"></i> <span id="ui-frequency">Frequency (f)</span>
                 </div>
-                <!-- Reduced size for power of 10 -->
-                <div class="text-2xl md:text-3xl font-mono font-bold text-purple-300 drop-shadow-[0_0_8px_rgba(216,180,254,0.3)]" id="valFrequency">
+                <div class="text-xl md:text-2xl font-mono font-bold text-purple-300 drop-shadow-[0_0_8px_rgba(216,180,254,0.3)]" id="valFrequency">
                     3 x 10<sup>4</sup> Hz
                 </div>
-                <!-- Increased size for human readable SI units -->
-                <div class="text-sm md:text-base font-semibold text-purple-200/80 font-mono" id="valFrequencyRaw">30,000 Hertz</div>
+                <div class="text-sm md:text-base font-semibold text-purple-200 font-mono" id="valFrequencyRaw">30,000 Hertz</div>
             </div>
 
-            <!-- Energy & Penetration Card -->
-            <div class="glass-panel rounded-3xl p-5 md:p-6 flex flex-col justify-center relative overflow-hidden border border-slate-700/60 h-full min-h-[140px]">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="text-slate-400 text-xs font-bold tracking-wider uppercase flex items-center">
+            <!-- Energy & Penetration Gauge Card -->
+            <div class="glass-panel rounded-2xl p-4 flex flex-col justify-center relative overflow-hidden border border-slate-700/60">
+                <div class="flex justify-between items-start mb-1">
+                    <div class="text-slate-400 text-[10px] md:text-xs font-bold tracking-wider uppercase flex items-center">
                         <i class="fa-solid fa-bolt mr-2 text-yellow-400"></i> <span id="ui-energy">Energy Level</span>
                     </div>
-                    <div class="text-sm md:text-base font-bold text-green-400 transition-colors duration-300 text-right" id="valEnergyText">
+                    <div class="text-xs md:text-sm font-bold text-green-400 transition-colors duration-300 text-right" id="valEnergyText">
                         Very Low
                     </div>
                 </div>
                 
                 <!-- Energy Bar -->
-                <div class="w-full bg-slate-900 h-3 rounded-full mb-4 overflow-hidden border border-slate-700 shadow-inner">
+                <div class="w-full bg-slate-900 h-2.5 rounded-full mb-3 overflow-hidden border border-slate-700 shadow-inner">
                     <div id="energyBar" class="bg-gradient-to-r from-green-400 via-yellow-400 to-red-600 h-full w-[5%] transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
                 </div>
 
-                <!-- Gradual Penetration Graph -->
-                <div class="mt-auto pt-3 border-t border-slate-700/50">
-                    <div id="ui-penetration" class="text-[10px] uppercase text-slate-500 font-bold tracking-wider mb-2">Gradual Penetration</div>
+                <div class="mt-auto pt-2 border-t border-slate-700/50">
+                    <div id="ui-penetration" class="text-[9px] uppercase text-slate-500 font-bold tracking-wider mb-1.5">Gradual Penetration</div>
                     
-                    <div class="relative w-full h-5 bg-slate-900 rounded-md border border-slate-700 shadow-inner overflow-hidden">
-                        <!-- Fill Bar -->
+                    <div class="relative w-full h-4 bg-slate-900 rounded border border-slate-700 shadow-inner overflow-hidden">
                         <div id="pen-fill" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-500 w-[10%]"></div>
-                        
-                        <!-- Segment Dividers -->
                         <div class="absolute top-0 left-[25%] w-px h-full bg-slate-800/80 z-10"></div>
                         <div class="absolute top-0 left-[50%] w-px h-full bg-slate-800/80 z-10"></div>
                         <div class="absolute top-0 left-[75%] w-px h-full bg-slate-800/80 z-10"></div>
                     </div>
                     
-                    <div class="flex justify-between text-[9px] md:text-[10px] text-slate-500 uppercase mt-1.5 px-0.5 font-semibold">
+                    <div class="flex justify-between text-[8px] md:text-[9px] text-slate-500 uppercase mt-1 px-0.5 font-semibold">
                         <span id="ui-pen-surface" class="w-1/4 text-left">Surface</span>
                         <span id="ui-pen-tissue" class="w-1/4 text-center">Tissue</span>
                         <span id="ui-pen-bone" class="w-1/4 text-center">Bone</span>
@@ -290,23 +281,38 @@
             </div>
         </div>
 
-        <!-- Row 4: Live Wave Visualization -->
-        <div class="w-full glass-panel rounded-3xl p-5 md:p-6 shadow-xl relative overflow-hidden border border-slate-700/60">
-            <div class="absolute top-4 left-5 text-xs md:text-sm font-bold text-slate-400 uppercase tracking-widest z-10 flex items-center">
-                <i class="fa-solid fa-chart-line mr-2"></i> <span id="ui-wave-vis">Wave Physics</span>
+        <!-- Row 4: Live Wave Visualization (Flex-1 to fill space) -->
+        <div class="w-full flex-1 glass-panel rounded-2xl p-4 shadow-xl relative overflow-hidden border border-slate-700/60 min-h-[160px] flex flex-col">
+            <div class="flex justify-between items-center mb-3">
+                <div class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest z-10 flex items-center">
+                    <i class="fa-solid fa-chart-line mr-2"></i> <span id="ui-wave-vis">Wave Physics</span>
+                </div>
+                
+                <!-- Play/Pause Controls -->
+                <button id="btnPauseWave" class="z-20 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 px-3 py-1 rounded text-[10px] md:text-xs font-bold border border-slate-600 transition-colors shadow flex items-center gap-1.5">
+                    <i id="pauseIcon" class="fa-solid fa-pause"></i> <span id="ui-btn-pause">Pause</span>
+                </button>
             </div>
-            <div class="w-full h-32 md:h-44 mt-6 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 relative shadow-inner">
+
+            <!-- Canvas Wrapper -->
+            <div class="flex-1 w-full rounded-xl overflow-hidden bg-slate-950 border border-slate-800 relative shadow-inner">
                 <div id="waveCanvasGlow" class="absolute inset-0 opacity-20 blur-2xl transition-colors duration-300 pointer-events-none"></div>
-                <canvas id="waveCanvas" class="w-full h-full relative z-10"></canvas>
+                
+                <!-- Adaptive Grid Scale Overlay -->
+                <div class="absolute bottom-2 right-3 z-20 text-[10px] md:text-xs font-mono font-bold text-slate-400 bg-slate-900/80 px-2 py-1 rounded border border-slate-700 shadow pointer-events-none">
+                    <span id="ui-grid-scale">Grid Spacing:</span> <span id="valGridScale" class="text-blue-300">10 m</span>
+                </div>
+
+                <canvas id="waveCanvas" class="w-full h-full relative z-10 block"></canvas>
             </div>
         </div>
 
         <!-- Row 5: The Interactive Spectral Slider -->
-        <div class="w-full glass-panel rounded-3xl p-6 md:p-8 shadow-xl border border-slate-700/60 relative mb-4">
-            <div class="relative w-full z-20 pt-2">
+        <div class="w-full shrink-0 glass-panel rounded-2xl p-4 md:p-5 shadow-xl border border-slate-700/60 relative">
+            <div class="relative w-full z-20 pt-1">
                 <input type="range" min="0" max="100" value="0" step="0.1" id="spectrumSlider">
                 <!-- Dynamic Markers Container -->
-                <div id="sliderMarkers" class="relative w-full h-10 mt-4 z-10 flex text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider"></div>
+                <div id="sliderMarkers" class="relative w-full h-8 mt-3 z-10 flex text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-wider"></div>
             </div>
         </div>
     </div>
@@ -330,7 +336,9 @@
                 units: { meters: "meters", hertz: "Hertz", khz: "kHz", mhz: "MHz", ghz: "GHz", thz: "THz", ehf: "Extremely High Freq." },
                 uiPenetration: "Gradual Penetration",
                 penSurface: "Surface", penTissue: "Tissue", penBone: "Bone", penLead: "Lead",
-                sizeText: "Approx. Scale"
+                sizeText: "Approx. Scale",
+                pause: "Pause", play: "Play",
+                gridScale: "Grid Spacing:"
             },
             fr: {
                 title: "Syntoniseur de Spectre",
@@ -348,7 +356,9 @@
                 units: { meters: "mètres", hertz: "Hertz", khz: "kHz", mhz: "MHz", ghz: "GHz", thz: "THz", ehf: "Fréq. Extrêmement Haute" },
                 uiPenetration: "Pénétration Graduelle",
                 penSurface: "Surface", penTissue: "Tissus", penBone: "Os", penLead: "Plomb",
-                sizeText: "Échelle approx."
+                sizeText: "Échelle approx.",
+                pause: "Pause", play: "Lecture",
+                gridScale: "Grille:"
             },
             es: {
                 title: "Sintonizador de Espectro",
@@ -366,7 +376,9 @@
                 units: { meters: "metros", hertz: "Hertz", khz: "kHz", mhz: "MHz", ghz: "GHz", thz: "THz", ehf: "Frec. Extremadamente Alta" },
                 uiPenetration: "Penetración Gradual",
                 penSurface: "Superficie", penTissue: "Tejido", penBone: "Hueso", penLead: "Plomo",
-                sizeText: "Escala Aprox."
+                sizeText: "Escala Aprox.",
+                pause: "Pausa", play: "Jugar",
+                gridScale: "Cuadrícula:"
             }
         };
 
@@ -489,6 +501,8 @@
         let currentLang = 'en';
         let currentMode = 'utility';
         const SPEED_OF_LIGHT = 299792458;
+        
+        let isPaused = false;
 
         // --- DOM Elements ---
         const slider = document.getElementById('spectrumSlider');
@@ -500,6 +514,10 @@
         let waveTime = 0;
         let currentWavelength = 150; 
         let targetWavelength = 150;
+        
+        // Physics Engine track variable for Grid
+        let realWavelengthTarget = 10000;
+        let smoothedRealWavelength = 10000;
 
         function resizeCanvas() {
             const rect = waveCanvas.parentElement.getBoundingClientRect();
@@ -508,6 +526,16 @@
             waveCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
         }
         window.addEventListener('resize', resizeCanvas);
+
+        function formatGridScale(valInMeters) {
+            if (valInMeters >= 1000) return (valInMeters/1000) + " km";
+            if (valInMeters >= 1) return valInMeters + " m";
+            if (valInMeters >= 0.01) return (valInMeters * 100) + " cm";
+            if (valInMeters >= 0.001) return (valInMeters * 1000) + " mm";
+            if (valInMeters >= 1e-6) return (valInMeters * 1e6) + " µm";
+            if (valInMeters >= 1e-9) return (valInMeters * 1e9) + " nm";
+            return (valInMeters * 1e12) + " pm";
+        }
 
         function drawMainWave() {
             const w = waveCanvas.width / (window.devicePixelRatio || 1);
@@ -518,12 +546,47 @@
 
             // Canvas Math Setup
             currentWavelength += (targetWavelength - currentWavelength) * 0.1;
+            smoothedRealWavelength += (realWavelengthTarget - smoothedRealWavelength) * 0.1;
             
             // Fixed base amplitude constraint to stay well within limits
             const amplitude = (h / 2) - 15;
 
+            // --- Adaptive Grid Calculation ---
+            // Calculate how many pixels represent 1 real-world meter
+            let pixelsPerMeter = currentWavelength / smoothedRealWavelength;
+            
+            // Find a power of 10 that creates grid lines spaced reasonably apart (e.g. 30px to 300px)
+            let bestN = 0;
+            for (let i = -15; i <= 6; i++) {
+                let spacing = Math.pow(10, i) * pixelsPerMeter;
+                if (spacing >= 30 && spacing < 300) {
+                    bestN = i;
+                    break;
+                }
+            }
+            
+            const gridSpacingPx = Math.pow(10, bestN) * pixelsPerMeter;
+            const realGridDistance = Math.pow(10, bestN);
+            
+            // Update Grid Overlay UI
+            document.getElementById('valGridScale').innerText = formatGridScale(realGridDistance);
+
+            // Draw Background Grid (Faint)
+            if(gridSpacingPx > 5) { // safety check
+                waveCtx.beginPath();
+                waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                waveCtx.lineWidth = 1;
+                
+                // Draw vertical grid lines (static to frame to evaluate wavelength)
+                for (let x = 0; x <= w; x += gridSpacingPx) {
+                    waveCtx.moveTo(x, 0);
+                    waveCtx.lineTo(x, h);
+                }
+                waveCtx.stroke();
+            }
+
             // Draw center axis line
-            waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
             waveCtx.lineWidth = 1;
             waveCtx.beginPath();
             waveCtx.moveTo(0, midY); waveCtx.lineTo(w, midY);
@@ -538,7 +601,6 @@
 
             for (let x = 0; x < w; x++) {
                 const y = midY + Math.sin((x / currentWavelength) - waveTime) * amplitude;
-                
                 if (x === 0) waveCtx.moveTo(x, y);
                 else waveCtx.lineTo(x, y);
             }
@@ -547,7 +609,9 @@
 
             // v = c physics logic for horizontal translation speed
             const VISUAL_C = 8; 
-            waveTime += VISUAL_C / Math.max(currentWavelength, 1);
+            if(!isPaused) {
+                waveTime += VISUAL_C / Math.max(currentWavelength, 1);
+            }
 
             requestAnimationFrame(drawMainWave);
         }
@@ -655,7 +719,8 @@
                 'ui-btn-safety': 'btnSafety', 'ui-wave-vis': 'waveVis', 'ui-wavelength': 'wavelength',
                 'ui-frequency': 'frequency', 'ui-energy': 'energy', 
                 'ui-penetration': 'uiPenetration', 'ui-pen-surface': 'penSurface', 'ui-pen-tissue': 'penTissue',
-                'ui-pen-bone': 'penBone', 'ui-pen-lead': 'penLead', 'ui-size-text': 'sizeText'
+                'ui-pen-bone': 'penBone', 'ui-pen-lead': 'penLead', 'ui-size-text': 'sizeText',
+                'ui-grid-scale': 'gridScale'
             };
 
             for (const [id, key] of Object.entries(map)) {
@@ -667,6 +732,9 @@
                 const lbl = document.getElementById(`label-${cat.id}`);
                 if(lbl) lbl.innerText = cat.name[currentLang];
             });
+            
+            // Translate Pause button text dynamically based on current state
+            document.getElementById('ui-btn-pause').innerText = isPaused ? dict.play : dict.pause;
 
             updateUI();
         }
@@ -694,8 +762,11 @@
             const wavelength = Math.pow(10, exponent);
             const frequency = SPEED_OF_LIGHT / wavelength;
 
-            // Target wavelength canvas sizing (smooth transition)
-            targetWavelength = 180 - (val / 100) * 165; 
+            // Engine Physics tracking
+            realWavelengthTarget = wavelength;
+
+            // Target wavelength canvas sizing (smooth transition). Very tight for Gamma.
+            targetWavelength = 180 - (val / 100) * 177; // Maxval=100 gives wavelength=3 (very dense)
 
             // Wavelength UI
             const waveSci = formatScientific(wavelength);
@@ -710,11 +781,11 @@
             
             const elSizeIcon = document.getElementById('sizeIcon');
             if(elSizeIcon.dataset.lastIcon !== scaleObj.icon) {
-                elSizeIcon.className = `fa-solid ${scaleObj.icon} text-blue-400 text-3xl relative z-10 transition-transform duration-300 transform scale-125`;
+                elSizeIcon.className = `fa-solid ${scaleObj.icon} text-blue-400 text-xl relative z-10 transition-transform duration-300 transform scale-125`;
                 setTimeout(() => elSizeIcon.classList.remove('scale-125'), 150);
                 elSizeIcon.dataset.lastIcon = scaleObj.icon;
             } else {
-                elSizeIcon.className = `fa-solid ${scaleObj.icon} text-blue-400 text-3xl relative z-10 transition-transform duration-300`;
+                elSizeIcon.className = `fa-solid ${scaleObj.icon} text-blue-400 text-xl relative z-10 transition-transform duration-300`;
             }
             document.getElementById('sizeName').innerText = scaleObj.name[currentLang];
 
@@ -734,19 +805,19 @@
             const elValEnergyText = document.getElementById('valEnergyText');
 
             if (val < 20) { 
-                elValEnergyText.className = "text-sm font-bold text-green-400"; elValEnergyText.innerText = dict.energyLevels[0]; 
+                elValEnergyText.className = "text-xs md:text-sm font-bold text-green-400"; elValEnergyText.innerText = dict.energyLevels[0]; 
             }
             else if (val < 45) { 
-                elValEnergyText.className = "text-sm font-bold text-green-300"; elValEnergyText.innerText = dict.energyLevels[1]; 
+                elValEnergyText.className = "text-xs md:text-sm font-bold text-green-300"; elValEnergyText.innerText = dict.energyLevels[1]; 
             }
             else if (val < 55) { 
-                elValEnergyText.className = "text-sm font-bold text-yellow-400"; elValEnergyText.innerText = dict.energyLevels[2]; 
+                elValEnergyText.className = "text-xs md:text-sm font-bold text-yellow-400"; elValEnergyText.innerText = dict.energyLevels[2]; 
             }
             else if (val < 70) { 
-                elValEnergyText.className = "text-sm font-bold text-orange-500"; elValEnergyText.innerText = dict.energyLevels[3]; 
+                elValEnergyText.className = "text-xs md:text-sm font-bold text-orange-500"; elValEnergyText.innerText = dict.energyLevels[3]; 
             }
             else { 
-                elValEnergyText.className = "text-sm font-bold text-red-500"; elValEnergyText.innerText = dict.energyLevels[4]; 
+                elValEnergyText.className = "text-xs md:text-sm font-bold text-red-500"; elValEnergyText.innerText = dict.energyLevels[4]; 
             }
 
             // Penetration Gauge Logic
@@ -822,21 +893,38 @@
 
         btnUtility.addEventListener('click', () => {
             currentMode = 'utility';
-            btnUtility.className = "toggle-btn active-utility flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300";
-            btnSafety.className = "toggle-btn inactive flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300";
+            btnUtility.className = "toggle-btn active-utility flex-1 xl:flex-none px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all duration-300";
+            btnSafety.className = "toggle-btn inactive flex-1 xl:flex-none px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all duration-300";
             updateUI();
         });
 
         btnSafety.addEventListener('click', () => {
             currentMode = 'safety';
-            btnSafety.className = "toggle-btn active-safety flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300";
-            btnUtility.className = "toggle-btn inactive flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300";
+            btnSafety.className = "toggle-btn active-safety flex-1 xl:flex-none px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all duration-300";
+            btnUtility.className = "toggle-btn inactive flex-1 xl:flex-none px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all duration-300";
             updateUI();
         });
 
         document.getElementById('langSelector').addEventListener('change', (e) => {
             currentLang = e.target.value;
             applyTranslations();
+        });
+        
+        // Pause Button logic
+        document.getElementById('btnPauseWave').addEventListener('click', () => {
+            isPaused = !isPaused;
+            const dict = I18N[currentLang];
+            document.getElementById('ui-btn-pause').innerText = isPaused ? dict.play : dict.pause;
+            document.getElementById('pauseIcon').className = isPaused ? "fa-solid fa-play" : "fa-solid fa-pause";
+            
+            const btn = document.getElementById('btnPauseWave');
+            if(isPaused) {
+                btn.classList.add('bg-blue-600/80', 'text-white');
+                btn.classList.remove('bg-slate-800/80', 'text-slate-400');
+            } else {
+                btn.classList.remove('bg-blue-600/80', 'text-white');
+                btn.classList.add('bg-slate-800/80', 'text-slate-400');
+            }
         });
 
         function initSliderMarkers() {
@@ -856,7 +944,7 @@
                 segment.appendChild(tick);
                 
                 const label = document.createElement('span');
-                label.className = "text-[7px] sm:text-[9px] md:text-[11px] text-slate-500 truncate px-1 transition-all duration-300 w-full text-center origin-top";
+                label.className = "text-[7px] sm:text-[9px] md:text-[10px] text-slate-500 truncate px-1 transition-all duration-300 w-full text-center origin-top";
                 label.id = `label-${cat.id}`;
                 label.innerText = cat.name[currentLang];
                 
