@@ -410,6 +410,7 @@
             const smallBirdsRef = useRef([]);
             const rabbitsRef = useRef([]);
             const deersRef = useRef([]);
+            const lonelyBucksRef = useRef([]);
             const wolfRef = useRef(null);
             
             // Fixed Terrain calculation matching rotated plane geometry: world Z maps back to local Y (negated due to rotation)
@@ -472,18 +473,6 @@
                 const scene = new THREE.Scene();
                 sceneRef.current = scene;
 
-                const getNextSkyTarget = (currentY = 18) => {
-                    const radius = 20 + Math.random() * 35;
-                    const angle = Math.random() * Math.PI * 2;
-                    let newY = currentY + (Math.random() - 0.5) * 8; 
-                    newY = Math.max(12, Math.min(28, newY)); // Smooth altitude bounds
-                    return new THREE.Vector3(
-                        Math.cos(angle) * radius,
-                        newY,
-                        Math.sin(angle) * radius
-                    );
-                };
-
                 const vertexShader = `varying vec3 vWorldPosition; void main() { vec4 worldPosition = modelMatrix * vec4( position, 1.0 ); vWorldPosition = worldPosition.xyz; gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); }`;
                 const fragmentShader = `uniform vec3 topColor; uniform vec3 bottomColor; uniform float offset; uniform float exponent; varying vec3 vWorldPosition; void main() { float h = normalize( vWorldPosition + vec3(0.0, offset, 0.0) ).y; gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h, 0.0 ), exponent ), 0.0 ) ), 1.0 ); }`;
                 const skyMat = new THREE.ShaderMaterial({ uniforms: { topColor: { value: new THREE.Color(0x0a1a3a) }, bottomColor: { value: new THREE.Color(0x87CEEB) }, offset: { value: 0.0 }, exponent: { value: 0.85 } }, vertexShader, fragmentShader, side: THREE.BackSide, depthWrite: false });
@@ -537,6 +526,7 @@
                 const smallBirds = [];
                 const rabbits = [];
                 const deers = [];
+                const lonelyBucks = [];
 
                 if (isElem) {
                     const groundGeo = new THREE.PlaneGeometry(130, 130, 60, 60); const pos = groundGeo.attributes.position; const colors = []; const baseColor = new THREE.Color();
@@ -939,6 +929,25 @@
                         d.hopPhase = 0; d.walkPhase = Math.random() * Math.PI; d.timer = Math.random() * 50; d.state = 'GRAZE';
                     });
                     deersRef.current = deerFamily;
+
+                    // Add Lonely Bucks
+                    const lBuck1 = createDeer('buck', 1.2 * 1.3);
+                    const lBuck2 = createDeer('buck', 1.2 * 1.3);
+                    const isolatedBucks = [
+                        { id: 'lonely1', ...lBuck1, isFleeing: false },
+                        { id: 'lonely2', ...lBuck2, isFleeing: false }
+                    ];
+                    isolatedBucks.forEach(b => {
+                        const startAngle = Math.random() * Math.PI * 2;
+                        const startDist = 30 + Math.random() * 20;
+                        b.x = Math.cos(startAngle) * startDist;
+                        b.z = Math.sin(startAngle) * startDist;
+                        b.angle = Math.random() * Math.PI * 2;
+                        b.hopPhase = 0; b.walkPhase = Math.random() * Math.PI; b.timer = Math.random() * 50; b.state = 'GRAZE';
+                        b.speed = 0;
+                        scene.add(b.mesh);
+                    });
+                    lonelyBucksRef.current = isolatedBucks;
 
                     // --- ADD LOW POLY WOLF ---
                     const wolfMat = new THREE.MeshStandardMaterial({ color: 0x4b5563, roughness: 0.9, flatShading: true }); 
@@ -1361,10 +1370,15 @@
                         });
 
                         rabbitsRef.current.forEach(r => {
-                            if (w) {
+                            if (w && w.state !== 'STOPPED') {
                                 const distW = Math.sqrt(Math.pow(r.x - w.x, 2) + Math.pow(r.z - w.z, 2));
-                                if (distW < 10) r.isFleeing = true;
-                                else if (distW > 50) r.isFleeing = false;
+                                if (distW < 10 && !r.isFleeing) {
+                                    r.isFleeing = true;
+                                    w.state = 'STOPPED';
+                                    w.timer = 300; 
+                                } else if (distW > 50) {
+                                    r.isFleeing = false;
+                                }
                             }
 
                             if (r.isFleeing && w) {
@@ -1414,42 +1428,154 @@
                         });
 
                         if (w) {
-                            if (w.timer <= 0) {
-                                if (Math.random() > 0.3) {
+                            if (w.state === 'STOPPED') {
+                                w.timer--;
+                                if (w.timer <= 0) {
                                     w.state = 'WALK';
-                                    w.timer = 150 + Math.random() * 200;
-                                    w.speed = 0.03 + Math.random() * 0.02;
-                                    w.angle += (Math.random() - 0.5) * 1.5;
-                                } else {
-                                    w.state = 'IDLE';
-                                    w.timer = 80 + Math.random() * 100;
+                                    w.timer = 150;
                                 }
-                            }
-                            w.timer--;
-                            
-                            if (w.state === 'WALK') {
-                                w.walkPhase += 0.2;
-                                w.x += Math.cos(w.angle) * w.speed;
-                                w.z += Math.sin(w.angle) * w.speed;
-                                const dist = Math.sqrt(w.x*w.x + w.z*w.z);
-                                if (dist < 18 || dist > 60) w.angle += Math.PI;
-                                w.mesh.position.y = getTerrainY(w.x, w.z) + Math.abs(Math.sin(w.walkPhase))*0.05;
-                            } else {
                                 w.mesh.position.y = getTerrainY(w.x, w.z);
+                            } else {
+                                let closestPrey = null;
+                                let minDist = Infinity;
+                                
+                                const checkPrey = (prey) => {
+                                    const dist = Math.sqrt(Math.pow(prey.x - w.x, 2) + Math.pow(prey.z - w.z, 2));
+                                    if (dist < minDist) {
+                                        minDist = dist;
+                                        closestPrey = prey;
+                                    }
+                                };
+                                
+                                rabbitsRef.current.forEach(checkPrey);
+                                const deerList = Array.isArray(deersRef.current) ? deersRef.current : [];
+                                deerList.forEach(checkPrey);
+                                const lonelyBuckList = Array.isArray(lonelyBucksRef.current) ? lonelyBucksRef.current : [];
+                                lonelyBuckList.forEach(checkPrey);
+
+                                if (closestPrey && minDist < 40) {
+                                    w.state = 'CHASE';
+                                    const targetAngle = Math.atan2(closestPrey.z - w.z, closestPrey.x - w.x);
+                                    const angleDiff = targetAngle - w.angle;
+                                    w.angle += Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff)) * 0.05;
+                                    
+                                    if (minDist < 20) {
+                                        w.speed = 0.08; 
+                                        w.walkPhase += 0.4;
+                                    } else {
+                                        w.speed = 0.04;
+                                        w.walkPhase += 0.2;
+                                    }
+                                } else {
+                                    if (w.timer <= 0) {
+                                        if (Math.random() > 0.3) {
+                                            w.state = 'WALK';
+                                            w.timer = 150 + Math.random() * 200;
+                                            w.speed = 0.03 + Math.random() * 0.02;
+                                            w.angle += (Math.random() - 0.5) * 1.5;
+                                        } else {
+                                            w.state = 'IDLE';
+                                            w.timer = 80 + Math.random() * 100;
+                                        }
+                                    }
+                                    w.timer--;
+                                    if (w.state === 'WALK') w.walkPhase += 0.2;
+                                }
+                                
+                                if (w.state === 'WALK' || w.state === 'CHASE') {
+                                    w.x += Math.cos(w.angle) * w.speed;
+                                    w.z += Math.sin(w.angle) * w.speed;
+                                    const dist = Math.sqrt(w.x*w.x + w.z*w.z);
+                                    if (dist < 18 || dist > 60) w.angle += Math.PI;
+                                    w.mesh.position.y = getTerrainY(w.x, w.z) + Math.abs(Math.sin(w.walkPhase))*0.05;
+                                } else {
+                                    w.mesh.position.y = getTerrainY(w.x, w.z);
+                                }
                             }
                             w.mesh.rotation.y = -w.angle + Math.PI/2;
                             w.mesh.position.x = w.x;
                             w.mesh.position.z = w.z;
                         }
 
+                        const lonelyBuckList = Array.isArray(lonelyBucksRef.current) ? lonelyBucksRef.current : [];
+                        lonelyBuckList.forEach(b => {
+                            if (w && w.state !== 'STOPPED') {
+                                const distW = Math.sqrt(Math.pow(b.x - w.x, 2) + Math.pow(b.z - w.z, 2));
+                                if (distW < 10 && !b.isFleeing) {
+                                    b.isFleeing = true;
+                                    w.state = 'STOPPED';
+                                    w.timer = 300; 
+                                } else if (distW > 50) {
+                                    b.isFleeing = false;
+                                }
+                            }
+
+                            if (b.isFleeing && w) {
+                                b.state = 'FLEE';
+                                b.speed = 0.15;
+                                b.angle = Math.atan2(b.z - w.z, b.x - w.x);
+                            } else {
+                                if (b.timer <= 0) {
+                                    const rValue = Math.random();
+                                    if (rValue < 0.4) {
+                                        b.state = 'GRAZE'; b.timer = 100 + Math.random() * 200; b.speed = 0;
+                                    } else if (rValue < 0.8) {
+                                        b.state = 'WALK'; b.timer = 60 + Math.random() * 100; b.speed = 0.02 + Math.random() * 0.02; b.angle += (Math.random() - 0.5) * 1.5;
+                                    } else {
+                                        b.state = 'HOP'; b.timer = 30 + Math.random() * 50; b.speed = 0.06 + Math.random() * 0.04; b.angle += (Math.random() - 0.5) * 1.5;
+                                    }
+                                }
+                                b.timer--;
+                            }
+
+                            if (b.state !== 'GRAZE') {
+                                b.x += Math.cos(b.angle) * b.speed;
+                                b.z += Math.sin(b.angle) * b.speed;
+                                const dist = Math.sqrt(b.x*b.x + b.z*b.z);
+                                if (dist < 18 || dist > 60) {
+                                    if (b.state === 'FLEE') b.angle += Math.PI / 2;
+                                    else b.angle += Math.PI; 
+                                    b.x += Math.cos(b.angle) * 1.0;
+                                    b.z += Math.sin(b.angle) * 1.0;
+                                }
+                            }
+
+                            let yOffset = 0;
+                            let targetNeckX = 0;
+
+                            if (b.state === 'GRAZE') {
+                                targetNeckX = Math.PI / 2.5;
+                            } else if (b.state === 'WALK') {
+                                targetNeckX = 0.2 + Math.sin(b.walkPhase) * 0.1; 
+                                b.walkPhase += 0.15;
+                                yOffset = Math.abs(Math.sin(b.walkPhase)) * 0.05 * b.sc;
+                            } else if (b.state === 'HOP' || b.state === 'FLEE') {
+                                targetNeckX = -0.1; 
+                                b.hopPhase += b.state === 'FLEE' ? 0.4 : 0.2;
+                                if (b.hopPhase > Math.PI) b.hopPhase = 0;
+                                yOffset = Math.sin(b.hopPhase) * (b.state === 'FLEE' ? 0.8 : 0.5) * b.sc; 
+                            }
+
+                            b.neckPivot.rotation.x += (targetNeckX - b.neckPivot.rotation.x) * 0.1;
+                            b.mesh.rotation.y = -b.angle + Math.PI / 2;
+                            b.mesh.position.x = b.x;
+                            b.mesh.position.z = b.z;
+                            b.mesh.position.y = getTerrainY(b.x, b.z) + yOffset;
+                        });
+
                         const deerList = Array.isArray(deersRef.current) ? deersRef.current : [];
                         if (deerList.length > 0) {
                             const leader = deerList.find(d => d.isLeader) || deerList[0];
                             
-                            if (w) {
+                            if (w && w.state !== 'STOPPED') {
                                 const distToWolf = Math.sqrt(Math.pow(leader.x - w.x, 2) + Math.pow(leader.z - w.z, 2));
-                                if (distToWolf < 10) leader.isFleeing = true;
-                                else if (distToWolf > 50) leader.isFleeing = false;
+                                if (distToWolf < 10 && !leader.isFleeing) {
+                                    leader.isFleeing = true;
+                                    w.state = 'STOPPED';
+                                    w.timer = 300; 
+                                } else if (distToWolf > 50) {
+                                    leader.isFleeing = false;
+                                }
                             }
 
                             if (leader.isFleeing && w) {
@@ -1485,10 +1611,15 @@
 
                             deerList.forEach(d => {
                                 if (!d.isLeader) {
-                                    if (w) {
+                                    if (w && w.state !== 'STOPPED') {
                                         const distW = Math.sqrt(Math.pow(d.x - w.x, 2) + Math.pow(d.z - w.z, 2));
-                                        if (distW < 10) d.isFleeing = true;
-                                        else if (distW > 50) d.isFleeing = false;
+                                        if (distW < 10 && !d.isFleeing) {
+                                            d.isFleeing = true;
+                                            w.state = 'STOPPED';
+                                            w.timer = 300;
+                                        } else if (distW > 50) {
+                                            d.isFleeing = false;
+                                        }
                                     }
 
                                     let targetX, targetZ;
