@@ -3,453 +3,546 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The AI Architect | AI Consulting for Educators</title>
-    
-    <!-- Fonts: Merriweather for academic/institutional headings, Inter for clean body text -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <title>AI-Powered Interactive Simulations | Centre de Simulations Interactives</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Merriweather', 'serif'],
-                    },
                     colors: {
                         brand: {
-                            50: '#f0f4f8',
-                            100: '#d9e2ec',
-                            500: '#243b53',
-                            700: '#102a43',
-                            900: '#0b1c2c',
-                        },
-                        accent: {
-                            500: '#00838f',
-                            600: '#006064',
+                            50: '#fdf8f6',
+                            100: '#f2e8e5',
+                            500: '#d97706', /* Warm Amber for Indigenous accents */
+                            600: '#b45309',
+                            800: '#1e293b', /* Slate Primary */
+                            900: '#0f172a',
                         }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-    
+    <!-- Google Fonts for professional look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        /* Language Toggle Logic */
-        .lang-fr .en { display: none !important; }
-        body:not(.lang-fr) .fr { display: none !important; }
-        
-        /* Smooth transitions for the toggle */
-        #langToggle { transition: all 0.2s ease; }
-        #langToggle:hover { transform: scale(1.05); }
+        .font-serif-lux {
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+        .font-sans-lux {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
     </style>
 </head>
-<body class="font-sans text-gray-800 bg-brand-50 flex flex-col min-h-screen selection:bg-accent-500 selection:text-white transition-colors duration-300">
+<body class="bg-slate-50 text-slate-800 font-sans-lux selection:bg-amber-100 selection:text-amber-900 flex flex-col min-h-screen">
 
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Logo -->
-                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer">
-                    <div class="w-10 h-10 bg-brand-700 rounded-lg flex items-center justify-center text-white text-xl shadow-inner">
-                        <i class="fa-solid fa-brain"></i>
-                    </div>
-                    <span class="font-serif font-bold text-2xl text-brand-700 tracking-tight">The AI Architect<span class="text-accent-500">.</span></span>
+    <!-- LANGUAGE & CONFIGURATION STATE (Handled via dynamic JavaScript rendering) -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand / Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-brand-800 rounded-xl flex items-center justify-center text-amber-400 font-bold text-xl shadow-md shadow-slate-900/10">
+                    💡
                 </div>
-                
-                <!-- Desktop Navigation -->
-                <nav class="hidden md:flex space-x-8">
-                    <a href="#" class="text-brand-500 hover:text-accent-500 px-3 py-2 text-sm font-medium transition-colors">
-                        <span class="en">Home</span><span class="fr">Accueil</span>
-                    </a>
-                    <a href="#purpose" class="text-brand-500 hover:text-accent-500 px-3 py-2 text-sm font-medium transition-colors">
-                        <span class="en">Consulting & Purpose</span><span class="fr">Conseil & Objectif</span>
-                    </a>
-                    <a href="#simulations" class="text-brand-500 hover:text-accent-500 px-3 py-2 text-sm font-medium transition-colors">
-                        <span class="en">Bonus Simulations</span><span class="fr">Simulations Bonus</span>
-                    </a>
-                    <a href="#" class="text-brand-500 hover:text-accent-500 px-3 py-2 text-sm font-medium transition-colors">
-                        <span class="en">Resources</span><span class="fr">Ressources</span>
-                    </a>
-                </nav>
+                <div>
+                    <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Interactive<span class="text-amber-600">Sims</span></h1>
+                    <p class="text-xs text-slate-500 font-medium tracking-wide uppercase" id="nav-subtitle">Interactive Pedagogy</p>
+                </div>
+            </div>
 
-                <!-- Actions Container (Lang Toggle + CTA) -->
-                <div class="flex items-center gap-4">
-                    <!-- Language Switcher -->
-                    <button id="langToggle" class="flex items-center gap-2 text-brand-500 hover:text-brand-900 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-full text-sm font-bold border border-brand-100 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2">
-                        <i class="fa-solid fa-globe text-accent-500"></i>
-                        <span class="en">FR</span>
-                        <span class="fr">EN</span>
+            <!-- Language Switcher & Navigation -->
+            <div class="flex items-center space-x-4">
+                <span class="text-sm font-medium text-slate-400 hidden sm:inline" id="lang-label">Language / Langue :</span>
+                <div class="bg-slate-100 p-1 rounded-full flex items-center relative">
+                    <button id="btn-en" onclick="setLanguage('en')" class="px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 bg-brand-800 text-white shadow-sm">
+                        ENGLISH
                     </button>
-
-                    <!-- CTA Button -->
-                    <div class="hidden md:flex">
-                        <a href="#purpose" class="bg-brand-700 hover:bg-brand-900 text-white px-5 py-2.5 rounded-md text-sm font-medium transition-all shadow-md hover:shadow-lg">
-                            <span class="en">Book a Workshop</span><span class="fr">Réserver un Atelier</span>
-                        </a>
-                    </div>
-
-                    <!-- Mobile menu button -->
-                    <div class="md:hidden flex items-center">
-                        <button class="text-brand-500 hover:text-brand-700 focus:outline-none">
-                            <i class="fa-solid fa-bars text-2xl"></i>
-                        </button>
-                    </div>
+                    <button id="btn-fr" onclick="setLanguage('fr')" class="px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 text-slate-600 hover:text-slate-900">
+                        FRANÇAIS
+                    </button>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-grow">
-        <section class="relative bg-brand-700 text-white overflow-hidden">
-            <!-- Decorative Background Elements -->
-            <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none opacity-20">
-                <svg class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] text-brand-500 animate-[spin_60s_linear_infinite]" fill="currentColor" viewBox="0 0 100 100">
-                    <polygon points="50,0 100,25 100,75 50,100 0,75 0,25" />
-                </svg>
-                <svg class="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] text-accent-500 animate-[spin_40s_linear_infinite_reverse]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" />
-                    <circle cx="50" cy="50" r="30" />
-                </svg>
-            </div>
+    <!-- HERO SECTION -->
+    <section class="relative bg-brand-800 text-white py-16 sm:py-24 overflow-hidden">
+        <!-- Abstract glowing background blobs -->
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-10 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-24 md:py-32 lg:py-40 flex flex-col items-center text-center">
-                <span class="text-accent-500 font-semibold tracking-wider uppercase text-sm mb-4 border border-accent-500/30 bg-accent-500/10 px-4 py-1.5 rounded-full">
-                    <span class="en">AI Consulting For Educators</span><span class="fr">Conseil en IA pour les Éducateurs</span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl">
+                <!-- Multilingual Badge -->
+                <span class="inline-flex items-center space-x-2 bg-amber-500/15 border border-amber-500/30 text-amber-300 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-6 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 11.37 7.31 16.5 1 18.5"></path></svg>
+                    <span id="multilingual-badge">Multilingual Classrooms Supported</span>
                 </span>
+
+                <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-none mb-6 font-serif-lux" id="hero-title">
+                    Empowering Educators Through <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500">AI-Guided</span> Inquiry
+                </h2>
                 
-                <!-- Elegant Text Rotator (Without "Unlock" phrase) -->
-                <div class="relative w-full max-w-4xl flex items-center justify-center h-[160px] sm:h-[140px] md:h-[160px] lg:h-[180px] mb-6">
-                    <h1 id="hero-rotator" class="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-tight absolute w-full px-4" style="opacity: 1; transform: translateY(0);">
-                        <span class="en">Bridging the Gap Between <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">AI</span> and the Classroom</span>
-                        <span class="fr">Combler le Fossé Entre l'<span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">IA</span> et la Classe</span>
-                    </h1>
-                </div>
-                
-                <p class="text-brand-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed font-light en">
-                    We help teachers and educational institutions discover the power of Artificial Intelligence. Through our webinars, conferences, and workshops, learn to use your time wisely and elevate your classroom.
+                <p class="text-lg sm:text-xl text-slate-300 font-light leading-relaxed mb-8" id="hero-desc">
+                    Welcome to a curated repository of interactive, web-based simulations designed to inspire student inquiry. Created using generative AI, these tools bridge rigorous scientific theories with curriculum expectations and inclusive paradigms, including Indigenous worldviews. Built with modern, global classrooms in mind, every simulation is optimized for bilingual and international curricula.
                 </p>
-                <p class="text-brand-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed font-light fr">
-                    Nous aidons les enseignants et les institutions à découvrir la puissance de l'Intelligence Artificielle. Grâce à nos webinaires, conférences et ateliers, apprenez à utiliser votre temps judicieusement et à élever votre enseignement.
-                </p>
-                
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <a href="#purpose" class="bg-white text-brand-700 hover:bg-brand-50 px-8 py-3.5 rounded-md text-base font-medium transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                        <span class="en">Explore Our Services</span><span class="fr">Explorer Nos Services</span>
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
-                    </a>
-                    <a href="#simulations" class="bg-transparent border border-white/30 text-white hover:bg-white/10 px-8 py-3.5 rounded-md text-base font-medium transition-all flex items-center justify-center">
-                        <span class="en">View Bonus Simulations</span><span class="fr">Voir les Simulations Bonus</span>
-                    </a>
-                </div>
-            </div>
-        </section>
 
-        <section id="purpose" class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                    <div>
-                        <div class="w-16 h-1 bg-accent-500 mb-6 rounded-full"></div>
-                        <h2 class="font-serif text-3xl md:text-4xl font-bold text-brand-900 mb-6">
-                            <span class="en">Our Consulting Purpose</span><span class="fr">Notre Objectif de Conseil</span>
-                        </h2>
-                        
-                        <!-- English Text -->
-                        <div class="space-y-6 text-gray-600 text-lg leading-relaxed en">
-                            <p>As educators, time is your most valuable resource. The core of <strong>The AI Architect</strong> is to help teachers, educational institutions, and administrators discover the transformative potential of Artificial Intelligence as a daily tool.</p>
-                            <p>Through specialized <strong>webinars, conferences, and interactive workshops</strong>, we empower you to reclaim hours of your week and maximize your true teaching potential. We demystify AI so you can focus on what matters most: your students.</p>
-                            <p>As a bonus to our core consulting services, we also develop interactive science simulations to demonstrate the incredible, tangible possibilities of AI in the classroom.</p>
-                        </div>
-                        
-                        <!-- French Text -->
-                        <div class="space-y-6 text-gray-600 text-lg leading-relaxed fr">
-                            <p>En tant qu'éducateurs, le temps est votre ressource la plus précieuse. Le cœur de <strong>The AI Architect</strong> est d'aider les enseignants, les institutions éducatives et les administrateurs à découvrir le potentiel transformateur de l'IA comme outil quotidien.</p>
-                            <p>Grâce à des <strong>webinaires, des conférences et des ateliers interactifs</strong> spécialisés, nous vous donnons les moyens de récupérer des heures dans votre semaine et de maximiser votre véritable potentiel d'enseignement. Nous démystifions l'IA pour que vous puissiez vous concentrer sur ce qui compte le plus : vos élèves.</p>
-                            <p>En prime de nos services de conseil, nous développons également des simulations scientifiques interactives pour démontrer les possibilités incroyables et tangibles de l'IA en classe.</p>
-                        </div>
-                        
-                        <div class="mt-8 grid grid-cols-2 gap-6">
-                            <div class="border-l-4 border-accent-500 pl-4">
-                                <div class="text-2xl font-serif font-bold text-brand-700 mb-1">
-                                    <span class="en">Workshops</span><span class="fr">Ateliers</span>
-                                </div>
-                                <div class="text-sm text-gray-500 uppercase tracking-wider font-semibold">
-                                    <span class="en">& Webinars</span><span class="fr">& Webinaires</span>
-                                </div>
-                            </div>
-                            <div class="border-l-4 border-accent-500 pl-4">
-                                <div class="text-2xl font-serif font-bold text-brand-700 mb-1">
-                                    <span class="en">Save Time</span><span class="fr">Gain de Temps</span>
-                                </div>
-                                <div class="text-sm text-gray-500 uppercase tracking-wider font-semibold">
-                                    <span class="en">Bridge The Gap</span><span class="fr">Combler Le Fossé</span>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Quick info pills -->
+                <div class="flex flex-wrap gap-3">
+                    <div class="bg-slate-900/40 border border-slate-700/50 backdrop-blur px-4 py-2.5 rounded-xl flex items-center space-x-2">
+                        <span class="text-amber-400 font-bold">7</span>
+                        <span class="text-xs text-slate-300 font-medium" id="stat-sims">Interactive Simulations</span>
                     </div>
-                    
-                    <div class="relative">
-                        <!-- Decorative image placeholder -->
-                        <div class="aspect-w-4 aspect-h-3 rounded-2xl overflow-hidden shadow-2xl relative bg-brand-100 flex items-center justify-center group">
-                            <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Students looking at a microscope" class="object-cover w-full h-full opacity-90 transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://placehold.co/800x600/102a43/ffffff?text=Science+Education'">
-                            <div class="absolute inset-0 bg-gradient-to-t from-brand-900/80 to-transparent"></div>
-                            <div class="absolute bottom-6 left-6 right-6 text-white">
-                                <p class="font-serif italic text-lg border-l-2 border-accent-500 pl-4">
-                                    <span class="en">"The important thing is not to stop questioning. Curiosity has its own reason for existence."</span>
-                                    <span class="fr">"L'important est de ne pas cesser de s'interroger. La curiosité a sa propre raison d'exister."</span>
-                                </p>
-                                <p class="mt-2 text-sm text-brand-100 font-semibold pl-4">— Albert Einstein</p>
-                            </div>
-                        </div>
+                    <div class="bg-slate-900/40 border border-slate-700/50 backdrop-blur px-4 py-2.5 rounded-xl flex items-center space-x-2">
+                        <span class="text-emerald-400 font-bold">K-12+</span>
+                        <span class="text-xs text-slate-300 font-medium" id="stat-curriculum">Curriculum-Aligned</span>
+                    </div>
+                    <div class="bg-slate-900/40 border border-slate-700/50 backdrop-blur px-4 py-2.5 rounded-xl flex items-center space-x-2">
+                        <span class="text-indigo-400 font-bold">100%</span>
+                        <span class="text-xs text-slate-300 font-medium" id="stat-bilingual">Bilingual Core</span>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="simulations" class="py-20 bg-brand-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="font-serif text-3xl md:text-4xl font-bold text-brand-900 mb-4">
-                        <span class="en">Bonus: Simulations Library</span><span class="fr">Bonus : Bibliothèque de Simulations</span>
-                    </h2>
-                    <p class="text-gray-600 max-w-2xl mx-auto text-lg">
-                        <span class="en">As an add-on to our consulting services, explore these interactive AI-driven environments built for the classroom.</span>
-                        <span class="fr">En complément de nos services de conseil, explorez ces environnements interactifs pilotés par l'IA conçus pour la classe.</span>
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    
-                    <!-- Simulation Card 1 (Astronomy) -->
-                    <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-100 flex flex-col group">
-                        <div class="h-48 bg-brand-700 relative overflow-hidden flex items-center justify-center">
-                            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent"></div>
-                            <i class="fa-solid fa-meteor text-5xl text-brand-100 group-hover:scale-110 transition-transform duration-500"></i>
-                            <div class="absolute top-4 right-4 bg-accent-500 text-white text-xs font-bold px-2 py-1 rounded shadow">
-                                <span class="en">BETA</span><span class="fr">BÊTA</span>
-                            </div>
-                        </div>
-                        <div class="p-6 flex flex-col flex-grow">
-                            <div class="text-xs text-accent-500 font-bold tracking-wider uppercase mb-2">
-                                <span class="en">Astronomy / Physics</span><span class="fr">Astronomie / Physique</span>
-                            </div>
-                            <h3 class="font-serif text-xl font-bold text-brand-900 mb-3">
-                                <span class="en">Orbital Mechanics & The Solar System</span>
-                                <span class="fr">Mécanique Orbitale & Le Système Solaire</span>
-                            </h3>
-                            <p class="text-gray-600 text-sm mb-6 flex-grow">
-                                <span class="en">An interactive simulation where students map planetary orbits and calculate space trajectories across the Milky Way, guided by an AI tutor that assists with gravitational concepts.</span>
-                                <span class="fr">Une simulation interactive où les élèves cartographient les orbites planétaires et calculent les trajectoires spatiales à travers la Voie Lactée, guidés par un tuteur IA qui aide avec les concepts gravitationnels.</span>
-                            </p>
-                            <div class="pt-4 border-t border-gray-100">
-                                <a href="Orbittrajectories.html" class="inline-flex items-center justify-center w-full bg-brand-100 hover:bg-brand-700 text-brand-700 hover:text-white px-4 py-2.5 rounded text-sm font-semibold transition-colors duration-200">
-                                    <span class="en">Launch Orbit Trajectories</span><span class="fr">Lancer Trajectoires Orbitales</span>
-                                    <i class="fa-solid fa-external-link-alt ml-2 text-xs"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Placeholder Card 2 (Biology) -->
-                    <div class="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 flex flex-col opacity-75">
-                        <div class="h-48 bg-gray-200 relative flex items-center justify-center">
-                            <i class="fa-solid fa-dna text-5xl text-gray-400"></i>
-                            <div class="absolute top-4 right-4 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded shadow">
-                                <span class="en">COMING SOON</span><span class="fr">BIENTÔT</span>
-                            </div>
-                        </div>
-                        <div class="p-6 flex flex-col flex-grow">
-                            <div class="text-xs text-gray-500 font-bold tracking-wider uppercase mb-2">
-                                <span class="en">Biology</span><span class="fr">Biologie</span>
-                            </div>
-                            <h3 class="font-serif text-xl font-bold text-gray-800 mb-3">
-                                <span class="en">Evolutionary Algorithm Lab</span>
-                                <span class="fr">Labo d'Algorithme Évolutif</span>
-                            </h3>
-                            <p class="text-gray-500 text-sm mb-6 flex-grow">
-                                <span class="en">Watch natural selection in real-time. Students set environmental variables and watch AI-driven organisms adapt over generations.</span>
-                                <span class="fr">Observez la sélection naturelle en temps réel. Les élèves définissent des variables environnementales et regardent des organismes IA s'adapter.</span>
-                            </p>
-                            <div class="pt-4 border-t border-gray-100">
-                                <button disabled class="w-full bg-gray-100 text-gray-400 px-4 py-2.5 rounded text-sm font-semibold cursor-not-allowed">
-                                    <span class="en">Unavailable</span><span class="fr">Indisponible</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Placeholder Card 3 (Earth Science) -->
-                    <div class="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 flex flex-col opacity-75">
-                        <div class="h-48 bg-gray-200 relative flex items-center justify-center">
-                            <i class="fa-solid fa-satellite text-5xl text-gray-400"></i>
-                            <div class="absolute top-4 right-4 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded shadow">
-                                <span class="en">IN DEVELOPMENT</span><span class="fr">EN DÉV.</span>
-                            </div>
-                        </div>
-                        <div class="p-6 flex flex-col flex-grow">
-                            <div class="text-xs text-gray-500 font-bold tracking-wider uppercase mb-2">
-                                <span class="en">Earth Science</span><span class="fr">Sciences de la Terre</span>
-                            </div>
-                            <h3 class="font-serif text-xl font-bold text-gray-800 mb-3">
-                                <span class="en">Climate Forecasting AI</span>
-                                <span class="fr">IA de Prévision Climatique</span>
-                            </h3>
-                            <p class="text-gray-500 text-sm mb-6 flex-grow">
-                                <span class="en">Students utilize actual machine learning models to predict climate trends based on historical data inputs and atmospheric changes.</span>
-                                <span class="fr">Les élèves utilisent de véritables modèles d'apprentissage automatique pour prédire les tendances climatiques.</span>
-                            </p>
-                            <div class="pt-4 border-t border-gray-100">
-                                <button disabled class="w-full bg-gray-100 text-gray-400 px-4 py-2.5 rounded text-sm font-semibold cursor-not-allowed">
-                                    <span class="en">Unavailable</span><span class="fr">Indisponible</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+    <!-- SIMULATIONS SECTION -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
+        <!-- Interactive Controls (Filter & Search) -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <!-- Subject Filters -->
+            <div class="flex flex-wrap gap-2" id="filter-group">
+                <!-- Buttons rendered by JS -->
             </div>
-        </section>
 
-        <section class="bg-accent-600 py-16 text-center px-4">
-            <h2 class="font-serif text-2xl md:text-3xl font-bold text-white mb-4">
-                <span class="en">Ready to transform your institution with AI?</span>
-                <span class="fr">Prêt à transformer votre institution avec l'IA ?</span>
-            </h2>
-            <p class="text-accent-100 mb-8 max-w-2xl mx-auto">
-                <span class="en">Book a workshop, webinar, or consulting session today and start using your time wisely.</span>
-                <span class="fr">Réservez un atelier, un webinaire ou une session de conseil dès aujourd'hui et commencez à utiliser votre temps judicieusement.</span>
-            </p>
-            <button class="bg-white text-accent-600 hover:bg-gray-50 px-8 py-3 rounded-md text-base font-bold transition-all shadow-md hover:-translate-y-0.5">
-                <span class="en">Contact for Booking</span>
-                <span class="fr">Contact pour Réservation</span>
-            </button>
-        </section>
+            <!-- Search input -->
+            <div class="relative w-full md:w-80">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+                <input type="text" id="search-input" oninput="handleSearch()" placeholder="Search simulations..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all">
+            </div>
+        </div>
+
+        <!-- Simulations Grid -->
+        <div id="simulations-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Dynamic Cards Loaded from Javascript -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-16">
+            <div class="text-5xl mb-4">🔍</div>
+            <h3 class="text-lg font-bold text-slate-800" id="empty-title">No simulations found</h3>
+            <p class="text-slate-500 text-sm mt-1" id="empty-desc">Try adjusting your filters or search keywords.</p>
+        </div>
     </main>
 
-    <footer class="bg-brand-900 text-brand-100 py-12 border-t border-brand-700">
+    <!-- MULTILINGUAL INFORMATION ANNOUNCEMENT -->
+    <section class="bg-amber-50/50 border-y border-amber-100 py-12">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <span class="text-2xl mb-2 block">🌍</span>
+            <h3 class="text-xl font-bold text-amber-900 font-serif-lux mb-3" id="notice-title">Multilingual & Localized Learning Experience</h3>
+            <p class="text-amber-800/80 text-sm leading-relaxed max-w-2xl mx-auto" id="notice-desc">
+                Every application listed on this portal is designed to operate seamlessly in several languages. Educators can toggle language options within each individual simulation, ensuring maximum flexibility for bilingual classes, French immersion programs, and English language learners alike.
+            </p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-brand-900 text-slate-400 py-12 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 border-b border-brand-700 pb-8">
-                <div class="md:col-span-2">
-                    <div class="flex items-center gap-2 mb-4">
-                        <i class="fa-solid fa-brain text-accent-500 text-xl"></i>
-                        <span class="font-serif font-bold text-xl text-white">The AI Architect<span class="text-accent-500">.</span></span>
-                    </div>
-                    <p class="text-sm text-brand-100/70 max-w-sm">
-                        <span class="en">Helping educators and institutions bridge the gap between AI and the classroom through expert consulting, workshops, and webinars.</span>
-                        <span class="fr">Aider les éducateurs et les institutions à combler le fossé entre l'IA et la classe grâce à des conseils experts, des ateliers et des webinaires.</span>
-                    </p>
-                </div>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-slate-800 pb-8 mb-8">
                 <div>
-                    <h4 class="text-white font-semibold mb-4 uppercase tracking-wider text-sm">
-                        <span class="en">Quick Links</span><span class="fr">Liens Rapides</span>
-                    </h4>
-                    <ul class="space-y-2 text-sm text-brand-100/70">
-                        <li><a href="#" class="hover:text-accent-500 transition-colors"><span class="en">Home</span><span class="fr">Accueil</span></a></li>
-                        <li><a href="#purpose" class="hover:text-accent-500 transition-colors"><span class="en">Consulting Services</span><span class="fr">Services de Conseil</span></a></li>
-                        <li><a href="#simulations" class="hover:text-accent-500 transition-colors"><span class="en">Bonus Simulations</span><span class="fr">Simulations Bonus</span></a></li>
-                    </ul>
+                    <span class="text-lg font-bold text-white tracking-tight">Interactive<span class="text-amber-500">Sims</span> Portal</span>
+                    <p class="text-xs text-slate-500 mt-1" id="footer-tagline">Connecting modern technologies with pedagogical excellence.</p>
                 </div>
-                <div>
-                    <h4 class="text-white font-semibold mb-4 uppercase tracking-wider text-sm">Contact & Links</h4>
-                    <ul class="space-y-2 text-sm text-brand-100/70 mb-4">
-                        <li><i class="fa-regular fa-envelope w-5"></i> booking@theaiarchitect.example.com</li>
-                        <li><i class="fa-solid fa-chalkboard-user w-5"></i> <span class="en">Book a Webinar</span><span class="fr">Réserver un Webinaire</span></li>
-                    </ul>
-                    
-                    <!-- Added Links per request -->
-                    <h4 class="text-white font-semibold mb-2 mt-4 uppercase tracking-wider text-xs text-brand-100/50">Additional Pages</h4>
-                    <ul class="space-y-2 text-sm text-brand-100/70">
-                        <li><a href="index.html" class="hover:text-accent-500 transition-colors">Index</a></li>
-                        <li><a href="index2.html" class="hover:text-accent-500 transition-colors">Index 2</a></li>
-                        <li><a href="index3.html" class="hover:text-accent-500 transition-colors">Index 3</a></li>
-                        <li><a href="SolarSystemElementary.html" class="hover:text-accent-500 transition-colors">Solar system for elementary school</a></li>
-                        <li><a href="BEDMASelementary.html" class="hover:text-accent-500 transition-colors">BEDMAS for elementary school</a></li>
-                    </ul>
-                    
-                    <div class="flex space-x-4 mt-6">
-                        <a href="#" class="text-brand-100/70 hover:text-white transition-colors"><i class="fa-brands fa-twitter"></i></a>
-                        <a href="#" class="text-brand-100/70 hover:text-white transition-colors"><i class="fa-brands fa-linkedin"></i></a>
-                    </div>
+                <div class="flex space-x-6 text-sm">
+                    <span class="text-slate-500">&copy; 2026.</span>
+                    <span id="footer-disclaimer" class="text-xs max-w-xs text-right hidden md:inline">Designed to support professional development and innovative science curricula.</span>
                 </div>
             </div>
-            <div class="flex flex-col md:flex-row justify-between items-center text-xs text-brand-100/50">
-                <p>&copy; 2026 The AI Architect. <span class="en">All rights reserved.</span><span class="fr">Tous droits réservés.</span></p>
-                <div class="space-x-4 mt-2 md:mt-0">
-                    <a href="#" class="hover:text-white"><span class="en">Privacy Policy</span><span class="fr">Politique de Confidentialité</span></a>
-                    <a href="#" class="hover:text-white"><span class="en">Terms of Service</span><span class="fr">Conditions d'Utilisation</span></a>
-                </div>
+            <div class="text-xs text-slate-600 text-center md:text-left">
+                Developed dynamically for global teachers and researchers in interactive education.
             </div>
         </div>
     </footer>
 
-    <!-- Script to handle Language Toggle and Text Rotator -->
+    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const langToggleBtn = document.getElementById('langToggle');
-            const body = document.body;
+        // Set state
+        let currentLang = 'en';
+        let activeFilter = 'all';
+        let searchQuery = '';
+
+        // Simulations dataset
+        const simulations = [
+            {
+                id: "bedmas",
+                file: "BEDMASelementary.html",
+                theme: "math",
+                grades: { en: "Grades 3-6", fr: "3e à 6e année" },
+                badge: { en: "Mathematics & Indigenous Perspectives", fr: "Mathématiques et perspectives autochtones" },
+                badgeType: "indigenous",
+                title: {
+                    en: "Indigenous Order of Operations (BEDMAS)",
+                    fr: "Ordre des opérations autochtone (BEDMAS)"
+                },
+                desc: {
+                    en: "An elegant approach to the order of operations for elementary school classrooms. Concepts are taught using traditional beadwork patterns and storytelling frameworks grounded in Indigenous worldviews.",
+                    fr: "Une approche narrative de l'ordre des opérations (BEDMAS) au primaire. Les notions mathématiques sont présentées à travers des motifs de perlage traditionnels et des récits issus de perspectives autochtones."
+                },
+                icon: `<svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path></svg>`
+            },
+            {
+                id: "spectrum",
+                file: "ElectromagneticSpectrum.html",
+                theme: "science",
+                grades: { en: "Grades 7-9", fr: "7e à 9e année" },
+                badge: { en: "Core Physics", fr: "Physique fondamentale" },
+                badgeType: "science",
+                title: {
+                    en: "Interactive Electromagnetic Spectrum",
+                    fr: "Spectre électromagnétique interactif"
+                },
+                desc: {
+                    en: "Allows junior high school students to explore frequencies and wavelengths. Learn about the real-world applications and potential dangers of electromagnetic waves, from daily communications to medical radiation.",
+                    fr: "Permet d'explorer les fréquences et les longueurs d'onde. Découvrez les applications concrètes et les dangers potentiels des ondes électromagnétiques, des communications aux radiations médicales."
+                },
+                icon: `<svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`
+            },
+            {
+                id: "orbits",
+                file: "Orbittrajectories.html",
+                theme: "science",
+                grades: { en: "Grades 7-12+", fr: "7e à 12e année+" },
+                badge: { en: "Advanced Astrophysics", fr: "Astrophysique avancée" },
+                badgeType: "advanced",
+                title: {
+                    en: "Orbital Trajectories & Cosmic Path",
+                    fr: "Trajectoires orbitales et voyage cosmique"
+                },
+                desc: {
+                    en: "Take a journey beyond standard curriculums. Model how Earth orbits the sun while the solar system itself accelerates along its interstellar path through the Milky Way galaxy and the universe.",
+                    fr: "Allez au-delà des programmes classiques. Modélisez les orbites planétaires tout en observant le mouvement propre de notre système solaire à travers la Voie lactée et le cosmos."
+                },
+                icon: `<svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>`
+            },
+            {
+                id: "solarsystem",
+                file: "SolarSystemElementary.html",
+                theme: "science",
+                grades: { en: "Grades 3-8", fr: "3e à 8e année" },
+                badge: { en: "Astronomy & Indigenous Cosmology", fr: "Astronomie et cosmologie autochtone" },
+                badgeType: "indigenous",
+                title: {
+                    en: "Solar System Sandbox",
+                    fr: "Le bac à sable du système solaire"
+                },
+                desc: {
+                    en: "Explore the scale and celestial characteristics of our solar system. Integrates astronomical data with traditional sky lore and stellar knowledge from diverse Indigenous lineages.",
+                    fr: "Découvrez l'échelle et les caractéristiques de notre système solaire. Intègre des données astronomiques et des savoirs célestes traditionnels de diverses lignées autochtones."
+                },
+                icon: `<svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path></svg>`
+            },
+            {
+                id: "rgboptics",
+                file: "RGBopticReflection.html",
+                theme: "science",
+                grades: { en: "Grades 5-8", fr: "5e à 8e année" },
+                badge: { en: "Optics & Light", fr: "Optique et lumière" },
+                badgeType: "science",
+                title: {
+                    en: "RGB Optic Reflection Laboratory",
+                    fr: "Laboratoire de réflexion optique RVB"
+                },
+                desc: {
+                    en: "How do we perceive color? Let students manipulate colored light rays to see how materials reflect and absorb different frequencies, forming the complex shades we see everyday.",
+                    fr: "Comment voyons-nous la couleur? Permettez aux élèves de manipuler des rayons de couleur pour observer comment les matériaux l'absorbent ou la réfléchissent pour créer les teintes."
+                },
+                icon: `<svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>`
+            },
+            {
+                id: "sundial",
+                file: "SunDial2.html",
+                theme: "science",
+                grades: { en: "Grades 3-12", fr: "3e à 12e année" },
+                badge: { en: "Dual Complexity Modes", fr: "Modes de complexité double" },
+                badgeType: "advanced",
+                title: {
+                    en: "Interactive Sun Path & Sundial simulator",
+                    fr: "Simulateur de cadran solaire et course solaire"
+                },
+                desc: {
+                    en: "Analyze how the solar zenith changes across time and seasons. Features an intuitive simplified mode for elementary and middle school students alongside advanced coordinate calculations for high schools.",
+                    fr: "Suivez le trajet du soleil selon l'heure et la saison. Offre un mode simplifié et intuitif pour les élèves du primaire et de l'intermédiaire, et des calculs de coordonnées avancés pour le secondaire."
+                },
+                icon: `<svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
+            },
+            {
+                id: "zain",
+                file: "zain.html",
+                theme: "student",
+                grades: { en: "Grade 7 Showcase", fr: "Vitrine - 7e année" },
+                badge: { en: "Student Created with AI", fr: "Création étudiante via l'IA" },
+                badgeType: "student",
+                title: {
+                    en: "Student AI Project Showcase (Zain)",
+                    fr: "Projet d'élève assisté par IA (Zain)"
+                },
+                desc: {
+                    en: "An inspiring demonstration of student agency exploring the germination and growth of plants. This interactive simulation was entirely designed and refined by a Grade 7 student using generative AI.",
+                    fr: "Une démonstration inspirante de l'engagement étudiant axée sur la germination et la croissance des plantes. Cette simulation interactive a été entièrement conçue par un élève de 7e année à l'aide de l'IA."
+                },
+                icon: `<svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>`
+            }
+        ];
+
+        // Language specific strings
+        const dictionary = {
+            en: {
+                navSubtitle: "Interactive Pedagogy Dashboard",
+                langLabel: "Language:",
+                heroTitle: "Empowering Educators Through <span class='text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500'>AI-Guided</span> Inquiry",
+                heroDesc: "Welcome to a curated repository of interactive educational simulations designed to inspire student curiosity. Created in collaboration with generative AI, these tools enrich standard STEM learning by bridging physical theories with inclusive instructional frameworks, including Indigenous perspectives. Built for modern classrooms, all simulations operate fluently in multiple languages to support French immersion, ESL, and bilingual programs.",
+                multilingualBadge: "Bilingual & Multilingual Adaptations Supported",
+                statSims: "Simulations available",
+                statCurriculum: "Grade 3-12 Aligned",
+                statBilingual: "Interactive Toggles",
+                searchPlaceholder: "Search simulations...",
+                launchButton: "Launch Simulation",
+                noticeTitle: "Universal Multilingual Compatibility",
+                noticeDesc: "Every interactive application featured in this portal contains internal, dynamic language settings. Educators can swap languages with ease within each sandbox, offering a valuable pedagogical tool for French immersion, bilingual classes, and multicultural groups.",
+                emptyTitle: "No Simulations Matched Your Request",
+                emptyDesc: "Check spelling or switch filter categories to see more simulations.",
+                filters: {
+                    all: "All Modules",
+                    math: "Mathematics",
+                    science: "Sciences",
+                    student: "Student Showcase"
+                },
+                badgeTypes: {
+                    indigenous: "Indigenous Heritage Connection",
+                    science: "Core Science Concept",
+                    advanced: "Advanced / High School Enrichment",
+                    student: "Student Showcase Innovation"
+                },
+                footerTagline: "Bridging creative technology with modern classrooms.",
+                footerDisclaimer: "Created for professional development, research, and collaborative science learning."
+            },
+            fr: {
+                navSubtitle: "Tableau de Bord Pédagogique Interactif",
+                langLabel: "Langue :",
+                heroTitle: "Innover en Classe grâce aux <span class='text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500'>Simulations IA</span>",
+                heroDesc: "Bienvenue dans un espace de ressources conçu pour stimuler l'apprentissage par le questionnement au primaire et au secondaire. Nées d'une collaboration avec l'intelligence artificielle, ces simulations lient théories physiques et rigueur mathématique à des cadres enrichissants, incluant des perspectives holistiques autochtones. Adaptées à tous les environnements, elles intègrent de multiples langues pour soutenir l'immersion française, le FLE et les classes d'anglais.",
+                multilingualBadge: "Idéal pour l'immersion et les classes bilingues",
+                statSims: "Outils interactifs",
+                statCurriculum: "Niveaux 3e à 12e",
+                statBilingual: "Bilinguisme intégré",
+                searchPlaceholder: "Rechercher une simulation...",
+                launchButton: "Lancer la simulation",
+                noticeTitle: "Une approche flexible et multilingue",
+                noticeDesc: "Chaque application éducative répertoriée intègre son propre système de traduction. Les enseignants et les élèves peuvent modifier la langue à la volée directement à l'intérieur de chaque simulation, optimisant ainsi l'accès pour les programmes d'immersion française et d'apprentissage linguistique.",
+                emptyTitle: "Aucune simulation trouvée",
+                emptyDesc: "Ajustez vos filtres ou vérifiez l'orthographe pour relancer la recherche.",
+                filters: {
+                    all: "Tous les modules",
+                    math: "Mathématiques",
+                    science: "Sciences",
+                    student: "Vitrine étudiante"
+                },
+                badgeTypes: {
+                    indigenous: "Perspectives autochtones traditionnelles",
+                    science: "Concept scientifique fondamental",
+                    advanced: "Astrophysique et niveau secondaire",
+                    student: "Création et innovation étudiante"
+                },
+                footerTagline: "Allier les technologies d'IA générative aux exigences pédagogiques modernes.",
+                footerDisclaimer: "Conçu pour appuyer le développement professionnel et les activités d'enquête scientifique."
+            }
+        };
+
+        // Initialize App
+        function initApp() {
+            setLanguage('en');
+        }
+
+        // Toggle Language
+        function setLanguage(lang) {
+            currentLang = lang;
             
-            // Check if user previously selected French
-            if (localStorage.getItem('lang') === 'fr') {
-                body.classList.add('lang-fr');
-                document.documentElement.lang = 'fr';
+            // Adjust active state in UI buttons
+            const btnEn = document.getElementById('btn-en');
+            const btnFr = document.getElementById('btn-fr');
+            
+            if (lang === 'en') {
+                btnEn.className = "px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 bg-brand-800 text-white shadow-sm";
+                btnFr.className = "px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 text-slate-600 hover:text-slate-900";
             } else {
-                document.documentElement.lang = 'en';
+                btnFr.className = "px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 bg-brand-800 text-white shadow-sm";
+                btnEn.className = "px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 text-slate-600 hover:text-slate-900";
             }
 
-            // Language Toggle
-            langToggleBtn.addEventListener('click', () => {
-                body.classList.toggle('lang-fr');
-                const isFr = body.classList.contains('lang-fr');
+            // Translate Static Labels
+            document.getElementById('nav-subtitle').textContent = dictionary[lang].navSubtitle;
+            document.getElementById('lang-label').textContent = dictionary[lang].langLabel;
+            document.getElementById('hero-title').innerHTML = dictionary[lang].heroTitle;
+            document.getElementById('hero-desc').textContent = dictionary[lang].heroDesc;
+            document.getElementById('multilingual-badge').textContent = dictionary[lang].multilingualBadge;
+            document.getElementById('stat-sims').textContent = dictionary[lang].statSims;
+            document.getElementById('stat-curriculum').textContent = dictionary[lang].statCurriculum;
+            document.getElementById('stat-bilingual').textContent = dictionary[lang].statBilingual;
+            document.getElementById('search-input').placeholder = dictionary[lang].searchPlaceholder;
+            document.getElementById('notice-title').textContent = dictionary[lang].noticeTitle;
+            document.getElementById('notice-desc').textContent = dictionary[lang].noticeDesc;
+            document.getElementById('empty-title').textContent = dictionary[lang].emptyTitle;
+            document.getElementById('empty-desc').textContent = dictionary[lang].emptyDesc;
+            document.getElementById('footer-tagline').textContent = dictionary[lang].footerTagline;
+            document.getElementById('footer-disclaimer').textContent = dictionary[lang].footerDisclaimer;
+
+            // Render buttons and grid
+            renderFilters();
+            renderSimulations();
+        }
+
+        // Render subject tabs dynamically
+        function renderFilters() {
+            const container = document.getElementById('filter-group');
+            container.innerHTML = '';
+            
+            const categories = ['all', 'math', 'science', 'student'];
+            categories.forEach(cat => {
+                const button = document.createElement('button');
+                button.onclick = () => setFilter(cat);
                 
-                // Update language attribute and store preference
-                document.documentElement.lang = isFr ? 'fr' : 'en';
-                localStorage.setItem('lang', isFr ? 'fr' : 'en');
+                const label = dictionary[currentLang].filters[cat];
+                const isActive = activeFilter === cat;
+
+                if (isActive) {
+                    button.className = "px-4 py-2 bg-amber-500 text-white text-xs font-bold tracking-wider uppercase rounded-xl shadow-sm transition-all";
+                } else {
+                    button.className = "px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold tracking-wider uppercase rounded-xl transition-all";
+                }
+                
+                button.textContent = label;
+                container.appendChild(button);
+            });
+        }
+
+        // Set subject filter
+        function setFilter(cat) {
+            activeFilter = cat;
+            renderFilters();
+            renderSimulations();
+        }
+
+        // Handle Search Bar Input
+        function handleSearch() {
+            searchQuery = document.getElementById('search-input').value.toLowerCase();
+            renderSimulations();
+        }
+
+        // Helper to retrieve color definitions for dynamic tags
+        function getBadgeClass(type) {
+            switch(type) {
+                case 'indigenous':
+                    return 'bg-amber-100/70 border border-amber-200 text-amber-800';
+                case 'student':
+                    return 'bg-emerald-100/70 border border-emerald-200 text-emerald-800';
+                case 'advanced':
+                    return 'bg-purple-100/70 border border-purple-200 text-purple-800';
+                default:
+                    return 'bg-blue-100/70 border border-blue-200 text-blue-800';
+            }
+        }
+
+        // Filter & Render Simulations
+        function renderSimulations() {
+            const grid = document.getElementById('simulations-grid');
+            const emptyState = document.getElementById('empty-state');
+            
+            // Filter by active category tab & search keyword
+            const filtered = simulations.filter(sim => {
+                const matchCategory = activeFilter === 'all' || sim.theme === activeFilter;
+                
+                const titleMatch = sim.title[currentLang].toLowerCase().includes(searchQuery);
+                const descMatch = sim.desc[currentLang].toLowerCase().includes(searchQuery);
+                const matchSearch = titleMatch || descMatch;
+
+                return matchCategory && matchSearch;
             });
 
-            // Elegant Text Rotator Logic
-            const phrases = [
-                `<span class="en">Bridging the Gap Between <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">AI</span> and the Classroom</span><span class="fr">Combler le Fossé Entre l'<span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">IA</span> et la Classe</span>`,
-                `<span class="en">Transforming Education Through <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">Artificial Intelligence</span></span><span class="fr">Transformer l'Éducation par l'<span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">Intelligence Artificielle</span></span>`,
-                `<span class="en">Reclaim Your Time & Elevate Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">Teaching</span></span><span class="fr">Récupérez Votre Temps & Élevez Votre <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">Enseignement</span></span>`
-            ];
-
-            let currentPhrase = 0;
-            const rotatorEl = document.getElementById('hero-rotator');
-
-            if(rotatorEl) {
-                // Initial styling for transitions
-                rotatorEl.style.transition = 'all 0.7s ease-in-out';
-                
-                setInterval(() => {
-                    // Fade out & slide up slightly
-                    rotatorEl.style.transition = 'all 0.7s ease-in-out';
-                    rotatorEl.style.opacity = '0';
-                    rotatorEl.style.transform = 'translateY(-15px)';
-                    
-                    setTimeout(() => {
-                        // Move to bottom instantly (invisible)
-                        rotatorEl.style.transition = 'none';
-                        currentPhrase = (currentPhrase + 1) % phrases.length;
-                        rotatorEl.innerHTML = phrases[currentPhrase];
-                        rotatorEl.style.transform = 'translateY(15px)';
-                        
-                        // Force a browser reflow
-                        void rotatorEl.offsetWidth;
-                        
-                        // Fade in & slide into center
-                        rotatorEl.style.transition = 'all 0.7s ease-in-out';
-                        rotatorEl.style.opacity = '1';
-                        rotatorEl.style.transform = 'translateY(0)';
-                    }, 700); // Matches the CSS transition duration
-                }, 5000); // Wait 5 seconds between changes
+            // Display Empty state check
+            if (filtered.length === 0) {
+                grid.className = "hidden";
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8";
+                emptyState.classList.add('hidden');
             }
-        });
+
+            // Build grid content
+            grid.innerHTML = '';
+            filtered.forEach(sim => {
+                const card = document.createElement('div');
+                card.className = "group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden";
+
+                const badgeStyle = getBadgeClass(sim.badgeType);
+
+                card.innerHTML = `
+                    <div class="p-6 sm:p-8">
+                        <!-- Card Header details -->
+                        <div class="flex items-center justify-between mb-5">
+                            <div class="p-3 bg-slate-50 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                                ${sim.icon}
+                            </div>
+                            <span class="text-xs font-bold px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+                                ${sim.grades[currentLang]}
+                            </span>
+                        </div>
+
+                        <!-- Badge for category / perspective -->
+                        <div class="mb-3">
+                            <span class="text-[10px] font-extrabold tracking-wider uppercase px-2.5 py-1.5 rounded-md ${badgeStyle}">
+                                ${sim.badge[currentLang]}
+                            </span>
+                        </div>
+
+                        <!-- Card Title -->
+                        <h3 class="text-lg font-bold text-slate-900 mb-2 leading-snug group-hover:text-amber-600 transition-colors">
+                            ${sim.title[currentLang]}
+                        </h3>
+
+                        <!-- Card Description -->
+                        <p class="text-slate-600 text-sm leading-relaxed font-light">
+                            ${sim.desc[currentLang]}
+                        </p>
+                    </div>
+
+                    <!-- Card footer button linking to HTML -->
+                    <div class="px-6 pb-6 pt-0 border-t border-slate-50/10">
+                        <a href="${sim.file}" class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white hover:bg-amber-500 text-xs font-semibold tracking-wider uppercase py-3.5 rounded-xl shadow-sm transition-all duration-300">
+                            <span>${dictionary[currentLang].launchButton}</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Boot system on document load
+        window.onload = initApp;
     </script>
 </body>
 </html>
