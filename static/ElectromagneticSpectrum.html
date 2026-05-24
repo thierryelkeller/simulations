@@ -51,7 +51,7 @@
 
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
-            height: 16px;
+            height: 20px;
             cursor: pointer;
             border-radius: 9999px;
             background: linear-gradient(to right, 
@@ -60,43 +60,24 @@
                 #8a2be2 70%, #00ffff 85%, #ffffff 100%
             );
             border: 1px solid #334155;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-shadow: 0 0 12px rgba(0,0,0,0.6);
         }
 
         input[type=range]::-webkit-slider-thumb {
-            height: 34px;
-            width: 34px;
+            height: 40px;
+            width: 40px;
             border-radius: 50%;
             background: #ffffff;
             cursor: pointer;
             -webkit-appearance: none;
-            margin-top: -10px;
+            margin-top: -11px;
             border: 4px solid #0f172a;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 1);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 1);
             transition: transform 0.1s ease;
         }
         
         input[type=range]::-webkit-slider-thumb:active {
             transform: scale(1.15);
-        }
-
-        input[type=range]::-moz-range-track {
-            width: 100%;
-            height: 16px;
-            cursor: pointer;
-            border-radius: 9999px;
-            background: linear-gradient(to right, #1a1a1a 0%, #8b0000 20%, #ff0000 35%, #ff7f00 45%, #ffff00 48%, #00ff00 50%, #0000ff 52%, #4b0082 55%, #8a2be2 70%, #00ffff 85%, #ffffff 100%);
-            border: 1px solid #334155;
-        }
-
-        input[type=range]::-moz-range-thumb {
-            height: 34px;
-            width: 34px;
-            border-radius: 50%;
-            background: #ffffff;
-            cursor: pointer;
-            border: 4px solid #0f172a;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 1);
         }
 
         .glass-panel {
@@ -129,7 +110,6 @@
 
     <!-- SPLASH SCREEN 1: Language Selection -->
     <div id="splashScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 transition-opacity duration-700">
-        <!-- Interactive Background Canvas -->
         <canvas id="splashCanvas" class="absolute inset-0 z-0 opacity-80"></canvas>
         
         <div class="relative z-10 text-center space-y-10 p-10 rounded-3xl max-w-4xl w-[95%]">
@@ -162,7 +142,7 @@
             <p id="introText" class="text-lg md:text-xl text-slate-300 leading-relaxed font-light">
                 Our eyes can only see a tiny fraction of the light that surrounds us. This laboratory lets you tune into the full electromagnetic spectrum to discover how different waves interact with matter, how we use them in daily life, and why some are dangerous.
             </p>
-            <div class="pt-8">
+            <div class="pt-8 flex justify-center gap-4">
                 <button onclick="startSimulation()" class="px-10 py-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-xl hover:from-blue-500 hover:to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all transform hover:scale-105 active:scale-95">
                     <i class="fa-solid fa-flask mr-3"></i> <span id="startLabBtn">Enter Laboratory</span>
                 </button>
@@ -171,159 +151,162 @@
     </div>
 
     <!-- MAIN APPLICATION -->
-    <div id="mainApp" class="w-full max-w-6xl flex flex-col items-center justify-center p-4 md:p-6 opacity-0 hidden transition-opacity duration-1000">
+    <div id="mainApp" class="w-full max-w-[1400px] mx-auto flex flex-col p-4 md:p-6 lg:p-8 opacity-0 hidden transition-opacity duration-1000 gap-5 lg:gap-6">
         
-        <!-- Header & Language Selector -->
-        <div class="w-full flex flex-col md:flex-row justify-between items-center md:items-start mb-4 gap-4">
+        <!-- Row 1: Header, Instructions & Language Selector -->
+        <div class="w-full flex flex-col md:flex-row justify-between items-center md:items-start gap-4">
             <header class="text-center md:text-left space-y-1">
-                <h1 id="ui-title" class="text-3xl md:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                <h1 id="ui-title" class="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
                     Spectrum Tuner
                 </h1>
-                <p id="ui-subtitle" class="text-slate-400 text-sm md:text-base font-light">Discover the invisible universe. Slide to explore.</p>
+                <p id="ui-subtitle" class="text-slate-400 text-sm md:text-base lg:text-lg font-light">Discover the invisible universe. Slide to explore.</p>
             </header>
             
-            <select id="langSelector" class="bg-slate-800 text-slate-200 border border-slate-600 rounded-lg py-2 pl-4 pr-10 outline-none focus:border-blue-400 transition-colors shadow-lg cursor-pointer text-sm">
-                <option value="en">English</option>
-                <option value="fr">Français</option>
-                <option value="es">Español</option>
-            </select>
+            <div class="flex items-center gap-3">
+                <!-- Info Button -->
+                <button onclick="document.getElementById('introScreen').classList.remove('hidden', 'fade-out'); document.getElementById('introScreen').classList.add('fade-in'); document.getElementById('introScreen').style.display = 'flex';" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 text-slate-300 hover:text-white hover:border-blue-400 transition-all duration-300 shadow-lg flex items-center justify-center" title="Instructions">
+                    <i class="fa-solid fa-circle-info text-xl"></i>
+                </button>
+                
+                <select id="langSelector" class="bg-slate-800 text-slate-200 border border-slate-600 rounded-lg py-2.5 pl-4 pr-10 outline-none focus:border-blue-400 transition-colors shadow-lg cursor-pointer text-sm font-semibold">
+                    <option value="en">English</option>
+                    <option value="fr">Français</option>
+                    <option value="es">Español</option>
+                </select>
+            </div>
         </div>
 
-        <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5">
-            
-            <!-- MAIN LENS & WAVE VISUALIZATION (Top Row) -->
-            <div class="md:col-span-8 flex flex-col gap-4 md:gap-5">
-                
-                <!-- The Contextual Lens -->
-                <div class="glass-panel rounded-3xl p-5 md:p-6 flex flex-col sm:flex-row items-center gap-6 shadow-2xl relative overflow-hidden border border-slate-700/60 flex-1">
-                    <div id="categoryGlow" class="absolute inset-0 opacity-20 transition-colors duration-500 blur-3xl pointer-events-none"></div>
+        <!-- Row 2: General Facts (The Contextual Lens) -->
+        <div class="w-full glass-panel rounded-3xl p-6 lg:p-8 flex flex-col sm:flex-row items-center gap-6 shadow-2xl relative overflow-hidden border border-slate-700/60 min-h-[220px]">
+            <div id="categoryGlow" class="absolute inset-0 opacity-20 transition-colors duration-500 blur-3xl pointer-events-none"></div>
 
-                    <!-- Icon -->
-                    <div class="w-24 h-24 md:w-32 md:h-32 shrink-0 rounded-full flex items-center justify-center bg-slate-800 border-4 border-slate-700 shadow-[0_0_30px_rgba(0,0,0,0.5)] z-10 transition-all duration-300" id="iconContainer">
-                        <i id="categoryIcon" class="fa-solid fa-satellite-dish text-4xl md:text-5xl text-slate-300 transition-transform duration-300 transform scale-100"></i>
-                    </div>
+            <!-- Icon -->
+            <div class="w-24 h-24 md:w-32 md:h-32 shrink-0 rounded-full flex items-center justify-center bg-slate-800 border-4 border-slate-700 shadow-[0_0_30px_rgba(0,0,0,0.5)] z-10 transition-all duration-300" id="iconContainer">
+                <i id="categoryIcon" class="fa-solid fa-satellite-dish text-5xl md:text-6xl text-slate-300 transition-transform duration-300 transform scale-100"></i>
+            </div>
 
-                    <!-- Description & Content -->
-                    <div class="flex-1 flex flex-col h-full justify-center w-full z-10 space-y-4 text-center sm:text-left">
-                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                            <h2 id="categoryName" class="text-2xl md:text-3xl font-bold uppercase tracking-widest text-white drop-shadow-md">Radio Waves</h2>
-                            
-                            <!-- Prominent Toggle Switch -->
-                            <div class="flex bg-slate-900/80 p-1.5 rounded-xl border border-slate-700 shadow-inner w-full lg:w-auto">
-                                <button id="btnUtility" class="toggle-btn active-utility flex-1 lg:flex-none px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300">
-                                    <i class="fa-solid fa-tools mr-2"></i><span id="ui-btn-utility">Utility</span>
-                                </button>
-                                <button id="btnSafety" class="toggle-btn inactive flex-1 lg:flex-none px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300">
-                                    <i class="fa-solid fa-shield-virus mr-2"></i><span id="ui-btn-safety">Safety</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50 flex-1 flex items-center shadow-inner">
-                            <p id="descriptionText" class="text-slate-200 text-sm md:text-base leading-relaxed font-light">
-                                Radio waves have the longest wavelengths in the spectrum. We use them for long-distance communication.
-                            </p>
-                        </div>
+            <!-- Description & Content -->
+            <div class="flex-1 flex flex-col h-full justify-center w-full z-10 space-y-4 text-center sm:text-left">
+                <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                    <h2 id="categoryName" class="text-3xl md:text-4xl font-bold uppercase tracking-widest text-white drop-shadow-md">Radio Waves</h2>
+                    
+                    <!-- Prominent Toggle Switch -->
+                    <div class="flex bg-slate-900/80 p-1.5 rounded-xl border border-slate-700 shadow-inner w-full xl:w-auto shrink-0">
+                        <button id="btnUtility" class="toggle-btn active-utility flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300">
+                            <i class="fa-solid fa-tools mr-2"></i><span id="ui-btn-utility" class="ml-1">Utility</span>
+                        </button>
+                        <button id="btnSafety" class="toggle-btn inactive flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300">
+                            <i class="fa-solid fa-shield-virus mr-2"></i><span id="ui-btn-safety" class="ml-1">Safety</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Live Wave Visualization -->
-                <div class="glass-panel rounded-2xl p-4 shadow-xl relative overflow-hidden border border-slate-700/60">
-                    <div class="absolute top-3 left-4 text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest z-10 flex items-center">
-                        <i class="fa-solid fa-chart-line mr-2"></i> <span id="ui-wave-vis">Wave Visualization (v = c)</span>
+                <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-700/50 flex-1 flex items-center shadow-inner overflow-y-auto">
+                    <p id="descriptionText" class="text-slate-200 text-sm md:text-base leading-relaxed font-light">
+                        <!-- Dynamic Description Goes Here -->
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Data (Wavelength, Frequency, Energy Level & Penetration) -->
+        <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+            <!-- Wavelength & Scale Card -->
+            <div class="glass-panel rounded-3xl p-5 md:p-6 flex flex-col justify-center relative overflow-hidden border border-slate-700/60 h-full min-h-[140px]">
+                <div class="text-slate-400 text-xs font-bold tracking-wider uppercase flex items-center mb-2">
+                    <i class="fa-solid fa-ruler-horizontal mr-2 text-blue-400"></i> <span id="ui-wavelength">Wavelength (λ)</span>
+                </div>
+                <!-- Reduced size for power of 10 -->
+                <div class="text-2xl md:text-3xl font-mono font-bold text-blue-300 drop-shadow-[0_0_8px_rgba(147,197,253,0.3)]" id="valWavelength">
+                    10<sup>4</sup> m
+                </div>
+                <!-- Increased size for human readable SI units -->
+                <div class="text-sm md:text-base font-semibold text-blue-200/80 font-mono mb-4" id="valWavelengthRaw">10,000 meters</div>
+                
+                <!-- Intuitive Size Visualization -->
+                <div class="bg-slate-900/80 rounded-xl p-4 flex items-center gap-5 border border-slate-700/50 mt-auto shadow-inner">
+                    <div class="relative flex items-center justify-center w-12 h-12 shrink-0">
+                        <div id="sizePulse" class="absolute inset-0 border-2 border-blue-500/40 rounded-full animate-ping opacity-75"></div>
+                        <div class="absolute inset-0 bg-blue-500/10 rounded-full"></div>
+                        <i id="sizeIcon" class="fa-solid fa-mountain text-blue-400 text-2xl relative z-10 transition-transform duration-300"></i>
                     </div>
-                    <div class="w-full h-20 md:h-24 mt-4 rounded-xl overflow-hidden bg-slate-950/80 border border-slate-800 relative shadow-inner">
-                        <div id="waveCanvasGlow" class="absolute inset-0 opacity-30 blur-2xl transition-colors duration-300 pointer-events-none"></div>
-                        <canvas id="waveCanvas" class="w-full h-full relative z-10"></canvas>
+                    <div>
+                        <div id="ui-size-text" class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Approx. Scale</div>
+                        <div id="sizeName" class="text-sm md:text-base font-semibold text-slate-200 truncate">Mountain</div>
                     </div>
                 </div>
             </div>
 
-            <!-- THE METRIC TRIAD (Side Column / Bottom on mobile) -->
-            <div class="md:col-span-4 flex flex-col gap-4 md:gap-5">
-                
-                <!-- Wavelength & Scale Card -->
-                <div class="glass-panel rounded-2xl p-4 flex flex-col justify-center relative overflow-hidden border border-slate-700/60 flex-1">
-                    <div class="text-slate-400 text-[10px] md:text-xs font-bold tracking-wider uppercase flex items-center mb-1">
-                        <i class="fa-solid fa-ruler-horizontal mr-2 text-blue-400"></i> <span id="ui-wavelength">Wavelength (λ)</span>
-                    </div>
-                    <div class="text-2xl md:text-3xl font-mono font-bold text-blue-300 drop-shadow-[0_0_8px_rgba(147,197,253,0.3)]" id="valWavelength">
-                        10<sup>4</sup> m
-                    </div>
-                    <div class="text-[11px] md:text-xs text-blue-200/60 font-mono mb-3" id="valWavelengthRaw">10,000 meters</div>
-                    
-                    <!-- Intuitive Size Visualization -->
-                    <div class="bg-slate-900/80 rounded-xl p-3 flex items-center gap-4 border border-slate-700/50 mt-auto">
-                        <div class="relative flex items-center justify-center w-12 h-12 shrink-0">
-                            <div id="sizePulse" class="absolute inset-0 border-2 border-blue-500/40 rounded-full animate-ping opacity-75"></div>
-                            <div class="absolute inset-0 bg-blue-500/10 rounded-full"></div>
-                            <i id="sizeIcon" class="fa-solid fa-mountain text-blue-400 text-2xl relative z-10 transition-transform duration-300"></i>
-                        </div>
-                        <div>
-                            <div id="ui-size-text" class="text-[9px] uppercase text-slate-500 font-bold tracking-wider">Approx. Scale</div>
-                            <div id="sizeName" class="text-sm font-semibold text-slate-200">Mountain</div>
-                        </div>
-                    </div>
+            <!-- Frequency Card -->
+            <div class="glass-panel rounded-3xl p-5 md:p-6 flex flex-col justify-center relative overflow-hidden border border-slate-700/60 h-full min-h-[140px]">
+                <div class="text-slate-400 text-xs font-bold tracking-wider uppercase flex items-center mb-2">
+                    <i class="fa-solid fa-wave-square mr-2 text-purple-400"></i> <span id="ui-frequency">Frequency (f)</span>
                 </div>
-
-                <!-- Frequency Card -->
-                <div class="glass-panel rounded-2xl p-4 flex flex-col justify-center relative overflow-hidden border border-slate-700/60 flex-1">
-                    <div class="text-slate-400 text-[10px] md:text-xs font-bold tracking-wider uppercase flex items-center mb-1">
-                        <i class="fa-solid fa-wave-square mr-2 text-purple-400"></i> <span id="ui-frequency">Frequency (f)</span>
-                    </div>
-                    <div class="text-2xl md:text-3xl font-mono font-bold text-purple-300 drop-shadow-[0_0_8px_rgba(216,180,254,0.3)]" id="valFrequency">
-                        3 x 10<sup>4</sup> Hz
-                    </div>
-                    <div class="text-[11px] md:text-xs text-purple-200/60 font-mono" id="valFrequencyRaw">30,000 Hertz</div>
+                <!-- Reduced size for power of 10 -->
+                <div class="text-2xl md:text-3xl font-mono font-bold text-purple-300 drop-shadow-[0_0_8px_rgba(216,180,254,0.3)]" id="valFrequency">
+                    3 x 10<sup>4</sup> Hz
                 </div>
-
-                <!-- Energy & Penetration Card -->
-                <div class="glass-panel rounded-2xl p-4 flex flex-col justify-center relative overflow-hidden border border-slate-700/60 flex-1">
-                    <div class="flex justify-between items-start mb-1">
-                        <div class="text-slate-400 text-[10px] md:text-xs font-bold tracking-wider uppercase flex items-center">
-                            <i class="fa-solid fa-bolt mr-2 text-yellow-400"></i> <span id="ui-energy">Energy Level</span>
-                        </div>
-                        <div class="text-sm font-bold text-green-400 transition-colors duration-300 text-right" id="valEnergyText">
-                            Very Low
-                        </div>
-                    </div>
-                    
-                    <!-- Energy Bar -->
-                    <div class="w-full bg-slate-900 h-2 rounded-full mb-3 overflow-hidden border border-slate-700">
-                        <div id="energyBar" class="bg-gradient-to-r from-green-400 via-yellow-400 to-red-600 h-full w-[5%] transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
-                    </div>
-
-                    <!-- Matter Penetration Visualizer -->
-                    <div class="mt-auto pt-2 border-t border-slate-700/50">
-                        <div id="ui-penetration" class="text-[9px] uppercase text-slate-500 font-bold tracking-wider mb-1.5">Penetration Power</div>
-                        <div class="flex h-4 w-full rounded overflow-hidden border border-slate-700 bg-slate-900">
-                            <div id="pen-surface" class="flex-1 transition-colors duration-300"></div>
-                            <div id="pen-tissue" class="flex-1 transition-colors duration-300 border-l border-slate-800"></div>
-                            <div id="pen-bone" class="flex-1 transition-colors duration-300 border-l border-slate-800"></div>
-                            <div id="pen-lead" class="flex-1 transition-colors duration-300 border-l border-slate-800"></div>
-                        </div>
-                        <div class="flex justify-between text-[8px] md:text-[9px] text-slate-500 uppercase mt-1 px-0.5 font-semibold">
-                            <span id="ui-pen-surface">Surface</span>
-                            <span id="ui-pen-tissue">Tissue</span>
-                            <span id="ui-pen-bone">Bone</span>
-                            <span id="ui-pen-lead">Lead</span>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- Increased size for human readable SI units -->
+                <div class="text-sm md:text-base font-semibold text-purple-200/80 font-mono" id="valFrequencyRaw">30,000 Hertz</div>
             </div>
 
-            <!-- The Interactive Spectral Slider (Bottom) -->
-            <div class="md:col-span-12 glass-panel rounded-3xl p-5 md:p-6 shadow-xl border border-slate-700/60 relative">
-                <div class="relative w-full z-20 pt-1">
-                    <input type="range" min="0" max="100" value="0" step="0.1" id="spectrumSlider">
-                    <!-- Dynamic Markers Container -->
-                    <div id="sliderMarkers" class="relative w-full h-8 mt-2 z-10 flex text-[9px] md:text-[11px] font-bold text-slate-500 uppercase tracking-wider"></div>
+            <!-- Energy & Penetration Card -->
+            <div class="glass-panel rounded-3xl p-5 md:p-6 flex flex-col justify-center relative overflow-hidden border border-slate-700/60 h-full min-h-[140px]">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="text-slate-400 text-xs font-bold tracking-wider uppercase flex items-center">
+                        <i class="fa-solid fa-bolt mr-2 text-yellow-400"></i> <span id="ui-energy">Energy Level</span>
+                    </div>
+                    <div class="text-sm md:text-base font-bold text-green-400 transition-colors duration-300 text-right" id="valEnergyText">
+                        Very Low
+                    </div>
                 </div>
                 
-                <div class="text-center text-[11px] md:text-sm text-slate-400/80 italic mt-3">
-                    <span id="ui-drag-hint">Drag the slider to explore different frequencies of the electromagnetic spectrum.</span>
+                <!-- Energy Bar -->
+                <div class="w-full bg-slate-900 h-3 rounded-full mb-4 overflow-hidden border border-slate-700 shadow-inner">
+                    <div id="energyBar" class="bg-gradient-to-r from-green-400 via-yellow-400 to-red-600 h-full w-[5%] transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
                 </div>
+
+                <!-- Gradual Penetration Graph -->
+                <div class="mt-auto pt-3 border-t border-slate-700/50">
+                    <div id="ui-penetration" class="text-[10px] uppercase text-slate-500 font-bold tracking-wider mb-2">Gradual Penetration</div>
+                    
+                    <div class="relative w-full h-5 bg-slate-900 rounded-md border border-slate-700 shadow-inner overflow-hidden">
+                        <!-- Fill Bar -->
+                        <div id="pen-fill" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-500 w-[10%]"></div>
+                        
+                        <!-- Segment Dividers -->
+                        <div class="absolute top-0 left-[25%] w-px h-full bg-slate-800/80 z-10"></div>
+                        <div class="absolute top-0 left-[50%] w-px h-full bg-slate-800/80 z-10"></div>
+                        <div class="absolute top-0 left-[75%] w-px h-full bg-slate-800/80 z-10"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-[9px] md:text-[10px] text-slate-500 uppercase mt-1.5 px-0.5 font-semibold">
+                        <span id="ui-pen-surface" class="w-1/4 text-left">Surface</span>
+                        <span id="ui-pen-tissue" class="w-1/4 text-center">Tissue</span>
+                        <span id="ui-pen-bone" class="w-1/4 text-center">Bone</span>
+                        <span id="ui-pen-lead" class="w-1/4 text-right">Lead</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 4: Live Wave Visualization -->
+        <div class="w-full glass-panel rounded-3xl p-5 md:p-6 shadow-xl relative overflow-hidden border border-slate-700/60">
+            <div class="absolute top-4 left-5 text-xs md:text-sm font-bold text-slate-400 uppercase tracking-widest z-10 flex items-center">
+                <i class="fa-solid fa-chart-line mr-2"></i> <span id="ui-wave-vis">Wave Physics</span>
+            </div>
+            <div class="w-full h-32 md:h-44 mt-6 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 relative shadow-inner">
+                <div id="waveCanvasGlow" class="absolute inset-0 opacity-20 blur-2xl transition-colors duration-300 pointer-events-none"></div>
+                <canvas id="waveCanvas" class="w-full h-full relative z-10"></canvas>
+            </div>
+        </div>
+
+        <!-- Row 5: The Interactive Spectral Slider -->
+        <div class="w-full glass-panel rounded-3xl p-6 md:p-8 shadow-xl border border-slate-700/60 relative mb-4">
+            <div class="relative w-full z-20 pt-2">
+                <input type="range" min="0" max="100" value="0" step="0.1" id="spectrumSlider">
+                <!-- Dynamic Markers Container -->
+                <div id="sliderMarkers" class="relative w-full h-10 mt-4 z-10 flex text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider"></div>
             </div>
         </div>
     </div>
@@ -339,14 +322,13 @@
                 startLab: "Enter Laboratory",
                 btnUtility: "Utility",
                 btnSafety: "Safety",
-                waveVis: "Live Wave Visualization (v = c)",
+                waveVis: "Wave Physics",
                 wavelength: "Wavelength (λ)",
                 frequency: "Frequency (f)",
                 energy: "Energy Level",
-                dragHint: "Drag the slider to explore different frequencies of the electromagnetic spectrum.",
                 energyLevels: ["Very Low", "Low", "Moderate", "High (Ionizing)", "Extreme Hazard"],
                 units: { meters: "meters", hertz: "Hertz", khz: "kHz", mhz: "MHz", ghz: "GHz", thz: "THz", ehf: "Extremely High Freq." },
-                uiPenetration: "Penetration Power",
+                uiPenetration: "Gradual Penetration",
                 penSurface: "Surface", penTissue: "Tissue", penBone: "Bone", penLead: "Lead",
                 sizeText: "Approx. Scale"
             },
@@ -358,14 +340,13 @@
                 startLab: "Entrer au laboratoire",
                 btnUtility: "Utilité",
                 btnSafety: "Sécurité",
-                waveVis: "Visualisation de l'Onde (v = c)",
+                waveVis: "Physique des Ondes",
                 wavelength: "Longueur d'onde (λ)",
                 frequency: "Fréquence (f)",
                 energy: "Niveau d'Énergie",
-                dragHint: "Faites glisser le curseur pour explorer différentes fréquences du spectre électromagnétique.",
                 energyLevels: ["Très Faible", "Faible", "Modéré", "Élevé (Ionisant)", "Danger Extrême"],
                 units: { meters: "mètres", hertz: "Hertz", khz: "kHz", mhz: "MHz", ghz: "GHz", thz: "THz", ehf: "Fréq. Extrêmement Haute" },
-                uiPenetration: "Pouvoir de pénétration",
+                uiPenetration: "Pénétration Graduelle",
                 penSurface: "Surface", penTissue: "Tissus", penBone: "Os", penLead: "Plomb",
                 sizeText: "Échelle approx."
             },
@@ -377,117 +358,116 @@
                 startLab: "Entrar al Laboratorio",
                 btnUtility: "Utilidad",
                 btnSafety: "Seguridad",
-                waveVis: "Visualización de Onda (v = c)",
+                waveVis: "Física de Ondas",
                 wavelength: "Longitud de onda (λ)",
                 frequency: "Frecuencia (f)",
                 energy: "Nivel de Energía",
-                dragHint: "Arrastra el control para explorar diferentes frecuencias del espectro electromagnético.",
                 energyLevels: ["Muy Bajo", "Bajo", "Moderado", "Alto (Ionizante)", "Peligro Extremo"],
                 units: { meters: "metros", hertz: "Hertz", khz: "kHz", mhz: "MHz", ghz: "GHz", thz: "THz", ehf: "Frec. Extremadamente Alta" },
-                uiPenetration: "Poder de Penetración",
+                uiPenetration: "Penetración Gradual",
                 penSurface: "Superficie", penTissue: "Tejido", penBone: "Hueso", penLead: "Plomo",
                 sizeText: "Escala Aprox."
             }
         };
 
-        // --- Data Definitions (Multilingual) ---
+        // --- Data Definitions (Expanded Detailed Information) ---
         const SPECTRUM_DATA = [
             {
                 id: 'radio', threshold: 15, color: '#ef4444', iconUtility: 'fa-satellite-dish', iconSafety: 'fa-thumbs-up',
                 name: { en: 'Radio Waves', fr: 'Ondes Radio', es: 'Ondas de Radio' },
                 descUtility: {
-                    en: "Radio waves have the longest wavelengths. We use them for long-distance communication, TV broadcasts, and mobile networks.",
-                    fr: "Les ondes radio ont les plus grandes longueurs d'onde. Utilisées pour les communications longue distance, la télévision et les réseaux mobiles.",
-                    es: "Las ondas de radio tienen las longitudes de onda más largas. Se usan para comunicaciones a larga distancia, TV y redes móviles."
+                    en: "Radio waves have the longest wavelengths, ranging from the length of a football field to larger than our planet. We use them primarily for long-distance communication, TV broadcasting, and mobile networks because they can effortlessly diffract around large obstacles like mountains and buildings.",
+                    fr: "Les ondes radio ont les plus grandes longueurs d'onde, allant de la taille d'un terrain de football à plus grande que notre planète. Nous les utilisons principalement pour les communications longue distance et la diffusion car elles contournent facilement les grands obstacles.",
+                    es: "Las ondas de radio tienen las longitudes de onda más largas, desde la longitud de un campo de fútbol hasta más grandes que nuestro planeta. Se utilizan para la comunicación a larga distancia ya que pueden difractar fácilmente alrededor de grandes obstáculos."
                 },
                 descSafety: {
-                    en: "Safe & Non-ionizing. These waves pass through or bounce off objects harmlessly. They lack the energy to damage cells.",
-                    fr: "Sûr et non ionisant. Ces ondes traversent ou rebondissent sur les objets sans danger. Elles manquent d'énergie pour endommager les cellules.",
-                    es: "Seguro y no ionizante. Estas ondas atraviesan o rebotan en los objetos sin causar daño. Carecen de energía para dañar las células."
+                    en: "Radio waves are completely safe and non-ionizing. Due to their massive physical size and extremely low energy levels, these waves pass cleanly through our bodies and everyday objects without interacting with or damaging cellular structures or DNA.",
+                    fr: "Les ondes radio sont totalement sûres et non ionisantes. En raison de leur taille massive et de leur très faible énergie, ces ondes traversent proprement notre corps et les objets quotidiens sans endommager les structures cellulaires ou l'ADN.",
+                    es: "Las ondas de radio son completamente seguras y no ionizantes. Debido a su tamaño masivo y muy baja energía, estas ondas atraviesan limpiamente nuestros cuerpos sin interactuar ni dañar las estructuras celulares o el ADN."
                 }
             },
             {
                 id: 'microwave', threshold: 30, color: '#f97316', iconUtility: 'fa-wifi', iconSafety: 'fa-temperature-arrow-up',
                 name: { en: 'Microwaves', fr: 'Micro-ondes', es: 'Microondas' },
                 descUtility: {
-                    en: "Used in Wi-Fi, GPS, radar, and cooking. Excellent at transmitting data over line-of-sight distances.",
-                    fr: "Utilisées dans le Wi-Fi, le GPS, les radars et la cuisson. Excellentes pour transmettre des données en visibilité directe.",
-                    es: "Utilizadas en Wi-Fi, GPS, radar y para cocinar. Excelentes para transmitir datos a distancias con línea de visión."
+                    en: "Microwaves excel at transmitting dense data over line-of-sight distances, making them the invisible backbone of modern Wi-Fi, cell phones, GPS, and radar systems. They also happen to exist at the exact frequency needed to resonate with water molecules.",
+                    fr: "Les micro-ondes excellent dans la transmission de données denses en ligne de mire, formant l'épine dorsale du Wi-Fi, des téléphones, du GPS et des radars. Elles existent également à la fréquence exacte nécessaire pour résonner avec les molécules d'eau.",
+                    es: "Las microondas son excelentes para transmitir datos densos en línea de visión, formando la columna vertebral del Wi-Fi, teléfonos móviles y radares. También existen en la frecuencia exacta necesaria para resonar con las moléculas de agua."
                 },
                 descSafety: {
-                    en: "Non-ionizing, but causes heating. High concentrations (inside an oven) vibrate water molecules to create intense heat.",
-                    fr: "Non ionisant, mais provoque un échauffement. À forte concentration, elles font vibrer l'eau pour créer de la chaleur.",
-                    es: "No ionizante, pero causa calentamiento. En altas concentraciones hace vibrar el agua creando calor intenso."
+                    en: "While non-ionizing, microwaves can cause localized heating. They are harmless in small, dispersed doses (like from your smartphone router). However, high concentrations inside a microwave oven violently vibrate water molecules in food, generating intense friction and heat.",
+                    fr: "Bien que non ionisantes, elles peuvent provoquer un échauffement. Inoffensives à petites doses (comme le routeur), de fortes concentrations (dans un four) font vibrer violemment les molécules d'eau des aliments, générant une chaleur intense.",
+                    es: "Aunque no ionizantes, pueden causar calentamiento. Inofensivas en pequeñas dosis (como tu router), las altas concentraciones (dentro de un horno) hacen vibrar violentamente las moléculas de agua, generando calor intenso."
                 }
             },
             {
                 id: 'infrared', threshold: 45, color: '#ef4444', iconUtility: 'fa-fire-flame-curved', iconSafety: 'fa-temperature-half',
                 name: { en: 'Infrared', fr: 'Infrarouge', es: 'Infrarrojo' },
                 descUtility: {
-                    en: "Infrared (IR) is used in TV remotes, night-vision, and thermal imaging. We perceive it as heat.",
-                    fr: "L'infrarouge (IR) est utilisé dans les télécommandes, la vision nocturne et l'imagerie thermique. Nous le percevons comme de la chaleur.",
-                    es: "El infrarrojo (IR) se usa en controles remotos, visión nocturna y cámaras térmicas. Lo percibimos como calor."
+                    en: "Infrared (IR) is essentially the thermal signature of the universe. Every warm object, including the human body, naturally emits IR light. We harness it for TV remotes, night-vision goggles, and space telescopes to peer through cold cosmic dust.",
+                    fr: "L'infrarouge (IR) est la signature thermique de l'univers. Tout objet chaud émet naturellement de la lumière IR. Nous l'exploitons pour les télécommandes, la vision nocturne et les télescopes spatiaux pour voir à travers la poussière cosmique froide.",
+                    es: "El infrarrojo (IR) es esencialmente la firma térmica del universo. Todo objeto cálido emite luz IR de forma natural. Lo aprovechamos para controles remotos, visión nocturna y telescopios espaciales para mirar a través del polvo cósmico."
                 },
                 descSafety: {
-                    en: "Non-ionizing. Felt as warmth. Prolonged exposure to intense IR (like an industrial laser) can damage the eyes.",
-                    fr: "Non ionisant. Ressenti comme de la chaleur. Une exposition prolongée à un IR intense peut endommager les yeux.",
-                    es: "No ionizante. Se siente como calor. La exposición prolongada a IR intenso puede dañar los ojos."
+                    en: "Infrared is a non-ionizing wave. Our skin absorbs infrared radiation readily, which we feel directly as warmth or ambient heat. While generally safe, prolonged, close exposure to intensely concentrated artificial IR (like industrial heating lasers) can damage the retina of the eye.",
+                    fr: "L'infrarouge est non ionisant. Notre peau l'absorbe facilement, ce que nous ressentons comme de la chaleur. Bien que sûr, une exposition prolongée et proche à un IR artificiel très concentré (comme les lasers de chauffage) peut endommager la rétine.",
+                    es: "El infrarrojo es no ionizante. Nuestra piel lo absorbe fácilmente, lo que sentimos como calor ambiental. Aunque seguro, la exposición prolongada y cercana a IR artificial intensamente concentrado puede dañar la retina del ojo."
                 }
             },
             {
                 id: 'visible', threshold: 55, color: '#eab308', iconUtility: 'fa-eye', iconSafety: 'fa-sun',
                 name: { en: 'Visible Light', fr: 'Lumière Visible', es: 'Luz Visible' },
                 descUtility: {
-                    en: "The only part of the spectrum human eyes can see! Used in photography, fiber optics, and illumination.",
-                    fr: "La seule partie du spectre visible par l'œil humain ! Utilisée en photographie, fibre optique et éclairage.",
-                    es: "¡La única parte del espectro que los humanos pueden ver! Usada en fotografía, fibra óptica e iluminación."
+                    en: "This incredibly narrow band is the only fraction of the entire spectrum our eyes evolved to detect. It is crucial for driving plant photosynthesis, it powers global high-speed fiber-optic internet networks, and allows us to visually navigate the world.",
+                    fr: "Cette bande incroyablement étroite est la seule fraction que nos yeux ont évolué pour détecter. Elle est cruciale pour la photosynthèse, alimente les réseaux internet mondiaux par fibre optique et nous permet de naviguer visuellement.",
+                    es: "Esta banda increíblemente estrecha es la única fracción que nuestros ojos evolucionaron para detectar. Es crucial para impulsar la fotosíntesis, alimenta las redes globales de internet por fibra óptica y nos permite navegar visualmente."
                 },
                 descSafety: {
-                    en: "Non-ionizing and generally safe. However, extremely bright light (like a laser) can permanently damage the retina.",
-                    fr: "Non ionisant et généralement sûr. Cependant, une lumière extrêmement vive peut endommager la rétine de façon permanente.",
-                    es: "No ionizante y generalmente seguro. Sin embargo, la luz extremadamente brillante puede dañar permanentemente la retina."
+                    en: "Visible light is non-ionizing and fundamentally safe. It bounces off our bodies and objects seamlessly, letting others see us. However, heavily focused or extremely bright visible light sources (such as staring directly at the sun or a strong laser pointer) will cause permanent blindness.",
+                    fr: "La lumière visible est fondamentalement sûre. Elle rebondit sur nos corps. Cependant, des sources de lumière visible très concentrées ou extrêmement lumineuses (comme fixer le soleil ou un pointeur laser fort) causeront une cécité permanente.",
+                    es: "La luz visible es fundamentalmente segura. Rebota en nuestros cuerpos. Sin embargo, fuentes de luz visible muy concentradas o extremadamente brillantes (como mirar directamente al sol o un láser) causarán ceguera permanente."
                 }
             },
             {
                 id: 'ultraviolet', threshold: 70, color: '#a855f7', iconUtility: 'fa-microscope', iconSafety: 'fa-triangle-exclamation',
                 name: { en: 'Ultraviolet', fr: 'Ultraviolet', es: 'Ultravioleta' },
                 descUtility: {
-                    en: "Used in forensics, sterilizing medical equipment (kills bacteria), and fluorescent blacklights.",
-                    fr: "Utilisé en médecine légale, pour stériliser l'équipement médical et dans les lumières noires.",
-                    es: "Usado en medicina forense, esterilización médica y luces negras."
+                    en: "Ultraviolet (UV) waves carry enough inherent energy to trigger complex chemical reactions. We use artificial UV lights in forensic science to reveal hidden fluids, and heavily in hospitals to rapidly sterilize surgical equipment by completely destroying bacterial DNA.",
+                    fr: "Les ondes ultraviolettes (UV) transportent suffisamment d'énergie pour déclencher des réactions chimiques. Nous les utilisons en médecine légale pour révéler les fluides et dans les hôpitaux pour stériliser le matériel en détruisant l'ADN bactérien.",
+                    es: "Las ondas ultravioletas (UV) transportan suficiente energía para desencadenar reacciones químicas. Las usamos en ciencias forenses para revelar fluidos y en hospitales para esterilizar equipos destruyendo completamente el ADN bacteriano."
                 },
                 descSafety: {
-                    en: "Warning: Ionizing. UV rays have enough energy to knock electrons off atoms. Causes sunburns and increases cancer risk.",
-                    fr: "Attention : Ionisant. Les rayons UV peuvent arracher des électrons aux atomes. Provoque des coups de soleil et augmente le risque de cancer.",
-                    es: "Advertencia: Ionizante. Los rayos UV tienen suficiente energía para arrancar electrones. Causa quemaduras solares."
+                    en: "Warning: Ionizing Radiation Begins Here. UV rays possess enough kinetic energy to knock electrons directly off atoms. It easily penetrates the upper surface of your skin, causing painful sunburns, premature cellular aging, and significantly increasing the risk of malignant skin cancer.",
+                    fr: "Attention : Le rayonnement ionisant commence ici. Les rayons UV possèdent l'énergie d'arracher les électrons des atomes. Ils pénètrent la surface de votre peau, causant des coups de soleil et augmentant considérablement le risque de cancer.",
+                    es: "Advertencia: Aquí comienza la Radiación Ionizante. Los rayos UV poseen energía para arrancar electrones de los átomos. Penetra fácilmente la superficie de tu piel, causando quemaduras y aumentando significativamente el riesgo de cáncer."
                 }
             },
             {
                 id: 'xray', threshold: 85, color: '#06b6d4', iconUtility: 'fa-x-ray', iconSafety: 'fa-skull-crossbones',
                 name: { en: 'X-Rays', fr: 'Rayons X', es: 'Rayos X' },
                 descUtility: {
-                    en: "Used heavily in medicine and security. They pass through soft tissue but are absorbed by denser materials like bone.",
-                    fr: "Très utilisés en médecine et sécurité. Ils traversent les tissus mous mais sont absorbés par les os.",
-                    es: "Muy usados en medicina y seguridad. Atraviesan los tejidos blandos pero son absorbidos por materiales densos como huesos."
+                    en: "X-Rays possess immense wave energy that glides effortlessly through soft biological tissues, but they are suddenly blocked and absorbed by denser materials like calcium. This trait makes them perfectly suited for medical imaging, dental radiography, and airport security scanners.",
+                    fr: "Les rayons X possèdent une immense énergie qui traverse sans effort les tissus biologiques mous, mais sont bloqués par des matériaux denses comme le calcium. Cela les rend parfaits pour l'imagerie médicale, la dentisterie et la sécurité des aéroports.",
+                    es: "Los Rayos X poseen una inmensa energía que se desliza sin esfuerzo a través de tejidos blandos, pero son bloqueados por materiales más densos como el calcio. Este rasgo los hace perfectos para imágenes médicas, radiografía dental y escáneres de seguridad."
                 },
                 descSafety: {
-                    en: "Danger: Highly Ionizing. Can easily damage DNA and cause cell mutations. Requires lead shielding during use.",
-                    fr: "Danger : Hautement ionisant. Peut facilement endommager l'ADN et provoquer des mutations. Nécessite un blindage en plomb.",
-                    es: "Peligro: Altamente ionizante. Puede dañar el ADN y causar mutaciones. Requiere blindaje de plomo."
+                    en: "Danger: Highly Ionizing. X-Rays effortlessly penetrate deep into internal tissue and can severely disrupt delicate cellular DNA, leading to dangerous mutations. This is why technicians hide behind thick lead-lined walls and place heavy lead aprons over patients during routine use.",
+                    fr: "Danger : Hautement ionisant. Les rayons X pénètrent profondément dans les tissus internes et peuvent perturber gravement l'ADN, entraînant de dangereuses mutations. C'est pourquoi les techniciens se cachent derrière des murs tapissés de plomb.",
+                    es: "Peligro: Altamente Ionizante. Los Rayos X penetran profundamente en el tejido interno y pueden alterar severamente el ADN celular, llevando a mutaciones peligrosas. Por eso los técnicos se esconden detrás de gruesas paredes de plomo."
                 }
             },
             {
                 id: 'gamma', threshold: 100, color: '#ffffff', iconUtility: 'fa-atom', iconSafety: 'fa-radiation',
                 name: { en: 'Gamma Rays', fr: 'Rayons Gamma', es: 'Rayos Gamma' },
                 descUtility: {
-                    en: "Generated by black holes and nuclear reactions. Used in medicine for targeted cancer radiation therapy.",
-                    fr: "Générés par les trous noirs et les réactions nucléaires. Utilisés en médecine pour la radiothérapie ciblée contre le cancer.",
-                    es: "Generados por agujeros negros y reacciones nucleares. Usados en medicina para radioterapia dirigida contra el cáncer."
+                    en: "Gamma Rays are the most violent, energetic waves in the known universe, typically generated by detonating supernovas, black holes, and nuclear decay. On Earth, we use highly controlled, pinpoint beams of Gamma radiation in medicine to target and destroy deep-tissue cancer tumors.",
+                    fr: "Les rayons Gamma sont les ondes les plus énergétiques de l'univers, générées par les supernovas, les trous noirs et la désintégration nucléaire. Sur Terre, nous utilisons des faisceaux très contrôlés pour cibler et détruire les tumeurs cancéreuses.",
+                    es: "Los Rayos Gamma son las ondas más energéticas del universo, generadas por supernovas, agujeros negros y desintegración nuclear. En la Tierra, utilizamos haces muy controlados para atacar y destruir tumores cancerosos profundos."
                 },
                 descSafety: {
-                    en: "Extreme Danger: Extremely Ionizing. The highest energy waves. They penetrate almost anything and cause severe cellular damage.",
-                    fr: "Danger Extrême : Extrêmement ionisant. Pénètrent presque tout et causent de graves dommages cellulaires.",
-                    es: "Peligro Extremo: Extremamente ionizante. Penetran casi todo y causan daño celular severo."
+                    en: "Extreme Danger: Extremely Ionizing. These microscopic waves possess terrifying penetrating power. They easily slice entirely through the human body, destroying massive amounts of healthy cells and DNA in their path. They can only be safely stopped by several inches of dense solid lead or feet of concrete.",
+                    fr: "Danger Extrême : Extrêmement ionisant. Ces ondes possèdent un pouvoir de pénétration terrifiant. Elles traversent entièrement le corps humain, détruisant des quantités massives de cellules saines et d'ADN. Elles ne sont arrêtées que par du plomb dense ou du béton.",
+                    es: "Peligro Extremo: Extremadamente Ionizante. Estas ondas poseen un poder de penetración aterrador. Atraviesan completamente el cuerpo humano, destruyendo cantidades masivas de células sanas y ADN. Solo pueden ser detenidas por plomo grueso o concreto."
                 }
             }
         ];
@@ -503,7 +483,7 @@
             { threshold: 1e-7, icon: 'fa-virus', name: { en: 'Virus', fr: 'Virus', es: 'Virus' } },
             { threshold: 1e-8, icon: 'fa-dna', name: { en: 'Protein', fr: 'Protéine', es: 'Proteína' } },
             { threshold: 1e-10, icon: 'fa-atom', name: { en: 'Atom', fr: 'Atome', es: 'Átomo' } },
-            { threshold: 0, icon: 'fa-certificate', name: { en: 'Nucleus', fr: 'Noyau', es: 'Núcleo' } }
+            { threshold: 0, icon: 'fa-certificate', name: { en: 'Atomic nucleus', fr: 'Noyau atomique', es: 'Núcleo atómico' } }
         ];
 
         let currentLang = 'en';
@@ -515,13 +495,11 @@
         const waveCanvas = document.getElementById('waveCanvas');
         const waveCtx = waveCanvas.getContext('2d');
         const waveGlow = document.getElementById('waveCanvasGlow');
+        const penFill = document.getElementById('pen-fill');
         
         let waveTime = 0;
         let currentWavelength = 150; 
         let targetWavelength = 150;
-        let currentAmplitude = 30;
-        let targetAmplitude = 30;
-        let waveHexColor = '#ef4444';
 
         function resizeCanvas() {
             const rect = waveCanvas.parentElement.getBoundingClientRect();
@@ -532,39 +510,42 @@
         window.addEventListener('resize', resizeCanvas);
 
         function drawMainWave() {
-            const rect = waveCanvas.parentElement.getBoundingClientRect();
-            const w = rect.width;
-            const h = rect.height;
+            const w = waveCanvas.width / (window.devicePixelRatio || 1);
+            const h = waveCanvas.height / (window.devicePixelRatio || 1);
             const midY = h / 2;
 
             waveCtx.clearRect(0, 0, w, h);
 
+            // Canvas Math Setup
             currentWavelength += (targetWavelength - currentWavelength) * 0.1;
-            currentAmplitude += (targetAmplitude - currentAmplitude) * 0.1;
+            
+            // Fixed base amplitude constraint to stay well within limits
+            const amplitude = (h / 2) - 15;
 
+            // Draw center axis line
             waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             waveCtx.lineWidth = 1;
             waveCtx.beginPath();
             waveCtx.moveTo(0, midY); waveCtx.lineTo(w, midY);
             waveCtx.stroke();
 
+            // Draw The Main Physics Wave spans entire horizontal
             waveCtx.beginPath();
             waveCtx.strokeStyle = waveHexColor;
             waveCtx.lineWidth = 4;
-            waveCtx.shadowBlur = 15;
+            waveCtx.shadowBlur = 12;
             waveCtx.shadowColor = waveHexColor;
 
             for (let x = 0; x < w; x++) {
-                const y = midY + Math.sin((x / currentWavelength) - waveTime) * currentAmplitude;
+                const y = midY + Math.sin((x / currentWavelength) - waveTime) * amplitude;
+                
                 if (x === 0) waveCtx.moveTo(x, y);
                 else waveCtx.lineTo(x, y);
             }
             waveCtx.stroke();
             waveCtx.shadowBlur = 0;
 
-            // PHYSICS CONSTANT SPEED: Phase shift must be inversely proportional to wavelength
-            // v = f * lambda. Visually, v = dPhase/dt * lambda. 
-            // So dPhase/dt = CONSTANT_SPEED / lambda.
+            // v = c physics logic for horizontal translation speed
             const VISUAL_C = 8; 
             waveTime += VISUAL_C / Math.max(currentWavelength, 1);
 
@@ -599,7 +580,6 @@
             const w = splashCanvas.width;
             const h = splashCanvas.height;
             
-            // Central / Mouse Glow
             const gradient = splashCtx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 500);
             gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
             gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
@@ -617,7 +597,6 @@
                 splashCtx.shadowBlur = 20;
                 splashCtx.shadowColor = colors[i];
                 
-                // MOUSE INFLUENCE on overall wave shape
                 let baseFreq = 0.002 + (mouseX / w) * 0.008;
                 let baseAmp = 40 + (mouseY / h) * 120;
                 
@@ -627,14 +606,11 @@
                 
                 for(let x=0; x<w; x+=10) {
                     let y = yOff + Math.sin(x*freq + splashTime + i) * amp;
-                    
-                    // Local magnetic distortion
                     let dist = Math.abs(x - mouseX);
                     if (dist < 300) {
                         const influence = Math.pow((300 - dist) / 300, 2);
                         y += Math.sin(x * freq * 2 + splashTime * 3) * 60 * influence;
                     }
-                    
                     if(x===0) splashCtx.moveTo(x, y);
                     else splashCtx.lineTo(x, y);
                 }
@@ -673,12 +649,11 @@
         function applyTranslations() {
             const dict = I18N[currentLang];
             
-            // Update UI elements mapping IDs to dictionary keys
             const map = {
                 'ui-title': 'title', 'ui-subtitle': 'subtitle', 'introTitle': 'introTitle',
                 'introText': 'introText', 'startLabBtn': 'startLab', 'ui-btn-utility': 'btnUtility',
                 'ui-btn-safety': 'btnSafety', 'ui-wave-vis': 'waveVis', 'ui-wavelength': 'wavelength',
-                'ui-frequency': 'frequency', 'ui-energy': 'energy', 'ui-drag-hint': 'dragHint',
+                'ui-frequency': 'frequency', 'ui-energy': 'energy', 
                 'ui-penetration': 'uiPenetration', 'ui-pen-surface': 'penSurface', 'ui-pen-tissue': 'penTissue',
                 'ui-pen-bone': 'penBone', 'ui-pen-lead': 'penLead', 'ui-size-text': 'sizeText'
             };
@@ -719,9 +694,8 @@
             const wavelength = Math.pow(10, exponent);
             const frequency = SPEED_OF_LIGHT / wavelength;
 
-            // Math mapped to canvas wave sizing
+            // Target wavelength canvas sizing (smooth transition)
             targetWavelength = 180 - (val / 100) * 165; 
-            targetAmplitude = 15 + (val / 100) * 35;
 
             // Wavelength UI
             const waveSci = formatScientific(wavelength);
@@ -755,14 +729,9 @@
             else rawFreq = dict.units.ehf;
             document.getElementById('valFrequencyRaw').innerText = rawFreq;
 
-            // Energy Bar & Penetration Model UI
+            // Energy Bar & Text
             document.getElementById('energyBar').style.width = `${Math.max(val, 2)}%`;
             const elValEnergyText = document.getElementById('valEnergyText');
-            
-            const pSur = document.getElementById('pen-surface');
-            const pTis = document.getElementById('pen-tissue');
-            const pBon = document.getElementById('pen-bone');
-            const pLea = document.getElementById('pen-lead');
 
             if (val < 20) { 
                 elValEnergyText.className = "text-sm font-bold text-green-400"; elValEnergyText.innerText = dict.energyLevels[0]; 
@@ -780,28 +749,25 @@
                 elValEnergyText.className = "text-sm font-bold text-red-500"; elValEnergyText.innerText = dict.energyLevels[4]; 
             }
 
-            // Simple Pedagogical Penetration Model Mapping
-            if (val < 45) { // Radio, Micro, IR (non-ionizing, treating as bulk absorption/reflection for simple visual)
-                pSur.className = "flex-1 bg-red-400 transition-colors duration-300";
-                pTis.className = "flex-1 bg-slate-900 border-l border-slate-800 transition-colors duration-300";
-                pBon.className = "flex-1 bg-slate-900 border-l border-slate-800 transition-colors duration-300";
-                pLea.className = "flex-1 bg-slate-900 border-l border-slate-800 transition-colors duration-300";
-            } else if (val < 70) { // Visible, UV (Penetrates skin surface)
-                pSur.className = "flex-1 bg-yellow-400 transition-colors duration-300";
-                pTis.className = "flex-1 bg-yellow-600/50 border-l border-slate-800 transition-colors duration-300";
-                pBon.className = "flex-1 bg-slate-900 border-l border-slate-800 transition-colors duration-300";
-                pLea.className = "flex-1 bg-slate-900 border-l border-slate-800 transition-colors duration-300";
-            } else if (val < 85) { // X-Ray (Passes tissue, stopped by bone)
-                pSur.className = "flex-1 bg-cyan-400 transition-colors duration-300";
-                pTis.className = "flex-1 bg-cyan-400 border-l border-cyan-500 transition-colors duration-300";
-                pBon.className = "flex-1 bg-slate-900 border-l border-slate-800 transition-colors duration-300";
-                pLea.className = "flex-1 bg-slate-900 border-l border-slate-800 transition-colors duration-300";
-            } else { // Gamma (Penetrates bone, stopped by Lead)
-                pSur.className = "flex-1 bg-white transition-colors duration-300";
-                pTis.className = "flex-1 bg-white border-l border-gray-300 transition-colors duration-300";
-                pBon.className = "flex-1 bg-white border-l border-gray-300 transition-colors duration-300";
-                pLea.className = "flex-1 bg-slate-900 border-l border-slate-800 transition-colors duration-300";
+            // Penetration Gauge Logic
+            let uiPenetrationPercent = 100;
+            if (val < 15) { // Radio
+                uiPenetrationPercent = 100;
+            } else if (val < 30) { // Micro
+                uiPenetrationPercent = 25 + 25 * 0.5;
+            } else if (val < 55) { // IR/Visible
+                uiPenetrationPercent = 25 * 0.1;
+            } else if (val < 70) { // UV
+                const localT = (val - 55) / 15;
+                uiPenetrationPercent = 25 * (0.5 + localT*0.5);
+            } else if (val < 85) { // XRay
+                const localT = (val - 70) / 15;
+                uiPenetrationPercent = 25 * 2 + 25 * (0.2 + localT*0.8);
+            } else { // Gamma
+                const localT = (val - 85) / 15;
+                uiPenetrationPercent = 25 * 3 + 25 * (0.2 + localT*0.8);
             }
+            penFill.style.width = `${Math.min(uiPenetrationPercent, 100)}%`;
 
             // Lens Context
             const category = getCategory(val);
@@ -856,15 +822,15 @@
 
         btnUtility.addEventListener('click', () => {
             currentMode = 'utility';
-            btnUtility.className = "toggle-btn active-utility flex-1 lg:flex-none px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300";
-            btnSafety.className = "toggle-btn inactive flex-1 lg:flex-none px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300";
+            btnUtility.className = "toggle-btn active-utility flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300";
+            btnSafety.className = "toggle-btn inactive flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300";
             updateUI();
         });
 
         btnSafety.addEventListener('click', () => {
             currentMode = 'safety';
-            btnSafety.className = "toggle-btn active-safety flex-1 lg:flex-none px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300";
-            btnUtility.className = "toggle-btn inactive flex-1 lg:flex-none px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300";
+            btnSafety.className = "toggle-btn active-safety flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300";
+            btnUtility.className = "toggle-btn inactive flex-1 xl:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300";
             updateUI();
         });
 
@@ -929,12 +895,12 @@
             s2.classList.add('fade-out');
             
             setTimeout(() => {
-                isSplashActive = false; // Stop heavy canvas drawing
+                isSplashActive = false; 
                 s2.style.display = 'none';
                 document.getElementById('splashCanvas').style.display = 'none';
                 
                 mainApp.classList.remove('hidden');
-                void mainApp.offsetWidth; // reflow
+                void mainApp.offsetWidth; 
                 mainApp.classList.add('fade-in');
                 
                 initSliderMarkers();
