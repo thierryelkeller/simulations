@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Botanical Lifecycle Explorer (Multilingual & Speed Controls)</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --sky-blue: #0284c7;
+            --soil-brown: #2d1e18;
+            --soil-dark: #1b110e;
+            --sun-yellow: #f59e0b;
+            --primary: #10b981;
+            --primary-hover: #34d399;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* --- TITLE SCREEN STYLES --- */
+        #titleScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .title-art {
+            font-size: 4.5rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.2));
+            animation: floatArt 4s ease-in-out infinite;
+        }
+
+        @keyframes floatArt {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .title-main {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+            letter-spacing: -0.025em;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-sub {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        .lang-button-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-lang {
+            background: #1e293b;
+            border: 2px solid var(--border);
+            color: #fff;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 160px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .btn-lang span.native-name {
+            font-size: 1.15rem;
+        }
+
+        .btn-lang span.eng-name {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .btn-lang:hover {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-lang:active {
+            transform: translateY(0);
+        }
+
+        /* --- CONTAINER STYLES --- */
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+        }
+
+        header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            background: #111827;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-text h1 {
+            font-size: 1.6rem;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .header-text p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .top-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .select-input {
+            background: #334155;
+            border: 1px solid #475569;
+            color: #fff;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .select-input:hover {
+            background: #475569;
+            border-color: #64748b;
+        }
+
+        .btn-control {
+            background: #334155;
+            border: 1px solid #475569;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            color: #e2e8f0;
+        }
+
+        .btn-control:hover {
+            background: #475569;
+            border-color: #64748b;
+        }
+
+        .btn-control.active-play {
+            background: #065f46;
+            border-color: #059669;
+            color: #a7f3d0;
+        }
+
+        .workspace {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+        }
+
+        .viewport-wrapper {
+            position: relative;
+            flex: 1;
+            height: 520px;
+            background: linear-gradient(to bottom, var(--sky-blue) 0%, #0c4a6e 50%, var(--soil-brown) 50%, var(--soil-dark) 100%);
+            overflow: hidden;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .sun-source {
+            position: absolute;
+            top: 30px;
+            left: 35px;
+            width: 55px;
+            height: 55px;
+            background: var(--sun-yellow);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.9), 0 0 80px rgba(245, 158, 11, 0.4);
+            z-index: 10;
+        }
+
+        .horizon-label {
+            position: absolute;
+            right: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            pointer-events: none;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .label-air { top: 230px; color: #bae6fd; }
+        .label-soil { top: 265px; color: #ffedd5; }
+
+        .sidebar-panel {
+            width: 280px;
+            background: #111827;
+            border-left: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .plant-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 14px 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #cbd5e1;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .plant-btn:hover {
+            border-color: #475569;
+            background: #334155;
+        }
+
+        .plant-btn.active {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.15);
+            color: #fff;
+            box-shadow: inset 4px 0 0 var(--primary);
+        }
+
+        .plant-btn span.system-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .control-deck {
+            padding: 24px;
+            background: #1e293b;
+            border-top: 1px solid var(--border);
+        }
+
+        .timeline-container {
+            margin-bottom: 20px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stage-badge {
+            background: #0284c7;
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: 1px solid #38bdf8;
+        }
+
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .lifecycle-slider {
+            flex-grow: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 9999px;
+            background: #334155;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .lifecycle-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: transform 0.1s ease;
+        }
+
+        .lifecycle-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .time-display {
+            font-variant-numeric: tabular-nums;
+            font-weight: bold;
+            color: #fff;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .insights-panel {
+            background: #111827;
+            border-top: 3px solid var(--primary);
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .insights-panel h3 {
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .insights-list {
+            list-style-type: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .insights-list li {
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            line-height: 1.4;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .insights-list li::before {
+            content: "✦";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        @media (max-width: 850px) {
+            .workspace {
+                flex-direction: column;
+            }
+            .sidebar-panel {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid var(--border);
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .insights-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 550px) {
+            .sidebar-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="titleScreen">
+    <div class="title-art">🌿</div>
+    <div class="title-main">Botanical Lifecycle Explorer</div>
+    <div class="title-sub">Select your language to begin exploring interactive static root architectures and shoot morphodynamics.</div>
+    <div class="lang-button-group">
+        <button class="btn-lang" onclick="selectInitialLanguage('en')">
+            <span class="native-name">English</span>
+            <span class="eng-name">English</span>
+        </button>
+        <button class="btn-lang" onclick="selectInitialLanguage('es')">
+            <span class="native-name">Español</span>
+            <span class="eng-name">Spanish</span>
+        </button>
+        <button class="btn-lang" onclick="selectInitialLanguage('fr')">
+            <span class="native-name">Français</span>
+            <span class="eng-name">French</span>
+        </button>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <div class="header-text">
+            <h1 id="txtTitle">Botanical Lifecycle Explorer</h1>
+            <p id="txtSubtitle">Interactive study of static structural root architecture and shoot morphodynamics.</p>
+        </div>
+        <div class="top-controls">
+            <select id="langSelect" class="select-input" onchange="changeLanguage(this.value)">
+                <option value="en" selected>English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+            </select>
+
+            <select id="speedSelect" class="select-input" onchange="changeSpeed(this.value)">
+                <option value="120">Slow</option>
+                <option value="60" selected>Normal</option>
+                <option value="20">Fast</option>
+            </select>
+
+            <button id="btnPlayPause" class="btn-control" onclick="toggleAutoplay()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+                <span id="playText">Autoplay Loop</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <div class="viewport-wrapper">
+            <div class="sun-source"></div>
+            <div id="lblAtmosphere" class="horizon-label label-air">Atmosphere (Shoot System)</div>
+            <div id="lblSubsurface" class="horizon-label label-soil">Subsurface Cross-Section (Root Architecture)</div>
+            <canvas id="plantCanvas"></canvas>
+        </div>
+
+        <div class="sidebar-panel" id="sidebarButtons">
+            <div class="sidebar-title" id="txtSelectSpecimen">Select Specimen</div>
+            </div>
+    </div>
+
+    <div class="control-deck">
+        <div class="timeline-container">
+            <div class="timeline-header">
+                <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-muted);" id="timelineLabel">Phenological Timeline</span>
+                <span id="stageBadge" class="stage-badge">Radicle Emergence</span>
+            </div>
+            <div class="slider-wrapper">
+                <input type="range" id="lifecycleSlider" class="lifecycle-slider" min="0" max="100" value="0">
+                <span id="timeDisplay" class="time-display">0%</span>
+            </div>
+        </div>
+
+        <div class="insights-panel">
+            <h3 id="insightsTitle">Morphological Status</h3>
+            <ul id="insightsList" class="insights-list">
+                </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('plantCanvas');
+    const ctx = canvas.getContext('2d');
+    const slider = document.getElementById('lifecycleSlider');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const stageBadge = document.getElementById('stageBadge');
+    const insightsList = document.getElementById('insightsList');
+    const insightsTitle = document.getElementById('insightsTitle');
+    const timelineLabel = document.getElementById('timelineLabel');
+    const langSelect = document.getElementById('langSelect');
+
+    let currentPlant = 'sunflower';
+    let currentLang = 'en';
+    let progress = 0;
+    let isPlaying = false;
+    let autoplayInterval = null;
+    let speedMs = 60;
+
+    // Fixed math noise cache preventing roots from dynamically shifting during timeline updates
+    const pregeneratedNoise = Array.from({length: 500}, (_, i) => ({
+        wave: Math.sin(i * 0.35) * 0.12,
+        noise: Math.cos(i * 1.1) * 0.08
+    }));
+
+    // Localized UI labels dictionary
+    const uiTranslations = {
+        en: {
+            title: "Botanical Lifecycle Explorer",
+            subtitle: "Interactive study of static structural root architecture and shoot morphodynamics.",
+            selectSpecimen: "Select Specimen",
+            autoplay: "Autoplay Loop",
+            pause: "Pause Loop",
+            morphStatus: "Morphological Status",
+            lblAtmosphere: "Atmosphere (Shoot System)",
+            lblSubsurface: "Subsurface Cross-Section (Root Architecture)",
+            speedSlow: "Slow",
+            speedNormal: "Normal",
+            speedFast: "Fast"
+        },
+        fr: {
+            title: "Explorateur de Cycles Botaniques",
+            subtitle: "Étude interactive de l'architecture racinaire statique et de la morphodynamique des tiges.",
+            selectSpecimen: "Sélectionner un spécimen",
+            autoplay: "Lecture automatique",
+            pause: "Pause",
+            morphStatus: "Statut Morphologique",
+            lblAtmosphere: "Atmosphère (Système Caulinaire)",
+            lblSubsurface: "Section Souterraine (Architecture Racinaire)",
+            speedSlow: "Lent",
+            speedNormal: "Normal",
+            speedFast: "Rapide"
+        },
+        es: {
+            title: "Explorador del Ciclo de Vida Botánico",
+            subtitle: "Estudio interactivo de la arquitectura de raíces fijas y la morfodinámica de brotes.",
+            selectSpecimen: "Seleccionar Espécimen",
+            autoplay: "Reproducción automática",
+            pause: "Pausa",
+            morphStatus: "Estado Morfológico",
+            lblAtmosphere: "Atmósfera (Sistema de Vástago)",
+            lblSubsurface: "Sección Subterránea (Arquitectura de Raíces)",
+            speedSlow: "Lento",
+            speedNormal: "Normal",
+            speedFast: "Rápido"
+        }
+    };
+
+    const plantData = {
+        sunflower: {
+            keys: { en: "Sunflower", fr: "Tournesol", es: "Girasol" },
+            desc: { en: "Deep Taproot / Heavy Anchor", fr: "Racine pivotante / Ancre lourde", es: "Raíz pivotante / Anclaje pesado" },
+            name: { en: "Helianthus annuus (Sunflower)", fr: "Helianthus annuus (Tournesol)", es: "Helianthus annuus (Girasol)" },
+            timeline: { en: "Annual Lifecycle (120 Days)", fr: "Cycle de vie annuel (120 jours)", es: "Ciclo de vida anual (120 días)" },
+            stages: {
+                en: [
+                    { max: 15, name: "Germination", notes: ["Geotropism causes the radicle to strike vertically down.", "The hypocotyl loops up, dragging the cotyledons out of the seed coat."] },
+                    { max: 55, name: "Vegetative Surge", notes: ["A robust, central taproot plunges deep to tap sub-horizon water reserves.", "Alternate broad leaves stack vertically to create an aggregate light-trap."] },
+                    { max: 85, name: "Anthesis (Flowering)", notes: ["A heavy terminal head tracks steady light before coming to a static rest.", "Hormone triggers drop secondary lateral anchor roots near the surface layer."] },
+                    { max: 100, name: "Senescence & Seed-Set", notes: ["The stem lignifies and curves downwards under the load of heavy disc achenes (seeds).", "Roots cease cell division, turning metabolic focus fully to seed maturation."] }
+                ],
+                fr: [
+                    { max: 15, name: "Germination", notes: ["Le géotropisme pousse la radicule à s'enfoncer verticalement.", "L'hypocotyle forme une boucle vers le haut, sortant les cotylédons de l'enveloppe."] },
+                    { max: 55, name: "Croissance Végétative", notes: ["Une racine pivotante centrale plonge profondément pour puiser l'eau sous le sol.", "Les feuilles alternées se superposent pour créer un capteur de lumière."] },
+                    { max: 85, name: "Anthèse (Floraison)", notes: ["Le capitule lourd suit la lumière du soleil avant de se fixer de manière immobile.", "Des hormones déclenchent la croissance de racines d'ancrage latérales de surface."] },
+                    { max: 100, name: "Sénescence & Fructification", notes: ["La tige se lignifie et se courbe sous le poids des lourds akènes.", "Les racines stoppent leur division pour se concentrer sur la maturation des graines."] }
+                ],
+                es: [
+                    { max: 15, name: "Germinación", notes: ["El geotropismo hace que la radícula penetre verticalmente hacia abajo.", "El hipocótilo se curva arrastrando los cotiledones fuera de la cubierta seminal."] },
+                    { max: 55, name: "Fase Vegetativa", notes: ["Una raíz pivotante central y robusta se hunde profundamente para extraer agua.", "Hojas anchas y alternas se apilan verticalmente creando una trampa de luz."] },
+                    { max: 85, name: "Antesis (Floración)", notes: ["Una cabeza terminal pesada sigue la luz antes de quedar en reposo estático.", "Las hormonas activan raíces de anclaje laterales secundarias en la superficie."] },
+                    { max: 100, name: "Senescencia y Fructificación", notes: ["El tallo se lignifica y se curva hacia abajo por el peso de las semillas.", "Las raíces detienen la división celular enfocándose en madurar la semilla."] }
+                ]
+            }
+        },
+        pea: {
+            keys: { en: "Garden Pea", fr: "Pois cultivé", es: "Guisante" },
+            desc: { en: "Symbiotic Nodule / Vining Mesh", fr: "Nodule symbiotique / Grillage grimpant", es: "Nódulo simbiótico / Red de enredadera" },
+            name: { en: "Pisum sativum (Garden Pea)", fr: "Pisum sativum (Pois)", es: "Pisum sativum (Guisante)" },
+            timeline: { en: "Legume Growth Cycle (90 Days)", fr: "Cycle des légumineuses (90 jours)", es: "Ciclo de leguminosas (90 días)" },
+            stages: {
+                en: [
+                    { max: 20, name: "Hypogeal Sprouting", notes: ["Cotyledons remain below ground while the epicotyl reaches for air.", "Early branching lateral root lines spread horizontally."] },
+                    { max: 60, name: "Tendril Clambering", notes: ["Modified leaflets create mechanical thigmotropic tendrils that anchor to nearby columns.", "Rhizobium bacteria colonize root cortical cells, inflating pinkish nitrogen-fixing nodules."] },
+                    { max: 85, name: "Pod Production", notes: ["Zygomorphic flowers shed petals to reveal rapidly filling pod structures.", "The root system builds a dense web network directly underneath the main axis."] },
+                    { max: 100, name: "Dehydration Phase", notes: ["The primary plant body funnels remaining amino acids into peas and begins drying.", "Nodules break down, leaving fixed atmospheric nitrogen enriched directly in the surrounding soil."] }
+                ],
+                fr: [
+                    { max: 20, name: "Levée Hypogée", notes: ["Les cotylédons restent sous terre tandis que l'épicotyle s'élève vers l'air.", "Les premières ramifications racinaires latérales s'étendent horizontalement."] },
+                    { max: 60, name: "Ascension par Vrilles", notes: ["Les folioles modifiées créent des vrilles qui s'accrochent aux supports voisins.", "Les bactéries Rhizobium colonisent la racine, gonflant des nodules roses."] },
+                    { max: 85, name: "Production de Cosses", notes: ["Les fleurs zygomorphes perdent leurs pétales, révélant des cosses qui se remplissent.", "Le système racinaire tisse un réseau dense directement sous l'axe principal."] },
+                    { max: 100, name: "Phase de Déshydratation", notes: ["La plante transfère ses acides aminés dans les pois et commence à sécher.", "Les nodules se décomposent, enrichissant le sol en azote atmosphérique fixé."] }
+                ],
+                es: [
+                    { max: 20, name: "Brote Hipogeo", notes: ["Los cotiledones permanecen bajo tierra mientras el epicótilo busca el aire.", "Líneas de raíces laterales tempranas se extienden horizontalmente."] },
+                    { max: 60, name: "Escalada por Zarcillos", notes: ["Folíolos modificados crean zarcillos mecánicos que se anclan a estructuras.", "Bacterias Rhizobium colonizan las raíces, inflando nódulos fijadores de nitrógeno."] },
+                    { max: 85, name: "Producción de Vainas", notes: ["Las flores zigomorfas pierden pétalos revelando vainas que se llenan rápido.", "El sistema de raíces genera una red densa directo bajo el eje principal."] },
+                    { max: 100, name: "Fase de Deshidratación", notes: ["El cuerpo vegetal canaliza los aminoácidos a los guisantes y comienza a secarse.", "Los nódulos se degradan, dejando nitrógeno enriquecido en el suelo circundante."] }
+                ]
+            }
+        },
+        carrot: {
+            keys: { en: "Carrot", fr: "Carotte", es: "Zanahoria" },
+            desc: { en: "Fleshy Biennial Hyper-Storage", fr: "Hyper-stockage bisannuel charnu", es: "Hiperalmacenamiento bienal carnoso" },
+            name: { en: "Daucus carota (Carrot)", fr: "Daucus carota (Carotte)", es: "Daucus carota (Zanahoria)" },
+            timeline: { en: "Biennial Storage Cycle (2 Seasons)", fr: "Cycle de stockage bisannuel (2 Saisons)", es: "Ciclo de reserva bienal (2 Estaciones)" },
+            stages: {
+                en: [
+                    { max: 20, name: "Seedling Establishment", notes: ["The thin primary root bores vertically into loose earth without branching.", "First highly divided bipinnate true leaves emerge above ground."] },
+                    { max: 55, name: "Rosette Proliferation", notes: ["Foliage forms a tight, compressed spiral rosette pattern to remain low-profile.", "Extensive capillary root hairs fan outwards from the un-bulked central core taproot."] },
+                    { max: 85, name: "Conical Taproot Bulking", notes: ["Photosynthetic sucrose pools funnel back down via phloem tissues into the primary root.", "Parenchyma cells in the taproot swell dramatically with orange carotenoid storage pigments."] },
+                    { max: 100, name: "Peak Carbohydrate Reserve", notes: ["The root fills into a solid fleshy storage cone, rich in stored moisture and complex sugars.", "The core becomes firm, storing enough biochemical fuel to withstand seasonal dormancy."] }
+                ],
+                fr: [
+                    { max: 20, name: "Établissement du Semis", notes: ["La fine racine primaire s'enfonce verticalement dans la terre meuble.", "Les premières feuilles pennées très divisées émergent au-dessus du sol."] },
+                    { max: 55, name: "Prolifération en Rosette", notes: ["Le feuillage forme une rosette en spirale compacte pour rester bas.", "Des poils racinaires capillaires s'étendent à partir du pivot central non renflé."] },
+                    { max: 85, name: "Grossissement du Pivot", notes: ["Le saccharose issu de la photosynthèse descend par le phloème vers la racine.", "Les cellules parenchymateuses gonflent de pigments orange de caroténoïdes."] },
+                    { max: 100, name: "Pic de Réserve de Glucides", notes: ["La racine forme un cône de stockage charnu, riche en eau et sucres complexes.", "Le cœur devient ferme, stockant le carburant pour résister à la dormance."] }
+                ],
+                es: [
+                    { max: 20, name: "Establecimiento de Plántula", notes: ["La delgada raíz primaria perfora el suelo suelto verticalmente sin ramificar.", "Emergen sobre el suelo las primeras hojas verdaderas bipinnadas muy divididas."] },
+                    { max: 55, name: "Proliferación en Roseta", notes: ["El follaje forma una roseta en espiral compacta para mantener un perfil bajo.", "Extensos pelos radiculares capilares se despliegan desde la raíz principal."] },
+                    { max: 85, name: "Engrosamiento de Raíz", notes: ["El azúcar de la fotosíntesis viaja por el floema hacia la raíz primaria.", "Células parenquimáticas se hinchan con pigmentos carotenoides naranjas."] },
+                    { max: 100, name: "Pico de Reserva", notes: ["La raíz se convierte en un cono carnoso, rico en humedad y azúcares.", "El núcleo se endurece, almacenando energía para tolerar la latencia invernal."] }
+                ]
+            }
+        },
+        oak: {
+            keys: { en: "Oak Tree", fr: "Chêne", es: "Roble" },
+            desc: { en: "Lignified Heartwood / Centenarian", fr: "Bois de cœur lignifié / Centenaire", es: "Duramen lignificado / Centenario" },
+            name: { en: "Quercus robur (English Oak)", fr: "Quercus robur (Chêne pédonculé)", es: "Quercus robur (Roble común)" },
+            timeline: { en: "Perennial Forest Climax (Centuries)", fr: "Climax forestier pérenne (Siècles)", es: "Clímax forestal perenne (Siglos)" },
+            stages: {
+                en: [
+                    { max: 15, name: "Acorn Radicle Strike", notes: ["An exceptionally thick taproot bores forcefully through heavy clay layers to secure a permanent deep well.", "A tough, woody sapling shoot pushes clear of leaf litter layer."] },
+                    { max: 40, name: "Arborescent Structure", notes: ["Vascular cambium builds concentrated concentric rings of hard, lignified xylem wood cells.", "Lateral branch structure extends radially outward, lifting an expansive crown framework."] },
+                    { max: 75, name: "Mature Canopy Expansion", notes: ["The trunk expands into a thick, corky column of deeply furrowed protective bark layers.", "The root zone branches into thick woody pipelines tracking far past the leaf drip line."] },
+                    { max: 100, name: "Climax Ancient Ecosystem", notes: ["A massive, structurally hollow-resistant trunk props up thousands of heavy limbs.", "Huge structural root anchors interlock with subsurface bedrock to balance tonnes of dead weight."] }
+                ],
+                fr: [
+                    { max: 15, name: "Ancrage du Gland", notes: ["Une racine exceptionnellement épaisse traverse l'argile pour sécuriser un accès à l'eau.", "Une pousse ligneuse et résistante émerge au-dessus de la litière de feuilles."] },
+                    { max: 40, name: "Structure Arborescente", notes: ["Le cambium vasculaire produit des cernes concentriques de bois de xylème lignifié.", "Les branches s'étendent radialement, élevant un dôme de couronne expansif."] },
+                    { max: 75, name: "Expansion de la Canopée", notes: ["Le tronc devient une colonne épaisse de couches d'écorce protectrice crevassée.", "Les racines forment d'épais pipelines ligneux dépassant la projection du feuillage."] },
+                    { max: 100, name: "Écosystème Ancien Climax", notes: ["Un tronc massif soutient des milliers de branches lourdes.", "De gigantesques ancres racinaires s'imbriquent dans la roche pour équilibrer le poids."] }
+                ],
+                es: [
+                    { max: 15, name: "Brote de la Bellota", notes: ["Una raíz pivotante muy gruesa perfora la arcilla logrando un pozo profundo.", "Un brote leñoso y resistente empuja a través de la hojarasca."] },
+                    { max: 40, name: "Estructura Arborescente", notes: ["El cambium vascular genera anillos concéntricos de células de xilema leñosas.", "Las ramas se extienden radialmente, elevando una copa expansiva."] },
+                    { max: 75, name: "Expansión del Dosel", notes: ["El tronco se ensancha en una columna de corteza protectora agrietada.", "Las raíces se ramifican en gruesos tubos leñosos más allá del goteo de la copa."] },
+                    { max: 100, name: "Ecosistema de Clímax", notes: ["Un tronco masivo sostiene miles de ramas pesadas.", "Anclajes estructurales gigantes se entrelazan con la roca para equilibrar toneladas."] }
+                ]
+            }
+        },
+        dandelion: {
+            keys: { en: "Dandelion", fr: "Pissenlit", es: "Diente de León" },
+            desc: { en: "Fissure-Boring Taproot / Wind-Dispersal", fr: "Racine perforante / Dispersion par le vent", es: "Raíz perforadora / Dispersión por viento" },
+            name: { en: "Taraxacum officinale (Dandelion)", fr: "Taraxacum officinale (Pissenlit)", es: "Taraxacum officinale (Diente de León)" },
+            timeline: { en: "Perennial Weed Cycle (Continuous)", fr: "Cycle vivace (Continu)", es: "Ciclo perenne de malezas (Continuo)" },
+            stages: {
+                en: [
+                    { max: 20, name: "Basal Emergence", notes: ["An aggressive taproot drops down instantly, splitting narrow fissures in packed substrates.", "Leaves emerge in a flat, prostrate basal rosette configuration, escaping mower blades."] },
+                    { max: 55, name: "Taproot Anchoring", notes: ["The taproot grows fleshy and highly regenerative; a fraction of a millimeter left behind can grow back completely.", "Fine feeder networks strip nutrients from dense clay profiles."] },
+                    { max: 85, name: "Capitulum Bloom", notes: ["Hollow flower stalks shoot straight up, displaying brilliant yellow composite heads.", "The taproot tightens into the soil matrix, maintaining powerful hydrostatic grip."] },
+                    { max: 100, name: "Cypsela Cypher (Pappus Fly-off)", notes: ["The golden flower shifts into a spherical white clock matrix of umbrella-like plumed seeds.", "Wind currents easily catch the fluffy pappus filaments, launching seeds across vast distances."] }
+                ],
+                fr: [
+                    { max: 20, name: "Émergence Basale", notes: ["Une racine agressive descend instantanément, fendant les substrats compacts.", "Les feuilles poussent en rosette plate au sol, échappant aux tondeuses."] },
+                    { max: 55, name: "Ancrage du Pivot", notes: ["Le pivot devient charnu et régénératif; un seul millimètre oublié peut recréer la plante.", "De fins réseaux de racines absorbent les nutriments des profils d'argile."] },
+                    { max: 85, name: "Floraison du Capitule", notes: ["Des tiges florales creuses s'élèvent, arborant des capitules jaunes brillants.", "Le pivot se resserre dans le sol, maintenant une forte prise hydrostatique."] },
+                    { max: 100, name: "Dispersion des Akènes", notes: ["La fleur se transforme en une sphère blanche de graines à aigrette en parachute.", "Les courants de vent emportent facilement les filaments du pappus au loin."] }
+                ],
+                es: [
+                    { max: 20, name: "Emergencia Basal", notes: ["Una raíz agresiva baja al instante, abriendo fisuras en suelos compactos.", "Las hojas surgen en una roseta basal plana, escapando de las podadoras."] },
+                    { max: 55, name: "Anclaje de Raíz", notes: ["La raíz se vuelve carnosa y regenerativa; un milímetro basta para rebrotar.", "Redes finas de alimentación extraen nutrientes de perfiles arcillosos."] },
+                    { max: 85, name: "Floración del Capítulo", notes: ["Tallos huecos crecen rectos exhibiendo cabezuelas compuestas amarillas.", "La raíz se tensa en el suelo manteniendo un fuerte agarre hidrostático."] },
+                    { max: 100, name: "Dispersión del Vilano", notes: ["La flor cambia a una matriz esférica blanca de semillas con paraguas plumosos.", "El viento atrapa los filamentos del vilano, lanzando las semillas a gran distancia."] }
+                ]
+            }
+        },
+        wheat: {
+            keys: { en: "Winter Wheat", fr: "Blé d'hiver", es: "Trigo de Invierno" },
+            desc: { en: "Dense Fibrous Matrix / Clonal Tillers", fr: "Matrice fibreuse dense / Tallage clonal", es: "Matriz fibrosa densa / Macollas clonales" },
+            name: { en: "Triticum aestivum (Winter Wheat)", fr: "Triticum aestivum (Blé d'hiver)", es: "Triticum aestivum (Trigo de invierno)" },
+            timeline: { en: "Graminoid Monocot Cycle (180 Days)", fr: "Cycle des monocotylédones (180 jours)", es: "Ciclo de monocotiledóneas (180 días)" },
+            stages: {
+                en: [
+                    { max: 20, name: "Coleoptile Sprouting", notes: ["The seminal roots branch directly out from the embryo (no taproot is present in monocots).", "A sharp protective tube (coleoptile) pierces up into open air."] },
+                    { max: 55, name: "Tillering Phase", notes: ["The plant splits at ground level, throwing up multiple parallel structural stems called tillers.", "An extremely dense, adventitious fibrous root system explodes from crown tissue nodes near the surface."] },
+                    { max: 85, name: "Inflorescence Heading", notes: ["Stems undergo rapid internode elongation, shooting spikelet seed heads high up into the air.", "The dense root mesh wraps tightly through topsoil layers, creating a highly stable structural sod."] },
+                    { max: 100, name: "Caryopsis Golden Grain", notes: ["Chlorophyll degrades fully, converting fields into a bright sea of dry structural amber grains.", "The massive fibrous root netting starves, adding substantial organic bio-matter back to topsoil cycles."] }
+                ],
+                fr: [
+                    { max: 20, name: "Levée du Coléoptile", notes: ["Les racines séminales partent de l'embryon (pas de pivot chez les monocotylédones).", "Un tube de protection pointu (coléoptile) perce vers l'air libre."] },
+                    { max: 55, name: "Phase de Tallage", notes: ["La plante se divise au niveau du sol, produisant des tiges parallèles (talles).", "Un système racinaire fibreux adventif explose depuis les nœuds près de la surface."] },
+                    { max: 85, name: "Épiaison", notes: ["Les tiges s'allongent rapidement, élevant les épillets de semence dans les airs.", "Le maillage racinaire dense stabilise fortement la couche supérieure du sol."] },
+                    { max: 100, name: "Grain Doré (Caryopse)", notes: ["La chlorophylle se dégrade, transformant les champs en une mer de grains ambrés.", "Le réseau racinaire meurt, restituant une biomasse organique importante au sol."] }
+                ],
+                es: [
+                    { max: 20, name: "Brote del Coleóptilo", notes: ["Las raíces seminales brotan del embrión (no hay raíz pivotante en monocotiledóneas).", "Un tubo protector afilado (coleóptilo) perfora hacia el aire libre."] },
+                    { max: 55, name: "Fase de Macollamiento", notes: ["La planta se divide a nivel del suelo, brotando tallos paralelos llamados macollas.", "Un sistema denso de raíces adventicias estalla desde los nudos cerca de la superficie."] },
+                    { max: 85, name: "Espigado", notes: ["Los tallos sufren una elongación rápida, lanzando espiguillas altas al aire.", "La densa red de raíces se envuelve en la capa superior creando un césped estable."] },
+                    { max: 100, name: "Grano de Cariópside Dorado", notes: ["La clorofila se degradar por completo, convirtiendo campos en un mar de granos de ámbar.", "La red masiva de raíces muere, aportando materia orgánica al ciclo del suelo."] }
+                ]
+            }
+        }
+    };
+
+    /* --- INITIALIZATION & TITLE SCREEN HANDLING --- */
+    function selectInitialLanguage(langKey) {
+        // Apply the chosen language
+        langSelect.value = langKey;
+        changeLanguage(langKey);
+
+        // Fade out and remove title screen overlay
+        const scr = document.getElementById('titleScreen');
+        scr.style.opacity = '0';
+        scr.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            scr.style.display = 'none';
+        }, 500);
+    }
+
+    function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+        draw();
+    }
+
+    // Completely regenerates the sidebar selectors to reflect selected language text properties
+    function renderSidebarButtons() {
+        const panel = document.getElementById('sidebarButtons');
+        panel.innerHTML = `<div class="sidebar-title" id="txtSelectSpecimen">${uiTranslations[currentLang].selectSpecimen}</div>`;
+
+        Object.keys(plantData).forEach(key => {
+            const btn = document.createElement('button');
+            btn.className = `plant-btn ${key === currentPlant ? 'active' : ''}`;
+            btn.onclick = () => switchPlant(key);
+            btn.innerHTML = `
+                ${plantData[key].keys[currentLang]}
+                <span class="system-desc">${plantData[key].desc[currentLang]}</span>
+            `;
+            panel.appendChild(btn);
+        });
+    }
+
+    function switchPlant(plantKey) {
+        currentPlant = plantKey;
+        renderSidebarButtons();
+        updateUI();
+        draw();
+    }
+
+    function changeLanguage(langKey) {
+        currentLang = langKey;
+        
+        // Update static layout translations
+        document.getElementById('txtTitle').textContent = uiTranslations[currentLang].title;
+        document.getElementById('txtSubtitle').textContent = uiTranslations[currentLang].subtitle;
+        document.getElementById('lblAtmosphere').textContent = uiTranslations[currentLang].lblAtmosphere;
+        document.getElementById('lblSubsurface').textContent = uiTranslations[currentLang].lblSubsurface;
+        
+        // Update interactive option texts
+        const speedSelect = document.getElementById('speedSelect');
+        speedSelect.options[0].text = uiTranslations[currentLang].speedSlow;
+        speedSelect.options[1].text = uiTranslations[currentLang].speedNormal;
+        speedSelect.options[2].text = uiTranslations[currentLang].speedFast;
+
+        const btnText = document.getElementById('playText');
+        btnText.textContent = isPlaying ? uiTranslations[currentLang].pause : uiTranslations[currentLang].autoplay;
+
+        renderSidebarButtons();
+        updateUI();
+    }
+
+    function changeSpeed(speedValue) {
+        speedMs = parseInt(speedValue);
+        if (isPlaying) {
+            // Hot swap loop cadence without stopping execution flow
+            clearInterval(autoplayInterval);
+            autoplayInterval = setInterval(stepAutoplay, speedMs);
+        }
+    }
+
+    function toggleAutoplay() {
+        const btn = document.getElementById('btnPlayPause');
+        const icon = document.getElementById('playIcon');
+        const text = document.getElementById('playText');
+
+        if (isPlaying) {
+            clearInterval(autoplayInterval);
+            isPlaying = false;
+            btn.classList.remove('active-play');
+            icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            text.textContent = uiTranslations[currentLang].autoplay;
+        } else {
+            if (parseInt(slider.value) >= 100) slider.value = 0;
+            isPlaying = true;
+            btn.classList.add('active-play');
+            icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+            text.textContent = uiTranslations[currentLang].pause;
+            
+            autoplayInterval = setInterval(stepAutoplay, speedMs);
+        }
+    }
+
+    function stepAutoplay() {
+        let val = parseInt(slider.value);
+        val++;
+        if (val > 100) val = 0;
+        slider.value = val;
+        updateUI();
+        draw();
+    }
+
+    function updateUI() {
+        progress = parseInt(slider.value) / 100;
+        timeDisplay.textContent = `${slider.value}%`;
+
+        const plant = plantData[currentPlant];
+        timelineLabel.textContent = plant.timeline[currentLang];
+        
+        const localStages = plant.stages[currentLang];
+        let currentStage = localStages[localStages.length - 1];
+        for (let stage of localStages) {
+            if (slider.value <= stage.max) {
+                currentStage = stage;
+                break;
+            }
+        }
+
+        stageBadge.textContent = currentStage.name;
+        insightsTitle.textContent = `${plant.name[currentLang]} — ${uiTranslations[currentLang].morphStatus}`;
+        
+        insightsList.innerHTML = '';
+        currentStage.notes.forEach(note => {
+            const li = document.createElement('li');
+            li.textContent = note;
+            insightsList.appendChild(li);
+        });
+    }
+
+    /**
+     * IMMOBILE ORGANISED ROOT DRAWING ENGINE
+     * Uses coordinate-depth indexing tied to the seed point to maintain structural permanence.
+     */
+    function drawStaticRoot(ctx, sx, sy, maxLength, baseAngle, t, startWidth, endWidth, color, seedOffset = 0) {
+        if (t <= 0) return null;
+        
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        let currentX = sx;
+        let currentY = sy;
+        let currentAngle = baseAngle;
+        
+        let points = [{x: currentX, y: currentY, angle: currentAngle}];
+        
+        const segments = 60;
+        const visibleSegments = Math.floor(segments * t);
+        const segLength = maxLength / segments;
+        
+        for (let i = 1; i <= segments; i++) {
+            let noiseIdx = (i + seedOffset) % pregeneratedNoise.length;
+            let cache = pregeneratedNoise[noiseIdx];
+            
+            currentAngle += cache.wave + cache.noise;
+            
+            let nextX = currentX + Math.cos(currentAngle) * segLength;
+            let nextY = currentY + Math.sin(currentAngle) * segLength;
+            
+            if (i <= visibleSegments) {
+                let progressRatio = i / segments;
+                ctx.beginPath();
+                ctx.moveTo(currentX, currentY);
+                ctx.lineTo(nextX, nextY);
+                ctx.lineWidth = startWidth - (startWidth - endWidth) * progressRatio;
+                ctx.stroke();
+            }
+            
+            currentX = nextX;
+            currentY = nextY;
+            points.push({x: currentX, y: currentY, angle: currentAngle});
+        }
+        
+        if (visibleSegments > 0 && visibleSegments < segments) {
+            let activePt = points[visibleSegments];
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.beginPath();
+            ctx.arc(activePt.x, activePt.y, (startWidth - (startWidth - endWidth) * t) * 1.2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        ctx.restore();
+        return points;
+    }
+
+    function drawLeaf(ctx, x, y, size, angle, leafColor = '#10b981', outlineColor = '#047857') {
+        if (size <= 1) return;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        
+        ctx.fillStyle = leafColor;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(size/2, -size/1.8, size, -size/3, size, 0);
+        ctx.bezierCurveTo(size, size/3, size/2, size/1.8, 0, 0);
+        ctx.fill();
+        
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(size, 0);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function drawLeafCluster(ctx, x, y, radius, primaryG = '#10b981', darkG = '#047857') {
+        if (radius <= 2) return;
+        ctx.save();
+        let grad = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
+        grad.addColorStop(0, primaryG);
+        grad.addColorStop(0.7, darkG);
+        grad.addColorStop(1, '#111827');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function drawStaticStem(ctx, sx, sy, ex, ey, t, startW, endW, color) {
+        if (t <= 0) return {x: sx, y: sy};
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineCap = 'round';
+        
+        let cx1 = sx;
+        let cy1 = sy - (sy - ey) * 0.4;
+        let cx2 = ex;
+        let cy2 = sy - (sy - ey) * 0.7;
+
+        let currentX = sx;
+        let currentY = sy;
+        
+        const steps = 30;
+        const activeSteps = Math.floor(steps * t);
+        
+        let endPt = {x: sx, y: sy};
+
+        for(let i=1; i<=steps; i++) {
+            let ratio = i / steps;
+            let mt = 1 - ratio;
+            let mt2 = mt * mt;
+            let mt3 = mt2 * mt;
+            let r2 = ratio * ratio;
+            let r3 = r2 * ratio;
+            
+            let nextX = mt3*sx + 3*mt2*ratio*cx1 + 3*mt*r2*cx2 + r3*ex;
+            let nextY = mt3*sy + 3*mt2*ratio*cy1 + 3*mt*r2*cy2 + r3*ey;
+            
+            if (i <= activeSteps) {
+                ctx.beginPath();
+                ctx.moveTo(currentX, currentY);
+                ctx.lineTo(nextX, nextY);
+                ctx.lineWidth = startW - (startW - endW) * ratio;
+                ctx.stroke();
+                endPt = {x: nextX, y: nextY};
+            }
+            currentX = nextX;
+            currentY = nextY;
+        }
+        ctx.restore();
+        return endPt;
+    }
+
+    function draw() {
+        const w = canvas.width / (window.devicePixelRatio || 1);
+        const h = canvas.height / (window.devicePixelRatio || 1);
+        const cy = h / 2; 
+        const cx = w / 2;
+
+        ctx.clearRect(0, 0, w, h);
+
+        if (progress <= 0) {
+            ctx.fillStyle = '#a16207';
+            ctx.beginPath();
+            ctx.ellipse(cx, cy + 3, 5, 3, Math.PI / 4, 0, 2 * Math.PI);
+            ctx.fill();
+            return;
+        }
+
+        if (currentPlant === 'sunflower') {
+            let primaryT = Math.min(progress / 0.7, 1);
+            let nodes = drawStaticRoot(ctx, cx, cy, 190, Math.PI / 2, primaryT, 7, 1.2, '#eab308', 10);
+
+            if (nodes && progress > 0.25) {
+                let lateralProgress = Math.min((progress - 0.25) / 0.65, 1);
+                if (nodes.length > 12) {
+                    let n1 = nodes[12];
+                    drawStaticRoot(ctx, n1.x, n1.y, 75, n1.angle - Math.PI / 3.2, lateralProgress, 2.5, 0.5, '#ca8a04', 40);
+                }
+                if (nodes.length > 24 && progress > 0.4) {
+                    let lateralProgress2 = Math.min((progress - 0.4) / 0.55, 1);
+                    let n2 = nodes[24];
+                    drawStaticRoot(ctx, n2.x, n2.y, 65, n2.angle + Math.PI / 2.8, lateralProgress2, 2.0, 0.5, '#ca8a04', 80);
+                }
+                if (nodes.length > 38 && progress > 0.6) {
+                    let lateralProgress3 = Math.min((progress - 0.6) / 0.4, 1);
+                    let n3 = nodes[38];
+                    drawStaticRoot(ctx, n3.x, n3.y, 45, n3.angle - Math.PI / 2.5, lateralProgress3, 1.5, 0.4, '#ca8a04', 120);
+                }
+            }
+
+            let shootHeight = Math.min(progress / 0.85, 1) * 190;
+            let stemThickness = Math.max(2, 7 * Math.min(progress / 0.4, 1));
+            let targetX = cx + ((progress > 0.7) ? (progress - 0.7) * 85 : 0);
+            
+            let flPt = drawStaticStem(ctx, cx, cy, targetX, cy - shootHeight, Math.min(progress / 0.85, 1), stemThickness, Math.max(2, stemThickness*0.4), '#10b981');
+
+            if (progress > 0.2) {
+                let lf = Math.min((progress - 0.2) / 0.4, 1);
+                drawLeaf(ctx, cx - 2, cy - shootHeight * 0.25, 22 * lf, -Math.PI / 5);
+                drawLeaf(ctx, cx + 2, cy - shootHeight * 0.32, 20 * lf, Math.PI / 6);
+            }
+            if (progress > 0.45) {
+                let lf2 = Math.min((progress - 0.45) / 0.4, 1);
+                drawLeaf(ctx, cx - 5, cy - shootHeight * 0.55, 26 * lf2, -Math.PI / 10);
+                drawLeaf(ctx, cx + 5, cy - shootHeight * 0.62, 24 * lf2, Math.PI / 8);
+            }
+
+            if (progress > 0.5) {
+                let fScale = (progress - 0.5) / 0.5;
+                ctx.save();
+                ctx.translate(flPt.x, flPt.y);
+                ctx.rotate((progress - 0.7) * 0.4);
+                ctx.fillStyle = '#fbbf24';
+                let petals = 16;
+                for (let i = 0; i < petals; i++) {
+                    ctx.rotate((Math.PI * 2) / petals);
+                    ctx.beginPath();
+                    ctx.ellipse(20 * fScale, 0, 11 * fScale, 5 * fScale, 0, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+                ctx.fillStyle = (progress > 0.85) ? '#451a03' : '#78350f';
+                ctx.beginPath(); ctx.arc(0, 0, 13 * fScale, 0, 2 * Math.PI); ctx.fill();
+                ctx.restore();
+            }
+
+        } else if (currentPlant === 'pea') {
+            let rT = Math.min(progress / 0.75, 1);
+            let n1 = drawStaticRoot(ctx, cx, cy, 130, Math.PI / 2 + 0.4, rT, 3.5, 0.8, '#cbd5e1', 20);
+            let n2 = drawStaticRoot(ctx, cx, cy, 140, Math.PI / 2 - 0.5, rT, 3.5, 0.8, '#cbd5e1', 50);
+            let n3 = drawStaticRoot(ctx, cx, cy + 15, 150, Math.PI / 2, rT, 2.5, 0.5, '#94a3b8', 90);
+
+            if (progress > 0.38) {
+                let nodF = Math.min((progress - 0.38) / 0.5, 1) * 3.5;
+                ctx.fillStyle = '#fbcfe8';
+                ctx.strokeStyle = '#f472b6';
+                ctx.lineWidth = 0.5;
+                
+                let checkNodes = [];
+                if (n1 && n1.length > 15) checkNodes.push(n1[8], n1[15]);
+                if (n2 && n2.length > 20) checkNodes.push(n2[10], n2[20]);
+                if (n3 && n3.length > 15) checkNodes.push(n3[6], n3[15]);
+
+                checkNodes.forEach(n => {
+                    ctx.beginPath();
+                    ctx.arc(n.x + 2, n.y - 1, nodF, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                });
+            }
+
+            let vH = Math.min(progress / 0.85, 1) * 200;
+            let vineEnd = drawStaticStem(ctx, cx, cy, cx - 10, cy - vH, Math.min(progress / 0.85, 1), 4, 1.5, '#34d399');
+
+            if (progress > 0.25) {
+                let f = Math.min((progress - 0.25) / 0.6, 1);
+                drawLeaf(ctx, cx - 6, cy - vH * 0.35, 14 * f, Math.PI);
+            }
+            if (progress > 0.5) {
+                let f2 = Math.min((progress - 0.5) / 0.5, 1);
+                drawLeaf(ctx, cx + 4, cy - vH * 0.65, 15 * f2, 0);
+            }
+            if (progress > 0.65) {
+                let podF = (progress - 0.65) / 0.35;
+                ctx.save();
+                ctx.fillStyle = '#059669';
+                ctx.translate(cx - 5, cy - vH * 0.5);
+                ctx.rotate(Math.PI / 2.5);
+                ctx.beginPath();
+                ctx.moveTo(0,0);
+                ctx.bezierCurveTo(7 * podF, 12 * podF, 8 * podF, 28 * podF, 0, 35 * podF);
+                ctx.bezierCurveTo(-5 * podF, 22 * podF, -3 * podF, 11 * podF, 0, 0);
+                ctx.fill();
+                ctx.restore();
+            }
+
+        } else if (currentPlant === 'carrot') {
+            let rootD = Math.min(progress / 0.75, 1) * 140;
+            let maxWidth = Math.min(progress / 0.8, 1) * 36;
+            
+            ctx.save();
+            ctx.fillStyle = '#f97316';
+            ctx.beginPath();
+            ctx.moveTo(cx - maxWidth / 2, cy);
+            ctx.bezierCurveTo(cx - maxWidth / 2, cy + rootD * 0.4, cx - maxWidth * 0.2, cy + rootD * 0.8, cx, cy + rootD);
+            ctx.bezierCurveTo(cx + maxWidth * 0.2, cy + rootD * 0.8, cx + maxWidth / 2, cy + rootD * 0.4, cx + maxWidth / 2, cy);
+            ctx.closePath();
+            ctx.fill();
+
+            if (progress > 0.3) {
+                ctx.strokeStyle = '#ea580c';
+                ctx.lineWidth = 1.5;
+                let steps = [0.2, 0.45, 0.7];
+                steps.forEach(st => {
+                    let curY = cy + rootD * st;
+                    let curW = maxWidth * (1 - st * 0.7);
+                    ctx.beginPath();
+                    ctx.moveTo(cx - curW * 0.4, curY);
+                    ctx.lineTo(cx + curW * 0.4, curY);
+                    ctx.stroke();
+                });
+            }
+            ctx.restore();
+
+            drawStaticRoot(ctx, cx, cy + rootD, 40 * progress, Math.PI / 2, 1, 1.5, 0.4, '#f97316', 30);
+            if (progress > 0.4) {
+                let capF = Math.min((progress - 0.4) / 0.6, 1);
+                drawStaticRoot(ctx, cx - maxWidth * 0.25, cy + rootD * 0.4, 35, Math.PI, capF, 0.8, 0.2, '#fed7aa', 60);
+                drawStaticRoot(ctx, cx + maxWidth * 0.25, cy + rootD * 0.65, 40, 0, capF, 0.8, 0.2, '#fed7aa', 90);
+            }
+
+            let leafH = Math.min(progress / 0.75, 1) * 110;
+            if (progress > 0.1) {
+                let f = Math.min((progress - 0.1) / 0.8, 1);
+                ctx.save();
+                ctx.strokeStyle = '#059669';
+                ctx.lineWidth = 2.5 * f;
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.quadraticCurveTo(cx - 20, cy - leafH * 0.5, cx - 40 * f, cy - leafH); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.quadraticCurveTo(cx + 20, cy - leafH * 0.5, cx + 40 * f, cy - leafH); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.quadraticCurveTo(cx, cy - leafH * 0.6, cx, cy - leafH * 1.15); ctx.stroke();
+                ctx.restore();
+            }
+
+        } else if (currentPlant === 'oak') {
+            let woodRadius = Math.max(1, 52 * progress);
+            let treeH = Math.min(progress / 0.8, 1) * 220;
+            let rootMax = 190;
+
+            let oNodes1 = drawStaticRoot(ctx, cx, cy, rootMax, Math.PI/2, Math.min(progress / 0.75, 1), woodRadius * 0.7, 2.5, '#451a03', 10);
+            let oNodes2 = drawStaticRoot(ctx, cx - 4, cy + 5, rootMax * 0.85, Math.PI/2 - 0.6, Math.min(progress / 0.7, 1), woodRadius * 0.4, 1.5, '#3b1301', 50);
+            let oNodes3 = drawStaticRoot(ctx, cx + 4, cy + 5, rootMax * 0.9, Math.PI/2 + 0.5, Math.min(progress / 0.7, 1), woodRadius * 0.4, 1.5, '#3b1301', 110);
+
+            if (progress > 0.45) {
+                let o2F = Math.min((progress - 0.45) / 0.55, 1);
+                if (oNodes2 && oNodes2.length > 25) {
+                    let branchPt = oNodes2[20];
+                    drawStaticRoot(ctx, branchPt.x, branchPt.y, 80, branchPt.angle - 0.4, o2F, 3.5 * o2F, 0.6, '#451a03', 150);
+                }
+                if (oNodes3 && oNodes3.length > 25) {
+                    let branchPt = oNodes3[20];
+                    drawStaticRoot(ctx, branchPt.x, branchPt.y, 85, branchPt.angle + 0.4, o2F, 3.5 * o2F, 0.6, '#451a03', 200);
+                }
+            }
+
+            let stemEnd = drawStaticStem(ctx, cx, cy, cx - 5, cy - treeH, Math.min(progress / 0.8, 1), woodRadius * 0.8, Math.max(3, woodRadius * 0.25), '#27160c');
+
+            if (progress > 0.3) {
+                let limbF = Math.min((progress - 0.3) / 0.55, 1);
+                let l1 = drawStaticStem(ctx, cx, cy - treeH * 0.35, cx - 60, cy - treeH * 0.6, limbF, woodRadius * 0.3, 2, '#27160c');
+                if (progress > 0.7) drawLeafCluster(ctx, l1.x, l1.y, 50 * (progress - 0.7) / 0.3, '#34d399', '#047857');
+            }
+            if (progress > 0.45) {
+                let limbF2 = Math.min((progress - 0.45) / 0.5, 1);
+                let l2 = drawStaticStem(ctx, cx, cy - treeH * 0.55, cx + 60, cy - treeH * 0.8, limbF2, woodRadius * 0.25, 2, '#27160c');
+                if (progress > 0.7) drawLeafCluster(ctx, l2.x, l2.y, 55 * (progress - 0.7) / 0.3, '#10b981', '#065f46');
+            }
+            if (progress > 0.68) {
+                let cScale = (progress - 0.68) / 0.32;
+                drawLeafCluster(ctx, stemEnd.x, stemEnd.y, 75 * cScale, '#10b981', '#115e59');
+            }
+
+        } else if (currentPlant === 'dandelion') {
+            let rF = Math.min(progress / 0.75, 1);
+            let dNodes = drawStaticRoot(ctx, cx, cy, 185, Math.PI/2, rF, 6.5, 0.9, '#ca8a04', 15);
+
+            if (dNodes && progress > 0.35) {
+                let lateralF = Math.min((progress - 0.35) / 0.65, 1);
+                if (dNodes.length > 20) {
+                    let pt1 = dNodes[15];
+                    drawStaticRoot(ctx, pt1.x, pt1.y, 45, pt1.angle - Math.PI / 3, lateralF, 1.8, 0.4, '#b45309', 75);
+                }
+                if (dNodes.length > 40) {
+                    let pt2 = dNodes[35];
+                    drawStaticRoot(ctx, pt2.x, pt2.y, 40, pt2.angle + Math.PI / 4, lateralF, 1.5, 0.3, '#b45309', 135);
+                }
+            }
+
+            let lfSize = Math.min(progress / 0.7, 1) * 35;
+            if (progress > 0.12) {
+                let f = Math.min((progress - 0.12) / 0.5, 1);
+                drawLeaf(ctx, cx, cy, lfSize * f, -Math.PI / 16, '#047857', '#064e3b');
+                drawLeaf(ctx, cx, cy, lfSize * f, -Math.PI + Math.PI / 16, '#047857', '#064e3b');
+                drawLeaf(ctx, cx, cy, lfSize * 0.85 * f, -Math.PI / 6, '#059669', '#064e3b');
+                drawLeaf(ctx, cx, cy, lfSize * 0.85 * f, -Math.PI + Math.PI / 6, '#059669', '#064e3b');
+            }
+
+            if (progress > 0.45) {
+                let stalkF = (progress - 0.45) / 0.55;
+                let stalkH = stalkF * 135;
+                let stalkEnd = drawStaticStem(ctx, cx, cy, cx - 5, cy - stalkH, stalkF, 3.5, 2, '#a7f3d0');
+
+                if (progress > 0.65 && progress <= 0.88) {
+                    let bScale = (progress - 0.65) / 0.23;
+                    ctx.save(); ctx.translate(stalkEnd.x, stalkEnd.y); ctx.fillStyle = '#facc15';
+                    for (let r = 0; r < 12; r++) { ctx.rotate((Math.PI * 2) / 12); ctx.fillRect(4 * bScale, -2 * bScale, 12 * bScale, 4 * bScale); }
+                    ctx.restore();
+                } else if (progress > 0.88) {
+                    let sScale = (progress - 0.88) / 0.12;
+                    ctx.save(); ctx.translate(stalkEnd.x, stalkEnd.y);
+                    ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.arc(0,0, 4, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = 'rgba(241, 245, 249, 0.8)'; ctx.lineWidth = 0.5;
+                    for (let j = 0; j < 18; j++) {
+                        ctx.rotate((Math.PI * 2) / 18); ctx.beginPath(); ctx.moveTo(3, 0); ctx.lineTo(15 * sScale, 0); ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+            }
+
+        } else if (currentPlant === 'wheat') {
+            let rootCount = 18;
+            
+            for (let k = 0; k < rootCount; k++) {
+                let targetDistributionAngle = (Math.PI / 5.5) + ((Math.PI * 3.5 / 5.5) * (k / rootCount));
+                let specificActivationThreshold = 0.05 + (k * 0.02);
+                
+                if (progress > specificActivationThreshold) {
+                    let individualT = Math.min((progress - specificActivationThreshold) / 0.7, 1);
+                    let lengthFactor = (k % 3 === 0) ? 175 : 130;
+                    
+                    drawStaticRoot(ctx, cx - 6 + (k * 0.7), cy + 1, lengthFactor, targetDistributionAngle, individualT, 1.8, 0.3, '#fef08a', k * 25);
+                }
+            }
+
+            let wheatH = Math.min(progress / 0.82, 1) * 210;
+            let maturationColor = (progress > 0.82) ? '#eab308' : '#22c55e';
+            let noduleColor = (progress > 0.82) ? '#ca8a04' : '#16a34a';
+
+            if (progress > 0.15) {
+                let f = Math.min((progress - 0.15) / 0.85, 1);
+                let p1 = drawStaticStem(ctx, cx, cy, cx - 10, cy - wheatH, f, 3.2, 1, maturationColor);
+                let p2 = drawStaticStem(ctx, cx - 4, cy, cx - 40, cy - wheatH * 0.9, f, 2.5, 0.8, maturationColor);
+                let p3 = drawStaticStem(ctx, cx + 4, cy, cx + 25, cy - wheatH * 0.95, f, 2.5, 0.8, maturationColor);
+
+                if (progress > 0.3) {
+                    let lfF = Math.min((progress - 0.3) / 0.5, 1);
+                    drawLeaf(ctx, cx - 4, cy - wheatH * 0.3, 35 * lfF, -Math.PI / 4, maturationColor, noduleColor);
+                    drawLeaf(ctx, cx + 2, cy - wheatH * 0.45, 30 * lfF, Math.PI / 12, maturationColor, noduleColor);
+                }
+
+                if (progress > 0.6) {
+                    let grainF = (progress - 0.6) / 0.4;
+                    let pts = [p1, p2, p3];
+                    pts.forEach((pt) => {
+                        ctx.save(); ctx.translate(pt.x, pt.y);
+                        ctx.fillStyle = (progress > 0.82) ? '#fef08a' : '#4ade80';
+                        for (let g = 0; g < 5; g++) {
+                            let yOff = -g * 5 * grainF;
+                            ctx.beginPath(); ctx.ellipse(-3 * grainF, yOff, 4 * grainF, 2.5 * grainF, -Math.PI / 4, 0, Math.PI * 2);
+                            ctx.ellipse(3 * grainF, yOff, 4 * grainF, 2.5 * grainF, Math.PI / 4, 0, Math.PI * 2); ctx.fill();
+                        }
+                        ctx.restore();
+                    });
+                }
+            }
+        }
+    }
+
+    slider.addEventListener('input', () => {
+        if (isPlaying) toggleAutoplay();
+        updateUI();
+        draw();
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+    window.onload = () => {
+        resizeCanvas();
+        renderSidebarButtons();
+        updateUI();
+    };
+</script>
+
+</body>
+</html>
