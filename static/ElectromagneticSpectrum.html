@@ -818,19 +818,21 @@
                 elValEnergyText.className = "text-xs md:text-sm font-bold text-red-500"; elValEnergyText.innerText = dict.energyLevels[4]; 
             }
 
-            // Penetration Gauge Logic Fixed (Radio sits at 10% / Surface)
-            let uiPenetrationPercent = 10;
-            if (val < 15) { // Radio (Surface)
-                uiPenetrationPercent = 5 + (val / 15) * 10; 
-            } else if (val < 30) { // Micro (Tissue)
-                uiPenetrationPercent = 25 + ((val - 15) / 15) * 20;
-            } else if (val < 55) { // IR/Vis (Surface)
-                uiPenetrationPercent = 15 - ((val - 30) / 25) * 10; 
-            } else if (val < 70) { // UV (Tissue)
-                uiPenetrationPercent = 25 + ((val - 55) / 15) * 20;
-            } else if (val < 85) { // XRay (Bone)
-                uiPenetrationPercent = 50 + ((val - 70) / 15) * 20;
-            } else { // Gamma (Lead)
+            // Penetration Gauge Logic Revised (Maps to biological/material absorption)
+            let uiPenetrationPercent = 0;
+            if (val < 15) { // Radio (Minimal interaction)
+                uiPenetrationPercent = (val / 15) * 8; 
+            } else if (val < 30) { // Micro (Growing slowly)
+                uiPenetrationPercent = 8 + ((val - 15) / 15) * 7;
+            } else if (val < 45) { // IR (Approaching surface absorption)
+                uiPenetrationPercent = 15 + ((val - 30) / 15) * 7; 
+            } else if (val < 55) { // Visible (Stops cleanly at surface boundary)
+                uiPenetrationPercent = 22 + ((val - 45) / 10) * 3;
+            } else if (val < 70) { // UV (Enters and moves through Tissue)
+                uiPenetrationPercent = 25 + ((val - 55) / 15) * 25;
+            } else if (val < 85) { // XRay (Bypasses tissue, hits Bone)
+                uiPenetrationPercent = 50 + ((val - 70) / 15) * 25;
+            } else { // Gamma (Bypasses bone, requires Lead)
                 uiPenetrationPercent = 75 + ((val - 85) / 15) * 25;
             }
             penFill.style.width = `${Math.min(uiPenetrationPercent, 100)}%`;
