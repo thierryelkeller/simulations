@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MétaQuad / QuadForge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Nunito', sans-serif; margin: 0; overflow: hidden; background-color: #f0fdf4; touch-action: none; }
+        h1, h2, h3, .fredoka { font-family: 'Fredoka One', cursive; }
+
+        /* Splash Screen avec polygone lumineux animé */
+        #splash {
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e3a8a);
+            position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; transition: opacity 0.8s ease-in-out; overflow: hidden;
+        }
+
+        #canvas-container { position: relative; width: 100%; height: 100%; background: #f8fafc; border-radius: 1.5rem; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); touch-action: none; }
+        
+        /* Grille magnétique (40x40) */
+        .grid-bg { background-image: radial-gradient(#94a3b8 2px, transparent 2px); background-size: 40px 40px; background-position: 0 0; opacity: 0.4; position: absolute; inset: 0; pointer-events: none; }
+        
+        .vertex { position: absolute; width: 40px; height: 40px; background: #3b82f6; border: 4px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); cursor: grab; z-index: 20; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); touch-action: none; transition: transform 0.1s; }
+        .vertex:active { cursor: grabbing; transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+        
+        .tab-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; color: #64748b; transition: all 0.2s; white-space: nowrap; border: 2px solid transparent; }
+        .tab-btn:hover { background-color: #f1f5f9; }
+        .active-tab { background-color: #3b82f6; color: white; box-shadow: 0 4px 6px rgba(59,130,246,0.2); border-color: #2563eb; }
+        .active-tab:hover { background-color: #3b82f6; }
+        
+        .success-anim { animation: successPulse 0.5s ease-out; }
+        @keyframes successPulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); background-color: #22c55e; color: white; } 100% { transform: scale(1); } }
+        
+        /* Scrollbar styling for Guide */
+        .custom-scroll::-webkit-scrollbar { width: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col text-slate-800">
+
+    <!-- Splash Screen -->
+    <div id="splash">
+        <!-- SVG Glow Animé -->
+        <svg viewBox="0 0 200 200" width="300" height="300" style="overflow:visible; position:absolute; top:10%; z-index:0;">
+            <defs>
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="15" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+            </defs>
+            <polygon fill="rgba(96, 165, 250, 0.15)" stroke="#60a5fa" stroke-width="4" filter="url(#glow)">
+                <animate attributeName="points" dur="12s" repeatCount="indefinite"
+                    values="
+                        20,20 180,20 180,180 20,180;
+                        100,10 190,100 100,190 10,100;
+                        50,50 190,20 150,190 20,150;
+                        20,80 120,20 180,120 80,180;
+                        20,20 180,20 180,180 20,180
+                    " />
+            </polygon>
+        </svg>
+
+        <div class="z-10 text-center px-4 mt-40">
+            <h1 class="text-6xl md:text-7xl fredoka mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-300 drop-shadow-lg">MétaQuad</h1>
+            <p class="text-xl md:text-2xl mb-8 font-bold text-blue-200" id="splash-subtitle">Découverte : Transformez les Formes !</p>
+            
+            <p class="mb-4 text-slate-300">Choisissez votre langue / Choose language:</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="initApp('fr')" class="px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 rounded-2xl backdrop-blur-md transition-all transform hover:scale-105 font-bold text-xl">Français</button>
+                <button onclick="initApp('en')" class="px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 rounded-2xl backdrop-blur-md transition-all transform hover:scale-105 font-bold text-xl">English</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="hidden h-full flex flex-col">
+        <!-- Header & Navigation -->
+        <header class="bg-white px-6 py-3 flex flex-col md:flex-row md:justify-between items-start md:items-center border-b shadow-sm gap-3 z-30">
+            <div class="flex items-center gap-4">
+                <h1 class="fredoka text-2xl text-blue-600">MétaQuad</h1>
+                <button onclick="toggleLang()" id="lang-toggle" class="text-xs px-2 py-1 bg-slate-100 rounded text-slate-500 font-bold hover:bg-slate-200 border">FR / EN</button>
+            </div>
+            <div id="tabs" class="flex gap-2 font-bold overflow-x-auto w-full md:w-auto pb-1 md:pb-0 hide-scrollbar">
+                <button onclick="setTab('guide')" id="tab-guide" class="tab-btn active-tab">📖 Guide</button>
+                <button onclick="setTab('playground')" id="tab-playground" class="tab-btn">🎮 Jeu Libre</button>
+                <button onclick="setTab('m1')" id="tab-m1" class="tab-btn">Mission 1</button>
+                <button onclick="setTab('m2')" id="tab-m2" class="tab-btn">Mission 2</button>
+                <button onclick="setTab('m3')" id="tab-m3" class="tab-btn">Mission 3</button>
+                <button onclick="setTab('m4')" id="tab-m4" class="tab-btn">Mission 4</button>
+            </div>
+        </header>
+
+        <main class="flex-1 flex p-4 gap-4 bg-slate-50 overflow-hidden relative">
+            
+            <!-- VUE : GUIDE DES FORMES -->
+            <div id="guide-view" class="w-full bg-white rounded-2xl shadow-lg border-4 border-white p-6 custom-scroll overflow-y-auto hidden">
+                <h2 class="text-3xl fredoka text-blue-600 mb-2" id="guide-title">Guide des Formes</h2>
+                <p class="text-slate-500 font-bold mb-6" id="guide-desc">Apprends à reconnaître les membres de la famille des quadrilatères.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="guide-grid">
+                    <!-- Généré dynamiquement -->
+                </div>
+            </div>
+
+            <!-- VUE : CANVAS INTERACTIF -->
+            <div class="flex-1 bg-white rounded-2xl shadow-lg relative border-4 border-white" id="canvas-container">
+                <div class="grid-bg"></div>
+                <svg id="drawing-layer" class="absolute inset-0 w-full h-full pointer-events-none">
+                    <defs>
+                        <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4">
+                          <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" style="stroke:rgba(59, 130, 246, 0.15); stroke-width:1" />
+                        </pattern>
+                        <pattern id="diagonalHatchRed" patternUnits="userSpaceOnUse" width="4" height="4">
+                          <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" style="stroke:rgba(239, 68, 68, 0.15); stroke-width:1" />
+                        </pattern>
+                    </defs>
+                    <!-- Fond de la forme (sans bordure, géré par les lignes custom) -->
+                    <path id="shape-fill" d="" fill="url(#diagonalHatch)"></path>
+                    
+                    <g id="right-angles"></g>
+                    <!-- Lignes spécifiques générées en JS (couleurs, doublées, pointillées) -->
+                    <g id="custom-lines"></g>
+                    <!-- Textes des longueurs -->
+                    <g id="length-texts"></g>
+                </svg>
+                <div id="v0" class="vertex">1</div>
+                <div id="v1" class="vertex">2</div>
+                <div id="v2" class="vertex">3</div>
+                <div id="v3" class="vertex">4</div>
+            </div>
+
+            <!-- VUE : PANNEAU LATÉRAL (Télémetrie & Missions) -->
+            <div class="w-full md:w-80 flex flex-col gap-4 flex-shrink-0" id="side-panel">
+                <div class="bg-white p-6 rounded-2xl shadow-md border-2 border-slate-100 flex flex-col h-full" id="panel-content">
+                    
+                    <h2 class="text-xl fredoka mb-1 text-slate-800" id="panel-title">Jeu Libre</h2>
+                    <p class="text-slate-500 text-sm mb-4 font-bold" id="panel-desc">Glisse les points sur la grille (magnétique).</p>
+                    
+                    <div class="flex-1 bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col gap-3">
+                        <div id="live-shape-name" class="text-2xl fredoka text-blue-600 text-center mb-2">Quadrilatère</div>
+                        
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="font-bold text-slate-500" id="lbl-parallel">Paires Parallèles :</span>
+                            <span id="val-parallel" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-purple-600">0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="font-bold text-slate-500" id="lbl-rights">Angles Droits (90°) :</span>
+                            <span id="val-rights" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-red-500">0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="font-bold text-slate-500" id="lbl-equal">Côtés Égaux :</span>
+                            <span id="val-equal" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-emerald-600 text-xs">Aucun</span>
+                        </div>
+                    </div>
+
+                    <div id="mission-status-box" class="hidden mt-4 p-4 rounded-xl text-center font-bold border-2 transition-colors">
+                        <span id="mission-status-text">En cours...</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- 1. État et Données (Bilingue) ---
+        let currentLang = 'fr';
+        let currentTab = 'guide'; // Démarre sur le guide
+        let isSuccess = false;
+        
+        // Tailles de Grille
+        const GRID_SIZE = 40;
+        
+        // Forme Initiale (Rectangle centré)
+        let pts = [{x:160,y:120}, {x:320,y:120}, {x:320,y:280}, {x:160,y:280}];
+        
+        const textData = {
+            fr: {
+                title: "MétaQuad",
+                subtitle: "Découverte : Transformez les Formes !",
+                tabs: { guide: "📖 Guide", playground: "🎮 Jeu Libre", m1: "Mission 1", m2: "Mission 2", m3: "Mission 3", m4: "Mission 4" },
+                labels: { parallel: "Paires Parallèles (Double Ligne):", rights: "Angles Droits (90°) :", equal: "Côtés Égaux :" },
+                values: { no: "Non", yes: "Oui", none: "Aucun", all: "Les 4", opp: "2 Paires Opposées", adj: "2 Paires Adjacentes" },
+                status: { progress: "🛠️ En cours...", success: "🎉 SUCCÈS ! Objectif Atteint !" },
+                guideTitle: "Guide des Formes",
+                guideDesc: "Apprends à reconnaître la famille des quadrilatères. Regarde bien les lignes parallèles ou égales !",
+                missions: {
+                    playground: { title: "Jeu Libre", desc: "Glisse les points sur la grille. Si 2 lignes sont identiques, elles changent de couleur !" },
+                    m1: { title: "Mission 1 : Le Penché", desc: "Enquête : Que devient un rectangle quand on le penche ? \n\nBUT : Créez une forme avec 2 paires de lignes parallèles, mais AUCUN angle droit (Parallélogramme)." },
+                    m2: { title: "Mission 2 : Le Diamant", desc: "Enquête : Le carré est-il le seul à avoir des côtés égaux ? \n\nBUT : Créez une forme dont les 4 côtés sont de la MÊME COULEUR (égaux), mais SANS angle droit." },
+                    m3: { title: "Mission 3 : Le Vaisseau", desc: "Enquête : Une forme peut-elle pointer vers l'intérieur ? \n\nBUT : Créez une Flèche (Dart) avec un grand angle rentrant." },
+                    m4: { title: "Mission 4 : Le Bateau", desc: "Enquête : Et si seuls le haut et le bas sont parallèles ? \n\nBUT : Créez une forme avec EXACTEMENT 1 paire de lignes parallèles (Trapèze)." }
+                },
+                shapes: { 
+                    square: { name: "Carré", desc: "4 côtés égaux + 4 angles droits.", icon: "🟦" },
+                    rect: { name: "Rectangle", desc: "Côtés opposés égaux + 4 angles droits.", icon: "🟩" },
+                    rhombus: { name: "Losange", desc: "4 côtés égaux, mais pas d'angle droit obligatoire.", icon: "💠" },
+                    para: { name: "Parallélogramme", desc: "2 paires de lignes parallèles. Côtés opposés égaux.", icon: "▱" },
+                    trap: { name: "Trapèze", desc: "Une seule paire de lignes parallèles.", icon: "🚤" },
+                    kite: { name: "Cerf-volant", desc: "2 paires de côtés adjacents (qui se touchent) égaux.", icon: "🪁" },
+                    dart: { name: "Fléchette (Concave)", desc: "Forme un creux vers l'intérieur.", icon: "🚀" },
+                    irreg: { name: "Irrégulier", desc: "Rien n'est parallèle ou égal.", icon: "🧩" },
+                    crossed: { name: "Croisé", desc: "Les lignes se croisent !", icon: "🎀" }
+                }
+            },
+            en: {
+                title: "QuadForge",
+                subtitle: "Inquiry & Discovery: Morph the Shapes!",
+                tabs: { guide: "📖 Guide", playground: "🎮 Playground", m1: "Mission 1", m2: "Mission 2", m3: "Mission 3", m4: "Mission 4" },
+                labels: { parallel: "Parallel Pairs (Double Line):", rights: "Right Angles (90°):", equal: "Equal Sides:" },
+                values: { no: "No", yes: "Yes", none: "None", all: "All 4", opp: "2 Opposite Pairs", adj: "2 Adjacent Pairs" },
+                status: { progress: "🛠️ In Progress...", success: "🎉 SUCCESS! Goal Met!" },
+                guideTitle: "Shape Guide",
+                guideDesc: "Learn to recognize the quadrilateral family. Pay attention to parallel and equal lines!",
+                missions: {
+                    playground: { title: "Playground", desc: "Drag the corners on the grid. If lines are identical length, they share a color!" },
+                    m1: { title: "Mission 1: The Skew", desc: "Inquiry: How does a rectangle change when you tilt it? \n\nGOAL: Create a shape with 2 pairs of parallel lines, but NO right angles (Parallelogram)." },
+                    m2: { title: "Mission 2: The Diamond", desc: "Inquiry: Is a square the only shape with equal sides? \n\nGOAL: Create a shape where ALL 4 sides share the SAME COLOR, but NO right angles." },
+                    m3: { title: "Mission 3: The Spaceship", desc: "Inquiry: Can a shape have a dent? \n\nGOAL: Create an Arrowhead (Dart) that points inward." },
+                    m4: { title: "Mission 4: The Boat", desc: "Inquiry: What happens if only the top and bottom are parallel? \n\nGOAL: Create a shape with EXACTLY 1 pair of parallel lines (Trapezoid)." }
+                },
+                shapes: { 
+                    square: { name: "Square", desc: "4 equal sides + 4 right angles.", icon: "🟦" },
+                    rect: { name: "Rectangle", desc: "Opposite sides equal + 4 right angles.", icon: "🟩" },
+                    rhombus: { name: "Rhombus", desc: "4 equal sides, no right angles needed.", icon: "💠" },
+                    para: { name: "Parallelogram", desc: "2 pairs of parallel lines. Opposite sides equal.", icon: "▱" },
+                    trap: { name: "Trapezoid", desc: "Exactly one pair of parallel lines.", icon: "🚤" },
+                    kite: { name: "Kite", desc: "2 pairs of adjacent (touching) sides equal.", icon: "🪁" },
+                    dart: { name: "Arrowhead", desc: "Points inward (concave).", icon: "🚀" },
+                    irreg: { name: "Irregular", desc: "Nothing is parallel or equal.", icon: "🧩" },
+                    crossed: { name: "Crossed", desc: "The lines crossed!", icon: "🎀" }
+                }
+            }
+        };
+
+        // --- 2. Moteur Mathématique ---
+        const TOLERANCE_PX = 2; // Tolerance très basse grâce à la grille magnétique
+        const TOLERANCE_DEG = 3;
+
+        const dist = (p1, p2) => Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        const crossProduct = (A, B, C) => (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x);
+        
+        function getAngle(p0, p1, p2) {
+            let a = Math.atan2(p2.y - p1.y, p2.x - p1.x) - Math.atan2(p0.y - p1.y, p0.x - p1.x);
+            a = a * 180 / Math.PI;
+            if (a < 0) a += 360;
+            return a;
+        }
+
+        function doIntersect(p1, p2, p3, p4) {
+            let cp1 = crossProduct(p1, p2, p3), cp2 = crossProduct(p1, p2, p4);
+            let cp3 = crossProduct(p3, p4, p1), cp4 = crossProduct(p3, p4, p2);
+            return ((cp1 > 0 && cp2 < 0) || (cp1 < 0 && cp2 > 0)) && ((cp3 > 0 && cp4 < 0) || (cp3 < 0 && cp4 > 0));
+        }
+
+        function analyzeShape() {
+            const L = [dist(pts[0], pts[1]), dist(pts[1], pts[2]), dist(pts[2], pts[3]), dist(pts[3], pts[0])];
+
+            if (doIntersect(pts[0], pts[1], pts[2], pts[3]) || doIntersect(pts[1], pts[2], pts[3], pts[0])) {
+                return { key: 'crossed', rights: 0, parallels: 0, equalKey: 'none', isConcave: false, angles: [], lengths: L, isPar: [false,false,false,false] };
+            }
+
+            let a0 = getAngle(pts[3], pts[0], pts[1]), a1 = getAngle(pts[0], pts[1], pts[2]);
+            let a2 = getAngle(pts[1], pts[2], pts[3]), a3 = getAngle(pts[2], pts[3], pts[0]);
+            let angles = [a0, a1, a2, a3];
+            let sum = a0 + a1 + a2 + a3;
+            if (Math.abs(sum - 720) < Math.abs(sum - 360)) angles = angles.map(a => 360 - a);
+            
+            let rightAngles = angles.filter(a => Math.abs(a - 90) < TOLERANCE_DEG).length;
+            let isConcave = angles.some(a => a > 180);
+            
+            const par02 = Math.abs((angles[0] + angles[3]) - 180) < TOLERANCE_DEG && Math.abs((angles[1] + angles[2]) - 180) < TOLERANCE_DEG;
+            const par13 = Math.abs((angles[0] + angles[1]) - 180) < TOLERANCE_DEG && Math.abs((angles[2] + angles[3]) - 180) < TOLERANCE_DEG;
+            let parallelPairs = (par02 ? 1 : 0) + (par13 ? 1 : 0);
+
+            const eqAll = Math.abs(L[0]-L[1])<TOLERANCE_PX && Math.abs(L[1]-L[2])<TOLERANCE_PX && Math.abs(L[2]-L[3])<TOLERANCE_PX;
+            const eqOpposite = Math.abs(L[0]-L[2])<TOLERANCE_PX && Math.abs(L[1]-L[3])<TOLERANCE_PX;
+            const eqAdjacent = (Math.abs(L[0]-L[1])<TOLERANCE_PX && Math.abs(L[2]-L[3])<TOLERANCE_PX) || (Math.abs(L[1]-L[2])<TOLERANCE_PX && Math.abs(L[3]-L[0])<TOLERANCE_PX);
+
+            let shapeKey = 'irreg', equalKey = 'none';
+            if (isConcave) { shapeKey = 'dart'; equalKey = eqAdjacent ? 'adj' : 'none'; }
+            else if (eqAll && rightAngles === 4) { shapeKey = 'square'; equalKey = 'all'; }
+            else if (eqOpposite && rightAngles === 4) { shapeKey = 'rect'; equalKey = 'opp'; }
+            else if (eqAll) { shapeKey = 'rhombus'; equalKey = 'all'; }
+            else if (parallelPairs === 2) { shapeKey = 'para'; equalKey = eqOpposite ? 'opp' : 'none'; }
+            else if (parallelPairs === 1) { shapeKey = 'trap'; }
+            else if (eqAdjacent) { shapeKey = 'kite'; equalKey = 'adj'; }
+
+            return { key: shapeKey, rights: rightAngles, parallels: parallelPairs, equalKey: equalKey, isConcave: isConcave, angles: angles, lengths: L, isPar: [par02, par13, par02, par13] };
+        }
+
+        // --- 3. Logique Applicative & UI ---
+        
+        function initApp(lang) {
+            currentLang = lang;
+            document.getElementById('splash').style.opacity = '0';
+            updateUIText();
+            buildGuide();
+            setTimeout(() => { document.getElementById('splash').remove(); document.getElementById('app').classList.remove('hidden'); setTab('guide'); }, 800);
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'fr' : 'en';
+            document.querySelector('.fredoka.text-2xl.text-blue-600').innerText = textData[currentLang].title;
+            updateUIText();
+            buildGuide();
+            if (currentTab !== 'guide') recalcAndDraw();
+        }
+
+        function buildGuide() {
+            const grid = document.getElementById('guide-grid');
+            grid.innerHTML = '';
+            const shapes = textData[currentLang].shapes;
+            // Order of display
+            const keys = ['square', 'rect', 'rhombus', 'para', 'trap', 'kite', 'dart'];
+            
+            keys.forEach(k => {
+                const s = shapes[k];
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 border-2 border-slate-100 rounded-xl p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow";
+                card.innerHTML = `
+                    <div class="text-5xl mb-2">${s.icon}</div>
+                    <h3 class="font-bold text-slate-800 text-lg">${s.name}</h3>
+                    <p class="text-slate-500 text-sm mt-1">${s.desc}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateUIText() {
+            const t = textData[currentLang];
+            document.getElementById('tab-guide').innerText = t.tabs.guide;
+            document.getElementById('tab-playground').innerText = t.tabs.playground;
+            document.getElementById('tab-m1').innerText = t.tabs.m1;
+            document.getElementById('tab-m2').innerText = t.tabs.m2;
+            document.getElementById('tab-m3').innerText = t.tabs.m3;
+            document.getElementById('tab-m4').innerText = t.tabs.m4;
+            
+            document.getElementById('guide-title').innerText = t.guideTitle;
+            document.getElementById('guide-desc').innerText = t.guideDesc;
+            
+            if(currentTab !== 'guide') {
+                document.getElementById('panel-title').innerText = t.missions[currentTab].title;
+                document.getElementById('panel-desc').innerText = t.missions[currentTab].desc;
+            }
+            
+            document.getElementById('lbl-parallel').innerText = t.labels.parallel;
+            document.getElementById('lbl-rights').innerText = t.labels.rights;
+            document.getElementById('lbl-equal').innerText = t.labels.equal;
+            updateMissionStatusBox();
+        }
+
+        function setTab(tab) {
+            currentTab = tab;
+            isSuccess = false;
+            
+            document.querySelectorAll('#tabs button').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById('tab-' + tab).classList.add('active-tab');
+            
+            const guideView = document.getElementById('guide-view');
+            const canvasView = document.getElementById('canvas-container');
+            const sidePanel = document.getElementById('side-panel');
+            
+            if(tab === 'guide') {
+                guideView.classList.remove('hidden');
+                canvasView.classList.add('hidden');
+                sidePanel.classList.add('hidden');
+            } else {
+                guideView.classList.add('hidden');
+                canvasView.classList.remove('hidden');
+                sidePanel.classList.remove('hidden');
+                
+                const statusBox = document.getElementById('mission-status-box');
+                if(tab === 'playground') {
+                    statusBox.classList.add('hidden');
+                } else {
+                    statusBox.classList.remove('hidden');
+                    statusBox.classList.remove('bg-green-100', 'border-green-400', 'text-green-700', 'success-anim');
+                    statusBox.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-600');
+                }
+                updateUIText();
+                recalcAndDraw();
+            }
+        }
+
+        function updateMissionStatusBox() {
+            if(currentTab === 'playground' || currentTab === 'guide') return;
+            const statusBox = document.getElementById('mission-status-box');
+            const statusText = document.getElementById('mission-status-text');
+            
+            if (isSuccess) {
+                statusText.innerText = textData[currentLang].status.success;
+                if(!statusBox.classList.contains('bg-green-100')) {
+                    statusBox.className = "mt-4 p-4 rounded-xl text-center font-bold border-2 bg-green-100 border-green-400 text-green-700 success-anim";
+                }
+            } else {
+                statusText.innerText = textData[currentLang].status.progress;
+                statusBox.className = "mt-4 p-4 rounded-xl text-center font-bold border-2 bg-blue-50 border-blue-200 text-blue-600";
+            }
+        }
+
+        function checkMission(data) {
+            let passed = false;
+            if (currentTab === 'm1') { passed = (data.parallels === 2 && data.rights === 0); } // Para
+            else if (currentTab === 'm2') { passed = (data.equalKey === 'all' && data.rights === 0); } // Rhombus
+            else if (currentTab === 'm3') { passed = (data.isConcave === true); } // Dart
+            else if (currentTab === 'm4') { passed = (data.parallels === 1); } // Trapezoid
+            
+            if (passed && !isSuccess) {
+                isSuccess = true;
+                updateMissionStatusBox();
+            } else if (!passed && isSuccess) {
+                isSuccess = false;
+                updateMissionStatusBox();
+            }
+        }
+
+        function recalcAndDraw() {
+            const t = textData[currentLang];
+            
+            // 1. Position HTML Vertices
+            pts.forEach((p, i) => {
+                const v = document.getElementById('v'+i);
+                v.style.left = p.x + 'px'; v.style.top = p.y + 'px';
+            });
+
+            // 2. Analyser la forme
+            const data = analyzeShape();
+            checkMission(data);
+
+            // 3. Mise à jour de la Télémetrie
+            document.getElementById('live-shape-name').innerText = t.shapes[data.key].name;
+            document.getElementById('val-parallel').innerText = data.parallels;
+            document.getElementById('val-rights').innerText = data.rights;
+            document.getElementById('val-equal').innerText = t.values[data.equalKey];
+
+            // 4. Remplissage du fond (SVG)
+            const fillPath = document.getElementById('shape-fill');
+            fillPath.setAttribute('d', `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y} L ${pts[2].x} ${pts[2].y} L ${pts[3].x} ${pts[3].y} Z`);
+            if (data.isConcave) fillPath.setAttribute('fill', 'url(#diagonalHatchRed)');
+            else fillPath.setAttribute('fill', 'url(#diagonalHatch)');
+
+            // 5. Logique des Couleurs (Identique = Même Couleur)
+            let colors = ['#94a3b8', '#94a3b8', '#94a3b8', '#94a3b8']; // Gris par défaut si tout différent
+            const palette = ['#ec4899', '#10b981', '#f59e0b', '#8b5cf6']; // Rose, Vert, Orange, Violet
+            let colorIdx = 0;
+            let assigned = [false, false, false, false];
+            
+            for(let i=0; i<4; i++) {
+                if(assigned[i]) continue;
+                let group = [i];
+                for(let j=i+1; j<4; j++) {
+                    if(!assigned[j] && Math.abs(data.lengths[i] - data.lengths[j]) < TOLERANCE_PX) {
+                        group.push(j);
+                    }
+                }
+                if(group.length > 1) { 
+                    // Si plusieurs lignes ont la même longueur, on leur assigne une couleur vive
+                    group.forEach(idx => { colors[idx] = palette[colorIdx]; assigned[idx] = true; });
+                    colorIdx++;
+                } else {
+                    assigned[i] = true; // Reste gris (indépendant)
+                }
+            }
+
+            // 6. Dessiner les Lignes & Textes
+            const linesGroup = document.getElementById('custom-lines');
+            const textsGroup = document.getElementById('length-texts');
+            linesGroup.innerHTML = ''; textsGroup.innerHTML = '';
+
+            for(let i=0; i<4; i++) {
+                const p1 = pts[i], p2 = pts[(i+1)%4];
+                const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+                const dx = p2.x - p1.x, dy = p2.y - p1.y;
+                const len = Math.hypot(dx, dy);
+                if(len === 0) continue;
+                const nx = -dy / len, ny = dx / len;
+                
+                const col = colors[i];
+                const isPar = data.isPar[i];
+                
+                // Différencier les Côtés Opposés : La paire 1 (0 et 2) est pleine, la paire 2 (1 et 3) est en pointillés
+                const dashStyle = (i === 1 || i === 3) ? '8 6' : 'none';
+
+                if(isPar && data.key !== 'crossed') {
+                    // Ligne Doublée pour les parallèles
+                    const gap = 4;
+                    const l1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    l1.setAttribute('x1', p1.x + nx*gap); l1.setAttribute('y1', p1.y + ny*gap);
+                    l1.setAttribute('x2', p2.x + nx*gap); l1.setAttribute('y2', p2.y + ny*gap);
+                    l1.setAttribute('stroke', col); l1.setAttribute('stroke-width', '3');
+                    l1.setAttribute('stroke-dasharray', dashStyle);
+
+                    const l2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    l2.setAttribute('x1', p1.x - nx*gap); l2.setAttribute('y1', p1.y - ny*gap);
+                    l2.setAttribute('x2', p2.x - nx*gap); l2.setAttribute('y2', p2.y - ny*gap);
+                    l2.setAttribute('stroke', col); l2.setAttribute('stroke-width', '3');
+                    l2.setAttribute('stroke-dasharray', dashStyle);
+
+                    linesGroup.appendChild(l1); linesGroup.appendChild(l2);
+                } else {
+                    // Ligne Simple
+                    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    l.setAttribute('x1', p1.x); l.setAttribute('y1', p1.y);
+                    l.setAttribute('x2', p2.x); l.setAttribute('y2', p2.y);
+                    l.setAttribute('stroke', col); l.setAttribute('stroke-width', '5');
+                    l.setAttribute('stroke-dasharray', dashStyle);
+                    linesGroup.appendChild(l);
+                }
+
+                // Texte de Longueur Dynamique (en unités de grille)
+                const gridLength = Math.round(data.lengths[i] / GRID_SIZE * 10) / 10;
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                const tnx = -nx * 22, tny = -ny * 22; // Décaler le texte vers l'extérieur
+                text.setAttribute('x', mx + tnx); text.setAttribute('y', my + tny);
+                text.setAttribute('fill', col === '#94a3b8' ? '#475569' : col); // Fonce un peu le gris pour la lecture
+                text.setAttribute('font-weight', '900'); text.setAttribute('font-size', '18');
+                text.setAttribute('text-anchor', 'middle'); text.setAttribute('dominant-baseline', 'middle');
+                // Effet de contour pour lisibilité
+                text.setAttribute('paint-order', 'stroke'); text.setAttribute('stroke', '#ffffff'); text.setAttribute('stroke-width', '4');
+                text.textContent = gridLength;
+                textsGroup.appendChild(text);
+            }
+
+            // 7. Dessiner Angles Droits
+            const arcs = document.getElementById('right-angles');
+            arcs.innerHTML = '';
+            if (data.key !== 'crossed') {
+                pts.forEach((p, i) => {
+                    if (Math.abs(data.angles[i] - 90) < TOLERANCE_DEG) {
+                        const p0 = pts[(i + 3) % 4], p2 = pts[(i + 1) % 4];
+                        let v1 = { x: p0.x - p.x, y: p0.y - p.y }, v2 = { x: p2.x - p.x, y: p2.y - p.y };
+                        let l1 = dist(p0, p), l2 = dist(p2, p);
+                        if(l1 > 0 && l2 > 0) {
+                            v1 = { x: v1.x/l1 * 20, y: v1.y/l1 * 20 }; v2 = { x: v2.x/l2 * 20, y: v2.y/l2 * 20 };
+                            const pCorner = { x: p.x + v1.x + v2.x, y: p.y + v1.y + v2.y };
+                            const arc = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                            arc.setAttribute('d', `M ${p.x+v1.x} ${p.y+v1.y} L ${pCorner.x} ${pCorner.y} L ${p.x+v2.x} ${p.y+v2.y}`);
+                            arc.setAttribute('fill', 'none'); arc.setAttribute('stroke', '#ef4444'); arc.setAttribute('stroke-width', '3');
+                            arcs.appendChild(arc);
+                        }
+                    }
+                });
+            }
+        }
+
+        // --- 4. Interactions & Magnétisme (Grid Snap) ---
+        let draggedPoint = null;
+        const container = document.getElementById('canvas-container');
+
+        container.addEventListener('pointerdown', (e) => {
+            if (e.target.classList.contains('vertex')) {
+                draggedPoint = parseInt(e.target.id.replace('v', ''));
+                e.target.setPointerCapture(e.pointerId);
+                e.preventDefault();
+            }
+        });
+
+        container.addEventListener('pointermove', (e) => {
+            if (draggedPoint === null) return;
+            const rect = container.getBoundingClientRect();
+            
+            // Position brute de la souris
+            let rawX = e.clientX - rect.left;
+            let rawY = e.clientY - rect.top;
+            
+            // Magnétisme : Arrondir au multiple de GRID_SIZE (40px) le plus proche
+            let x = Math.round(rawX / GRID_SIZE) * GRID_SIZE;
+            let y = Math.round(rawY / GRID_SIZE) * GRID_SIZE;
+
+            // Garder les points dans l'écran visible (avec marge)
+            const maxX = Math.floor((rect.width - 20) / GRID_SIZE) * GRID_SIZE;
+            const maxY = Math.floor((rect.height - 20) / GRID_SIZE) * GRID_SIZE;
+            
+            x = Math.max(GRID_SIZE, Math.min(maxX, x));
+            y = Math.max(GRID_SIZE, Math.min(maxY, y));
+
+            pts[draggedPoint] = { x, y };
+            requestAnimationFrame(recalcAndDraw);
+        });
+
+        container.addEventListener('pointerup', (e) => { draggedPoint = null; });
+        window.addEventListener('resize', () => { if(currentTab !== 'guide') recalcAndDraw(); });
+        
+    </script>
+</body>
+</html>
