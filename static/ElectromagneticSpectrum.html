@@ -244,35 +244,44 @@
 
             <!-- Energy & Penetration Gauge Card -->
             <div class="glass-panel rounded-2xl p-4 flex flex-col justify-center relative overflow-hidden border border-slate-700/60">
-                <div class="flex justify-between items-start mb-1">
+                
+                <!-- ENERGY LEVEL -->
+                <div class="flex justify-between items-end mb-2">
                     <div class="text-slate-400 text-[10px] md:text-xs font-bold tracking-wider uppercase flex items-center">
                         <i class="fa-solid fa-bolt mr-2 text-yellow-400"></i> <span id="ui-energy">Energy Level</span>
                     </div>
-                    <div class="text-xs md:text-sm font-bold text-green-400 transition-colors duration-300 text-right" id="valEnergyText">
+                    <div class="text-xs md:text-sm font-bold transition-colors duration-300 text-right" id="valEnergyText">
                         Very Low
                     </div>
                 </div>
                 
                 <!-- Energy Bar -->
-                <div class="w-full bg-slate-900 h-2.5 rounded-full mb-3 overflow-hidden border border-slate-700 shadow-inner">
-                    <div id="energyBar" class="bg-gradient-to-r from-green-400 via-yellow-400 to-red-600 h-full w-[5%] transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
+                <div class="w-full bg-slate-950/80 h-4 rounded-md mb-4 p-[2px] border border-slate-700/60 shadow-inner">
+                    <div id="energyBar" class="h-full rounded-sm transition-all duration-300 w-[5%]"></div>
                 </div>
 
-                <div class="mt-auto pt-2 border-t border-slate-700/50">
-                    <div id="ui-penetration" class="text-[9px] uppercase text-slate-500 font-bold tracking-wider mb-1.5">Gradual Penetration</div>
-                    
-                    <div class="relative w-full h-4 bg-slate-900 rounded border border-slate-700 shadow-inner overflow-hidden">
-                        <div id="pen-fill" class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-500 w-[10%]"></div>
-                        <div class="absolute top-0 left-[25%] w-px h-full bg-slate-800/80 z-10"></div>
-                        <div class="absolute top-0 left-[50%] w-px h-full bg-slate-800/80 z-10"></div>
-                        <div class="absolute top-0 left-[75%] w-px h-full bg-slate-800/80 z-10"></div>
+                <!-- PENETRATION LEVEL -->
+                <div class="mt-auto pt-3 border-t border-slate-700/50">
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="text-slate-400 text-[10px] md:text-xs font-bold tracking-wider uppercase flex items-center">
+                            <i class="fa-solid fa-shield-halved mr-2 text-cyan-400"></i> <span id="ui-penetration">Gradual Penetration</span>
+                        </div>
                     </div>
                     
-                    <div class="flex justify-between text-[8px] md:text-[9px] text-slate-500 uppercase mt-1 px-0.5 font-semibold">
-                        <span id="ui-pen-surface" class="w-1/4 text-left">Surface</span>
-                        <span id="ui-pen-tissue" class="w-1/4 text-center">Tissue</span>
-                        <span id="ui-pen-bone" class="w-1/4 text-center">Bone</span>
-                        <span id="ui-pen-lead" class="w-1/4 text-right">Lead</span>
+                    <!-- Penetration Gauge -->
+                    <div class="relative w-full h-4 bg-slate-950 rounded-md border border-slate-700/80 shadow-inner overflow-hidden flex mb-2">
+                        <div class="w-1/4 h-full bg-gradient-to-b from-amber-900/30 to-amber-900/10 border-r border-slate-700/50 relative z-0"></div>
+                        <div class="w-1/4 h-full bg-gradient-to-b from-rose-900/30 to-rose-900/10 border-r border-slate-700/50 relative z-0"></div>
+                        <div class="w-1/4 h-full bg-gradient-to-b from-slate-400/20 to-slate-400/5 border-r border-slate-700/50 relative z-0"></div>
+                        <div class="w-1/4 h-full bg-gradient-to-b from-slate-700/60 to-slate-700/30 relative z-0"></div>
+                        <div id="pen-fill" class="absolute top-0 left-0 h-full transition-all duration-500 w-[10%] z-10 rounded-r-md"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-[9px] md:text-[10px] text-slate-500 uppercase px-0.5 font-bold">
+                        <span id="ui-pen-surface" class="w-1/4 text-left pl-1 transition-all duration-300">Surface</span>
+                        <span id="ui-pen-tissue" class="w-1/4 text-center transition-all duration-300">Tissue</span>
+                        <span id="ui-pen-bone" class="w-1/4 text-center transition-all duration-300">Bone</span>
+                        <span id="ui-pen-lead" class="w-1/4 text-right pr-1 transition-all duration-300">Lead</span>
                     </div>
                 </div>
             </div>
@@ -741,6 +750,9 @@
             const val = parseFloat(slider.value);
             const dict = I18N[currentLang];
             
+            // Need the category early for penetration beam styling
+            const category = getCategory(val);
+            
             const SPECTRUM_ANCHORS = [
                 { val: 0, exp: 4 }, { val: 15, exp: 0 }, { val: 30, exp: -3 }, { val: 45, exp: -6.15 },
                 { val: 55, exp: -6.40 }, { val: 70, exp: -8 }, { val: 85, exp: -11 }, { val: 100, exp: -13 }
@@ -799,23 +811,34 @@
             document.getElementById('valFrequencyRaw').innerText = rawFreq;
 
             // Energy Bar & Text
-            document.getElementById('energyBar').style.width = `${Math.max(val, 2)}%`;
+            const energyBar = document.getElementById('energyBar');
+            energyBar.style.width = `${Math.max(val, 2)}%`;
             const elValEnergyText = document.getElementById('valEnergyText');
 
             if (val < 20) { 
-                elValEnergyText.className = "text-xs md:text-sm font-bold text-green-400"; elValEnergyText.innerText = dict.energyLevels[0]; 
+                elValEnergyText.className = "text-xs md:text-sm font-bold text-green-400 transition-colors duration-300 text-right"; 
+                elValEnergyText.innerText = dict.energyLevels[0]; 
+                energyBar.className = "h-full rounded-full transition-all duration-300 bg-gradient-to-r from-emerald-600 to-green-400 shadow-[0_0_10px_rgba(74,222,128,0.6)]";
             }
             else if (val < 45) { 
-                elValEnergyText.className = "text-xs md:text-sm font-bold text-green-300"; elValEnergyText.innerText = dict.energyLevels[1]; 
+                elValEnergyText.className = "text-xs md:text-sm font-bold text-green-300 transition-colors duration-300 text-right"; 
+                elValEnergyText.innerText = dict.energyLevels[1]; 
+                energyBar.className = "h-full rounded-full transition-all duration-300 bg-gradient-to-r from-green-500 to-green-300 shadow-[0_0_10px_rgba(134,239,172,0.6)]";
             }
             else if (val < 55) { 
-                elValEnergyText.className = "text-xs md:text-sm font-bold text-yellow-400"; elValEnergyText.innerText = dict.energyLevels[2]; 
+                elValEnergyText.className = "text-xs md:text-sm font-bold text-yellow-400 transition-colors duration-300 text-right"; 
+                elValEnergyText.innerText = dict.energyLevels[2]; 
+                energyBar.className = "h-full rounded-full transition-all duration-300 bg-gradient-to-r from-yellow-600 to-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.6)]";
             }
             else if (val < 70) { 
-                elValEnergyText.className = "text-xs md:text-sm font-bold text-orange-500"; elValEnergyText.innerText = dict.energyLevels[3]; 
+                elValEnergyText.className = "text-xs md:text-sm font-bold text-orange-500 transition-colors duration-300 text-right"; 
+                elValEnergyText.innerText = dict.energyLevels[3]; 
+                energyBar.className = "h-full rounded-full transition-all duration-300 bg-gradient-to-r from-orange-600 to-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.6)]";
             }
             else { 
-                elValEnergyText.className = "text-xs md:text-sm font-bold text-red-500"; elValEnergyText.innerText = dict.energyLevels[4]; 
+                elValEnergyText.className = "text-xs md:text-sm font-bold text-red-500 transition-colors duration-300 text-right"; 
+                elValEnergyText.innerText = dict.energyLevels[4]; 
+                energyBar.className = "h-full rounded-full transition-all duration-300 bg-gradient-to-r from-red-700 to-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]";
             }
 
             // Penetration Gauge Logic Revised (Maps to biological/material absorption)
@@ -836,9 +859,27 @@
                 uiPenetrationPercent = 75 + ((val - 85) / 15) * 25;
             }
             penFill.style.width = `${Math.min(uiPenetrationPercent, 100)}%`;
+            penFill.style.background = `linear-gradient(90deg, transparent 0%, ${category.color} 100%)`;
+            penFill.style.boxShadow = `3px 0 15px ${category.color}`;
+            penFill.style.borderRight = `2px solid ${category.color}`;
 
-            // Lens Context
-            const category = getCategory(val);
+            // Dynamic Text Colors for Penetration Labels
+            const elSur = document.getElementById('ui-pen-surface');
+            const elTis = document.getElementById('ui-pen-tissue');
+            const elBon = document.getElementById('ui-pen-bone');
+            const elLea = document.getElementById('ui-pen-lead');
+
+            [elSur, elTis, elBon, elLea].forEach(el => {
+                el.style.color = '#64748b'; // slate-500
+                el.style.textShadow = 'none';
+            });
+
+            if (uiPenetrationPercent > 0) { elSur.style.color = category.color; elSur.style.textShadow = `0 0 8px ${category.color}90`; }
+            if (uiPenetrationPercent > 25) { elTis.style.color = category.color; elTis.style.textShadow = `0 0 8px ${category.color}90`; }
+            if (uiPenetrationPercent > 50) { elBon.style.color = category.color; elBon.style.textShadow = `0 0 8px ${category.color}90`; }
+            if (uiPenetrationPercent > 75) { elLea.style.color = category.color; elLea.style.textShadow = `0 0 8px ${category.color}90`; }
+
+            // Lens Context Update
             const elCategoryIcon = document.getElementById('categoryIcon');
             const elIconContainer = document.getElementById('iconContainer');
             
