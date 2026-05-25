@@ -168,7 +168,7 @@
                             <div><span class="text-sm text-gray-200 font-bold group-hover:text-white transition-colors" data-i18n="show_labels">Show Object Labels</span></div>
                         </label>
                         <label class="flex items-start cursor-pointer group">
-                            <input type="checkbox" id="o-sat-toggle" checked class="mt-0.5 mr-2 rounded border-gray-600 bg-gray-800 accent-orange-500">
+                            <input type="checkbox" id="o-sat-toggle" class="mt-0.5 mr-2 rounded border-gray-600 bg-gray-800 accent-orange-500">
                             <div><span class="text-sm text-gray-200 font-bold group-hover:text-white transition-colors" data-i18n="show_sats">Show All Satellites</span></div>
                         </label>
                         <label class="flex items-start cursor-pointer group">
@@ -335,7 +335,7 @@
             rel_sun: "Rel. Sun:", rel_core: "Rel. Core:",
             obj_Earth: "Earth", obj_Sun: "Sun", obj_Moon: "Moon", obj_Mercury: "Mercury", obj_Venus: "Venus",
             obj_Mars: "Mars", obj_Jupiter: "Jupiter", obj_Saturn: "Saturn", obj_Uranus: "Uranus", obj_Neptune: "Neptune",
-            obj_Pluto: "Pluto", obj_Milky_Way: "Milky Way", "obj_Kuiper Belt": "Kuiper Belt", "obj_Oort Cloud": "Oort Cloud", "obj_Haumea": "Haumea", "obj_Makemake": "Makemake", "obj_Eris": "Eris", "obj_Halley": "Halley", "obj_Hale-Bopp": "Hale-Bopp", "obj_Encke": "Encke", "obj_Swift-Tuttle": "Swift-Tuttle"
+            obj_Pluto: "Pluto", obj_Charon: "Charon", obj_Milky_Way: "Milky Way", "obj_Kuiper Belt": "Kuiper Belt", "obj_Oort Cloud": "Oort Cloud", "obj_Haumea": "Haumea", "obj_Makemake": "Makemake", "obj_Eris": "Eris", "obj_Halley": "Halley", "obj_Hale-Bopp": "Hale-Bopp", "obj_Encke": "Encke", "obj_Swift-Tuttle": "Swift-Tuttle"
         },
         fr: {
             splash_title: "L'ODYSSÉE GALACTIQUE",
@@ -364,7 +364,7 @@
             rel_sun: "Réf. Soleil:", rel_core: "Réf. Centre:",
             obj_Earth: "Terre", obj_Sun: "Soleil", obj_Moon: "Lune", obj_Mercury: "Mercure", obj_Venus: "Vénus",
             obj_Mars: "Mars", obj_Jupiter: "Jupiter", obj_Saturn: "Saturne", obj_Uranus: "Uranus", obj_Neptune: "Neptune",
-            obj_Pluto: "Pluton", obj_Milky_Way: "Voie Lactée", "obj_Kuiper Belt": "Ceinture de Kuiper", "obj_Oort Cloud": "Nuage d'Oort", "obj_Haumea": "Haumea", "obj_Makemake": "Makemake", "obj_Eris": "Eris", "obj_Halley": "Halley", "obj_Hale-Bopp": "Hale-Bopp", "obj_Encke": "Encke", "obj_Swift-Tuttle": "Swift-Tuttle"
+            obj_Pluto: "Pluton", obj_Charon: "Charon", obj_Milky_Way: "Voie Lactée", "obj_Kuiper Belt": "Ceinture de Kuiper", "obj_Oort Cloud": "Nuage d'Oort", "obj_Haumea": "Haumea", "obj_Makemake": "Makemake", "obj_Eris": "Eris", "obj_Halley": "Halley", "obj_Hale-Bopp": "Hale-Bopp", "obj_Encke": "Encke", "obj_Swift-Tuttle": "Swift-Tuttle"
         }
     };
 
@@ -456,6 +456,15 @@
             grad.addColorStop(0.5, p.color + p.life * 0.05 + ')'); 
             grad.addColorStop(1, 'rgba(0,0,0,0)');
             sCtx.fillStyle = grad; sCtx.beginPath(); sCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2); sCtx.fill();
+        }
+        
+        if (sMouseX > -500) {
+            // Subtler, tighter pointer aura
+            let pointerGrad = sCtx.createRadialGradient(sMouseX, sMouseY, 0, sMouseX, sMouseY, 150);
+            pointerGrad.addColorStop(0, 'rgba(59, 130, 246, 0.08)'); 
+            pointerGrad.addColorStop(0.5, 'rgba(99, 102, 241, 0.02)'); 
+            pointerGrad.addColorStop(1, 'rgba(0,0,0,0)');
+            sCtx.fillStyle = pointerGrad; sCtx.beginPath(); sCtx.arc(sMouseX, sMouseY, 150, 0, Math.PI * 2); sCtx.fill();
         }
         
         sCtx.globalCompositeOperation = 'source-over';
@@ -574,7 +583,7 @@
     const oControls = new THREE.OrbitControls(oCamera, renderer.domElement); oControls.enableDamping = true; oControls.enabled = false;
     oScene.add(new THREE.AmbientLight(0xffffff, 0.3)); oScene.add(new THREE.PointLight(0xfff5e6, 2.5, 0)); oScene.add(sharedStarsMesh.clone());
 
-    let oSimTime = 0, oTimeScale = 864000, oCompFactor = 1, oSizeFactor = 1, oShowSatellites = true, oShowTNOs = false, oShowComets = false, oShowLabels = true, oShowAxes = false;
+    let oSimTime = 0, oTimeScale = 864000, oCompFactor = 1, oSizeFactor = 1, oShowSatellites = false, oShowTNOs = false, oShowComets = false, oShowLabels = true, oShowAxes = false;
     const O_BASE_AU = 100; 
     const oEclipticGrid = new THREE.PolarGridHelper(1000 * O_BASE_AU, 36, 200, 64, 0x3b82f6, 0x1e3a8a);
     oEclipticGrid.material.transparent = true; oEclipticGrid.material.opacity = 0.25; oEclipticGrid.visible = false; oScene.add(oEclipticGrid);
@@ -641,7 +650,34 @@
         { id: "Halley", rKm: 5.5, dAu: 17.8, pYr: 75.3, e: 0.967, inc: 162.2, node: 58, peri: 111, tilt: 0, rotHr: 52.8, color: 0x88ccff, isComet: true },
         { id: "Hale-Bopp", rKm: 30, dAu: 185.0, pYr: 2533, e: 0.995, inc: 89.4, node: 282, peri: 130, tilt: 0, rotHr: 11.4, color: 0x88ccff, isComet: true }
     ];
-    const O_MOONS = [ { id: "Moon", parent: "Earth", rKm: 1737, dAu: 0.00257, pYr: 0.0748, tilt: 1.54, rotHr: 655.72, color: 0xdddddd, isMoon: true } ];
+    
+    // Extensively populated real-world moon data
+    const O_MOONS = [ 
+        { id: "Moon", parent: "Earth", rKm: 1737, dAu: 0.00257, pYr: 0.0748, tilt: 1.54, rotHr: 655.72, color: 0xdddddd, isMoon: true },
+        // Jupiter
+        { id: "Io", parent: "Jupiter", rKm: 1821, dAu: 0.00281, pYr: 0.0048, tilt: 0, rotHr: 42.46, color: 0xffff00, isMoon: true },
+        { id: "Europa", parent: "Jupiter", rKm: 1560, dAu: 0.00448, pYr: 0.0097, tilt: 0, rotHr: 85.22, color: 0xaacccc, isMoon: true },
+        { id: "Ganymede", parent: "Jupiter", rKm: 2634, dAu: 0.00715, pYr: 0.0196, tilt: 0, rotHr: 171.71, color: 0xbbbbbb, isMoon: true },
+        { id: "Callisto", parent: "Jupiter", rKm: 2410, dAu: 0.01258, pYr: 0.0457, tilt: 0, rotHr: 400.53, color: 0x888888, isMoon: true },
+        // Saturn
+        { id: "Mimas", parent: "Saturn", rKm: 198, dAu: 0.00124, pYr: 0.0026, tilt: 0, rotHr: 22.6, color: 0xcccccc, isMoon: true },
+        { id: "Enceladus", parent: "Saturn", rKm: 252, dAu: 0.00159, pYr: 0.0037, tilt: 0, rotHr: 32.88, color: 0xeeeeee, isMoon: true },
+        { id: "Tethys", parent: "Saturn", rKm: 531, dAu: 0.00197, pYr: 0.0051, tilt: 0, rotHr: 45.3, color: 0xdddddd, isMoon: true },
+        { id: "Dione", parent: "Saturn", rKm: 561, dAu: 0.00252, pYr: 0.0075, tilt: 0, rotHr: 65.7, color: 0xdddddd, isMoon: true },
+        { id: "Rhea", parent: "Saturn", rKm: 763, dAu: 0.00352, pYr: 0.0123, tilt: 0, rotHr: 108.4, color: 0xeeeeee, isMoon: true },
+        { id: "Titan", parent: "Saturn", rKm: 2574, dAu: 0.00816, pYr: 0.0436, tilt: 0, rotHr: 382.69, color: 0xffaa00, isMoon: true },
+        { id: "Iapetus", parent: "Saturn", rKm: 734, dAu: 0.0238, pYr: 0.217, tilt: 0, rotHr: 1903, color: 0x888888, isMoon: true },
+        // Uranus
+        { id: "Miranda", parent: "Uranus", rKm: 235, dAu: 0.00086, pYr: 0.0038, tilt: 0, rotHr: 33.9, color: 0xcccccc, isMoon: true },
+        { id: "Ariel", parent: "Uranus", rKm: 578, dAu: 0.00127, pYr: 0.0069, tilt: 0, rotHr: 60.4, color: 0xdddddd, isMoon: true },
+        { id: "Umbriel", parent: "Uranus", rKm: 584, dAu: 0.00178, pYr: 0.0113, tilt: 0, rotHr: 99.4, color: 0x888888, isMoon: true },
+        { id: "Titania", parent: "Uranus", rKm: 788, dAu: 0.00291, pYr: 0.0238, tilt: 0, rotHr: 208.9, color: 0xdddddd, isMoon: true },
+        { id: "Oberon", parent: "Uranus", rKm: 761, dAu: 0.00389, pYr: 0.0368, tilt: 0, rotHr: 323.1, color: 0xaaaaaa, isMoon: true },
+        // Neptune
+        { id: "Triton", parent: "Neptune", rKm: 1353, dAu: 0.00237, pYr: 0.0161, tilt: 0, rotHr: -141.04, color: 0xaaffaa, isMoon: true },
+        // Pluto
+        { id: "Charon", parent: "Pluto", rKm: 606, dAu: 0.00013, pYr: 0.0175, tilt: 0, rotHr: 153.3, color: 0x999999, isMoon: true }
+    ];
 
     const oRuntimeObjects = [];
     const labelsContainer = document.getElementById('labels-container');
@@ -669,12 +705,17 @@
         
         const runtimeObj = { ...data, mesh, trailLine, trailPointsMesh, trailPoints: [], label, axisArrow };
         oRuntimeObjects.push(runtimeObj);
+        
+        // Initial Visibilities
         if (data.isTNO && !oShowTNOs) runtimeObj.mesh.visible = false;
+        if (data.parent === 'Pluto' && !oShowTNOs) runtimeObj.mesh.visible = false; // Charon linked to TNOs
+        if (data.isMoon && data.id !== 'Moon' && data.parent !== 'Pluto' && !oShowSatellites) runtimeObj.mesh.visible = false;
         if (data.isComet && !oShowComets) runtimeObj.mesh.visible = false;
+        
         if (data.id === 'Sun') oActiveTargetObj = runtimeObj;
     });
 
-    // Jupiter Physics Influence (Kirkwood Gaps & Trojans)
+    // Jupiter Physics Influence (Kirkwood Gaps & Trojans aligned to Jupiter's True Angle)
     const O_AST_COUNT = 5000; const oAstGeo = new THREE.BufferGeometry(), oAstPts = new Float32Array(O_AST_COUNT * 3), oAstBaseDAu = new Float32Array(O_AST_COUNT), oAstAngles = new Float32Array(O_AST_COUNT), oAstIncs = new Float32Array(O_AST_COUNT), oAstNodes = new Float32Array(O_AST_COUNT), oAstEcc = new Float32Array(O_AST_COUNT), oAstPYr = new Float32Array(O_AST_COUNT);
     for(let i=0; i<O_AST_COUNT; i++) {
         const rand = Math.random();
@@ -691,9 +732,15 @@
             }
             e = Math.random() * 0.15; angleOffset = Math.random() * Math.PI * 2; pYr = Math.pow(dAu, 1.5); incMag = 0.25;
         } else if (rand < 0.91) { 
-            dAu = 5.20 + (Math.random() - 0.5) * 0.5; e = Math.random() * 0.1; angleOffset = (Math.PI / 3) + (Math.random() - 0.5) * 0.7; pYr = 11.86; incMag = 0.4;
+            // L4 Trojans correctly rotated by Jupiter's Node (100) + Periapsis (274)
+            dAu = 5.20 + (Math.random() - 0.5) * 0.5; e = Math.random() * 0.1; 
+            angleOffset = (374 * Math.PI / 180) + (Math.PI / 3) + (Math.random() - 0.5) * 0.7; 
+            pYr = 11.86; incMag = 0.4;
         } else { 
-            dAu = 5.20 + (Math.random() - 0.5) * 0.5; e = Math.random() * 0.1; angleOffset = -(Math.PI / 3) + (Math.random() - 0.5) * 0.7; pYr = 11.86; incMag = 0.4;
+            // L5 Trojans correctly rotated by Jupiter's Node (100) + Periapsis (274)
+            dAu = 5.20 + (Math.random() - 0.5) * 0.5; e = Math.random() * 0.1; 
+            angleOffset = (374 * Math.PI / 180) - (Math.PI / 3) + (Math.random() - 0.5) * 0.7; 
+            pYr = 11.86; incMag = 0.4;
         }
         oAstBaseDAu[i] = dAu; oAstAngles[i] = angleOffset; oAstIncs[i] = (Math.random() - 0.5) * incMag; oAstNodes[i] = Math.random() * Math.PI * 2; oAstEcc[i] = e; oAstPYr[i] = pYr;
     }
@@ -882,6 +929,10 @@
     if(document.getElementById('o-target-select')) document.getElementById('o-target-select').addEventListener('change', (e) => {
         const targetObj = oRuntimeObjects.find(o => o.id === e.target.value);
         if (targetObj.isTNO && !oShowTNOs) { document.getElementById('o-tno-toggle').click(); }
+        if (targetObj.isComet && !oShowComets) { document.getElementById('o-comet-toggle').click(); }
+        if (targetObj.isMoon && targetObj.id !== 'Moon' && targetObj.parent !== 'Pluto' && !oShowSatellites) {
+            document.getElementById('o-sat-toggle').click();
+        }
         focusOTarget(targetObj);
     });
 
@@ -938,9 +989,11 @@
     function updateOVisibility() {
         oRuntimeObjects.forEach(b => {
             let isVis = true;
-            if (b.isMoon && b.id !== 'Moon' && !oShowSatellites) isVis = false;
             if (b.isTNO && !oShowTNOs) isVis = false;
-            if (b.isComet && !oShowComets) isVis = false;
+            else if (b.parent === 'Pluto') isVis = oShowTNOs; 
+            else if (b.isMoon && b.id !== 'Moon' && !oShowSatellites) isVis = false;
+            else if (b.isComet && !oShowComets) isVis = false;
+            
             b.mesh.visible = isVis; b.trailLine.visible = isVis; b.trailPointsMesh.visible = isVis;
             if (b.axisArrow) { b.axisArrow.visible = isVis && oShowAxes; }
             if (!isVis) { b.trailPoints = []; if (b.trailLine) b.trailLine.geometry.setFromPoints([]); if (b.trailPointsMesh) b.trailPointsMesh.geometry.setFromPoints([]); }
