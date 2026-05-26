@@ -43,7 +43,7 @@
         .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        .shape-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
+        .shape-icon { transition: transform 0.2s; }
         #modal-overlay { transition: opacity 0.3s; }
     </style>
 </head>
@@ -110,14 +110,30 @@
                         📚 <span id="btn-glossary">Glossary</span>
                     </button>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4" id="guide-grid"></div>
+                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6" id="guide-grid"></div>
             </div>
 
             <!-- VUE 2 : MISSIONS DASHBOARD (DOK) -->
             <div id="view-missions" class="w-full bg-white rounded-2xl shadow-lg border-4 border-white p-6 custom-scroll overflow-y-auto hidden">
-                <h2 class="text-3xl fredoka text-cyan-600 mb-2" id="dash-title">Missions Dashboard</h2>
-                <p class="text-slate-500 font-bold mb-6" id="dash-desc">Select a challenge.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="dash-grid"></div>
+                
+                <!-- SCOREBOARD -->
+                <div id="scoreboard-banner" class="flex flex-col md:flex-row gap-4 mb-8">
+                    <div class="flex-1 bg-white border-2 border-cyan-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
+                        <div><h3 class="font-bold text-cyan-800 text-lg">🎓 Discovery</h3><p class="text-sm text-cyan-600 font-bold" id="sb-lbl-lvl1">Level 1</p></div>
+                        <div class="text-4xl fredoka text-cyan-500" id="sb-dok1">0/7</div>
+                    </div>
+                    <div class="flex-1 bg-white border-2 border-purple-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
+                        <div><h3 class="font-bold text-purple-800 text-lg">🚀 Exploration</h3><p class="text-sm text-purple-600 font-bold" id="sb-lbl-lvl2">Level 2</p></div>
+                        <div class="text-4xl fredoka text-purple-500" id="sb-dok2">0/9</div>
+                    </div>
+                    <div class="flex-1 bg-white border-2 border-amber-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
+                        <div><h3 class="font-bold text-amber-800 text-lg">👑 Mastery</h3><p class="text-sm text-amber-600 font-bold" id="sb-lbl-lvl3">Level 3</p></div>
+                        <div class="text-4xl fredoka text-amber-500" id="sb-dok3">0/9</div>
+                    </div>
+                </div>
+
+                <h2 class="text-3xl fredoka text-slate-800 mb-2 border-b-2 border-slate-100 pb-2" id="dash-title">Missions Dashboard</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6" id="dash-grid"></div>
             </div>
 
             <!-- VUE 3 : CANVAS INTERACTIF -->
@@ -147,14 +163,14 @@
             </div>
 
             <!-- PANNEAU LATÉRAL (Télémetrie & Missions) -->
-            <div class="w-full lg:w-80 flex flex-col gap-4 flex-shrink-0 hidden" id="side-panel">
+            <div class="w-full lg:w-[350px] flex flex-col gap-4 flex-shrink-0 hidden" id="side-panel">
                 <div class="bg-white p-5 rounded-2xl shadow-md border-2 border-slate-100 flex flex-col h-full relative" id="panel-content">
                     
                     <button onclick="backToDash()" id="btn-back" class="hidden mb-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg text-sm w-full transition border shadow-sm">
-                        🔙 <span id="lbl-back">Back</span>
+                        🔙 <span id="lbl-back">Back to Missions</span>
                     </button>
 
-                    <h2 class="text-xl fredoka mb-1 text-slate-800" id="panel-title">Playground</h2>
+                    <h2 class="text-2xl fredoka mb-1 text-slate-800" id="panel-title">Playground</h2>
                     <p class="text-slate-500 text-sm mb-4 font-bold" id="panel-desc">Drag points.</p>
                     
                     <!-- Telemetry (Playground) -->
@@ -165,14 +181,21 @@
                         <div class="flex justify-between items-center text-sm"><span class="font-bold text-slate-500" id="lbl-eq">Côtés Égaux:</span><span id="val-eq" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-emerald-600 text-xs text-right ml-2 leading-tight">Aucun</span></div>
                     </div>
 
-                    <!-- Mission Criteria Tracker -->
-                    <div id="mission-criteria-box" class="flex-1 flex flex-col gap-2 hidden">
-                        <h3 class="font-bold text-slate-700 border-b pb-1 mb-2" id="lbl-goals">Objectifs / Goals:</h3>
-                        <ul id="criteria-list" class="space-y-2 text-sm font-bold text-slate-600"></ul>
+                    <!-- REWORKED: Highly Visible Mission Criteria Tracker -->
+                    <div id="mission-criteria-box" class="flex-1 flex flex-col gap-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 shadow-xl text-white hidden relative overflow-hidden border-2 border-slate-700">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500 opacity-20 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+                        <h3 class="font-bold text-cyan-300 border-b border-slate-700 pb-2 mb-2 text-lg flex items-center gap-2"><span class="text-2xl">🎯</span> <span id="lbl-goals">Objectifs / Goals:</span></h3>
+                        <ul id="criteria-list" class="space-y-4 text-sm font-bold text-slate-300 relative z-10 mt-2"></ul>
                     </div>
 
                     <div id="mission-status-box" class="hidden mt-4 p-4 rounded-xl text-center font-bold border-2 transition-colors">
                         <span id="mission-status-text">In Progress...</span>
+                    </div>
+
+                    <!-- REWORKED: Mission Navigation -->
+                    <div id="mission-nav" class="hidden flex gap-2 mt-4 pt-4 border-t border-slate-100">
+                        <button onclick="navMission(-1)" id="btn-prev" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl transition text-sm flex items-center justify-center gap-2">⬅️ <span id="lbl-prev">Prev</span></button>
+                        <button onclick="navMission(1)" id="btn-next" class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-md flex items-center justify-center gap-2"><span id="lbl-next">Next</span> ➡️</button>
                     </div>
                 </div>
             </div>
@@ -184,7 +207,7 @@
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content">
             <div class="bg-cyan-50 p-6 flex justify-center items-center border-b-2 border-cyan-100 relative">
                 <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full font-bold text-slate-500 hover:text-slate-800 shadow-sm flex items-center justify-center">✕</button>
-                <div id="modal-icon" class="w-24 h-24 shape-icon text-cyan-600"></div>
+                <div id="modal-icon" class="w-32 h-32 shape-icon text-cyan-600"></div>
             </div>
             <div class="p-6 custom-scroll" id="modal-body" style="max-height: 60vh; overflow-y: auto;">
                 <h2 id="modal-title" class="text-3xl fredoka text-slate-800 mb-2">Titre</h2>
@@ -201,27 +224,40 @@
     </div>
 
     <script>
-        // --- 1. SVGs & Dictionary ---
+        // --- 1. Beautiful SVGs Generator for Guide ---
+        function makeMini(pts) {
+            let svg = `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm rounded-lg overflow-hidden bg-white" style="border: 2px solid #e2e8f0;">
+                <defs><pattern id="pg" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.5" fill="#94a3b8" opacity="0.4"/></pattern></defs>
+                <rect width="100" height="100" fill="url(#pg)" />
+                <polygon points="${pts}" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" stroke-width="3" stroke-linejoin="round"/>`;
+            pts.split(' ').forEach(p => {
+                const [x,y] = p.split(',');
+                svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#fff" stroke="#06b6d4" stroke-width="2"/>`;
+            });
+            svg += `</svg>`;
+            return svg;
+        }
+
         const svgs = {
-            square: `<svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            rect: `<svg viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="40" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            rhombus: `<svg viewBox="0 0 100 100"><polygon points="50,20 90,50 50,80 10,50" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            para: `<svg viewBox="0 0 100 100"><polygon points="25,30 95,30 75,70 5,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            trap: `<svg viewBox="0 0 100 100"><polygon points="30,30 70,30 90,70 10,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            isoTrap: `<svg viewBox="0 0 100 100"><polygon points="30,30 70,30 85,70 15,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            rightTrap: `<svg viewBox="0 0 100 100"><polygon points="20,30 70,30 90,70 20,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            kite: `<svg viewBox="0 0 100 100"><polygon points="50,10 80,40 50,90 20,40" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            dart: `<svg viewBox="0 0 100 100"><polygon points="50,10 90,90 50,70 10,90" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            irreg: `<svg viewBox="0 0 100 100"><polygon points="20,20 90,30 70,90 10,60" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            crossed: `<svg viewBox="0 0 100 100"><polygon points="10,20 90,80 10,80 90,20" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            glossary: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
+            square: makeMini("20,20 80,20 80,80 20,80"),
+            rect: makeMini("10,30 90,30 90,70 10,70"),
+            rhombus: makeMini("50,10 90,50 50,90 10,50"),
+            para: makeMini("20,30 90,30 80,70 10,70"),
+            trap: makeMini("30,30 60,30 90,70 10,70"),
+            isoTrap: makeMini("30,30 70,30 90,70 10,70"),
+            rightTrap: makeMini("20,30 70,30 90,70 20,70"),
+            kite: makeMini("50,10 80,40 50,90 20,40"),
+            dart: makeMini("50,10 90,90 50,70 10,90"),
+            irreg: makeMini("20,20 90,30 70,90 10,60"),
+            crossed: makeMini("20,20 80,80 20,80 80,20"),
+            glossary: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-amber-500 drop-shadow-sm"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
         };
 
         const tData = {
             fr: {
                 title: "MétaQuad", subtitle: "Enquête & Découverte",
                 tabs: { guide: "📖 Guide", playground: "🎮 Jeu Libre", dok1: "🎓 Découverte", dok2: "🚀 Exploration", dok3: "👑 Maîtrise" },
-                lbl: { par: "Parallèles :", rights: "Angles 90° :", eq: "Côtés Égaux :", back: "Retour", addShape: "+ Forme", diag: "⤡ Diagonales", goals: "Objectifs :" },
+                lbl: { par: "Parallèles :", rights: "Angles 90° :", eq: "Côtés Égaux :", back: "Retour aux Missions", addShape: "+ Forme", diag: "⤡ Diagonales", goals: "Objectifs :", lvl1: "Niveau 1", lvl2: "Niveau 2", lvl3: "Niveau 3", prev: "Préc.", next: "Suiv." },
                 modLbl: { sides: "Côtés :", angles: "Angles :", par: "Parallèles :", diag: "Diagonales :" },
                 val: { no: "Non", none: "Aucun", all: "Les 4", opp2: "2 Paires Opposées", opp1: "1 Paire Opposée", adj2: "2 Paires Adjacentes", adj1: "1 Paire Adjacente" },
                 status: { prog: "🛠️ En cours...", succ: "🎉 SUCCÈS ! Mission accomplie !" },
@@ -252,7 +288,7 @@
             en: {
                 title: "QuadForge", subtitle: "Inquiry & Discovery",
                 tabs: { guide: "📖 Guide", playground: "🎮 Playground", dok1: "🎓 Discovery", dok2: "🚀 Exploration", dok3: "👑 Mastery" },
-                lbl: { par: "Parallel Pairs:", rights: "Right Angles:", eq: "Equal Sides:", back: "Back", addShape: "+ Shape", diag: "⤡ Diagonals", goals: "Goals:" },
+                lbl: { par: "Parallel Pairs:", rights: "Right Angles:", eq: "Equal Sides:", back: "Back to Missions", addShape: "+ Shape", diag: "⤡ Diagonals", goals: "Goals:", lvl1: "Level 1", lvl2: "Level 2", lvl3: "Level 3", prev: "Prev", next: "Next" },
                 modLbl: { sides: "Sides:", angles: "Angles:", par: "Parallel:", diag: "Diagonals:" },
                 val: { no: "No", none: "None", all: "All 4", opp2: "2 Opposite Pairs", opp1: "1 Opposite Pair", adj2: "2 Adjacent Pairs", adj1: "1 Adjacent Pair" },
                 status: { prog: "🛠️ In Progress...", succ: "🎉 SUCCESS! Mission completed!" },
@@ -282,8 +318,9 @@
             }
         };
 
-        // --- Missions Configuration ---
+        // --- Missions Configuration (7 + 9 + 9) ---
         const missions = [
+            // DOK 1 (7)
             { id: 'd1', dok: 'dok1', en: "1. The Square", fr: "1. Le Carré", req: [
                 { en: "4 Equal Sides", fr: "4 Côtés Égaux", fn: d => d.eqKey === 'all' },
                 { en: "4 Right Angles", fr: "4 Angles Droits", fn: d => d.rights === 4 }
@@ -313,30 +350,79 @@
                 { en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave }
             ]},
 
-            { id: 'e1', dok: 'dok2', en: "Parallel without 90°", fr: "Parallèles sans 90°", req: [
-                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 },
-                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }
+            // DOK 2 (9)
+            { id: 'e1', dok: 'dok2', en: "1. Parallel without 90°", fr: "1. Parallèles sans 90°", req: [ 
+                { en: "Exactly 1 Parallel Pair", fr: "Exactement 1 Paire Parallèle", fn: d => d.par === 1 }, 
+                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 } 
             ]},
-            { id: 'e2', dok: 'dok2', en: "Equal but Skewed", fr: "Égaux mais Penché", req: [
-                { en: "2 Opposite Pairs Equal", fr: "2 Paires Opposées Égales", fn: d => d.eqKey === 'opp2' },
-                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }
+            { id: 'e2', dok: 'dok2', en: "2. Equal but Skewed", fr: "2. Égaux mais Penchés", req: [ 
+                { en: "2 Opposite Pairs Equal", fr: "2 Paires Opposées Égales", fn: d => d.eqKey === 'opp2' }, 
+                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 } 
+            ]},
+            { id: 'e3', dok: 'dok2', en: "3. Only One Right Angle", fr: "3. Un Seul Angle Droit", req: [ 
+                { en: "Exactly 1 Right Angle", fr: "Exactement 1 Angle Droit", fn: d => d.rights === 1 } 
+            ]},
+            { id: 'e4', dok: 'dok2', en: "4. Crossed Quadrilateral", fr: "4. Quadrilatère Croisé", req: [ 
+                { en: "Lines Intersect", fr: "Lignes Croisées", fn: d => d.key === 'crossed' } 
+            ]},
+            { id: 'e5', dok: 'dok2', en: "5. Adjacent Pairs, No Parallel", fr: "5. Paires Adjacentes, Pas Parallèle", req: [ 
+                { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' }, 
+                { en: "0 Parallel Lines", fr: "0 Ligne Parallèle", fn: d => d.par === 0 } 
+            ]},
+            { id: 'e6', dok: 'dok2', en: "6. Concave Shape", fr: "6. Forme Concave", req: [ 
+                { en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave } 
+            ]},
+            { id: 'e7', dok: 'dok2', en: "7. Two Right Angles, No Parallel", fr: "7. Deux Angles Droits, Pas Parallèle", req: [ 
+                { en: "Exactly 2 Right Angles", fr: "Exactement 2 Angles Droits", fn: d => d.rights === 2 }, 
+                { en: "0 Parallel Lines", fr: "0 Ligne Parallèle", fn: d => d.par === 0 } 
+            ]},
+            { id: 'e8', dok: 'dok2', en: "8. One Opposite Pair Equal", fr: "8. Une Paire Opposée Égale", req: [ 
+                { en: "Exactly 1 Opposite Pair Equal", fr: "Exactement 1 Paire Opposée Égale", fn: d => d.eqKey === 'opp1' } 
+            ]},
+            { id: 'e9', dok: 'dok2', en: "9. Completely Irregular", fr: "9. Complètement Irrégulier", req: [ 
+                { en: "Irregular Shape", fr: "Forme Irrégulière", fn: d => d.key === 'irreg' },
+                { en: "Convex (Points Outward)", fr: "Convexe", fn: d => !d.concave }
             ]},
 
-            { id: 'm1', dok: 'dok3', en: "Right Trapezoid", fr: "Trapèze Rectangle", req: [
-                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 },
-                { en: "Exactly 2 Right Angles", fr: "Exactement 2 Angles Droits", fn: d => d.rights === 2 }
+            // DOK 3 (9)
+            { id: 'm1', dok: 'dok3', en: "1. Right Trapezoid", fr: "1. Trapèze Rectangle", req: [ 
+                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 }, 
+                { en: "Exactly 2 Right Angles", fr: "Exactement 2 Angles Droits", fn: d => d.rights === 2 } 
             ]},
-            { id: 'm2', dok: 'dok3', en: "Isosceles Trapezoid", fr: "Trapèze Isocèle", req: [
-                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 },
-                { en: "1 Opposite Pair Equal", fr: "1 Paire Opposée Égale", fn: d => d.eqKey === 'opp1' }
+            { id: 'm2', dok: 'dok3', en: "2. Isosceles Trapezoid", fr: "2. Trapèze Isocèle", req: [ 
+                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 }, 
+                { en: "1 Opposite Pair Equal", fr: "1 Paire Opposée Égale", fn: d => d.eqKey === 'opp1' } 
             ]},
-            { id: 'm3', dok: 'dok3', en: "Asymmetric Concave", fr: "Concave Asymétrique", req: [
-                { en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave },
-                { en: "0 Equal Sides", fr: "0 Côté Égal", fn: d => d.eqKey === 'none' }
+            { id: 'm3', dok: 'dok3', en: "3. Asymmetric Concave", fr: "3. Concave Asymétrique", req: [ 
+                { en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave }, 
+                { en: "0 Equal Sides", fr: "0 Côté Égal", fn: d => d.eqKey === 'none' } 
             ]},
-            { id: 'm4', dok: 'dok3', en: "90° Kite", fr: "Cerf-volant 90°", req: [
-                { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' },
-                { en: "Exactly 1 Right Angle", fr: "Exactement 1 Angle Droit", fn: d => d.rights === 1 }
+            { id: 'm4', dok: 'dok3', en: "4. 90° Kite", fr: "4. Cerf-volant 90°", req: [ 
+                { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' }, 
+                { en: "Exactly 1 Right Angle", fr: "Exactement 1 Angle Droit", fn: d => d.rights === 1 } 
+            ]},
+            { id: 'm5', dok: 'dok3', en: "5. Crossed Parallelogram", fr: "5. Parallélogramme Croisé", req: [ 
+                { en: "Lines Intersect", fr: "Lignes Croisées", fn: d => d.key === 'crossed' }, 
+                { en: "2 Opposite Pairs Equal", fr: "2 Paires Opposées Égales", fn: d => Math.abs(d.L[0]-d.L[2])<2 && Math.abs(d.L[1]-d.L[3])<2 } 
+            ]},
+            { id: 'm6', dok: 'dok3', en: "6. The Arrowhead", fr: "6. La Fléchette", req: [ 
+                { en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave }, 
+                { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' } 
+            ]},
+            { id: 'm7', dok: 'dok3', en: "7. House Shape", fr: "7. Forme de Maison", req: [ 
+                { en: "Exactly 2 Right Angles", fr: "Exactement 2 Angles Droits", fn: d => d.rights === 2 }, 
+                { en: "No Parallel Lines", fr: "Aucune Ligne Parallèle", fn: d => d.par === 0 }, 
+                { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' } 
+            ]},
+            { id: 'm8', dok: 'dok3', en: "8. Total Chaos", fr: "8. Chaos Total", req: [ 
+                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }, 
+                { en: "0 Parallel Lines", fr: "0 Ligne Parallèle", fn: d => d.par === 0 }, 
+                { en: "0 Equal Sides", fr: "0 Côté Égal", fn: d => d.eqKey === 'none' }, 
+                { en: "Convex", fr: "Convexe", fn: d => !d.concave && d.key !== 'crossed' } 
+            ]},
+            { id: 'm9', dok: 'dok3', en: "9. The Disguised Rectangle", fr: "9. Le Rectangle Déguisé", req: [ 
+                { en: "4 Right Angles", fr: "4 Angles Droits", fn: d => d.rights === 4 }, 
+                { en: "Not a Square", fr: "Pas un Carré", fn: d => d.eqKey !== 'all' } 
             ]}
         ];
 
@@ -365,7 +451,7 @@
             document.getElementById('splash').style.opacity = '0';
             missions.forEach(m => { if(progress[m.id] === undefined) progress[m.id] = false; });
             setTimeout(() => { 
-                document.getElementById('splash').style.display = 'none'; // CRUCIAL FIX: physically removes splash from the layout!
+                document.getElementById('splash').style.display = 'none'; 
                 document.getElementById('app').style.display = 'flex'; 
                 buildUI(); 
                 setTab('guide'); 
@@ -373,6 +459,24 @@
         }
 
         function toggleLang() { lang = lang === 'en' ? 'fr' : 'en'; buildUI(); if (tab === 'playground' || tab === 'canvas') recalcAndDraw(); }
+
+        function updateScoreboard() {
+            let dok1 = 0, dok2 = 0, dok3 = 0;
+            missions.forEach(m => {
+                if(progress[m.id]) {
+                    if(m.dok === 'dok1') dok1++;
+                    if(m.dok === 'dok2') dok2++;
+                    if(m.dok === 'dok3') dok3++;
+                }
+            });
+            document.getElementById('sb-dok1').innerText = `${dok1}/7`;
+            document.getElementById('sb-dok2').innerText = `${dok2}/9`;
+            document.getElementById('sb-dok3').innerText = `${dok3}/9`;
+            
+            document.getElementById('sb-lbl-lvl1').innerText = tData[lang].lbl.lvl1;
+            document.getElementById('sb-lbl-lvl2').innerText = tData[lang].lbl.lvl2;
+            document.getElementById('sb-lbl-lvl3').innerText = tData[lang].lbl.lvl3;
+        }
 
         function buildUI() {
             const t = tData[lang];
@@ -393,16 +497,18 @@
             document.getElementById('btn-add-shape').innerText = `${t.lbl.addShape} (${shapes.length}/3)`;
             document.getElementById('btn-toggle-diag').innerText = t.lbl.diag;
             document.getElementById('lbl-goals').innerText = t.lbl.goals;
+            document.getElementById('lbl-prev').innerText = t.lbl.prev;
+            document.getElementById('lbl-next').innerText = t.lbl.next;
 
             // Guide Grid 
             const g = document.getElementById('guide-grid'); g.innerHTML = '';
             ['square', 'rect', 'rhombus', 'para', 'isoTrap', 'rightTrap', 'trap', 'kite', 'dart', 'irreg', 'crossed'].forEach(k => {
                 const isExplored = exploredShapes.has(k);
-                const badge = isExplored ? `<div class="absolute top-2 right-2 bg-emerald-100 text-emerald-600 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-sm font-bold">✓</div>` : ``;
-                g.innerHTML += `<div onclick="openModal('${k}')" class="relative bg-slate-50 border-2 border-slate-100 rounded-xl p-4 flex flex-col items-center text-center hover:shadow-lg hover:border-cyan-300 transition cursor-pointer group">
+                const badge = isExplored ? `<div class="absolute top-3 right-3 bg-emerald-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm shadow-md font-bold z-10 border-2 border-white">✓</div>` : ``;
+                g.innerHTML += `<div onclick="openModal('${k}')" class="relative bg-transparent rounded-xl flex flex-col items-center text-center hover:scale-105 transition cursor-pointer group">
                     ${badge}
-                    <div class="w-16 h-16 text-cyan-500 mb-2 group-hover:scale-110 transition shape-icon">${svgs[k]}</div>
-                    <h3 class="font-bold text-slate-800">${t.shapes[k].n}</h3>
+                    <div class="w-full aspect-square text-cyan-500 mb-2 shape-icon">${svgs[k]}</div>
+                    <h3 class="font-bold text-slate-700 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100">${t.shapes[k].n}</h3>
                 </div>`;
             });
 
@@ -417,6 +523,8 @@
                 document.getElementById('panel-title').innerText = t.playground.title;
                 document.getElementById('panel-desc').innerText = t.playground.desc;
             }
+
+            updateScoreboard();
         }
 
         function buildDashGrid(dok) {
@@ -450,6 +558,7 @@
             document.getElementById('telemetry-box').classList.add('hidden'); 
             document.getElementById('mission-criteria-box').classList.add('hidden');
             document.getElementById('mission-status-box').classList.add('hidden');
+            document.getElementById('mission-nav').classList.add('hidden');
 
             if (tab === 'guide') { 
                 buildUI(); // Refresh checkmarks
@@ -489,12 +598,22 @@
             document.getElementById('btn-back').classList.remove('hidden'); 
             document.getElementById('mission-criteria-box').classList.remove('hidden');
             document.getElementById('mission-status-box').classList.remove('hidden');
+            document.getElementById('mission-nav').classList.remove('hidden');
             buildUI(); recalcAndDraw();
         }
 
         function backToDash() { 
             const t = missions.find(m => m.id === actMission).dok; 
             setTab(t); 
+        }
+
+        function navMission(dir) {
+            if(!actMission) return;
+            const curIdx = missions.findIndex(m => m.id === actMission);
+            const newIdx = curIdx + dir;
+            if (newIdx >= 0 && newIdx < missions.length) {
+                startMission(missions[newIdx].id);
+            }
         }
 
         function toggleDiagonals() { showDiag = !showDiag; recalcAndDraw(); }
@@ -634,7 +753,7 @@
         function recalcAndDraw() {
             const gVert = document.getElementById('html-vertices'); 
             
-            // 1. Efficiently Reconcile HTML Vertices (Do NOT destroy elements to keep dragging intact)
+            // 1. Efficiently Reconcile HTML Vertices
             let totalVertices = shapes.reduce((acc, pts) => acc + pts.length, 0);
             if (gVert.children.length !== totalVertices) {
                 gVert.innerHTML = '';
@@ -683,13 +802,41 @@
                 const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 path.setAttribute('d', d); path.setAttribute('fill', hatch); svShapes.appendChild(path);
 
-                // Diagonals
+                // Diagonals & 90-degree Check
                 if (showDiag) {
                     [[0,2],[1,3]].forEach(pair => {
                         const dl = document.createElementNS("http://www.w3.org/2000/svg", "line");
                         dl.setAttribute('x1', pts[pair[0]].x); dl.setAttribute('y1', pts[pair[0]].y); dl.setAttribute('x2', pts[pair[1]].x); dl.setAttribute('y2', pts[pair[1]].y);
                         dl.setAttribute('stroke', '#cbd5e1'); dl.setAttribute('stroke-width', '2'); dl.setAttribute('stroke-dasharray', '4 4'); svDiag.appendChild(dl);
                     });
+
+                    // Angle check between diagonals
+                    const v1 = {x: pts[2].x - pts[0].x, y: pts[2].y - pts[0].y};
+                    const v2 = {x: pts[3].x - pts[1].x, y: pts[3].y - pts[1].y};
+                    const l1 = Math.hypot(v1.x, v1.y), l2 = Math.hypot(v2.x, v2.y);
+                    
+                    if (l1 > 0 && l2 > 0) {
+                        const dot = Math.abs(v1.x * v2.x + v1.y * v2.y);
+                        const angle = Math.acos(dot / (l1 * l2)) * 180 / Math.PI;
+                        
+                        if (angle > 87 && angle < 93) { // 90 deg diagonal intersection
+                            const den = (pts[0].x - pts[2].x) * (pts[1].y - pts[3].y) - (pts[0].y - pts[2].y) * (pts[1].x - pts[3].x);
+                            if (Math.abs(den) > 0.1) {
+                                const t = ((pts[0].x - pts[1].x) * (pts[1].y - pts[3].y) - (pts[0].y - pts[1].y) * (pts[1].x - pts[3].x)) / den;
+                                const px = pts[0].x + t * (pts[2].x - pts[0].x);
+                                const py = pts[0].y + t * (pts[2].y - pts[0].y);
+                                
+                                const angV1 = Math.atan2(v1.y, v1.x) * 180 / Math.PI;
+                                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                                rect.setAttribute('x', px); rect.setAttribute('y', py);
+                                rect.setAttribute('width', 18); rect.setAttribute('height', 18);
+                                rect.setAttribute('fill', 'rgba(239, 68, 68, 0.2)');
+                                rect.setAttribute('stroke', '#ef4444'); rect.setAttribute('stroke-width', '3');
+                                rect.setAttribute('transform', `rotate(${angV1} ${px} ${py})`);
+                                svAng.appendChild(rect);
+                            }
+                        }
+                    }
                 }
 
                 // Line Colors (Equal lengths)
@@ -747,18 +894,25 @@
                 document.getElementById('val-par').innerText = actData.par; document.getElementById('val-rights').innerText = actData.rights; document.getElementById('val-eq').innerText = tData[lang].val[actData.eqKey];
             }
 
-            // Update Mission UI
+            // Update Mission UI & Navigation Boundaries
             if(actMission && actData) {
-                const mDef = missions.find(m => m.id === actMission); const reqs = mDef.req;
+                const curIdx = missions.findIndex(m => m.id === actMission);
+                document.getElementById('btn-prev').disabled = curIdx === 0;
+                document.getElementById('btn-next').disabled = curIdx === missions.length - 1;
+                document.getElementById('btn-prev').style.opacity = curIdx === 0 ? "0.5" : "1";
+                document.getElementById('btn-next').style.opacity = curIdx === missions.length - 1 ? "0.5" : "1";
+
+                const mDef = missions[curIdx]; const reqs = mDef.req;
                 const list = document.getElementById('criteria-list'); list.innerHTML = '';
                 let passedAll = true;
+                
                 reqs.forEach(r => {
                     const met = r.fn(actData); if(!met) passedAll = false;
-                    list.innerHTML += `<li class="${met?'text-emerald-600':'text-slate-500'} flex items-center gap-2">${met?'✅':'⬜'} ${r[lang]}</li>`;
+                    list.innerHTML += `<li class="${met?'text-emerald-400 drop-shadow-sm':'text-slate-400 opacity-75'} flex items-center gap-3"><span class="text-xl">${met?'✅':'⬜'}</span> <span class="text-base">${r[lang]}</span></li>`;
                 });
 
                 const box = document.getElementById('mission-status-box'); const txt = document.getElementById('mission-status-text');
-                if(passedAll && !progress[actMission]) { progress[actMission] = true; fireConfetti(); }
+                if(passedAll && !progress[actMission]) { progress[actMission] = true; fireConfetti(); updateScoreboard(); }
                 if(passedAll) {
                     txt.innerText = tData[lang].status.succ;
                     if(!box.classList.contains('bg-emerald-100')) box.className = "mt-4 p-4 rounded-xl text-center font-bold border-2 bg-emerald-100 border-emerald-400 text-emerald-700 success-anim block";
