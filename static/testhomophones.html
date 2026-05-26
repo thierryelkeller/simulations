@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Homophones</title>
+    
+    <!-- Tailwind CSS pour le style -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel pour compiler le JSX dans le navigateur -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Fredoka:wght@400;600&display=swap');
+        body { font-family: 'Nunito', sans-serif; }
+        h1, h2, h3 { font-family: 'Fredoka', sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- ICONS (Inline SVGs to replace lucide-react) ---
+        const IconGlobe = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>
+        );
+        const IconAward = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+        );
+        const IconArrowRight = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+        );
+        const IconChevronLeft = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+        );
+        const IconBookOpen = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        );
+        const IconStar = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        );
+
+        // --- DATA ---
+        const contentData = {
+          fr: [
+            {
+              id: 'a-a',
+              title: 'A / À',
+              icon: '🎯',
+              rules: [
+                { word: 'A', desc: 'Verbe avoir.', tip: 'On peut remplacer par "avait".' },
+                { word: 'À', desc: 'Préposition (lieu, temps).', tip: 'On ne peut PAS remplacer par "avait".' }
+              ],
+              exercises: [
+                { text: ["Il ", " mal ", " la tête."], options: ["a", "à"], answers: ["a", "à"] },
+                { text: ["Elle ", " fini ", " 18h."], options: ["a", "à"], answers: ["a", "à"] },
+                { text: ["Je vais ", " la piscine."], options: ["a", "à"], answers: ["à"] },
+                { text: ["Pierre ", " réussi."], options: ["a", "à"], answers: ["a"] },
+                { text: ["Machine ", " laver."], options: ["a", "à"], answers: ["à"] }
+              ]
+            },
+            {
+              id: 'ou-ou',
+              title: 'Ou / Où',
+              icon: '🗺️',
+              rules: [
+                { word: 'Ou', desc: 'Choix, alternative.', tip: 'On peut remplacer par "ou bien".' },
+                { word: 'Où', desc: 'Lieu ou moment.', tip: 'On peut remplacer par "à quel endroit".' }
+              ],
+              exercises: [
+                { text: ["Thé ", " café ?"], options: ["ou", "où"], answers: ["ou"] },
+                { text: ["", " vas-tu ?"], options: ["Ou", "Où"], answers: ["Où"] },
+                { text: ["Le moment ", " il est arrivé."], options: ["ou", "où"], answers: ["où"] },
+                { text: ["Blanc ", " noir ?"], options: ["ou", "où"], answers: ["ou"] },
+                { text: ["La ville ", " j'habite."], options: ["ou", "où"], answers: ["où"] }
+              ]
+            },
+            {
+              id: 'son-sont',
+              title: 'Son / Sont',
+              icon: '👤',
+              rules: [
+                { word: 'Son', desc: 'Le sien (Possessif).', tip: 'On peut remplacer par "mon" ou "ton".' },
+                { word: 'Sont', desc: 'Verbe être (Ils/Elles).', tip: 'On peut remplacer par "étaient".' }
+              ],
+              exercises: [
+                { text: ["Les élèves ", " là."], options: ["son", "sont"], answers: ["sont"] },
+                { text: ["Il a perdu ", " stylo."], options: ["son", "sont"], answers: ["son"] },
+                { text: ["Où ", " mes amis ?"], options: ["son", "sont"], answers: ["sont"] },
+                { text: ["C'est ", " choix."], options: ["son", "sont"], answers: ["son"] },
+                { text: ["Ils ", " fatigués."], options: ["son", "sont"], answers: ["sont"] }
+              ]
+            },
+            {
+              id: 'ce-se',
+              title: 'Ce / Se',
+              icon: '👉',
+              rules: [
+                { word: 'Ce', desc: 'Démonstratif (Ce chien).', tip: 'On peut remplacer par "le" ou "cela".' },
+                { word: 'Se', desc: 'Pronom réfléchi.', tip: 'Toujours placé devant un verbe (Il se lave).' }
+              ],
+              exercises: [
+                { text: ["", " garçon ", " lève tôt."], options: ["Ce", "Se", "ce", "se"], answers: ["Ce", "se"] },
+                { text: ["", " n'est pas grave."], options: ["Ce", "Se"], answers: ["Ce"] },
+                { text: ["Elle ", " coiffe."], options: ["ce", "se"], answers: ["se"] },
+                { text: ["Regarde ", " chat."], options: ["ce", "se"], answers: ["ce"] },
+                { text: ["Il ", " trompe."], options: ["ce", "se"], answers: ["se"] }
+              ]
+            },
+            {
+              id: 'on-ont',
+              title: 'On / Ont',
+              icon: '👥',
+              rules: [
+                { word: 'On', desc: 'Sujet (nous/les gens).', tip: 'On peut remplacer par "il".' },
+                { word: 'Ont', desc: 'Verbe avoir (Ils/Elles).', tip: 'On peut remplacer par "avaient".' }
+              ],
+              exercises: [
+                { text: ["", " a beaucoup ri."], options: ["On", "Ont"], answers: ["On"] },
+                { text: ["Ils ", " faim."], options: ["on", "ont"], answers: ["ont"] },
+                { text: ["Quand ", " veut, ", " peut."], options: ["on", "ont"], answers: ["on", "on"] },
+                { text: ["Les enfants ", " joué."], options: ["on", "ont"], answers: ["ont"] },
+                { text: ["", " y va !"], options: ["On", "Ont"], answers: ["On"] }
+              ]
+            }
+          ],
+          en: [
+            {
+              id: 'there-their-theyre',
+              title: "There / Their / They're",
+              icon: '📍',
+              rules: [
+                { word: 'There', desc: 'Place/Location.', tip: 'Replace with "here".' },
+                { word: 'Their', desc: 'Possessive (belongs to them).', tip: 'Replace with "our".' },
+                { word: 'They\'re', desc: 'Contraction of "They are".', tip: 'Replace with "They are".' }
+              ],
+              exercises: [
+                { text: ["Look over ", "."], options: ["there", "their", "they're"], answers: ["there"] },
+                { text: ["", " going to be late."], options: ["There", "Their", "They're"], answers: ["They're"] },
+                { text: ["The students lost ", " books."], options: ["there", "their", "they're"], answers: ["their"] },
+                { text: ["Are ", " any apples left?"], options: ["there", "their", "they're"], answers: ["there"] },
+                { text: ["I think ", " very happy."], options: ["there", "their", "they're"], answers: ["they're"] }
+              ]
+            },
+            {
+              id: 'to-too-two',
+              title: 'To / Too / Two',
+              icon: '✌️',
+              rules: [
+                { word: 'To', desc: 'Direction or verb infinitive.', tip: 'Going TO the store. Want TO eat.' },
+                { word: 'Too', desc: 'Also or excessively.', tip: 'Me TOO! It is TOO hot.' },
+                { word: 'Two', desc: 'The number 2.', tip: 'One, TWO, three.' }
+              ],
+              exercises: [
+                { text: ["I am going ", " the park."], options: ["to", "too", "two"], answers: ["to"] },
+                { text: ["It is ", " cold outside."], options: ["to", "too", "two"], answers: ["too"] },
+                { text: ["I have ", " brothers."], options: ["to", "too", "two"], answers: ["two"] },
+                { text: ["Can I come ", "?"], options: ["to", "too", "two"], answers: ["too"] },
+                { text: ["She wants ", " learn."], options: ["to", "too", "two"], answers: ["to"] }
+              ]
+            },
+            {
+              id: 'your-youre',
+              title: "Your / You're",
+              icon: '🫵',
+              rules: [
+                { word: 'Your', desc: 'Possessive.', tip: 'Replace with "My".' },
+                { word: 'You\'re', desc: 'You are.', tip: 'Replace with "You are".' }
+              ],
+              exercises: [
+                { text: ["", " looking great!"], options: ["Your", "You're"], answers: ["You're"] },
+                { text: ["Is that ", " car?"], options: ["your", "you're"], answers: ["your"] },
+                { text: ["If ", " ready, let's go."], options: ["your", "you're"], answers: ["you're"] },
+                { text: ["Close ", " eyes."], options: ["your", "you're"], answers: ["your"] },
+                { text: ["I think ", " right."], options: ["your", "you're"], answers: ["you're"] }
+              ]
+            },
+            {
+              id: 'its-its',
+              title: "Its / It's",
+              icon: '🐶',
+              rules: [
+                { word: 'Its', desc: 'Possessive (belongs to it).', tip: 'No apostrophe for possession!' },
+                { word: 'It\'s', desc: 'It is / It has.', tip: 'Replace with "It is".' }
+              ],
+              exercises: [
+                { text: ["", " a beautiful day."], options: ["Its", "It's"], answers: ["It's"] },
+                { text: ["The dog wagged ", " tail."], options: ["its", "it's"], answers: ["its"] },
+                { text: ["I think ", " broken."], options: ["its", "it's"], answers: ["it's"] },
+                { text: ["The tree lost ", " leaves."], options: ["its", "it's"], answers: ["its"] },
+                { text: ["", " time to go."], options: ["Its", "It's"], answers: ["It's"] }
+              ]
+            },
+            {
+              id: 'than-then',
+              title: 'Than / Then',
+              icon: '⏱️',
+              rules: [
+                { word: 'Than', desc: 'Used for comparison.', tip: '"A" for compArison. Bigger THAN you.' },
+                { word: 'Then', desc: 'Used for time or sequence.', tip: '"E" for timE. We ate, THEN slept.' }
+              ],
+              exercises: [
+                { text: ["I am older ", " you."], options: ["than", "then"], answers: ["than"] },
+                { text: ["Finish work, ", " play."], options: ["than", "then"], answers: ["then"] },
+                { text: ["Better late ", " never."], options: ["than", "then"], answers: ["than"] },
+                { text: ["First flour, ", " eggs."], options: ["than", "then"], answers: ["then"] },
+                { text: ["She is faster ", " him."], options: ["than", "then"], answers: ["than"] }
+              ]
+            }
+          ]
+        };
+
+        // --- UI STRINGS ---
+        const UI = {
+          fr: {
+            appTitle: "Maître des Homophones",
+            subtitle: "Choisis une leçon pour t'entraîner",
+            progressTitle: "Tableau de Progression",
+            backBtn: "Retour aux leçons",
+            rulesTitle: "📖 Règles & Astuces",
+            practiceTitle: "✍️ Entraînement",
+            checkBtn: "Vérifier mes réponses",
+            scoreText: "Score :",
+            perfect: "Parfait ! Excellent travail ! 🎉",
+            keepGoing: "Pas mal ! Regarde la correction en rouge et réessaie.",
+            completed: "Terminé",
+            start: "Commencer"
+          },
+          en: {
+            appTitle: "Homophone Master",
+            subtitle: "Choose a lesson to practice",
+            progressTitle: "Your Progress Dashboard",
+            backBtn: "Back to lessons",
+            rulesTitle: "📖 Rules & Tips",
+            practiceTitle: "✍️ Practice Exercises",
+            checkBtn: "Check my answers",
+            scoreText: "Score:",
+            perfect: "Perfect! Outstanding job! 🎉",
+            keepGoing: "Not bad! Check the red corrections and keep practicing.",
+            completed: "Completed",
+            start: "Start"
+          }
+        };
+
+        // --- MAIN APP COMPONENT ---
+        function App() {
+          const [language, setLanguage] = useState(null);
+          const [currentView, setCurrentView] = useState('splash'); // 'splash', 'home', 'lesson'
+          const [activeLesson, setActiveLesson] = useState(null);
+          
+          // Progress structure: { 'fr': { 'a-a': 100, ... }, 'en': { ... } }
+          const [progress, setProgress] = useState({ fr: {}, en: {} });
+
+          const handleLanguageSelect = (lang) => {
+            setLanguage(lang);
+            setCurrentView('home');
+          };
+
+          const openLesson = (lesson) => {
+            setActiveLesson(lesson);
+            setCurrentView('lesson');
+          };
+
+          const goBack = () => {
+            setActiveLesson(null);
+            setCurrentView('home');
+          };
+
+          const updateProgress = (lessonId, scorePercentage) => {
+            setProgress(prev => {
+              const langProgress = prev[language] || {};
+              const currentScore = langProgress[lessonId] || 0;
+              return {
+                ...prev,
+                [language]: {
+                  ...langProgress,
+                  [lessonId]: Math.max(currentScore, scorePercentage)
+                }
+              };
+            });
+          };
+
+          const getAverageProgress = () => {
+            if (!language) return 0;
+            const lessons = contentData[language];
+            if (lessons.length === 0) return 0;
+            
+            let totalScore = 0;
+            lessons.forEach(l => {
+              totalScore += (progress[language][l.id] || 0);
+            });
+            return Math.round(totalScore / lessons.length);
+          };
+
+          if (currentView === 'splash') {
+            return (
+              <div className="min-h-screen bg-slate-800 flex items-center justify-center p-4">
+                <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 text-center">
+                  <div className="flex justify-center mb-6">
+                    <IconGlobe className="w-20 h-20 text-blue-500" />
+                  </div>
+                  <h1 className="text-4xl font-bold text-slate-800 mb-2 font-serif">Welcome / Bienvenue</h1>
+                  <p className="text-slate-500 mb-8">Choose your language to start learning homophones.</p>
+                  
+                  <div className="space-y-4">
+                    <button 
+                      onClick={() => handleLanguageSelect('fr')}
+                      className="w-full py-4 px-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+                    >
+                      <span>🇫🇷</span> Apprendre en Français
+                    </button>
+                    <button 
+                      onClick={() => handleLanguageSelect('en')}
+                      className="w-full py-4 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+                    >
+                      <span>🇬🇧</span> Learn in English
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          const ui = UI[language];
+          const lessons = contentData[language];
+          const themeColor = language === 'fr' ? 'emerald' : 'orange';
+          const bgTheme = language === 'fr' ? 'bg-emerald-50' : 'bg-orange-50';
+          const textTheme = language === 'fr' ? 'text-emerald-700' : 'text-orange-700';
+
+          if (currentView === 'home') {
+            return (
+              <div className={`min-h-screen ${bgTheme} p-4 md:p-8 font-sans text-slate-800`}>
+                <div className="max-w-4xl mx-auto">
+                  
+                  {/* Header & Dashboard */}
+                  <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 flex flex-col md:flex-row items-center justify-between">
+                    <div>
+                      <h1 className={`text-3xl md:text-4xl font-bold ${textTheme} mb-2`}>{ui.appTitle}</h1>
+                      <p className="text-slate-500 text-lg">{ui.subtitle}</p>
+                    </div>
+                    <div className="mt-4 md:mt-0 flex flex-col items-center bg-slate-50 p-4 rounded-xl border border-slate-100 min-w-[200px]">
+                      <span className="text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">{ui.progressTitle}</span>
+                      <div className="relative w-24 h-24">
+                        <svg className="w-full h-full" viewBox="0 0 36 36">
+                          <path
+                            className="text-slate-200"
+                            strokeWidth="3"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                          <path
+                            className={language === 'fr' ? "text-emerald-500" : "text-orange-500"}
+                            strokeDasharray={`${getAverageProgress()}, 100`}
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center flex-col">
+                          <span className={`text-xl font-bold ${textTheme}`}>{getAverageProgress()}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="mb-6 flex justify-end">
+                     <button 
+                        onClick={() => { setLanguage(null); setCurrentView('splash'); }}
+                        className="text-sm font-semibold text-slate-500 hover:text-slate-800 underline"
+                      >
+                        Change Language / Changer de langue
+                      </button>
+                  </div>
+
+                  {/* Cards Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {lessons.map(lesson => {
+                      const score = progress[language][lesson.id] || 0;
+                      const isCompleted = score === 100;
+
+                      return (
+                        <div 
+                          key={lesson.id} 
+                          onClick={() => openLesson(lesson)}
+                          className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer border border-slate-100 overflow-hidden group"
+                        >
+                          <div className={`h-2 w-full ${isCompleted ? (language==='fr'?'bg-emerald-500':'bg-orange-500') : 'bg-slate-200'}`}></div>
+                          <div className="p-6">
+                            <div className="flex justify-between items-start mb-4">
+                              <span className="text-4xl group-hover:scale-110 transition-transform">{lesson.icon}</span>
+                              {isCompleted && <IconAward className={`${language==='fr'?'text-emerald-500':'text-orange-500'} w-8 h-8`} />}
+                            </div>
+                            <h3 className="text-2xl font-bold text-slate-800 mb-2">{lesson.title}</h3>
+                            <div className="flex items-center justify-between mt-6">
+                              <span className={`text-sm font-semibold ${score > 0 ? textTheme : 'text-slate-400'}`}>
+                                {score > 0 ? `${score}% ${ui.completed}` : ui.start}
+                              </span>
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${score > 0 ? (language==='fr'?'bg-emerald-100 text-emerald-600':'bg-orange-100 text-orange-600') : 'bg-slate-100 text-slate-400'}`}>
+                                <IconArrowRight className="w-4 h-4" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                </div>
+              </div>
+            );
+          }
+
+          // --- LESSON VIEW ---
+          return (
+            <LessonView 
+              lesson={activeLesson} 
+              ui={ui} 
+              goBack={goBack} 
+              themeColor={themeColor}
+              onUpdateProgress={(score) => updateProgress(activeLesson.id, score)}
+              previousScore={progress[language][activeLesson.id] || 0}
+            />
+          );
+        }
+
+        // --- INDIVIDUAL LESSON COMPONENT ---
+        function LessonView({ lesson, ui, goBack, themeColor, onUpdateProgress, previousScore }) {
+          const [userAnswers, setUserAnswers] = useState({});
+          const [showResults, setShowResults] = useState(false);
+          const [score, setScore] = useState(0);
+
+          useEffect(() => {
+            const initial = {};
+            lesson.exercises.forEach((_, i) => {
+              initial[i] = [];
+            });
+            setUserAnswers(initial);
+            setShowResults(false);
+            setScore(0);
+          }, [lesson]);
+
+          const handleSelectOption = (qIndex, blankIndex, option) => {
+            if (showResults) return; 
+            setUserAnswers(prev => {
+              const newAnswers = [...(prev[qIndex] || [])];
+              newAnswers[blankIndex] = option;
+              return { ...prev, [qIndex]: newAnswers };
+            });
+          };
+
+          const checkAnswers = () => {
+            let correct = 0;
+            let totalBlanks = 0;
+
+            lesson.exercises.forEach((ex, qIndex) => {
+              ex.answers.forEach((ans, bIndex) => {
+                totalBlanks++;
+                if (userAnswers[qIndex]?.[bIndex] === ans) {
+                  correct++;
+                }
+              });
+            });
+
+            const percentage = Math.round((correct / totalBlanks) * 100);
+            setScore(percentage);
+            setShowResults(true);
+            onUpdateProgress(percentage);
+          };
+
+          const isAllAnswered = () => {
+            return lesson.exercises.every((ex, qIndex) => {
+              const answers = userAnswers[qIndex] || [];
+              return answers.length === ex.answers.length && !answers.includes(undefined);
+            });
+          };
+
+          const themeClasses = {
+            text: themeColor === 'emerald' ? 'text-emerald-700' : 'text-orange-700',
+            bg: themeColor === 'emerald' ? 'bg-emerald-500' : 'bg-orange-500',
+            bgHover: themeColor === 'emerald' ? 'hover:bg-emerald-600' : 'hover:bg-orange-600',
+            lightBg: themeColor === 'emerald' ? 'bg-emerald-50' : 'bg-orange-50',
+            border: themeColor === 'emerald' ? 'border-emerald-200' : 'border-orange-200'
+          };
+
+          return (
+            <div className={`min-h-screen ${themeClasses.lightBg} p-4 md:p-8 font-sans`}>
+              <div className="max-w-3xl mx-auto">
+                
+                {/* Nav & Title */}
+                <button 
+                  onClick={goBack}
+                  className="flex items-center text-slate-500 hover:text-slate-800 font-semibold mb-6 transition-colors"
+                >
+                  <IconChevronLeft className="w-5 h-5 mr-1" /> {ui.backBtn}
+                </button>
+
+                <div className="flex items-center gap-4 mb-8">
+                  <span className="text-5xl">{lesson.icon}</span>
+                  <h1 className={`text-4xl md:text-5xl font-bold ${themeClasses.text}`}>{lesson.title}</h1>
+                  {previousScore === 100 && <IconAward className="w-10 h-10 text-yellow-500 ml-auto" />}
+                </div>
+
+                {/* Rules Section */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 mb-8">
+                  <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <IconBookOpen className={themeClasses.text} /> {ui.rulesTitle}
+                  </h2>
+                  <div className="space-y-6">
+                    {lesson.rules.map((rule, idx) => (
+                      <div key={idx} className={`p-4 rounded-xl border-l-4 ${themeClasses.border} bg-slate-50`}>
+                        <div className="flex items-baseline gap-2 mb-2">
+                          <span className={`text-lg font-extrabold ${themeClasses.text}`}>{rule.word}</span>
+                          <span className="text-slate-600">{rule.desc}</span>
+                        </div>
+                        <div className="text-sm font-semibold text-slate-500 bg-white inline-block px-3 py-1 rounded-md shadow-sm border border-slate-100">
+                          💡 {rule.tip}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Practice Section */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 mb-8">
+                  <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <IconStar className={themeClasses.text} /> {ui.practiceTitle}
+                  </h2>
+                  
+                  <div className="space-y-8">
+                    {lesson.exercises.map((exercise, qIndex) => (
+                      <div key={qIndex} className="p-4 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                        {/* Sentence Display */}
+                        <div className="text-lg text-slate-700 leading-loose mb-3 flex flex-wrap items-center">
+                          {exercise.text.map((part, pIndex) => (
+                            <React.Fragment key={pIndex}>
+                              <span>{part}</span>
+                              {pIndex < exercise.text.length - 1 && (
+                                <span className={`mx-2 min-w-[80px] text-center inline-block border-b-2 font-bold px-2 py-1
+                                  ${!userAnswers[qIndex]?.[pIndex] ? 'border-slate-300' : ''}
+                                  ${userAnswers[qIndex]?.[pIndex] && !showResults ? `${themeClasses.border} ${themeClasses.text}` : ''}
+                                  ${showResults && userAnswers[qIndex]?.[pIndex] === exercise.answers[pIndex] ? 'border-green-500 text-green-600 bg-green-50' : ''}
+                                  ${showResults && userAnswers[qIndex]?.[pIndex] !== exercise.answers[pIndex] ? 'border-red-500 text-red-600 bg-red-50 line-through' : ''}
+                                `}>
+                                  {userAnswers[qIndex]?.[pIndex] || '____'}
+                                </span>
+                              )}
+                            </React.Fragment>
+                          ))}
+                          
+                          {/* Show correct answer if wrong */}
+                          {showResults && exercise.answers.map((ans, aIndex) => {
+                            if (userAnswers[qIndex]?.[aIndex] !== ans) {
+                              return (
+                                 <span key={`corr-${aIndex}`} className="ml-2 text-sm text-green-600 font-bold bg-green-100 px-2 py-1 rounded-md">
+                                   {ans}
+                                 </span>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+
+                        {/* Option Buttons */}
+                        {!showResults && (
+                          <div className="flex gap-2 flex-wrap mt-2">
+                            {exercise.options.map((opt, optIndex) => {
+                              const currentAnswers = userAnswers[qIndex] || [];
+                              let targetBlank = currentAnswers.findIndex(a => a === undefined);
+                              if (targetBlank === -1 && currentAnswers.length < exercise.answers.length) targetBlank = currentAnswers.length;
+                              if (targetBlank === -1) targetBlank = 0; 
+
+                              return (
+                                <button
+                                  key={optIndex}
+                                  onClick={() => handleSelectOption(qIndex, targetBlank, opt)}
+                                  className="px-4 py-2 bg-white border-2 border-slate-200 text-slate-600 font-semibold rounded-lg hover:border-slate-400 hover:bg-slate-100 transition-colors shadow-sm active:scale-95"
+                                >
+                                  {opt}
+                                </button>
+                              );
+                            })}
+                            {(userAnswers[qIndex] || []).some(a => a !== undefined) && (
+                               <button
+                               onClick={() => setUserAnswers(prev => ({...prev, [qIndex]: []}))}
+                               className="px-3 py-2 text-sm text-slate-400 hover:text-slate-600 underline"
+                             >
+                               Reset
+                             </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Action Area */}
+                  <div className="mt-8 pt-8 border-t border-slate-100 flex flex-col items-center">
+                    {!showResults ? (
+                      <button
+                        onClick={checkAnswers}
+                        disabled={!isAllAnswered()}
+                        className={`py-4 px-8 rounded-xl text-white font-bold text-lg shadow-lg transition-all transform 
+                          ${isAllAnswered() ? `${themeClasses.bg} ${themeClasses.bgHover} hover:scale-105` : 'bg-slate-300 cursor-not-allowed'}
+                        `}
+                      >
+                        {ui.checkBtn}
+                      </button>
+                    ) : (
+                      <div className="text-center w-full">
+                        <div className={`text-3xl font-black mb-2 ${score === 100 ? 'text-green-500' : themeClasses.text}`}>
+                          {ui.scoreText} {score}%
+                        </div>
+                        <p className="text-slate-600 text-lg mb-6">
+                          {score === 100 ? ui.perfect : ui.keepGoing}
+                        </p>
+                        <button
+                          onClick={goBack}
+                          className="py-3 px-6 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold shadow-md transition-colors"
+                        >
+                          {ui.backBtn}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          );
+        }
+
+        // Render App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
