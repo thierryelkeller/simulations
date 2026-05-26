@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Nunito', sans-serif; margin: 0; overflow: hidden; background-color: #f8fafc; touch-action: none; }
+        body { font-family: 'Nunito', sans-serif; margin: 0; overflow-x: hidden; background-color: #f8fafc; }
         h1, h2, h3, .fredoka { font-family: 'Fredoka One', cursive; }
 
         /* Splash Screen & Mesmerizing Pointer */
@@ -45,7 +45,6 @@
         
         .shape-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
         #modal-overlay { transition: opacity 0.3s; }
-        #modal-overlay.hidden { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col text-slate-800">
@@ -83,7 +82,7 @@
     </div>
 
     <!-- Main Application -->
-    <div id="app" class="hidden h-full flex flex-col">
+    <div id="app" style="display: none;" class="h-full flex flex-col">
         <header class="bg-white px-6 py-3 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center border-b shadow-sm gap-3 z-30">
             <div class="flex items-center gap-4">
                 <h1 class="fredoka text-2xl text-cyan-600">QuadForge</h1>
@@ -181,7 +180,7 @@
     </div>
 
     <!-- MODAL (Guide & Glossary) -->
-    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0" onclick="if(event.target===this) closeModal()">
+    <div id="modal-overlay" style="display: none;" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0" onclick="if(event.target===this) closeModal()">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content">
             <div class="bg-cyan-50 p-6 flex justify-center items-center border-b-2 border-cyan-100 relative">
                 <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full font-bold text-slate-500 hover:text-slate-800 shadow-sm flex items-center justify-center">✕</button>
@@ -243,7 +242,7 @@
                     isoTrap: { n: "Trapèze Isocèle", dS: "1 paire opposée égale.", dA: "Angles de base égaux.", dP: "Exactement 1 paire.", dD: "Diagonales de même longueur." },
                     rightTrap: { n: "Trapèze Rectangle", dS: "Généralement inégaux.", dA: "Exactement 2 angles droits.", dP: "Exactement 1 paire.", dD: "Se coupent." },
                     trap: { n: "Trapèze", dS: "Inégaux.", dA: "Somme 360°.", dP: "Exactement 1 paire.", dD: "Se coupent." },
-                    kite: { n: "Cerf-volant", dS: "2 paires adjacentes égales.", dA: "1 paire opposée égale.", dP: "Aucune.", dD: "Se croisent à 90°." },
+                    kite: { n: "Cerf-volant", dS: "2 paires adjacentes (qui se touchent) égales.", dA: "1 paire opposée égale.", dP: "Aucune.", dD: "Se croisent à 90°." },
                     dart: { n: "Fléchette (Concave)", dS: "2 paires adjacentes égales.", dA: "Un angle rentrant (> 180°).", dP: "Aucune.", dD: "Une diagonale à l'extérieur." },
                     irreg: { n: "Irrégulier", dS: "Tous différents.", dA: "Tous différents.", dP: "Aucune.", dD: "Se coupent." },
                     crossed: { n: "Croisé", dS: "Lignes qui se croisent.", dA: "Non applicables.", dP: "Aucune.", dD: "Forment l'extérieur." }
@@ -356,15 +355,21 @@
         // --- Init & UI Flow ---
         document.addEventListener('mousemove', (e) => {
             const l = document.getElementById('pointer-light');
-            if (l && !document.getElementById('splash').classList.contains('hidden')) {
+            if (l && document.getElementById('splash').style.display !== 'none') {
                 l.style.left = e.clientX + 'px'; l.style.top = e.clientY + 'px';
             }
         });
 
         function initApp(l) {
-            lang = l || 'en'; document.getElementById('splash').style.opacity = '0';
+            lang = l || 'en'; 
+            document.getElementById('splash').style.opacity = '0';
             missions.forEach(m => { if(progress[m.id] === undefined) progress[m.id] = false; });
-            setTimeout(() => { document.getElementById('splash').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); buildUI(); setTab('guide'); }, 800);
+            setTimeout(() => { 
+                document.getElementById('splash').style.display = 'none'; // CRUCIAL FIX: physically removes splash from the layout!
+                document.getElementById('app').style.display = 'flex'; 
+                buildUI(); 
+                setTab('guide'); 
+            }, 800);
         }
 
         function toggleLang() { lang = lang === 'en' ? 'fr' : 'en'; buildUI(); if (tab === 'playground' || tab === 'canvas') recalcAndDraw(); }
@@ -377,11 +382,14 @@
                 if(el) el.innerText = t.tabs[k];
             });
             
-            document.getElementById('guide-title').innerText = t.guide.title; document.getElementById('guide-desc').innerText = t.guide.desc;
+            document.getElementById('guide-title').innerText = t.guide.title; 
+            document.getElementById('guide-desc').innerText = t.guide.desc;
             document.getElementById('btn-glossary').innerText = t.guide.gloss;
             
-            document.getElementById('lbl-par').innerText = t.lbl.par; document.getElementById('lbl-rights').innerText = t.lbl.rights;
-            document.getElementById('lbl-eq').innerText = t.lbl.eq; document.getElementById('lbl-back').innerText = t.lbl.back;
+            document.getElementById('lbl-par').innerText = t.lbl.par; 
+            document.getElementById('lbl-rights').innerText = t.lbl.rights;
+            document.getElementById('lbl-eq').innerText = t.lbl.eq; 
+            document.getElementById('lbl-back').innerText = t.lbl.back;
             document.getElementById('btn-add-shape').innerText = `${t.lbl.addShape} (${shapes.length}/3)`;
             document.getElementById('btn-toggle-diag').innerText = t.lbl.diag;
             document.getElementById('lbl-goals').innerText = t.lbl.goals;
@@ -412,10 +420,14 @@
         }
 
         function buildDashGrid(dok) {
-            const t = tData[lang]; document.getElementById('dash-title').innerText = t.tabs[dok];
-            const g = document.getElementById('dash-grid'); g.innerHTML = '';
+            const t = tData[lang]; 
+            document.getElementById('dash-title').innerText = t.tabs[dok];
+            const g = document.getElementById('dash-grid'); 
+            g.innerHTML = '';
+            
             missions.filter(m => m.dok === dok).forEach(m => {
-                const isDone = progress[m.id]; const bg = isDone ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-200';
+                const isDone = progress[m.id]; 
+                const bg = isDone ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-200';
                 g.innerHTML += `<div onclick="startMission('${m.id}')" class="${bg} border-2 rounded-xl p-4 cursor-pointer hover:shadow-md transition flex flex-col group"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800 group-hover:text-cyan-600">${m[lang]}</h4><span>${isDone?'✅':'🔒'}</span></div><button class="mt-auto w-full py-1.5 text-sm rounded bg-slate-100 text-slate-600 font-bold group-hover:bg-cyan-100 group-hover:text-cyan-700 transition">▶ Play</button></div>`;
             });
         }
@@ -429,27 +441,38 @@
             const activeEl = document.getElementById('tab-'+newTab);
             if (activeEl) activeEl.classList.add('active-tab');
             
-            document.getElementById('view-guide').classList.add('hidden'); document.getElementById('view-missions').classList.add('hidden');
-            document.getElementById('view-canvas').classList.add('hidden'); document.getElementById('side-panel').classList.add('hidden');
-            document.getElementById('btn-back').classList.add('hidden'); document.getElementById('btn-add-shape').classList.add('hidden');
-            document.getElementById('telemetry-box').classList.add('hidden'); document.getElementById('mission-criteria-box').classList.add('hidden');
+            document.getElementById('view-guide').classList.add('hidden'); 
+            document.getElementById('view-missions').classList.add('hidden');
+            document.getElementById('view-canvas').classList.add('hidden'); 
+            document.getElementById('side-panel').classList.add('hidden');
+            document.getElementById('btn-back').classList.add('hidden'); 
+            document.getElementById('btn-add-shape').classList.add('hidden');
+            document.getElementById('telemetry-box').classList.add('hidden'); 
+            document.getElementById('mission-criteria-box').classList.add('hidden');
             document.getElementById('mission-status-box').classList.add('hidden');
 
             if (tab === 'guide') { 
                 buildUI(); // Refresh checkmarks
                 document.getElementById('view-guide').classList.remove('hidden'); 
             } 
-            else if (tab.startsWith('dok')) { document.getElementById('view-missions').classList.remove('hidden'); buildDashGrid(tab); } 
+            else if (tab.startsWith('dok')) { 
+                document.getElementById('view-missions').classList.remove('hidden'); 
+                buildDashGrid(tab); 
+            } 
             else if (tab === 'playground') {
-                document.getElementById('view-canvas').classList.remove('hidden'); document.getElementById('side-panel').classList.remove('hidden');
-                document.getElementById('btn-add-shape').classList.remove('hidden'); document.getElementById('telemetry-box').classList.remove('hidden');
-                buildUI(); recalcAndDraw();
+                document.getElementById('view-canvas').classList.remove('hidden'); 
+                document.getElementById('side-panel').classList.remove('hidden');
+                document.getElementById('btn-add-shape').classList.remove('hidden'); 
+                document.getElementById('telemetry-box').classList.remove('hidden');
+                buildUI(); 
+                recalcAndDraw();
             }
         }
 
         function startMission(id) {
             tab = 'canvas'; 
             actMission = id; shapes = [ randomizePts() ]; actShape = 0;
+            
             ['guide', 'playground', 'dok1', 'dok2', 'dok3'].forEach(k => {
                 const el = document.getElementById('tab-'+k);
                 if (el) el.classList.remove('active-tab');
@@ -461,21 +484,35 @@
             }
 
             document.getElementById('view-missions').classList.add('hidden');
-            document.getElementById('view-canvas').classList.remove('hidden'); document.getElementById('side-panel').classList.remove('hidden');
-            document.getElementById('btn-back').classList.remove('hidden'); document.getElementById('mission-criteria-box').classList.remove('hidden');
+            document.getElementById('view-canvas').classList.remove('hidden'); 
+            document.getElementById('side-panel').classList.remove('hidden');
+            document.getElementById('btn-back').classList.remove('hidden'); 
+            document.getElementById('mission-criteria-box').classList.remove('hidden');
             document.getElementById('mission-status-box').classList.remove('hidden');
             buildUI(); recalcAndDraw();
         }
 
-        function backToDash() { const t = missions.find(m => m.id === actMission).dok; setTab(t); }
+        function backToDash() { 
+            const t = missions.find(m => m.id === actMission).dok; 
+            setTab(t); 
+        }
 
         function toggleDiagonals() { showDiag = !showDiag; recalcAndDraw(); }
-        function addShape() { if(shapes.length < 3) { shapes.push(initSquare(true)); actShape = shapes.length-1; buildUI(); recalcAndDraw(); } }
+        
+        function addShape() { 
+            if(shapes.length < 3) { 
+                shapes.push(initSquare(true)); 
+                actShape = shapes.length-1; 
+                buildUI(); 
+                recalcAndDraw(); 
+            } 
+        }
 
         function initSquare(offset = false) { 
             const off = offset ? shapes.length * 40 : 0;
             return [{x:160+off,y:120+off}, {x:320+off,y:120+off}, {x:320+off,y:280+off}, {x:160+off,y:280+off}]; 
         }
+        
         function randomizePts() {
             const r = () => Math.floor((Math.random() * 300 + 80)/GRID)*GRID;
             return [{x:r(),y:r()},{x:r()+160,y:r()},{x:r()+160,y:r()+160},{x:r(),y:r()+160}];
@@ -484,13 +521,18 @@
         // --- Math & Validator ---
         const dist = (p1, p2) => Math.hypot(p2.x - p1.x, p2.y - p1.y);
         const cross = (A, B, C) => (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x);
+        
         function getAng(p0, p1, p2) { 
             let a = Math.atan2(p2.y - p1.y, p2.x - p1.x) - Math.atan2(p0.y - p1.y, p0.x - p1.x); 
             a = a * 180 / Math.PI; 
             if (a < 0) a += 360; 
             return a; 
         }
-        function intersect(p1, p2, p3, p4) { return ((cross(p1,p2,p3)>0 && cross(p1,p2,p4)<0) || (cross(p1,p2,p3)<0 && cross(p1,p2,p4)>0)) && ((cross(p3,p4,p1)>0 && cross(p3,p4,p2)<0) || (cross(p3,p4,p1)<0 && cross(p3,p4,p2)>0)); }
+        
+        function intersect(p1, p2, p3, p4) { 
+            return ((cross(p1,p2,p3)>0 && cross(p1,p2,p4)<0) || (cross(p1,p2,p3)<0 && cross(p1,p2,p4)>0)) && 
+                   ((cross(p3,p4,p1)>0 && cross(p3,p4,p2)<0) || (cross(p3,p4,p1)<0 && cross(p3,p4,p2)>0)); 
+        }
 
         function analyze(pts) {
             const L = [dist(pts[0],pts[1]), dist(pts[1],pts[2]), dist(pts[2],pts[3]), dist(pts[3],pts[0])];
@@ -547,23 +589,46 @@
 
         // --- Modals ---
         function openGlossary() {
-            const m = document.getElementById('modal-overlay'); const bd = document.getElementById('modal-body');
-            document.getElementById('modal-title').innerText = tData[lang].glossary.title; document.getElementById('modal-desc').innerText = tData[lang].glossary.desc;
+            const m = document.getElementById('modal-overlay'); 
+            document.getElementById('modal-title').innerText = tData[lang].glossary.title; 
+            document.getElementById('modal-desc').innerText = tData[lang].glossary.desc;
             document.getElementById('modal-icon').innerHTML = svgs.glossary;
-            document.getElementById('modal-props').classList.add('hidden'); document.getElementById('modal-glossary').classList.remove('hidden');
-            let h = ''; tData[lang].glossary.terms.forEach(t => h+=`<div class="border-b pb-2"><h4 class="font-bold text-cyan-700">${t.t}</h4><p class="text-sm text-slate-600">${t.d}</p></div>`);
+            document.getElementById('modal-props').classList.add('hidden'); 
+            document.getElementById('modal-glossary').classList.remove('hidden');
+            
+            let h = ''; 
+            tData[lang].glossary.terms.forEach(t => h+=`<div class="border-b pb-2"><h4 class="font-bold text-cyan-700">${t.t}</h4><p class="text-sm text-slate-600">${t.d}</p></div>`);
             document.getElementById('modal-glossary').innerHTML = h;
-            m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10);
+            
+            m.style.display = 'flex'; // Use display flex to show
+            setTimeout(()=>m.classList.remove('opacity-0'),10);
         }
+        
         function openModal(k) {
-            const s = tData[lang].shapes[k]; const m = document.getElementById('modal-overlay');
-            document.getElementById('modal-title').innerText = s.n; document.getElementById('modal-desc').innerText = "";
+            const s = tData[lang].shapes[k]; 
+            const m = document.getElementById('modal-overlay');
+            
+            document.getElementById('modal-title').innerText = s.n; 
+            document.getElementById('modal-desc').innerText = "";
             document.getElementById('modal-icon').innerHTML = svgs[k];
-            document.getElementById('modal-props').classList.remove('hidden'); document.getElementById('modal-glossary').classList.add('hidden');
-            ['sides','angles','par','diag'].forEach(p => { document.getElementById('mod-lbl-'+p).innerText = tData[lang].modLbl[p]; document.getElementById('modal-'+p).innerText = s['d'+p.charAt(0).toUpperCase()+p.slice(1)]; });
-            m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10);
+            
+            document.getElementById('modal-props').classList.remove('hidden'); 
+            document.getElementById('modal-glossary').classList.add('hidden');
+            
+            ['sides','angles','par','diag'].forEach(p => { 
+                document.getElementById('mod-lbl-'+p).innerText = tData[lang].modLbl[p]; 
+                document.getElementById('modal-'+p).innerText = s['d'+p.charAt(0).toUpperCase()]; // Fix for correct properties mapping!
+            });
+            
+            m.style.display = 'flex'; 
+            setTimeout(()=>m.classList.remove('opacity-0'),10);
         }
-        function closeModal() { const m = document.getElementById('modal-overlay'); m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),300); }
+        
+        function closeModal() { 
+            const m = document.getElementById('modal-overlay'); 
+            m.classList.add('opacity-0'); 
+            setTimeout(()=> m.style.display = 'none', 300); 
+        }
 
         // --- Render Engine ---
         function recalcAndDraw() {
@@ -705,7 +770,8 @@
         }
 
         // --- Drag Logic ---
-        let dragInfo = null; const cont = document.getElementById('canvas-container');
+        let dragInfo = null; 
+        const cont = document.getElementById('canvas-container');
         
         cont.addEventListener('pointerdown', e => { 
             const target = e.target.closest('.vertex');
