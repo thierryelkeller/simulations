@@ -10,23 +10,20 @@
         body { font-family: 'Nunito', sans-serif; margin: 0; overflow-x: hidden; background-color: #f8fafc; }
         h1, h2, h3, .fredoka { font-family: 'Fredoka One', cursive; }
 
-        /* Splash Screen & Mesmerizing Pointer */
+        /* Splash Screen */
         #splash {
-            background: linear-gradient(-45deg, #020617, #082f49, #064e3b, #1e1b4b);
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #020617 100%);
             position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: white; transition: opacity 0.8s ease-in-out; overflow: hidden;
         }
-        #pointer-light {
-            position: absolute; width: 80vw; height: 80vw; border-radius: 50%;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 60%);
-            pointer-events: none; transform: translate(-50%, -50%); z-index: 10; transition: opacity 0.3s;
-        }
+        .glow-orb { position: absolute; border-radius: 50%; filter: blur(80px); animation: float 10s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-50px) scale(1.1); } }
 
         /* Canvas & Grid */
         #canvas-container { position: relative; width: 100%; height: 100%; background: #ffffff; border-radius: 1.5rem; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); touch-action: none; }
         .grid-bg { background-image: radial-gradient(#94a3b8 3px, transparent 3px); background-size: 40px 40px; background-position: -1px -1px; opacity: 0.3; position: absolute; inset: 0; pointer-events: none; }
         
-        .vertex { position: absolute; width: 32px; height: 32px; background: #06b6d4; border: 4px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); cursor: grab; z-index: 20; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); touch-action: none; transition: background-color 0.2s; }
+        .vertex { position: absolute; width: 32px; height: 32px; background: #06b6d4; border: 4px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); cursor: grab; z-index: 20; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); touch-action: none; transition: background-color 0.2s, transform 0.1s; }
         .vertex:active { cursor: grabbing; transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
         .vertex.v-active { background: #f59e0b; border-color: #fffbeb; }
 
@@ -34,7 +31,6 @@
         .tab-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; color: #64748b; transition: all 0.2s; white-space: nowrap; border: 2px solid transparent; font-weight: bold; }
         .tab-btn:hover { background-color: #f1f5f9; }
         .active-tab { background-color: #06b6d4; color: white; box-shadow: 0 4px 6px rgba(6,182,212,0.2); border-color: #0891b2; }
-        .active-tab:hover { background-color: #06b6d4; }
         
         .success-anim { animation: successPulse 0.6s ease-out; }
         @keyframes successPulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); background-color: #10b981; color: white; border-color: #059669; } 100% { transform: scale(1); } }
@@ -43,47 +39,33 @@
         .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        .shape-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
+        .shape-icon { transition: transform 0.2s; }
         #modal-overlay { transition: opacity 0.3s; }
+
+        /* Toast Message */
+        #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: #334155; color: white; padding: 12px 24px; border-radius: 999px; font-weight: bold; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 100; pointer-events: none; }
+        #toast.show { bottom: 30px; }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col text-slate-800">
 
     <!-- Splash Screen -->
     <div id="splash">
-        <div id="pointer-light"></div>
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="absolute inset-0 w-full h-full z-0 opacity-30 pointer-events-none">
-            <defs>
-                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="4" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-            </defs>
-            <polygon fill="rgba(6, 182, 212, 0.05)" stroke="#06b6d4" stroke-width="0.3" filter="url(#glow)">
-                <animate attributeName="points" dur="25s" repeatCount="indefinite"
-                    values="-20,-20 120,-20 120,120 -20,120; 10,20 90,10 80,90 20,80; -30,50 130,20 90,130 10,90; 20,-20 80,20 120,80 -20,120; -20,-20 120,-20 120,120 -20,120" />
-            </polygon>
-            <polygon fill="none" stroke="#10b981" stroke-width="0.15" filter="url(#glow)">
-                 <animate attributeName="points" dur="20s" repeatCount="indefinite"
-                    values="20,50 80,20 90,90 10,80; -20,-20 120,-20 120,120 -20,120; 40,10 90,40 60,110 -30,60; 20,50 80,20 90,90 10,80" />
-            </polygon>
-        </svg>
-
+        <div class="glow-orb w-96 h-96 bg-cyan-500 opacity-20 -top-20 -left-20"></div>
+        <div class="glow-orb w-96 h-96 bg-emerald-500 opacity-20 -bottom-20 -right-20"></div>
         <div class="z-20 text-center px-4 relative pointer-events-auto">
             <h1 class="text-7xl md:text-8xl fredoka mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-emerald-300 to-amber-300 drop-shadow-2xl">QuadForge</h1>
             <p class="text-2xl md:text-3xl mb-12 font-bold text-cyan-100" id="splash-subtitle">Inquiry & Discovery</p>
-            
-            <p class="mb-4 text-slate-300 font-bold uppercase tracking-widest text-sm">Choose Language / Choisissez la Langue</p>
             <div class="flex gap-6 justify-center">
-                <button onclick="initApp('en')" class="px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 rounded-2xl backdrop-blur-md transition-all transform hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] font-bold text-xl">English</button>
-                <button onclick="initApp('fr')" class="px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 rounded-2xl backdrop-blur-md transition-all transform hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] font-bold text-xl">Français</button>
+                <button onclick="initApp('en')" class="px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 rounded-2xl backdrop-blur-md transition-all transform hover:scale-105 font-bold text-xl">English</button>
+                <button onclick="initApp('fr')" class="px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 rounded-2xl backdrop-blur-md transition-all transform hover:scale-105 font-bold text-xl">Français</button>
             </div>
         </div>
     </div>
 
     <!-- Main Application -->
     <div id="app" style="display: none;" class="h-full flex flex-col">
-        <header class="bg-white px-6 py-3 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center border-b shadow-sm gap-3 z-30">
+        <header class="bg-white px-6 py-3 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center border-b shadow-sm gap-3 z-30 shrink-0">
             <div class="flex items-center gap-4">
                 <h1 class="fredoka text-2xl text-cyan-600">QuadForge</h1>
                 <button onclick="toggleLang()" class="text-xs px-2 py-1 bg-slate-100 rounded text-slate-500 font-bold hover:bg-slate-200 border">EN / FR</button>
@@ -99,32 +81,47 @@
 
         <main class="flex-1 flex p-4 gap-4 bg-slate-50 overflow-hidden relative">
             
-            <!-- VUE 1 : GUIDE DES FORMES & GLOSSAIRE -->
+            <!-- VUE 1 : GUIDE DES FORMES -->
             <div id="view-guide" class="w-full bg-white rounded-2xl shadow-lg border-4 border-white p-6 custom-scroll overflow-y-auto hidden">
-                <div class="flex justify-between items-center mb-6 border-b-2 pb-4">
+                <div class="flex justify-between items-center mb-6 border-b-2 border-slate-100 pb-4">
                     <div>
                         <h2 class="text-3xl fredoka text-cyan-600" id="guide-title">Guide</h2>
-                        <p class="text-slate-500 font-bold" id="guide-desc">Interactive shapes & terms.</p>
+                        <p class="text-slate-500 font-bold text-sm" id="guide-desc">Interactive shapes & terms.</p>
                     </div>
-                    <button onclick="openGlossary()" class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2 border border-amber-200 shadow-sm">
+                    <button onclick="openGlossary()" class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2 border border-amber-200 shadow-sm text-sm">
                         📚 <span id="btn-glossary">Glossary</span>
                     </button>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4" id="guide-grid"></div>
+                <!-- Smaller Cards Grid -->
+                <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4" id="guide-grid"></div>
             </div>
 
-            <!-- VUE 2 : MISSIONS DASHBOARD (DOK) -->
+            <!-- VUE 2 : MISSIONS DASHBOARD -->
             <div id="view-missions" class="w-full bg-white rounded-2xl shadow-lg border-4 border-white p-6 custom-scroll overflow-y-auto hidden">
-                <h2 class="text-3xl fredoka text-cyan-600 mb-2" id="dash-title">Missions Dashboard</h2>
-                <p class="text-slate-500 font-bold mb-6" id="dash-desc">Select a challenge.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="dash-grid"></div>
+                <div id="scoreboard-banner" class="flex flex-col md:flex-row gap-4 mb-8">
+                    <div class="flex-1 bg-white border-2 border-cyan-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                        <div><h3 class="font-bold text-cyan-800 text-lg">🎓 Discovery</h3><p class="text-xs text-cyan-600 font-bold" id="sb-lbl-lvl1">Level 1</p></div>
+                        <div class="text-3xl fredoka text-cyan-500" id="sb-dok1">0/7</div>
+                    </div>
+                    <div class="flex-1 bg-white border-2 border-purple-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                        <div><h3 class="font-bold text-purple-800 text-lg">🚀 Exploration</h3><p class="text-xs text-purple-600 font-bold" id="sb-lbl-lvl2">Level 2</p></div>
+                        <div class="text-3xl fredoka text-purple-500" id="sb-dok2">0/9</div>
+                    </div>
+                    <div class="flex-1 bg-white border-2 border-amber-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                        <div><h3 class="font-bold text-amber-800 text-lg">👑 Mastery</h3><p class="text-xs text-amber-600 font-bold" id="sb-lbl-lvl3">Level 3</p></div>
+                        <div class="text-3xl fredoka text-amber-500" id="sb-dok3">0/9</div>
+                    </div>
+                </div>
+                <h2 class="text-2xl fredoka text-slate-800 mb-2 border-b-2 border-slate-100 pb-2" id="dash-title">Missions Dashboard</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4" id="dash-grid"></div>
             </div>
 
             <!-- VUE 3 : CANVAS INTERACTIF -->
             <div class="flex-1 bg-white rounded-2xl shadow-lg relative border-4 border-white flex flex-col hidden" id="view-canvas">
                 <div class="absolute top-4 left-4 z-30 flex gap-2">
-                    <button id="btn-add-shape" onclick="addShape()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm border border-emerald-200 hidden">+ Shape (1/3)</button>
-                    <button id="btn-toggle-diag" onclick="toggleDiagonals()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm border">⤡ Diagonals</button>
+                    <button id="btn-add-shape" onclick="addShape()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm border border-emerald-200 hidden">+ Add Shape</button>
+                    <button id="btn-toggle-diag" onclick="toggleDiagonals()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm border border-slate-200">⤡ Diagonals</button>
+                    <button id="btn-clear" onclick="clearShapes()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm border border-rose-200 hidden">🗑️ Clear All</button>
                 </div>
                 
                 <div id="canvas-container" class="flex-1 relative w-full h-full">
@@ -146,202 +143,313 @@
                 </div>
             </div>
 
-            <!-- PANNEAU LATÉRAL (Télémetrie & Missions) -->
-            <div class="w-full lg:w-80 flex flex-col gap-4 flex-shrink-0 hidden" id="side-panel">
-                <div class="bg-white p-5 rounded-2xl shadow-md border-2 border-slate-100 flex flex-col h-full relative" id="panel-content">
+            <!-- PANNEAU LATÉRAL (Télémetrie & Missions) - Reworked Aesthetic -->
+            <div class="w-full lg:w-[350px] flex flex-col gap-4 flex-shrink-0 hidden" id="side-panel">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full relative" id="panel-content">
                     
-                    <button onclick="backToDash()" id="btn-back" class="hidden mb-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg text-sm w-full transition border shadow-sm">
-                        🔙 <span id="lbl-back">Back</span>
+                    <button onclick="backToDash()" id="btn-back" class="hidden mb-4 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold py-2 px-4 rounded-xl text-sm w-full transition border shadow-sm flex items-center justify-center gap-2">
+                        🔙 <span id="lbl-back">Back to Missions</span>
                     </button>
 
-                    <h2 class="text-xl fredoka mb-1 text-slate-800" id="panel-title">Playground</h2>
+                    <h2 class="text-2xl fredoka mb-1 text-slate-800" id="panel-title">Playground</h2>
                     <p class="text-slate-500 text-sm mb-4 font-bold" id="panel-desc">Drag points.</p>
                     
                     <!-- Telemetry (Playground) -->
                     <div id="telemetry-box" class="flex-1 bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col gap-3 hidden">
-                        <div id="live-shape-name" class="text-2xl fredoka text-cyan-600 text-center mb-2 border-b pb-2">Quadrilateral</div>
+                        <div id="live-shape-name" class="text-2xl fredoka text-cyan-600 text-center mb-2 border-b pb-2 border-slate-200">Quadrilateral</div>
                         <div class="flex justify-between items-center text-sm"><span class="font-bold text-slate-500" id="lbl-par">Parallèles:</span><span id="val-par" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-slate-700">0</span></div>
                         <div class="flex justify-between items-center text-sm"><span class="font-bold text-slate-500" id="lbl-rights">Angles 90°:</span><span id="val-rights" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-rose-500">0</span></div>
                         <div class="flex justify-between items-center text-sm"><span class="font-bold text-slate-500" id="lbl-eq">Côtés Égaux:</span><span id="val-eq" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-emerald-600 text-xs text-right ml-2 leading-tight">Aucun</span></div>
+                        <button onclick="removeActiveShape()" id="btn-remove-shape" class="mt-auto w-full py-2 bg-slate-200 hover:bg-rose-100 text-slate-600 hover:text-rose-600 font-bold rounded-lg transition text-sm">🗑️ Remove Selected</button>
                     </div>
 
-                    <!-- Mission Criteria Tracker -->
-                    <div id="mission-criteria-box" class="flex-1 flex flex-col gap-2 hidden">
-                        <h3 class="font-bold text-slate-700 border-b pb-1 mb-2" id="lbl-goals">Objectifs / Goals:</h3>
-                        <ul id="criteria-list" class="space-y-2 text-sm font-bold text-slate-600"></ul>
+                    <!-- Mission Tracker - Clean Light Theme -->
+                    <div id="mission-criteria-box" class="flex-1 flex flex-col gap-3 bg-white rounded-xl p-4 hidden border-2 border-cyan-100 shadow-inner">
+                        <h3 class="font-bold text-cyan-700 border-b-2 border-cyan-100 pb-2 flex items-center gap-2"><span class="text-lg">🎯</span> <span id="lbl-goals">Goals:</span></h3>
+                        <p id="mission-lore" class="text-sm font-bold text-slate-600 italic leading-snug mb-2"></p>
+                        <ul id="criteria-list" class="space-y-3 text-sm font-bold text-slate-500"></ul>
                     </div>
 
                     <div id="mission-status-box" class="hidden mt-4 p-4 rounded-xl text-center font-bold border-2 transition-colors">
                         <span id="mission-status-text">In Progress...</span>
+                    </div>
+
+                    <div id="mission-nav" class="hidden flex gap-2 mt-4 pt-4 border-t border-slate-100">
+                        <button onclick="navMission(-1)" id="btn-prev" class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold py-2 rounded-xl transition text-sm border shadow-sm">⬅️ <span id="lbl-prev">Prev</span></button>
+                        <button onclick="navMission(1)" id="btn-next" class="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 rounded-xl transition text-sm shadow-md"><span id="lbl-next">Next</span> ➡️</button>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- MODAL (Guide & Glossary) -->
-    <div id="modal-overlay" style="display: none;" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0" onclick="if(event.target===this) closeModal()">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content">
-            <div class="bg-cyan-50 p-6 flex justify-center items-center border-b-2 border-cyan-100 relative">
-                <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full font-bold text-slate-500 hover:text-slate-800 shadow-sm flex items-center justify-center">✕</button>
-                <div id="modal-icon" class="w-24 h-24 shape-icon text-cyan-600"></div>
+    <!-- ID Card Modal -->
+    <div id="modal-overlay" style="display: none;" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0" onclick="if(event.target===this) closeModal()">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden transform scale-95 transition-transform duration-300 border-t-8 border-cyan-500 flex flex-col md:flex-row" id="modal-content">
+            
+            <!-- Left Side: ID Photo (Technical SVG) -->
+            <div class="bg-slate-50 p-6 md:w-5/12 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-200">
+                <div id="modal-icon" class="w-full aspect-square max-w-[200px] drop-shadow-md bg-white rounded-xl border-2 border-slate-200 overflow-hidden relative"></div>
+                <div class="mt-4 px-3 py-1 bg-cyan-100 text-cyan-800 font-bold text-xs rounded-full uppercase tracking-wider">Official Geometric ID</div>
             </div>
-            <div class="p-6 custom-scroll" id="modal-body" style="max-height: 60vh; overflow-y: auto;">
-                <h2 id="modal-title" class="text-3xl fredoka text-slate-800 mb-2">Titre</h2>
-                <p id="modal-desc" class="text-slate-600 font-bold mb-4">Description...</p>
-                <div id="modal-props" class="bg-slate-50 rounded-xl p-4 space-y-2 border border-slate-200 text-sm hidden">
-                    <p><strong class="text-slate-700" id="mod-lbl-sides">Côtés:</strong> <span id="modal-sides" class="text-slate-600">...</span></p>
-                    <p><strong class="text-slate-700" id="mod-lbl-angles">Angles:</strong> <span id="modal-angles" class="text-slate-600">...</span></p>
-                    <p><strong class="text-slate-700" id="mod-lbl-par">Parallèles:</strong> <span id="modal-par" class="text-slate-600">...</span></p>
-                    <p><strong class="text-slate-700" id="mod-lbl-diag">Diagonales:</strong> <span id="modal-diag" class="text-slate-600">...</span></p>
+
+            <!-- Right Side: Full Sentences & Data -->
+            <div class="p-6 md:w-7/12 flex flex-col">
+                <div class="flex justify-between items-start mb-2">
+                    <h2 id="modal-title" class="text-3xl fredoka text-slate-800">Titre</h2>
+                    <button onclick="closeModal()" class="w-8 h-8 bg-slate-100 rounded-full font-bold text-slate-500 hover:bg-slate-200 transition flex items-center justify-center">✕</button>
                 </div>
-                <div id="modal-glossary" class="space-y-4 hidden"></div>
+                
+                <div id="modal-desc" class="text-slate-600 font-bold text-sm mb-6 leading-relaxed">
+                    <!-- Full Sentences Injected Here -->
+                </div>
+
+                <div id="modal-props" class="mt-auto">
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100"><strong class="text-slate-500 block mb-1 text-xs uppercase" id="mod-lbl-sides">Sides</strong> <span id="modal-sides" class="font-bold text-slate-800">...</span></div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100"><strong class="text-slate-500 block mb-1 text-xs uppercase" id="mod-lbl-angles">Angles</strong> <span id="modal-angles" class="font-bold text-slate-800">...</span></div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100"><strong class="text-slate-500 block mb-1 text-xs uppercase" id="mod-lbl-par">Parallels</strong> <span id="modal-par" class="font-bold text-slate-800">...</span></div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100"><strong class="text-slate-500 block mb-1 text-xs uppercase" id="mod-lbl-diag">Diagonals</strong> <span id="modal-diag" class="font-bold text-slate-800">...</span></div>
+                    </div>
+                </div>
+
+                <div id="modal-glossary" class="w-full space-y-4 hidden h-full max-h-[70vh] overflow-y-auto"></div>
             </div>
         </div>
     </div>
 
+    <!-- Toast Message -->
+    <div id="toast">Not enough room! Double-click a vertex to remove its shape.</div>
+
     <script>
-        // --- 1. SVGs & Dictionary ---
+        // --- 1. Technical Annotated SVGs for ID Cards ---
+        // Generates SVGs that show diagonals, parallel arrows, right angles, and length ticks.
+        function tSvg(pts, attrs) {
+            let svg = `<svg viewBox="0 0 100 100" class="w-full h-full">
+                <defs><pattern id="pg" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.5" fill="#cbd5e1"/></pattern></defs>
+                <rect width="100" height="100" fill="url(#pg)" />`;
+            
+            // Diagonals (Always shown on ID)
+            if (attrs.d1) svg += `<line x1="${pts[0].x}" y1="${pts[0].y}" x2="${pts[2].x}" y2="${pts[2].y}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+            if (attrs.d2) svg += `<line x1="${pts[1].x}" y1="${pts[1].y}" x2="${pts[3].x}" y2="${pts[3].y}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+            if (attrs.dCross) svg += `<rect x="${attrs.dCross.x-3}" y="${attrs.dCross.y-3}" width="6" height="6" fill="none" stroke="#ef4444" stroke-width="1" transform="rotate(${attrs.dCross.r} ${attrs.dCross.x} ${attrs.dCross.y})"/>`;
+            
+            // Right Angles
+            if (attrs.ra) attrs.ra.forEach(a => {
+                svg += `<path d="${a}" fill="none" stroke="#ef4444" stroke-width="1.5"/>`;
+            });
+
+            // Shape path
+            const pStr = pts.map(p => `${p.x},${p.y}`).join(' ');
+            svg += `<polygon points="${pStr}" fill="rgba(6, 182, 212, 0.15)" stroke="#06b6d4" stroke-width="3" stroke-linejoin="round"/>`;
+
+            // Ticks for Equal Sides
+            if (attrs.ticks) attrs.ticks.forEach(t => {
+                svg += `<line x1="${t.x-t.dx}" y1="${t.y-t.dy}" x2="${t.x+t.dx}" y2="${t.y+t.dy}" stroke="#ec4899" stroke-width="2"/>`;
+                if(t.double) {
+                    svg += `<line x1="${t.x-t.dx + t.ox}" y1="${t.y-t.dy + t.oy}" x2="${t.x+t.dx + t.ox}" y2="${t.y+t.dy + t.oy}" stroke="#ec4899" stroke-width="2"/>`;
+                }
+            });
+
+            // Parallel Arrows
+            if (attrs.par) attrs.par.forEach(p => {
+                svg += `<polygon points="${p.pts}" fill="#0f172a"/>`;
+                if(p.double) {
+                    svg += `<polygon points="${p.pts2}" fill="#0f172a"/>`;
+                }
+            });
+
+            // Vertices
+            pts.forEach(p => { svg += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="#fff" stroke="#06b6d4" stroke-width="2"/>`; });
+            svg += `</svg>`; return svg;
+        }
+
         const svgs = {
-            square: `<svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            rect: `<svg viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="40" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            rhombus: `<svg viewBox="0 0 100 100"><polygon points="50,20 90,50 50,80 10,50" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            para: `<svg viewBox="0 0 100 100"><polygon points="25,30 95,30 75,70 5,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            trap: `<svg viewBox="0 0 100 100"><polygon points="30,30 70,30 90,70 10,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            isoTrap: `<svg viewBox="0 0 100 100"><polygon points="30,30 70,30 85,70 15,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            rightTrap: `<svg viewBox="0 0 100 100"><polygon points="20,30 70,30 90,70 20,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            kite: `<svg viewBox="0 0 100 100"><polygon points="50,10 80,40 50,90 20,40" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            dart: `<svg viewBox="0 0 100 100"><polygon points="50,10 90,90 50,70 10,90" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            irreg: `<svg viewBox="0 0 100 100"><polygon points="20,20 90,30 70,90 10,60" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            crossed: `<svg viewBox="0 0 100 100"><polygon points="10,20 90,80 10,80 90,20" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
-            glossary: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
+            square: tSvg([{x:25,y:25}, {x:75,y:25}, {x:75,y:75}, {x:25,y:75}], {
+                d1:true, d2:true, dCross: {x:50, y:50, r:45},
+                ra: ['M 25 33 L 33 33 L 33 25', 'M 67 25 L 67 33 L 75 33', 'M 75 67 L 67 67 L 67 75', 'M 33 75 L 33 67 L 25 67'],
+                ticks: [{x:50,y:25,dx:0,dy:3},{x:50,y:75,dx:0,dy:3},{x:25,y:50,dx:3,dy:0},{x:75,y:50,dx:3,dy:0}],
+                par: [{pts:'47,22 53,25 47,28'}, {pts:'47,72 53,75 47,78'}, {pts:'22,47 25,53 28,47', double:true, pts2:'22,52 25,58 28,52'}, {pts:'72,47 75,53 78,47', double:true, pts2:'72,52 75,58 78,52'}]
+            }),
+            rect: tSvg([{x:15,y:30}, {x:85,y:30}, {x:85,y:70}, {x:15,y:70}], {
+                d1:true, d2:true,
+                ra: ['M 15 38 L 23 38 L 23 30', 'M 77 30 L 77 38 L 85 38', 'M 85 62 L 77 62 L 77 70', 'M 23 70 L 23 62 L 15 62'],
+                ticks: [{x:50,y:30,dx:0,dy:3},{x:50,y:70,dx:0,dy:3},{x:15,y:50,dx:3,dy:0,double:true,ox:0,oy:4},{x:85,y:50,dx:3,dy:0,double:true,ox:0,oy:4}],
+                par: [{pts:'47,27 53,30 47,33'}, {pts:'47,67 53,70 47,73'}, {pts:'12,47 15,53 18,47', double:true, pts2:'12,52 15,58 18,52'}, {pts:'82,47 85,53 88,47', double:true, pts2:'82,52 85,58 88,52'}]
+            }),
+            rhombus: tSvg([{x:50,y:15}, {x:85,y:50}, {x:50,y:85}, {x:15,y:50}], {
+                d1:true, d2:true, dCross: {x:50, y:50, r:0},
+                ticks: [{x:32.5,y:32.5,dx:3,dy:-3},{x:67.5,y:32.5,dx:3,dy:3},{x:67.5,y:67.5,dx:3,dy:-3},{x:32.5,y:67.5,dx:3,dy:3}],
+                par: [{pts:'32,28 36,32 30,34'}, {pts:'67,63 71,67 65,69'}, {pts:'64,28 68,34 62,32', double:true, pts2:'67,31 71,37 65,35'}, {pts:'29,63 33,69 27,67', double:true, pts2:'32,66 36,72 30,70'}]
+            }),
+            para: tSvg([{x:25,y:30}, {x:90,y:30}, {x:75,y:70}, {x:10,y:70}], {
+                d1:true, d2:true,
+                ticks: [{x:57.5,y:30,dx:0,dy:3},{x:42.5,y:70,dx:0,dy:3},{x:17.5,y:50,dx:3,dy:1,double:true,ox:3,oy:-1},{x:82.5,y:50,dx:3,dy:1,double:true,ox:3,oy:-1}],
+                par: [{pts:'55,27 61,30 55,33'}, {pts:'40,67 46,70 40,73'}, {pts:'13,49 19,54 13,55', double:true, pts2:'12,44 18,49 12,50'}, {pts:'78,49 84,54 78,55', double:true, pts2:'77,44 83,49 77,50'}]
+            }),
+            trap: tSvg([{x:30,y:30}, {x:60,y:30}, {x:90,y:70}, {x:10,y:70}], { d1:true, d2:true, par: [{pts:'42,27 48,30 42,33'}, {pts:'47,67 53,70 47,73'}] }),
+            isoTrap: tSvg([{x:30,y:30}, {x:70,y:30}, {x:90,y:70}, {x:10,y:70}], { d1:true, d2:true, ticks: [{x:20,y:50,dx:3,dy:1.5},{x:80,y:50,dx:-3,dy:1.5}], par: [{pts:'47,27 53,30 47,33'}, {pts:'47,67 53,70 47,73'}] }),
+            rightTrap: tSvg([{x:20,y:30}, {x:70,y:30}, {x:90,y:70}, {x:20,y:70}], { d1:true, d2:true, ra: ['M 20 38 L 28 38 L 28 30', 'M 28 70 L 28 62 L 20 62'], par: [{pts:'42,27 48,30 42,33'}, {pts:'52,67 58,70 52,73'}] }),
+            kite: tSvg([{x:50,y:10}, {x:80,y:40}, {x:50,y:90}, {x:20,y:40}], { d1:true, d2:true, dCross: {x:50, y:40, r:0}, ticks: [{x:35,y:25,dx:-2,dy:2},{x:65,y:25,dx:2,dy:2},{x:35,y:65,dx:2,dy:2,double:true,ox:3,oy:-1},{x:65,y:65,dx:-2,dy:2,double:true,ox:-3,oy:-1}] }),
+            dart: tSvg([{x:50,y:20}, {x:90,y:90}, {x:50,y:70}, {x:10,y:90}], { d1:true, d2:true, ticks: [{x:30,y:55,dx:-2,dy:2},{x:70,y:55,dx:2,dy:2},{x:30,y:80,dx:-2,dy:-1,double:true,ox:2,oy:-2},{x:70,y:80,dx:2,dy:-1,double:true,ox:-2,oy:-2}] }),
+            irreg: tSvg([{x:20,y:20}, {x:90,y:30}, {x:70,y:90}, {x:10,y:60}], { d1:true, d2:true }),
+            crossed: tSvg([{x:20,y:20}, {x:80,y:80}, {x:20,y:80}, {x:80,y:20}], { d1:true, d2:true }),
+            glossary: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-amber-500"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
         };
 
         const tData = {
             fr: {
                 title: "MétaQuad", subtitle: "Enquête & Découverte",
                 tabs: { guide: "📖 Guide", playground: "🎮 Jeu Libre", dok1: "🎓 Découverte", dok2: "🚀 Exploration", dok3: "👑 Maîtrise" },
-                lbl: { par: "Parallèles :", rights: "Angles 90° :", eq: "Côtés Égaux :", back: "Retour", addShape: "+ Forme", diag: "⤡ Diagonales", goals: "Objectifs :" },
-                modLbl: { sides: "Côtés :", angles: "Angles :", par: "Parallèles :", diag: "Diagonales :" },
+                lbl: { par: "Parallèles :", rights: "Angles 90° :", eq: "Côtés Égaux :", back: "Retour aux Missions", addShape: "+ Ajouter", diag: "⤡ Diagonales", clear: "🗑️ Tout Effacer", remove: "🗑️ Supprimer", goals: "Objectifs :", lvl1: "Niveau 1", lvl2: "Niveau 2", lvl3: "Niveau 3", prev: "Préc.", next: "Suiv." },
+                modLbl: { sides: "Côtés", angles: "Angles", par: "Parallèles", diag: "Diagonales" },
                 val: { no: "Non", none: "Aucun", all: "Les 4", opp2: "2 Paires Opposées", opp1: "1 Paire Opposée", adj2: "2 Paires Adjacentes", adj1: "1 Paire Adjacente" },
-                status: { prog: "🛠️ En cours...", succ: "🎉 SUCCÈS ! Mission accomplie !" },
-                guide: { title: "Dictionnaire des Formes", desc: "Explore les formes. Une coche (✓) apparaît quand tu as découvert une forme !", gloss: "Glossaire" },
-                glossary: { title: "Glossaire", desc: "Termes importants de géométrie.", terms: [
-                    { t: "Sommet (Vertex)", d: "Le point de rencontre de deux côtés (le coin)." },
-                    { t: "Lignes Parallèles", d: "Des lignes qui ne se croiseront jamais, comme des rails de train." },
-                    { t: "Angle Droit", d: "Un angle parfait de 90°, comme le coin d'une feuille de papier." },
-                    { t: "Diagonale", d: "Une ligne droite qui relie deux sommets opposés à l'intérieur (ou extérieur) de la forme." },
+                status: { prog: "🛠️ Analyse en cours...", succ: "🎉 Forme validée ! Mission accomplie !" },
+                guide: { title: "Dictionnaire des Formes", desc: "Explore les formes techniques. Une coche (✓) apparaît quand tu as découvert une forme !", gloss: "Glossaire" },
+                glossary: { title: "Glossaire Technique", desc: "Termes importants de géométrie pour forger vos quadrilatères.", terms: [
+                    { t: "Sommet (Vertex)", d: "Le point de rencontre de deux côtés (le coin de la forme)." },
+                    { t: "Lignes Parallèles", d: "Des lignes qui gardent le même écartement et ne se croiseront jamais, comme des rails." },
+                    { t: "Angle Droit", d: "Un angle parfait de 90 degrés, signalé par un carré rouge dans le guide." },
+                    { t: "Diagonale", d: "Une ligne pointillée orange qui relie deux sommets opposés." },
                     { t: "Concave", d: "Une forme qui 'pointe vers l'intérieur', avec un angle supérieur à 180°." },
-                    { t: "Convexe", d: "Une forme dont tous les coins pointent vers l'extérieur." }
+                    { t: "Convexe", d: "Une forme classique dont tous les coins pointent vers l'extérieur." }
                 ]},
                 shapes: {
-                    square: { n: "Carré", dS: "4 égaux.", dA: "4 droits (90°).", dP: "2 paires.", dD: "Se coupent au milieu à 90°." },
-                    rect: { n: "Rectangle", dS: "Opposés égaux.", dA: "4 droits (90°).", dP: "2 paires.", dD: "Égales, se coupent au milieu." },
-                    rhombus: { n: "Losange", dS: "4 égaux.", dA: "Opposés égaux.", dP: "2 paires.", dD: "Se coupent au milieu à 90°." },
-                    para: { n: "Parallélogramme", dS: "Opposés égaux.", dA: "Opposés égaux.", dP: "2 paires.", dD: "Se coupent en leur milieu." },
-                    isoTrap: { n: "Trapèze Isocèle", dS: "1 paire opposée égale.", dA: "Angles de base égaux.", dP: "Exactement 1 paire.", dD: "Diagonales de même longueur." },
-                    rightTrap: { n: "Trapèze Rectangle", dS: "Généralement inégaux.", dA: "Exactement 2 angles droits.", dP: "Exactement 1 paire.", dD: "Se coupent." },
-                    trap: { n: "Trapèze", dS: "Inégaux.", dA: "Somme 360°.", dP: "Exactement 1 paire.", dD: "Se coupent." },
-                    kite: { n: "Cerf-volant", dS: "2 paires adjacentes (qui se touchent) égales.", dA: "1 paire opposée égale.", dP: "Aucune.", dD: "Se croisent à 90°." },
-                    dart: { n: "Fléchette (Concave)", dS: "2 paires adjacentes égales.", dA: "Un angle rentrant (> 180°).", dP: "Aucune.", dD: "Une diagonale à l'extérieur." },
-                    irreg: { n: "Irrégulier", dS: "Tous différents.", dA: "Tous différents.", dP: "Aucune.", dD: "Se coupent." },
-                    crossed: { n: "Croisé", dS: "Lignes qui se croisent.", dA: "Non applicables.", dP: "Aucune.", dD: "Forment l'extérieur." }
+                    square: { n: "Carré", desc: "Un quadrilatère parfait. Ses quatre côtés sont d'une longueur strictement identique. Les quatre coins forment des angles droits parfaits. Les côtés opposés ne se rencontreront jamais.", dS: "4 côtés égaux (marques simples).", dA: "4 angles droits de 90°.", dP: "2 paires parallèles (flèches).", dD: "Elles se coupent au milieu à un angle droit parfait." },
+                    rect: { n: "Rectangle", desc: "La forme classique de la construction. Les côtés opposés sont de longueur égale, mais les côtés adjacents diffèrent. Il possède quatre coins parfaits à 90 degrés.", dS: "Côtés opposés égaux.", dA: "4 angles droits de 90°.", dP: "2 paires parallèles (flèches).", dD: "Longueurs égales, se coupent au milieu." },
+                    rhombus: { n: "Losange", desc: "Un carré incliné. Tous ses côtés partagent la même longueur, mais ses angles ne sont plus droits. Il ressemble à un diamant symétrique.", dS: "4 côtés égaux.", dA: "Les angles opposés sont égaux.", dP: "2 paires parallèles.", dD: "Se coupent au milieu à 90° exact." },
+                    para: { n: "Parallélogramme", desc: "Une structure inclinée. Ses paires de côtés opposés sont parallèles et de même longueur, créant une impression de mouvement latéral.", dS: "Côtés opposés égaux.", dA: "Angles opposés égaux.", dP: "2 paires parallèles.", dD: "Se coupent exactement en leur milieu." },
+                    isoTrap: { n: "Trapèze Isocèle", desc: "Une base stable avec des côtés symétriques. Une seule paire de côtés opposés est parallèle, tandis que les deux autres côtés, non parallèles, partagent la même longueur.", dS: "1 paire opposée égale.", dA: "Angles de base égaux.", dP: "Exactement 1 paire.", dD: "Les deux diagonales ont la même longueur." },
+                    rightTrap: { n: "Trapèze Rectangle", desc: "Un hybride asymétrique. Il possède une paire de lignes parallèles et exactement deux angles droits sur un de ses côtés verticaux.", dS: "Généralement inégaux.", dA: "Exactement 2 angles droits.", dP: "Exactement 1 paire.", dD: "Se croisent simplement." },
+                    trap: { n: "Trapèze", desc: "La forme de base avec un plafond et un plancher alignés. Il n'a qu'une seule paire de lignes parallèles, et le reste des côtés n'ont aucune symétrie requise.", dS: "Toutes les longueurs peuvent différer.", dA: "Somme de 360°.", dP: "Exactement 1 paire.", dD: "Se croisent simplement." },
+                    kite: { n: "Cerf-volant", desc: "Une forme aérodynamique. Il possède deux paires de côtés adjacents (qui se touchent) de même longueur, mais aucune ligne parallèle.", dS: "2 paires adjacentes égales.", dA: "1 paire opposée d'angles égaux.", dP: "Aucune ligne parallèle.", dD: "Se croisent à 90° (marqué en rouge)." },
+                    dart: { n: "Fléchette", desc: "Une forme concave agressive. Comme le cerf-volant, ses côtés adjacents sont égaux, mais l'un de ses angles s'effondre vers l'intérieur.", dS: "2 paires adjacentes égales.", dA: "Un angle rentrant (> 180°).", dP: "Aucune.", dD: "Une diagonale sort de la forme." },
+                    irreg: { n: "Irrégulier", desc: "Le chaos absolu. Aucun côté n'est égal, aucun angle n'est droit, et aucune ligne n'est parallèle. Totalement asymétrique.", dS: "Tous différents.", dA: "Tous différents.", dP: "Aucune.", dD: "Se croisent sans propriété spéciale." },
+                    crossed: { n: "Croisé", desc: "Une anomalie géométrique. Les lignes formant le périmètre se croisent sur elles-mêmes, créant une forme de sablier complexe.", dS: "Lignes qui se croisent.", dA: "Non applicables techniquement.", dP: "Aucune.", dD: "Elles forment l'enveloppe extérieure." }
                 },
-                playground: { title: "Jeu Libre", desc: "Crée jusqu'à 3 formes. Sélectionne un sommet pour l'analyser." }
+                playground: { title: "Jeu Libre", desc: "Crée de nouvelles formes. Si l'espace manque, utilise Supprimer." },
+                toast: "Plus de place ! Double-cliquez sur un sommet ou utilisez le panneau pour supprimer une forme."
             },
             en: {
                 title: "QuadForge", subtitle: "Inquiry & Discovery",
                 tabs: { guide: "📖 Guide", playground: "🎮 Playground", dok1: "🎓 Discovery", dok2: "🚀 Exploration", dok3: "👑 Mastery" },
-                lbl: { par: "Parallel Pairs:", rights: "Right Angles:", eq: "Equal Sides:", back: "Back", addShape: "+ Shape", diag: "⤡ Diagonals", goals: "Goals:" },
-                modLbl: { sides: "Sides:", angles: "Angles:", par: "Parallel:", diag: "Diagonals:" },
+                lbl: { par: "Parallel Pairs:", rights: "Right Angles:", eq: "Equal Sides:", back: "Back to Missions", addShape: "+ Add Shape", diag: "⤡ Diagonals", clear: "🗑️ Clear All", remove: "🗑️ Remove Selected", goals: "Mission Objectives:", lvl1: "Level 1", lvl2: "Level 2", lvl3: "Level 3", prev: "Prev", next: "Next" },
+                modLbl: { sides: "Sides", angles: "Angles", par: "Parallels", diag: "Diagonals" },
                 val: { no: "No", none: "None", all: "All 4", opp2: "2 Opposite Pairs", opp1: "1 Opposite Pair", adj2: "2 Adjacent Pairs", adj1: "1 Adjacent Pair" },
-                status: { prog: "🛠️ In Progress...", succ: "🎉 SUCCESS! Mission completed!" },
-                guide: { title: "Shape Dictionary", desc: "Explore shapes. A checkmark (✓) appears when you discover a shape in the playground!", gloss: "Glossary" },
-                glossary: { title: "Glossary", desc: "Important geometric terms.", terms: [
-                    { t: "Vertex", d: "The meeting point of two sides (the corner)." },
-                    { t: "Parallel Lines", d: "Lines that stay the same distance apart and never cross." },
-                    { t: "Right Angle", d: "A perfect 90° angle, like the corner of a book." },
-                    { t: "Diagonal", d: "A straight line connecting two opposite corners." },
+                status: { prog: "🛠️ Analyzing shape...", succ: "🎉 Shape Validated! Mission completed!" },
+                guide: { title: "Shape Dictionary", desc: "Explore technical shapes. A checkmark (✓) appears when you forge a shape in the playground!", gloss: "Glossary" },
+                glossary: { title: "Technical Glossary", desc: "Important geometric terms for forging quadrilaterals.", terms: [
+                    { t: "Vertex", d: "The meeting point of two sides (the corner of the shape)." },
+                    { t: "Parallel Lines", d: "Lines that stay the exact same distance apart and never cross, indicated by arrows." },
+                    { t: "Right Angle", d: "A perfect 90° angle, indicated by a red square marker in the guide." },
+                    { t: "Diagonal", d: "A dashed orange line connecting two opposite corners." },
                     { t: "Concave", d: "A shape that 'caves in' with an interior angle greater than 180°." },
-                    { t: "Convex", d: "A shape where all corners point outward." }
+                    { t: "Convex", d: "A standard shape where all corners point outward." }
                 ]},
                 shapes: {
-                    square: { n: "Square", dS: "4 equal.", dA: "4 right (90°).", dP: "2 pairs.", dD: "Bisect at 90°." },
-                    rect: { n: "Rectangle", dS: "Opposite equal.", dA: "4 right (90°).", dP: "2 pairs.", dD: "Equal length, bisect." },
-                    rhombus: { n: "Rhombus", dS: "4 equal.", dA: "Opposite equal.", dP: "2 pairs.", dD: "Bisect at 90°." },
-                    para: { n: "Parallelogram", dS: "Opposite equal.", dA: "Opposite equal.", dP: "2 pairs.", dD: "Bisect each other." },
-                    isoTrap: { n: "Isosceles Trapezoid", dS: "1 opposite pair equal.", dA: "Base angles equal.", dP: "Exactly 1 pair.", dD: "Equal length." },
-                    rightTrap: { n: "Right Trapezoid", dS: "Usually unequal.", dA: "Exactly 2 right angles.", dP: "Exactly 1 pair.", dD: "Intersect." },
-                    trap: { n: "Trapezoid", dS: "Unequal.", dA: "Sum 360°.", dP: "Exactly 1 pair.", dD: "Intersect." },
-                    kite: { n: "Kite", dS: "2 adjacent pairs equal.", dA: "1 opposite pair equal.", dP: "None.", dD: "Cross at 90°." },
-                    dart: { n: "Arrowhead", dS: "2 adjacent pairs equal.", dA: "One reflex angle (>180°).", dP: "None.", dD: "One outside." },
-                    irreg: { n: "Irregular", dS: "All different.", dA: "All different.", dP: "None.", dD: "Intersect." },
-                    crossed: { n: "Crossed", dS: "Lines intersect.", dA: "Not applicable.", dP: "None.", dD: "Form the boundary." }
+                    square: { n: "Square", desc: "A perfectly balanced geometric form. All four of its boundaries share the exact same length, meeting at four perfect 90-degree corners. Opposite sides will never intersect.", dS: "4 equal sides (single ticks).", dA: "4 right angles (90°).", dP: "2 parallel pairs (arrows).", dD: "They bisect each other at a perfect 90° angle." },
+                    rect: { n: "Rectangle", desc: "The foundational shape of architecture. While it maintains four perfect right angles, only its opposing sides match in length, stretching it out in one direction.", dS: "Opposite sides equal.", dA: "4 right angles (90°).", dP: "2 parallel pairs (arrows).", dD: "Equal length, bisecting each other." },
+                    rhombus: { n: "Rhombus", desc: "A pushed-over square. It retains the property of having all four sides perfectly equal in length, but its angles have shifted away from 90 degrees.", dS: "4 equal sides.", dA: "Opposite angles are equal.", dP: "2 parallel pairs.", dD: "Bisect each other at a perfect 90° angle." },
+                    para: { n: "Parallelogram", desc: "A slanted structure representing motion. The pairs of opposite sides are perfectly parallel and equal in length, but no right angles remain.", dS: "Opposite sides equal.", dA: "Opposite angles are equal.", dP: "2 parallel pairs.", dD: "Bisect each other at their midpoints." },
+                    isoTrap: { n: "Isosceles Trapezoid", desc: "A stable, symmetrical base. It features exactly one pair of parallel sides (the top and bottom), while the two slanted sides share the exact same length.", dS: "1 opposite pair equal.", dA: "Base angles are equal.", dP: "Exactly 1 pair.", dD: "Both diagonals are the exact same length." },
+                    rightTrap: { n: "Right Trapezoid", desc: "An asymmetrical hybrid. It maintains one pair of parallel lines, but features a completely flat vertical wall creating exactly two right angles.", dS: "Usually unequal lengths.", dA: "Exactly 2 right angles.", dP: "Exactly 1 pair.", dD: "Simply intersect." },
+                    trap: { n: "Trapezoid", desc: "The most basic parallel shape. It has only a single pair of parallel lines (ceiling and floor). All other symmetry is lost.", dS: "All lengths can differ.", dA: "Sum up to 360°.", dP: "Exactly 1 pair.", dD: "Simply intersect." },
+                    kite: { n: "Kite", desc: "An aerodynamic form built on adjacent symmetry. The sides touching each other in pairs share lengths, creating a shape with no parallel lines.", dS: "2 adjacent pairs equal.", dA: "1 opposite pair of angles is equal.", dP: "No parallel lines.", dD: "Cross at exactly 90° (marked red)." },
+                    dart: { n: "Arrowhead", desc: "An aggressive, concave shape. Like the kite, adjacent sides are equal, but one of its vertices collapses inward, creating a reflex angle.", dS: "2 adjacent pairs equal.", dA: "One reflex angle (>180°).", dP: "None.", dD: "One diagonal falls outside the shape." },
+                    irreg: { n: "Irregular", desc: "Absolute chaos. A quadrilateral where no sides are equal, no angles are 90 degrees, and no lines are parallel. Completely asymmetrical.", dS: "All different.", dA: "All different.", dP: "None.", dD: "Intersect with no special properties." },
+                    crossed: { n: "Crossed", desc: "A geometric anomaly. The boundary lines intersect themselves, creating a complex hourglass-like structure instead of a standard polygon.", dS: "Lines intersect themselves.", dA: "Not technically applicable.", dP: "None.", dD: "They form the outer boundary." }
                 },
-                playground: { title: "Playground", desc: "Build up to 3 shapes. Click a vertex to analyze." }
+                playground: { title: "Playground", desc: "Forge new shapes. If out of space, use Remove." },
+                toast: "Not enough room! Double-click a vertex or use the panel to remove a shape."
             }
         };
 
-        // --- Missions Configuration ---
+        // --- Missions Configuration (Mysterious Narrative) ---
         const missions = [
-            { id: 'd1', dok: 'dok1', en: "1. The Square", fr: "1. Le Carré", req: [
-                { en: "4 Equal Sides", fr: "4 Côtés Égaux", fn: d => d.eqKey === 'all' },
-                { en: "4 Right Angles", fr: "4 Angles Droits", fn: d => d.rights === 4 }
-            ]},
-            { id: 'd2', dok: 'dok1', en: "2. The Rectangle", fr: "2. Le Rectangle", req: [
-                { en: "4 Right Angles", fr: "4 Angles Droits", fn: d => d.rights === 4 },
-                { en: "NOT all sides equal", fr: "Pas tous égaux", fn: d => d.eqKey !== 'all' }
-            ]},
-            { id: 'd3', dok: 'dok1', en: "3. The Rhombus", fr: "3. Le Losange", req: [
-                { en: "4 Equal Sides", fr: "4 Côtés Égaux", fn: d => d.eqKey === 'all' },
-                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }
-            ]},
-            { id: 'd4', dok: 'dok1', en: "4. The Parallelogram", fr: "4. Parallélogramme", req: [
-                { en: "2 Parallel Pairs", fr: "2 Paires Parallèles", fn: d => d.par === 2 },
-                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 },
-                { en: "NOT all sides equal", fr: "Pas tous égaux", fn: d => d.eqKey !== 'all' }
-            ]},
-            { id: 'd5', dok: 'dok1', en: "5. The Trapezoid", fr: "5. Le Trapèze", req: [
-                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 }
-            ]},
-            { id: 'd6', dok: 'dok1', en: "6. The Kite", fr: "6. Le Cerf-volant", req: [
-                { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' },
-                { en: "0 Parallel Lines", fr: "0 Parallèle", fn: d => d.par === 0 },
-                { en: "Convex (Points Outward)", fr: "Convexe", fn: d => !d.concave }
-            ]},
-            { id: 'd7', dok: 'dok1', en: "7. The Arrowhead", fr: "7. La Fléchette", req: [
-                { en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave }
-            ]},
+            // DOK 1 (Recall)
+            { id: 'd1', dok: 'dok1', en: "1. The Perfect Form", fr: "1. La Forme Parfaite",
+              desc: { en: "A scholar needs your help recovering the most rigid and balanced form. It must be absolutely symmetrical in every way.", fr: "Un érudit cherche la forme la plus rigide et équilibrée. Elle doit être absolument symétrique." },
+              req: [{ en: "4 Equal Sides", fr: "4 Côtés Égaux", fn: d => d.eqKey === 'all' }, { en: "4 Right Angles", fr: "4 Angles Droits", fn: d => d.rights === 4 }] },
+            { id: 'd2', dok: 'dok1', en: "2. The Builder's Block", fr: "2. Le Bloc du Bâtisseur",
+              desc: { en: "Architects rely on this sturdy foundation. It has perfect corners, but stretches out longer than it is tall.", fr: "Les architectes utilisent cette fondation. Elle a des coins parfaits, mais s'étire en longueur." },
+              req: [{ en: "4 Right Angles", fr: "4 Angles Droits", fn: d => d.rights === 4 }, { en: "NOT all sides equal", fr: "Pas tous égaux", fn: d => d.eqKey !== 'all' }] },
+            { id: 'd3', dok: 'dok1', en: "3. The Tilted Jewel", fr: "3. Le Joyau Incliné",
+              desc: { en: "Take the perfect square and push it. Keep the sides identical, but lose all the rigid 90-degree corners.", fr: "Prenez un carré et inclinez-le. Gardez les côtés identiques, mais perdez les angles droits." },
+              req: [{ en: "4 Equal Sides", fr: "4 Côtés Égaux", fn: d => d.eqKey === 'all' }, { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }] },
+            { id: 'd4', dok: 'dok1', en: "4. The Sliding Floor", fr: "4. Le Sol Glissant",
+              desc: { en: "Create a structure that feels like it's in motion. The opposite sides align, but there are no right angles.", fr: "Créez une structure en mouvement. Les côtés opposés s'alignent, sans angle droit." },
+              req: [{ en: "2 Parallel Pairs", fr: "2 Paires Parallèles", fn: d => d.par === 2 }, { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }, { en: "NOT all sides equal", fr: "Pas tous égaux", fn: d => d.eqKey !== 'all' }] },
+            { id: 'd5', dok: 'dok1', en: "5. The Sloped Bridge", fr: "5. Le Pont Incliné",
+              desc: { en: "Build a bridge with a flat road and a flat ceiling, but let the other sides do whatever they want.", fr: "Construisez un pont avec un plafond et un sol plats, mais laissez le reste asymétrique." },
+              req: [{ en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 }] },
+            { id: 'd6', dok: 'dok1', en: "6. Catch the Wind", fr: "6. Attraper le Vent",
+              desc: { en: "Forge an aerodynamic shape. It needs adjacent symmetry to fly, but absolutely no parallel lines.", fr: "Forgez une forme aérodynamique avec une symétrie adjacente, mais aucune ligne parallèle." },
+              req: [{ en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' }, { en: "0 Parallel Lines", fr: "0 Parallèle", fn: d => d.par === 0 }, { en: "Convex (Points Outward)", fr: "Convexe", fn: d => !d.concave }] },
+            { id: 'd7', dok: 'dok1', en: "7. The Collapsed Core", fr: "7. Le Cœur Effondré",
+              desc: { en: "Something went wrong. Push one of the vertices inward so the shape points into itself.", fr: "Quelque chose a mal tourné. Poussez un sommet vers l'intérieur pour créer une concavité." },
+              req: [{ en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave }] },
 
-            { id: 'e1', dok: 'dok2', en: "Parallel without 90°", fr: "Parallèles sans 90°", req: [
-                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 },
-                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }
-            ]},
-            { id: 'e2', dok: 'dok2', en: "Equal but Skewed", fr: "Égaux mais Penché", req: [
-                { en: "2 Opposite Pairs Equal", fr: "2 Paires Opposées Égales", fn: d => d.eqKey === 'opp2' },
-                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }
-            ]},
+            // DOK 2 (Skill/Concept)
+            { id: 'e1', dok: 'dok2', en: "1. The Half-Bridge", fr: "1. Le Demi-Pont",
+              desc: { en: "A strange trapezoid. Keep the parallel floor and ceiling, but make sure no corners are perfectly straight.", fr: "Un trapèze étrange. Gardez le sol parallèle, mais assurez-vous qu'aucun coin n'est droit." },
+              req: [{ en: "Exactly 1 Parallel Pair", fr: "Exactement 1 Paire Parallèle", fn: d => d.par === 1 }, { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }] },
+            { id: 'e2', dok: 'dok2', en: "2. Balanced but Broken", fr: "2. Équilibré mais Brisé",
+              desc: { en: "Opposite sides must match in length, but the rigid 90-degree corners must be entirely destroyed.", fr: "Les côtés opposés doivent être égaux, mais les angles droits doivent être détruits." },
+              req: [{ en: "2 Opposite Pairs Equal", fr: "2 Paires Opposées Égales", fn: d => d.eqKey === 'opp2' }, { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }] },
+            { id: 'e3', dok: 'dok2', en: "3. The Lone Corner", fr: "3. Le Coin Solitaire",
+              desc: { en: "Can you forge a shape that possesses exactly one perfect 90-degree corner, and no more?", fr: "Pouvez-vous forger une forme qui possède exactement un seul angle de 90 degrés ?" },
+              req: [{ en: "Exactly 1 Right Angle", fr: "Exactement 1 Angle Droit", fn: d => d.rights === 1 }] },
+            { id: 'e4', dok: 'dok2', en: "4. The Hourglass Anomaly", fr: "4. L'Anomalie du Sablier",
+              desc: { en: "Break the rules of physics. Drag the vertices until the boundary lines intersect themselves.", fr: "Brisez les règles. Déplacez les sommets jusqu'à ce que les lignes se croisent." },
+              req: [{ en: "Lines Intersect", fr: "Lignes Croisées", fn: d => d.key === 'crossed' }] },
+            { id: 'e5', dok: 'dok2', en: "5. Adjacent Chaos", fr: "5. Chaos Adjacent",
+              desc: { en: "Sides that touch must be identical in length, but no lines may run parallel to each other.", fr: "Les côtés qui se touchent doivent être identiques, mais aucune ligne ne doit être parallèle." },
+              req: [{ en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' }, { en: "0 Parallel Lines", fr: "0 Ligne Parallèle", fn: d => d.par === 0 }] },
+            { id: 'e6', dok: 'dok2', en: "6. The Cave", fr: "6. La Grotte",
+              desc: { en: "Simple instructions: Make the geometry cave in on itself.", fr: "Instructions simples : faites en sorte que la géométrie s'effondre sur elle-même." },
+              req: [{ en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave }] },
+            { id: 'e7', dok: 'dok2', en: "7. The Uneven Walls", fr: "7. Les Murs Inégaux",
+              desc: { en: "Forge exactly two right angles, but completely prevent any lines from being parallel.", fr: "Forgez exactement deux angles droits, mais empêchez toute ligne d'être parallèle." },
+              req: [{ en: "Exactly 2 Right Angles", fr: "Exactement 2 Angles Droits", fn: d => d.rights === 2 }, { en: "0 Parallel Lines", fr: "0 Ligne Parallèle", fn: d => d.par === 0 }] },
+            { id: 'e8', dok: 'dok2', en: "8. The Half-Mirror", fr: "8. Le Demi-Miroir",
+              desc: { en: "Ensure that only one set of opposite sides mirrors the other in length. The rest must differ.", fr: "Assurez-vous qu'un seul ensemble de côtés opposés ait la même longueur." },
+              req: [{ en: "Exactly 1 Opposite Pair Equal", fr: "Exactement 1 Paire Opposée Égale", fn: d => d.eqKey === 'opp1' }] },
+            { id: 'e9', dok: 'dok2', en: "9. True Irregularity", fr: "9. Véritable Irrégularité",
+              desc: { en: "Avoid all symmetry. No parallel lines, no equal sides, no right angles, and keep it convex.", fr: "Évitez toute symétrie. Pas de parallèles, pas de côtés égaux, pas d'angles droits." },
+              req: [{ en: "Irregular Shape", fr: "Forme Irrégulière", fn: d => d.key === 'irreg' }, { en: "Convex (Points Outward)", fr: "Convexe", fn: d => !d.concave }] },
 
-            { id: 'm1', dok: 'dok3', en: "Right Trapezoid", fr: "Trapèze Rectangle", req: [
-                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 },
-                { en: "Exactly 2 Right Angles", fr: "Exactement 2 Angles Droits", fn: d => d.rights === 2 }
-            ]},
-            { id: 'm2', dok: 'dok3', en: "Isosceles Trapezoid", fr: "Trapèze Isocèle", req: [
-                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 },
-                { en: "1 Opposite Pair Equal", fr: "1 Paire Opposée Égale", fn: d => d.eqKey === 'opp1' }
-            ]},
-            { id: 'm3', dok: 'dok3', en: "Asymmetric Concave", fr: "Concave Asymétrique", req: [
-                { en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave },
-                { en: "0 Equal Sides", fr: "0 Côté Égal", fn: d => d.eqKey === 'none' }
-            ]},
-            { id: 'm4', dok: 'dok3', en: "90° Kite", fr: "Cerf-volant 90°", req: [
-                { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' },
-                { en: "Exactly 1 Right Angle", fr: "Exactement 1 Angle Droit", fn: d => d.rights === 1 }
-            ]}
+            // DOK 3 (Mastery)
+            { id: 'm1', dok: 'dok3', en: "1. The Steep Cliff", fr: "1. La Falaise Abrupte",
+              desc: { en: "Combine one parallel pair with a sheer vertical drop creating exactly two right angles.", fr: "Combinez une paire parallèle avec une chute verticale créant exactement deux angles droits." },
+              req: [{ en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 }, { en: "Exactly 2 Right Angles", fr: "Exactement 2 Angles Droits", fn: d => d.rights === 2 }] },
+            { id: 'm2', dok: 'dok3', en: "2. Symmetrical Pyramid Base", fr: "2. Base de Pyramide Symétrique",
+              desc: { en: "It needs to hold weight. One parallel pair, and perfectly equal slanted opposite sides.", fr: "Une paire parallèle et des côtés opposés inclinés parfaitement égaux." },
+              req: [{ en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 }, { en: "1 Opposite Pair Equal", fr: "1 Paire Opposée Égale", fn: d => d.eqKey === 'opp1' }] },
+            { id: 'm3', dok: 'dok3', en: "3. The Jagged Shard", fr: "3. L'Éclat Déchiqueté",
+              desc: { en: "An advanced asymmetrical concave form. It must cave inward, yet have absolutely no equal sides.", fr: "Elle doit être concave, mais n'avoir absolument aucun côté de même longueur." },
+              req: [{ en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave }, { en: "0 Equal Sides", fr: "0 Côté Égal", fn: d => d.eqKey === 'none' }] },
+            { id: 'm4', dok: 'dok3', en: "4. The Precision Kite", fr: "4. Le Cerf-volant de Précision",
+              desc: { en: "A standard kite with adjacent sides equal, but it must contain exactly one 90-degree corner.", fr: "Un cerf-volant standard, mais il doit contenir exactement un angle de 90 degrés." },
+              req: [{ en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' }, { en: "Exactly 1 Right Angle", fr: "Exactement 1 Angle Droit", fn: d => d.rights === 1 }] },
+            { id: 'm5', dok: 'dok3', en: "5. The Twisted Ribbon", fr: "5. Le Ruban Torsadé",
+              desc: { en: "Cross the boundary lines, but somehow maintain two pairs of opposite sides being equal in length.", fr: "Croisez les lignes, mais maintenez deux paires de côtés opposés de même longueur." },
+              req: [{ en: "Lines Intersect", fr: "Lignes Croisées", fn: d => d.key === 'crossed' }, { en: "2 Opposite Pairs Equal", fr: "2 Paires Opposées Égales", fn: d => Math.abs(d.L[0]-d.L[2])<2 && Math.abs(d.L[1]-d.L[3])<2 }] },
+            { id: 'm6', dok: 'dok3', en: "6. The Symmetrical Dart", fr: "6. La Fléchette Symétrique",
+              desc: { en: "A concave form that looks like a weapon. Ensure the adjacent pairs mirror each other perfectly.", fr: "Une forme concave. Assurez-vous que les paires adjacentes se reflètent parfaitement." },
+              req: [{ en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave }, { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' }] },
+            { id: 'm7', dok: 'dok3', en: "7. The Crooked House", fr: "7. La Maison Penchée",
+              desc: { en: "Two right angles form a base, adjacent equal sides form a roof, but the structure has no parallel beams.", fr: "Deux angles droits, des côtés adjacents égaux, mais aucune poutre parallèle." },
+              req: [{ en: "Exactly 2 Right Angles", fr: "Exactement 2 Angles Droits", fn: d => d.rights === 2 }, { en: "No Parallel Lines", fr: "Aucune Ligne Parallèle", fn: d => d.par === 0 }, { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' }] },
+            { id: 'm8', dok: 'dok3', en: "8. Formless Void", fr: "8. Vide Informel",
+              desc: { en: "A convex shape stripped of all geometric identity. No parallel lines, no equal sides, no right angles.", fr: "Une forme convexe sans aucune identité géométrique. Aucun trait particulier." },
+              req: [{ en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }, { en: "0 Parallel Lines", fr: "0 Ligne Parallèle", fn: d => d.par === 0 }, { en: "0 Equal Sides", fr: "0 Côté Égal", fn: d => d.eqKey === 'none' }, { en: "Convex", fr: "Convexe", fn: d => !d.concave && d.key !== 'crossed' }] },
+            { id: 'm9', dok: 'dok3', en: "9. The Master's Illusion", fr: "9. L'Illusion du Maître",
+              desc: { en: "Create a shape with four perfect right angles, but deliberately avoid making all four sides equal.", fr: "Créez une forme avec quatre angles droits parfaits, mais évitez de rendre les quatre côtés égaux." },
+              req: [{ en: "4 Right Angles", fr: "4 Angles Droits", fn: d => d.rights === 4 }, { en: "Not a Square", fr: "Pas un Carré", fn: d => d.eqKey !== 'all' }] }
         ];
 
         // --- State ---
-        let lang = 'en'; // Default to English
+        let lang = 'en'; 
         let tab = 'guide';
         let actMission = null;
         let progress = {};
@@ -360,12 +468,19 @@
             }
         });
 
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
         function initApp(l) {
             lang = l || 'en'; 
             document.getElementById('splash').style.opacity = '0';
             missions.forEach(m => { if(progress[m.id] === undefined) progress[m.id] = false; });
             setTimeout(() => { 
-                document.getElementById('splash').style.display = 'none'; // CRUCIAL FIX: physically removes splash from the layout!
+                document.getElementById('splash').style.display = 'none'; 
                 document.getElementById('app').style.display = 'flex'; 
                 buildUI(); 
                 setTab('guide'); 
@@ -373,6 +488,24 @@
         }
 
         function toggleLang() { lang = lang === 'en' ? 'fr' : 'en'; buildUI(); if (tab === 'playground' || tab === 'canvas') recalcAndDraw(); }
+
+        function updateScoreboard() {
+            let dok1 = 0, dok2 = 0, dok3 = 0;
+            missions.forEach(m => {
+                if(progress[m.id]) {
+                    if(m.dok === 'dok1') dok1++;
+                    if(m.dok === 'dok2') dok2++;
+                    if(m.dok === 'dok3') dok3++;
+                }
+            });
+            document.getElementById('sb-dok1').innerText = `${dok1}/7`;
+            document.getElementById('sb-dok2').innerText = `${dok2}/9`;
+            document.getElementById('sb-dok3').innerText = `${dok3}/9`;
+            
+            document.getElementById('sb-lbl-lvl1').innerText = tData[lang].lbl.lvl1;
+            document.getElementById('sb-lbl-lvl2').innerText = tData[lang].lbl.lvl2;
+            document.getElementById('sb-lbl-lvl3').innerText = tData[lang].lbl.lvl3;
+        }
 
         function buildUI() {
             const t = tData[lang];
@@ -390,23 +523,26 @@
             document.getElementById('lbl-rights').innerText = t.lbl.rights;
             document.getElementById('lbl-eq').innerText = t.lbl.eq; 
             document.getElementById('lbl-back').innerText = t.lbl.back;
-            document.getElementById('btn-add-shape').innerText = `${t.lbl.addShape} (${shapes.length}/3)`;
+            document.getElementById('btn-add-shape').innerText = t.lbl.addShape;
             document.getElementById('btn-toggle-diag').innerText = t.lbl.diag;
+            document.getElementById('btn-clear').innerText = t.lbl.clear;
+            document.getElementById('btn-remove-shape').innerText = t.lbl.remove;
             document.getElementById('lbl-goals').innerText = t.lbl.goals;
+            document.getElementById('lbl-prev').innerText = t.lbl.prev;
+            document.getElementById('lbl-next').innerText = t.lbl.next;
 
-            // Guide Grid 
+            // Guide Grid - Smaller Cards
             const g = document.getElementById('guide-grid'); g.innerHTML = '';
             ['square', 'rect', 'rhombus', 'para', 'isoTrap', 'rightTrap', 'trap', 'kite', 'dart', 'irreg', 'crossed'].forEach(k => {
                 const isExplored = exploredShapes.has(k);
-                const badge = isExplored ? `<div class="absolute top-2 right-2 bg-emerald-100 text-emerald-600 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-sm font-bold">✓</div>` : ``;
-                g.innerHTML += `<div onclick="openModal('${k}')" class="relative bg-slate-50 border-2 border-slate-100 rounded-xl p-4 flex flex-col items-center text-center hover:shadow-lg hover:border-cyan-300 transition cursor-pointer group">
+                const badge = isExplored ? `<div class="absolute top-2 right-2 bg-emerald-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md font-bold z-10 border-2 border-white">✓</div>` : ``;
+                g.innerHTML += `<div onclick="openModal('${k}')" class="relative bg-white rounded-xl flex flex-col items-center text-center hover:scale-105 transition cursor-pointer group shadow-sm border border-slate-100 p-2">
                     ${badge}
-                    <div class="w-16 h-16 text-cyan-500 mb-2 group-hover:scale-110 transition shape-icon">${svgs[k]}</div>
-                    <h3 class="font-bold text-slate-800">${t.shapes[k].n}</h3>
+                    <div class="w-12 h-12 text-cyan-500 mb-2 shape-icon">${svgs[k]}</div>
+                    <h3 class="font-bold text-slate-700 text-xs px-2 py-1 bg-slate-50 rounded-full w-full truncate">${t.shapes[k].n}</h3>
                 </div>`;
             });
 
-            // Dashboards
             if(tab === 'dok1' || tab === 'dok2' || tab === 'dok3') buildDashGrid(tab);
             
             if(actMission) {
@@ -417,6 +553,8 @@
                 document.getElementById('panel-title').innerText = t.playground.title;
                 document.getElementById('panel-desc').innerText = t.playground.desc;
             }
+
+            updateScoreboard();
         }
 
         function buildDashGrid(dok) {
@@ -428,7 +566,7 @@
             missions.filter(m => m.dok === dok).forEach(m => {
                 const isDone = progress[m.id]; 
                 const bg = isDone ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-200';
-                g.innerHTML += `<div onclick="startMission('${m.id}')" class="${bg} border-2 rounded-xl p-4 cursor-pointer hover:shadow-md transition flex flex-col group"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800 group-hover:text-cyan-600">${m[lang]}</h4><span>${isDone?'✅':'🔒'}</span></div><button class="mt-auto w-full py-1.5 text-sm rounded bg-slate-100 text-slate-600 font-bold group-hover:bg-cyan-100 group-hover:text-cyan-700 transition">▶ Play</button></div>`;
+                g.innerHTML += `<div onclick="startMission('${m.id}')" class="${bg} border-2 rounded-xl p-4 cursor-pointer hover:shadow-md transition flex flex-col group"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800 group-hover:text-cyan-600 leading-tight">${m[lang]}</h4><span>${isDone?'✅':'🔒'}</span></div><p class="text-xs text-slate-500 mb-3">${m.desc[lang]}</p><button class="mt-auto w-full py-1.5 text-sm rounded bg-slate-100 text-slate-600 font-bold group-hover:bg-cyan-100 group-hover:text-cyan-700 transition">▶ Play</button></div>`;
             });
         }
 
@@ -447,12 +585,14 @@
             document.getElementById('side-panel').classList.add('hidden');
             document.getElementById('btn-back').classList.add('hidden'); 
             document.getElementById('btn-add-shape').classList.add('hidden');
+            document.getElementById('btn-clear').classList.add('hidden');
             document.getElementById('telemetry-box').classList.add('hidden'); 
             document.getElementById('mission-criteria-box').classList.add('hidden');
             document.getElementById('mission-status-box').classList.add('hidden');
+            document.getElementById('mission-nav').classList.add('hidden');
 
             if (tab === 'guide') { 
-                buildUI(); // Refresh checkmarks
+                buildUI(); 
                 document.getElementById('view-guide').classList.remove('hidden'); 
             } 
             else if (tab.startsWith('dok')) { 
@@ -463,6 +603,7 @@
                 document.getElementById('view-canvas').classList.remove('hidden'); 
                 document.getElementById('side-panel').classList.remove('hidden');
                 document.getElementById('btn-add-shape').classList.remove('hidden'); 
+                document.getElementById('btn-clear').classList.remove('hidden');
                 document.getElementById('telemetry-box').classList.remove('hidden');
                 buildUI(); 
                 recalcAndDraw();
@@ -471,7 +612,7 @@
 
         function startMission(id) {
             tab = 'canvas'; 
-            actMission = id; shapes = [ randomizePts() ]; actShape = 0;
+            actMission = id; shapes = [ initSquare() ]; actShape = 0;
             
             ['guide', 'playground', 'dok1', 'dok2', 'dok3'].forEach(k => {
                 const el = document.getElementById('tab-'+k);
@@ -489,6 +630,7 @@
             document.getElementById('btn-back').classList.remove('hidden'); 
             document.getElementById('mission-criteria-box').classList.remove('hidden');
             document.getElementById('mission-status-box').classList.remove('hidden');
+            document.getElementById('mission-nav').classList.remove('hidden');
             buildUI(); recalcAndDraw();
         }
 
@@ -497,25 +639,75 @@
             setTab(t); 
         }
 
+        function navMission(dir) {
+            if(!actMission) return;
+            const curIdx = missions.findIndex(m => m.id === actMission);
+            const newIdx = curIdx + dir;
+            if (newIdx >= 0 && newIdx < missions.length) {
+                startMission(missions[newIdx].id);
+            }
+        }
+
         function toggleDiagonals() { showDiag = !showDiag; recalcAndDraw(); }
         
+        // Smart Placement Algorithm
+        function getEmptySpot() {
+            const cont = document.getElementById('canvas-container');
+            const r = cont.getBoundingClientRect();
+            const w = r.width, h = r.height;
+            const size = 6 * GRID; // 240px
+
+            for(let y = GRID; y <= h - size; y += GRID) {
+                for(let x = GRID; x <= w - size; x += GRID) {
+                    let overlap = false;
+                    for(let s of shapes) {
+                        let mx = Math.min(...s.map(p=>p.x)), Mx = Math.max(...s.map(p=>p.x));
+                        let my = Math.min(...s.map(p=>p.y)), My = Math.max(...s.map(p=>p.y));
+                        // AABB collision
+                        if(x < Mx && x + size > mx && y < My && y + size > my) {
+                            overlap = true; break;
+                        }
+                    }
+                    if(!overlap) return {x, y};
+                }
+            }
+            return null;
+        }
+
         function addShape() { 
-            if(shapes.length < 3) { 
-                shapes.push(initSquare(true)); 
+            const spot = getEmptySpot();
+            if(spot) {
+                shapes.push([
+                    {x:spot.x, y:spot.y}, 
+                    {x:spot.x+160, y:spot.y}, 
+                    {x:spot.x+160, y:spot.y+160}, 
+                    {x:spot.x, y:spot.y+160}
+                ]);
                 actShape = shapes.length-1; 
                 buildUI(); 
                 recalcAndDraw(); 
-            } 
+            } else {
+                showToast(tData[lang].toast);
+            }
+        }
+
+        function removeActiveShape() {
+            if (shapes.length > 0) {
+                shapes.splice(actShape, 1);
+                actShape = shapes.length > 0 ? shapes.length - 1 : -1;
+                recalcAndDraw();
+            }
+        }
+
+        function clearShapes() {
+            shapes = [];
+            actShape = -1;
+            recalcAndDraw();
         }
 
         function initSquare(offset = false) { 
             const off = offset ? shapes.length * 40 : 0;
-            return [{x:160+off,y:120+off}, {x:320+off,y:120+off}, {x:320+off,y:280+off}, {x:160+off,y:280+off}]; 
-        }
-        
-        function randomizePts() {
-            const r = () => Math.floor((Math.random() * 300 + 80)/GRID)*GRID;
-            return [{x:r(),y:r()},{x:r()+160,y:r()},{x:r()+160,y:r()+160},{x:r(),y:r()+160}];
+            return [{x:120+off,y:120+off}, {x:280+off,y:120+off}, {x:280+off,y:280+off}, {x:120+off,y:280+off}]; 
         }
 
         // --- Math & Validator ---
@@ -609,7 +801,7 @@
             const m = document.getElementById('modal-overlay');
             
             document.getElementById('modal-title').innerText = s.n; 
-            document.getElementById('modal-desc').innerText = "";
+            document.getElementById('modal-desc').innerText = s.desc;
             document.getElementById('modal-icon').innerHTML = svgs[k];
             
             document.getElementById('modal-props').classList.remove('hidden'); 
@@ -617,7 +809,7 @@
             
             ['sides','angles','par','diag'].forEach(p => { 
                 document.getElementById('mod-lbl-'+p).innerText = tData[lang].modLbl[p]; 
-                document.getElementById('modal-'+p).innerText = s['d'+p.charAt(0).toUpperCase()]; // Fix for correct properties mapping!
+                document.getElementById('modal-'+p).innerText = s['d'+p.charAt(0).toUpperCase()];
             });
             
             m.style.display = 'flex'; 
@@ -633,23 +825,28 @@
         // --- Render Engine ---
         function recalcAndDraw() {
             const gVert = document.getElementById('html-vertices'); 
-            
-            // 1. Efficiently Reconcile HTML Vertices (Do NOT destroy elements to keep dragging intact)
-            let totalVertices = shapes.reduce((acc, pts) => acc + pts.length, 0);
-            if (gVert.children.length !== totalVertices) {
-                gVert.innerHTML = '';
-                shapes.forEach((pts, sIdx) => {
-                    pts.forEach((p, i) => {
-                        const v = document.createElement('div');
-                        v.id = `v_${sIdx}_${i}`;
-                        v.dataset.s = sIdx; v.dataset.i = i; v.innerText = i+1;
-                        gVert.appendChild(v);
-                    });
-                });
-            }
-
             const svShapes = document.getElementById('svg-shapes'), svDiag = document.getElementById('svg-diagonals'), svAng = document.getElementById('svg-angles'), svLin = document.getElementById('svg-lines'), svTxt = document.getElementById('svg-texts');
+            
+            // Clean up and rebuild missing vertices efficiently
+            const existingIds = new Set();
+            shapes.forEach((pts, sIdx) => pts.forEach((_, i) => existingIds.add(`v_${sIdx}_${i}`)));
+            Array.from(gVert.children).forEach(child => { if(!existingIds.has(child.id)) child.remove(); });
+
+            shapes.forEach((pts, sIdx) => {
+                pts.forEach((p, i) => {
+                    let v = document.getElementById(`v_${sIdx}_${i}`);
+                    if(!v) {
+                        v = document.createElement('div');
+                        v.id = `v_${sIdx}_${i}`; v.dataset.s = sIdx; v.dataset.i = i; v.innerText = i+1;
+                        gVert.appendChild(v);
+                    }
+                });
+            });
+
             svShapes.innerHTML = ''; svDiag.innerHTML = ''; svAng.innerHTML = ''; svLin.innerHTML = ''; svTxt.innerHTML = '';
+            
+            // Hide telemetry buttons if no shapes
+            document.getElementById('telemetry-box').style.display = shapes.length > 0 && !actMission ? 'flex' : 'none';
 
             let actData = null;
 
@@ -683,13 +880,41 @@
                 const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 path.setAttribute('d', d); path.setAttribute('fill', hatch); svShapes.appendChild(path);
 
-                // Diagonals
+                // Diagonals & 90-degree Check
                 if (showDiag) {
                     [[0,2],[1,3]].forEach(pair => {
                         const dl = document.createElementNS("http://www.w3.org/2000/svg", "line");
                         dl.setAttribute('x1', pts[pair[0]].x); dl.setAttribute('y1', pts[pair[0]].y); dl.setAttribute('x2', pts[pair[1]].x); dl.setAttribute('y2', pts[pair[1]].y);
                         dl.setAttribute('stroke', '#cbd5e1'); dl.setAttribute('stroke-width', '2'); dl.setAttribute('stroke-dasharray', '4 4'); svDiag.appendChild(dl);
                     });
+
+                    // Angle check between diagonals
+                    const v1 = {x: pts[2].x - pts[0].x, y: pts[2].y - pts[0].y};
+                    const v2 = {x: pts[3].x - pts[1].x, y: pts[3].y - pts[1].y};
+                    const l1 = Math.hypot(v1.x, v1.y), l2 = Math.hypot(v2.x, v2.y);
+                    
+                    if (l1 > 0 && l2 > 0) {
+                        const dot = Math.abs(v1.x * v2.x + v1.y * v2.y);
+                        const angle = Math.acos(dot / (l1 * l2)) * 180 / Math.PI;
+                        
+                        if (angle > 87 && angle < 93) { // 90 deg diagonal intersection
+                            const den = (pts[0].x - pts[2].x) * (pts[1].y - pts[3].y) - (pts[0].y - pts[2].y) * (pts[1].x - pts[3].x);
+                            if (Math.abs(den) > 0.1) {
+                                const t = ((pts[0].x - pts[1].x) * (pts[1].y - pts[3].y) - (pts[0].y - pts[1].y) * (pts[1].x - pts[3].x)) / den;
+                                const px = pts[0].x + t * (pts[2].x - pts[0].x);
+                                const py = pts[0].y + t * (pts[2].y - pts[0].y);
+                                
+                                const angV1 = Math.atan2(v1.y, v1.x) * 180 / Math.PI;
+                                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                                rect.setAttribute('x', px); rect.setAttribute('y', py);
+                                rect.setAttribute('width', 18); rect.setAttribute('height', 18);
+                                rect.setAttribute('fill', 'rgba(239, 68, 68, 0.2)');
+                                rect.setAttribute('stroke', '#ef4444'); rect.setAttribute('stroke-width', '3');
+                                rect.setAttribute('transform', `rotate(${angV1} ${px} ${py})`);
+                                svAng.appendChild(rect);
+                            }
+                        }
+                    }
                 }
 
                 // Line Colors (Equal lengths)
@@ -747,18 +972,28 @@
                 document.getElementById('val-par').innerText = actData.par; document.getElementById('val-rights').innerText = actData.rights; document.getElementById('val-eq').innerText = tData[lang].val[actData.eqKey];
             }
 
-            // Update Mission UI
+            // Update Mission UI & Navigation Boundaries
             if(actMission && actData) {
-                const mDef = missions.find(m => m.id === actMission); const reqs = mDef.req;
+                const curIdx = missions.findIndex(m => m.id === actMission);
+                document.getElementById('btn-prev').disabled = curIdx === 0;
+                document.getElementById('btn-next').disabled = curIdx === missions.length - 1;
+                document.getElementById('btn-prev').style.opacity = curIdx === 0 ? "0.5" : "1";
+                document.getElementById('btn-next').style.opacity = curIdx === missions.length - 1 ? "0.5" : "1";
+
+                const mDef = missions[curIdx]; const reqs = mDef.req;
+                
+                document.getElementById('mission-lore').innerText = mDef.desc[lang];
+                
                 const list = document.getElementById('criteria-list'); list.innerHTML = '';
                 let passedAll = true;
+                
                 reqs.forEach(r => {
                     const met = r.fn(actData); if(!met) passedAll = false;
-                    list.innerHTML += `<li class="${met?'text-emerald-600':'text-slate-500'} flex items-center gap-2">${met?'✅':'⬜'} ${r[lang]}</li>`;
+                    list.innerHTML += `<li class="${met?'text-emerald-500 drop-shadow-sm':'text-slate-400 opacity-75'} flex items-center gap-3"><span class="text-xl">${met?'✅':'⬜'}</span> <span class="text-base">${r[lang]}</span></li>`;
                 });
 
                 const box = document.getElementById('mission-status-box'); const txt = document.getElementById('mission-status-text');
-                if(passedAll && !progress[actMission]) { progress[actMission] = true; fireConfetti(); }
+                if(passedAll && !progress[actMission]) { progress[actMission] = true; fireConfetti(); updateScoreboard(); }
                 if(passedAll) {
                     txt.innerText = tData[lang].status.succ;
                     if(!box.classList.contains('bg-emerald-100')) box.className = "mt-4 p-4 rounded-xl text-center font-bold border-2 bg-emerald-100 border-emerald-400 text-emerald-700 success-anim block";
@@ -781,7 +1016,20 @@
                 target.setPointerCapture(e.pointerId); 
                 e.preventDefault(); 
                 recalcAndDraw();
-            } 
+            } else {
+                actShape = -1; // Deselect shape if clicking background
+                recalcAndDraw();
+            }
+        });
+
+        cont.addEventListener('dblclick', e => { 
+            const target = e.target.closest('.vertex');
+            if (target) {
+                const s = parseInt(target.dataset.s);
+                shapes.splice(s, 1);
+                actShape = shapes.length > 0 ? shapes.length - 1 : -1;
+                recalcAndDraw();
+            }
         });
         
         cont.addEventListener('pointermove', e => {
