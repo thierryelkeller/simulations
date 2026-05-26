@@ -1,587 +1,800 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MétaQuad / QuadForge</title>
+    <title>QuadForge / MétaQuad</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Nunito', sans-serif; margin: 0; overflow: hidden; background-color: #f0fdf4; touch-action: none; }
+        body { font-family: 'Nunito', sans-serif; margin: 0; overflow-x: hidden; background-color: #f8fafc; }
         h1, h2, h3, .fredoka { font-family: 'Fredoka One', cursive; }
 
-        /* Splash Screen avec polygone lumineux animé */
+        /* Splash Screen & Mesmerizing Pointer */
         #splash {
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e3a8a);
+            background: linear-gradient(-45deg, #020617, #082f49, #064e3b, #1e1b4b);
             position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: white; transition: opacity 0.8s ease-in-out; overflow: hidden;
         }
+        #pointer-light {
+            position: absolute; width: 80vw; height: 80vw; border-radius: 50%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 60%);
+            pointer-events: none; transform: translate(-50%, -50%); z-index: 10; transition: opacity 0.3s;
+        }
 
-        #canvas-container { position: relative; width: 100%; height: 100%; background: #f8fafc; border-radius: 1.5rem; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); touch-action: none; }
+        /* Canvas & Grid */
+        #canvas-container { position: relative; width: 100%; height: 100%; background: #ffffff; border-radius: 1.5rem; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); touch-action: none; }
+        .grid-bg { background-image: radial-gradient(#94a3b8 3px, transparent 3px); background-size: 40px 40px; background-position: -1px -1px; opacity: 0.3; position: absolute; inset: 0; pointer-events: none; }
         
-        /* Grille magnétique (40x40) */
-        .grid-bg { background-image: radial-gradient(#94a3b8 2px, transparent 2px); background-size: 40px 40px; background-position: 0 0; opacity: 0.4; position: absolute; inset: 0; pointer-events: none; }
-        
-        .vertex { position: absolute; width: 40px; height: 40px; background: #3b82f6; border: 4px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); cursor: grab; z-index: 20; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); touch-action: none; transition: transform 0.1s; }
-        .vertex:active { cursor: grabbing; transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
-        
-        .tab-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; color: #64748b; transition: all 0.2s; white-space: nowrap; border: 2px solid transparent; }
+        .vertex { position: absolute; width: 32px; height: 32px; background: #06b6d4; border: 4px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); cursor: grab; z-index: 20; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); touch-action: none; transition: background-color 0.2s; }
+        .vertex:active { cursor: grabbing; transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+        .vertex.v-active { background: #f59e0b; border-color: #fffbeb; }
+
+        /* Tabs & UI */
+        .tab-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; color: #64748b; transition: all 0.2s; white-space: nowrap; border: 2px solid transparent; font-weight: bold; }
         .tab-btn:hover { background-color: #f1f5f9; }
-        .active-tab { background-color: #3b82f6; color: white; box-shadow: 0 4px 6px rgba(59,130,246,0.2); border-color: #2563eb; }
-        .active-tab:hover { background-color: #3b82f6; }
+        .active-tab { background-color: #06b6d4; color: white; box-shadow: 0 4px 6px rgba(6,182,212,0.2); border-color: #0891b2; }
+        .active-tab:hover { background-color: #06b6d4; }
         
-        .success-anim { animation: successPulse 0.5s ease-out; }
-        @keyframes successPulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); background-color: #22c55e; color: white; } 100% { transform: scale(1); } }
+        .success-anim { animation: successPulse 0.6s ease-out; }
+        @keyframes successPulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); background-color: #10b981; color: white; border-color: #059669; } 100% { transform: scale(1); } }
         
-        /* Scrollbar styling for Guide */
         .custom-scroll::-webkit-scrollbar { width: 8px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        
+        .shape-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
+        #modal-overlay { transition: opacity 0.3s; }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col text-slate-800">
 
     <!-- Splash Screen -->
     <div id="splash">
-        <!-- SVG Glow Animé -->
-        <svg viewBox="0 0 200 200" width="300" height="300" style="overflow:visible; position:absolute; top:10%; z-index:0;">
+        <div id="pointer-light"></div>
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="absolute inset-0 w-full h-full z-0 opacity-30 pointer-events-none">
             <defs>
-                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="15" result="blur" />
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
                     <feComposite in="SourceGraphic" in2="blur" operator="over" />
                 </filter>
             </defs>
-            <polygon fill="rgba(96, 165, 250, 0.15)" stroke="#60a5fa" stroke-width="4" filter="url(#glow)">
-                <animate attributeName="points" dur="12s" repeatCount="indefinite"
-                    values="
-                        20,20 180,20 180,180 20,180;
-                        100,10 190,100 100,190 10,100;
-                        50,50 190,20 150,190 20,150;
-                        20,80 120,20 180,120 80,180;
-                        20,20 180,20 180,180 20,180
-                    " />
+            <polygon fill="rgba(6, 182, 212, 0.05)" stroke="#06b6d4" stroke-width="0.3" filter="url(#glow)">
+                <animate attributeName="points" dur="25s" repeatCount="indefinite"
+                    values="-20,-20 120,-20 120,120 -20,120; 10,20 90,10 80,90 20,80; -30,50 130,20 90,130 10,90; 20,-20 80,20 120,80 -20,120; -20,-20 120,-20 120,120 -20,120" />
+            </polygon>
+            <polygon fill="none" stroke="#10b981" stroke-width="0.15" filter="url(#glow)">
+                 <animate attributeName="points" dur="20s" repeatCount="indefinite"
+                    values="20,50 80,20 90,90 10,80; -20,-20 120,-20 120,120 -20,120; 40,10 90,40 60,110 -30,60; 20,50 80,20 90,90 10,80" />
             </polygon>
         </svg>
 
-        <div class="z-10 text-center px-4 mt-40">
-            <h1 class="text-6xl md:text-7xl fredoka mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-300 drop-shadow-lg">MétaQuad</h1>
-            <p class="text-xl md:text-2xl mb-8 font-bold text-blue-200" id="splash-subtitle">Découverte : Transformez les Formes !</p>
+        <div class="z-20 text-center px-4 relative pointer-events-auto">
+            <h1 class="text-7xl md:text-8xl fredoka mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-emerald-300 to-amber-300 drop-shadow-2xl">QuadForge</h1>
+            <p class="text-2xl md:text-3xl mb-12 font-bold text-cyan-100" id="splash-subtitle">Inquiry & Discovery</p>
             
-            <p class="mb-4 text-slate-300">Choisissez votre langue / Choose language:</p>
-            <div class="flex gap-4 justify-center">
-                <button onclick="initApp('fr')" class="px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 rounded-2xl backdrop-blur-md transition-all transform hover:scale-105 font-bold text-xl">Français</button>
-                <button onclick="initApp('en')" class="px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 rounded-2xl backdrop-blur-md transition-all transform hover:scale-105 font-bold text-xl">English</button>
+            <p class="mb-4 text-slate-300 font-bold uppercase tracking-widest text-sm">Choose Language / Choisissez la Langue</p>
+            <div class="flex gap-6 justify-center">
+                <button onclick="initApp('en')" class="px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 rounded-2xl backdrop-blur-md transition-all transform hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] font-bold text-xl">English</button>
+                <button onclick="initApp('fr')" class="px-8 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 rounded-2xl backdrop-blur-md transition-all transform hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] font-bold text-xl">Français</button>
             </div>
         </div>
     </div>
 
-    <div id="app" class="hidden h-full flex flex-col">
-        <!-- Header & Navigation -->
-        <header class="bg-white px-6 py-3 flex flex-col md:flex-row md:justify-between items-start md:items-center border-b shadow-sm gap-3 z-30">
+    <!-- Main Application -->
+    <div id="app" style="display: none;" class="h-full flex flex-col">
+        <header class="bg-white px-6 py-3 flex flex-col lg:flex-row lg:justify-between items-start lg:items-center border-b shadow-sm gap-3 z-30">
             <div class="flex items-center gap-4">
-                <h1 class="fredoka text-2xl text-blue-600">MétaQuad</h1>
-                <button onclick="toggleLang()" id="lang-toggle" class="text-xs px-2 py-1 bg-slate-100 rounded text-slate-500 font-bold hover:bg-slate-200 border">FR / EN</button>
+                <h1 class="fredoka text-2xl text-cyan-600">QuadForge</h1>
+                <button onclick="toggleLang()" class="text-xs px-2 py-1 bg-slate-100 rounded text-slate-500 font-bold hover:bg-slate-200 border">EN / FR</button>
             </div>
-            <div id="tabs" class="flex gap-2 font-bold overflow-x-auto w-full md:w-auto pb-1 md:pb-0 hide-scrollbar">
+            <div id="tabs" class="flex gap-2 font-bold overflow-x-auto w-full lg:w-auto pb-1 lg:pb-0 custom-scroll">
                 <button onclick="setTab('guide')" id="tab-guide" class="tab-btn active-tab">📖 Guide</button>
-                <button onclick="setTab('playground')" id="tab-playground" class="tab-btn">🎮 Jeu Libre</button>
-                <button onclick="setTab('m1')" id="tab-m1" class="tab-btn">Mission 1</button>
-                <button onclick="setTab('m2')" id="tab-m2" class="tab-btn">Mission 2</button>
-                <button onclick="setTab('m3')" id="tab-m3" class="tab-btn">Mission 3</button>
-                <button onclick="setTab('m4')" id="tab-m4" class="tab-btn">Mission 4</button>
+                <button onclick="setTab('playground')" id="tab-playground" class="tab-btn">🎮 Playground</button>
+                <button onclick="setTab('dok1')" id="tab-dok1" class="tab-btn">🎓 Discovery</button>
+                <button onclick="setTab('dok2')" id="tab-dok2" class="tab-btn">🚀 Exploration</button>
+                <button onclick="setTab('dok3')" id="tab-dok3" class="tab-btn">👑 Mastery</button>
             </div>
         </header>
 
         <main class="flex-1 flex p-4 gap-4 bg-slate-50 overflow-hidden relative">
             
-            <!-- VUE : GUIDE DES FORMES -->
-            <div id="guide-view" class="w-full bg-white rounded-2xl shadow-lg border-4 border-white p-6 custom-scroll overflow-y-auto hidden">
-                <h2 class="text-3xl fredoka text-blue-600 mb-2" id="guide-title">Guide des Formes</h2>
-                <p class="text-slate-500 font-bold mb-6" id="guide-desc">Apprends à reconnaître les membres de la famille des quadrilatères.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="guide-grid">
-                    <!-- Généré dynamiquement -->
+            <!-- VUE 1 : GUIDE DES FORMES & GLOSSAIRE -->
+            <div id="view-guide" class="w-full bg-white rounded-2xl shadow-lg border-4 border-white p-6 custom-scroll overflow-y-auto hidden">
+                <div class="flex justify-between items-center mb-6 border-b-2 pb-4">
+                    <div>
+                        <h2 class="text-3xl fredoka text-cyan-600" id="guide-title">Guide</h2>
+                        <p class="text-slate-500 font-bold" id="guide-desc">Interactive shapes & terms.</p>
+                    </div>
+                    <button onclick="openGlossary()" class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2 border border-amber-200 shadow-sm">
+                        📚 <span id="btn-glossary">Glossary</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4" id="guide-grid"></div>
+            </div>
+
+            <!-- VUE 2 : MISSIONS DASHBOARD (DOK) -->
+            <div id="view-missions" class="w-full bg-white rounded-2xl shadow-lg border-4 border-white p-6 custom-scroll overflow-y-auto hidden">
+                <h2 class="text-3xl fredoka text-cyan-600 mb-2" id="dash-title">Missions Dashboard</h2>
+                <p class="text-slate-500 font-bold mb-6" id="dash-desc">Select a challenge.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="dash-grid"></div>
+            </div>
+
+            <!-- VUE 3 : CANVAS INTERACTIF -->
+            <div class="flex-1 bg-white rounded-2xl shadow-lg relative border-4 border-white flex flex-col hidden" id="view-canvas">
+                <div class="absolute top-4 left-4 z-30 flex gap-2">
+                    <button id="btn-add-shape" onclick="addShape()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm border border-emerald-200 hidden">+ Shape (1/3)</button>
+                    <button id="btn-toggle-diag" onclick="toggleDiagonals()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm border">⤡ Diagonals</button>
+                </div>
+                
+                <div id="canvas-container" class="flex-1 relative w-full h-full">
+                    <div class="grid-bg"></div>
+                    <svg id="drawing-layer" class="absolute inset-0 w-full h-full pointer-events-none">
+                        <defs>
+                            <pattern id="hatch-red" patternUnits="userSpaceOnUse" width="4" height="4"><path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" style="stroke:rgba(244, 63, 94, 0.2); stroke-width:1" /></pattern>
+                            <pattern id="hatch-amber" patternUnits="userSpaceOnUse" width="4" height="4"><path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" style="stroke:rgba(245, 158, 11, 0.2); stroke-width:1" /></pattern>
+                            <pattern id="hatch-emerald" patternUnits="userSpaceOnUse" width="4" height="4"><path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" style="stroke:rgba(16, 185, 129, 0.2); stroke-width:1" /></pattern>
+                            <pattern id="hatch-cyan" patternUnits="userSpaceOnUse" width="4" height="4"><path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" style="stroke:rgba(6, 182, 212, 0.15); stroke-width:1" /></pattern>
+                        </defs>
+                        <g id="svg-shapes"></g>
+                        <g id="svg-diagonals"></g>
+                        <g id="svg-angles"></g>
+                        <g id="svg-lines"></g>
+                        <g id="svg-texts"></g>
+                    </svg>
+                    <div id="html-vertices"></div>
                 </div>
             </div>
 
-            <!-- VUE : CANVAS INTERACTIF -->
-            <div class="flex-1 bg-white rounded-2xl shadow-lg relative border-4 border-white" id="canvas-container">
-                <div class="grid-bg"></div>
-                <svg id="drawing-layer" class="absolute inset-0 w-full h-full pointer-events-none">
-                    <defs>
-                        <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4">
-                          <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" style="stroke:rgba(59, 130, 246, 0.15); stroke-width:1" />
-                        </pattern>
-                        <pattern id="diagonalHatchRed" patternUnits="userSpaceOnUse" width="4" height="4">
-                          <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" style="stroke:rgba(239, 68, 68, 0.15); stroke-width:1" />
-                        </pattern>
-                    </defs>
-                    <!-- Fond de la forme (sans bordure, géré par les lignes custom) -->
-                    <path id="shape-fill" d="" fill="url(#diagonalHatch)"></path>
+            <!-- PANNEAU LATÉRAL (Télémetrie & Missions) -->
+            <div class="w-full lg:w-80 flex flex-col gap-4 flex-shrink-0 hidden" id="side-panel">
+                <div class="bg-white p-5 rounded-2xl shadow-md border-2 border-slate-100 flex flex-col h-full relative" id="panel-content">
                     
-                    <g id="right-angles"></g>
-                    <!-- Lignes spécifiques générées en JS (couleurs, doublées, pointillées) -->
-                    <g id="custom-lines"></g>
-                    <!-- Textes des longueurs -->
-                    <g id="length-texts"></g>
-                </svg>
-                <div id="v0" class="vertex">1</div>
-                <div id="v1" class="vertex">2</div>
-                <div id="v2" class="vertex">3</div>
-                <div id="v3" class="vertex">4</div>
-            </div>
+                    <button onclick="backToDash()" id="btn-back" class="hidden mb-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg text-sm w-full transition border shadow-sm">
+                        🔙 <span id="lbl-back">Back</span>
+                    </button>
 
-            <!-- VUE : PANNEAU LATÉRAL (Télémetrie & Missions) -->
-            <div class="w-full md:w-80 flex flex-col gap-4 flex-shrink-0" id="side-panel">
-                <div class="bg-white p-6 rounded-2xl shadow-md border-2 border-slate-100 flex flex-col h-full" id="panel-content">
+                    <h2 class="text-xl fredoka mb-1 text-slate-800" id="panel-title">Playground</h2>
+                    <p class="text-slate-500 text-sm mb-4 font-bold" id="panel-desc">Drag points.</p>
                     
-                    <h2 class="text-xl fredoka mb-1 text-slate-800" id="panel-title">Jeu Libre</h2>
-                    <p class="text-slate-500 text-sm mb-4 font-bold" id="panel-desc">Glisse les points sur la grille (magnétique).</p>
-                    
-                    <div class="flex-1 bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col gap-3">
-                        <div id="live-shape-name" class="text-2xl fredoka text-blue-600 text-center mb-2">Quadrilatère</div>
-                        
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="font-bold text-slate-500" id="lbl-parallel">Paires Parallèles :</span>
-                            <span id="val-parallel" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-purple-600">0</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="font-bold text-slate-500" id="lbl-rights">Angles Droits (90°) :</span>
-                            <span id="val-rights" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-red-500">0</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="font-bold text-slate-500" id="lbl-equal">Côtés Égaux :</span>
-                            <span id="val-equal" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-emerald-600 text-xs">Aucun</span>
-                        </div>
+                    <!-- Telemetry (Playground) -->
+                    <div id="telemetry-box" class="flex-1 bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col gap-3 hidden">
+                        <div id="live-shape-name" class="text-2xl fredoka text-cyan-600 text-center mb-2 border-b pb-2">Quadrilateral</div>
+                        <div class="flex justify-between items-center text-sm"><span class="font-bold text-slate-500" id="lbl-par">Parallèles:</span><span id="val-par" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-slate-700">0</span></div>
+                        <div class="flex justify-between items-center text-sm"><span class="font-bold text-slate-500" id="lbl-rights">Angles 90°:</span><span id="val-rights" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-rose-500">0</span></div>
+                        <div class="flex justify-between items-center text-sm"><span class="font-bold text-slate-500" id="lbl-eq">Côtés Égaux:</span><span id="val-eq" class="bg-white px-2 py-1 rounded shadow-sm font-bold text-emerald-600 text-xs text-right ml-2 leading-tight">Aucun</span></div>
+                    </div>
+
+                    <!-- Mission Criteria Tracker -->
+                    <div id="mission-criteria-box" class="flex-1 flex flex-col gap-2 hidden">
+                        <h3 class="font-bold text-slate-700 border-b pb-1 mb-2" id="lbl-goals">Objectifs / Goals:</h3>
+                        <ul id="criteria-list" class="space-y-2 text-sm font-bold text-slate-600"></ul>
                     </div>
 
                     <div id="mission-status-box" class="hidden mt-4 p-4 rounded-xl text-center font-bold border-2 transition-colors">
-                        <span id="mission-status-text">En cours...</span>
+                        <span id="mission-status-text">In Progress...</span>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- MODAL (Guide & Glossary) -->
+    <div id="modal-overlay" style="display: none;" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0" onclick="if(event.target===this) closeModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content">
+            <div class="bg-cyan-50 p-6 flex justify-center items-center border-b-2 border-cyan-100 relative">
+                <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full font-bold text-slate-500 hover:text-slate-800 shadow-sm flex items-center justify-center">✕</button>
+                <div id="modal-icon" class="w-24 h-24 shape-icon text-cyan-600"></div>
+            </div>
+            <div class="p-6 custom-scroll" id="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                <h2 id="modal-title" class="text-3xl fredoka text-slate-800 mb-2">Titre</h2>
+                <p id="modal-desc" class="text-slate-600 font-bold mb-4">Description...</p>
+                <div id="modal-props" class="bg-slate-50 rounded-xl p-4 space-y-2 border border-slate-200 text-sm hidden">
+                    <p><strong class="text-slate-700" id="mod-lbl-sides">Côtés:</strong> <span id="modal-sides" class="text-slate-600">...</span></p>
+                    <p><strong class="text-slate-700" id="mod-lbl-angles">Angles:</strong> <span id="modal-angles" class="text-slate-600">...</span></p>
+                    <p><strong class="text-slate-700" id="mod-lbl-par">Parallèles:</strong> <span id="modal-par" class="text-slate-600">...</span></p>
+                    <p><strong class="text-slate-700" id="mod-lbl-diag">Diagonales:</strong> <span id="modal-diag" class="text-slate-600">...</span></p>
+                </div>
+                <div id="modal-glossary" class="space-y-4 hidden"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- 1. État et Données (Bilingue) ---
-        let currentLang = 'fr';
-        let currentTab = 'guide'; // Démarre sur le guide
-        let isSuccess = false;
-        
-        // Tailles de Grille
-        const GRID_SIZE = 40;
-        
-        // Forme Initiale (Rectangle centré)
-        let pts = [{x:160,y:120}, {x:320,y:120}, {x:320,y:280}, {x:160,y:280}];
-        
-        const textData = {
+        // --- 1. SVGs & Dictionary ---
+        const svgs = {
+            square: `<svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            rect: `<svg viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="40" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            rhombus: `<svg viewBox="0 0 100 100"><polygon points="50,20 90,50 50,80 10,50" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            para: `<svg viewBox="0 0 100 100"><polygon points="25,30 95,30 75,70 5,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            trap: `<svg viewBox="0 0 100 100"><polygon points="30,30 70,30 90,70 10,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            isoTrap: `<svg viewBox="0 0 100 100"><polygon points="30,30 70,30 85,70 15,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            rightTrap: `<svg viewBox="0 0 100 100"><polygon points="20,30 70,30 90,70 20,70" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            kite: `<svg viewBox="0 0 100 100"><polygon points="50,10 80,40 50,90 20,40" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            dart: `<svg viewBox="0 0 100 100"><polygon points="50,10 90,90 50,70 10,90" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            irreg: `<svg viewBox="0 0 100 100"><polygon points="20,20 90,30 70,90 10,60" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            crossed: `<svg viewBox="0 0 100 100"><polygon points="10,20 90,80 10,80 90,20" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/></svg>`,
+            glossary: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
+        };
+
+        const tData = {
             fr: {
-                title: "MétaQuad",
-                subtitle: "Découverte : Transformez les Formes !",
-                tabs: { guide: "📖 Guide", playground: "🎮 Jeu Libre", m1: "Mission 1", m2: "Mission 2", m3: "Mission 3", m4: "Mission 4" },
-                labels: { parallel: "Paires Parallèles (Double Ligne):", rights: "Angles Droits (90°) :", equal: "Côtés Égaux :" },
-                values: { no: "Non", yes: "Oui", none: "Aucun", all: "Les 4", opp: "2 Paires Opposées", adj: "2 Paires Adjacentes" },
-                status: { progress: "🛠️ En cours...", success: "🎉 SUCCÈS ! Objectif Atteint !" },
-                guideTitle: "Guide des Formes",
-                guideDesc: "Apprends à reconnaître la famille des quadrilatères. Regarde bien les lignes parallèles ou égales !",
-                missions: {
-                    playground: { title: "Jeu Libre", desc: "Glisse les points sur la grille. Si 2 lignes sont identiques, elles changent de couleur !" },
-                    m1: { title: "Mission 1 : Le Penché", desc: "Enquête : Que devient un rectangle quand on le penche ? \n\nBUT : Créez une forme avec 2 paires de lignes parallèles, mais AUCUN angle droit (Parallélogramme)." },
-                    m2: { title: "Mission 2 : Le Diamant", desc: "Enquête : Le carré est-il le seul à avoir des côtés égaux ? \n\nBUT : Créez une forme dont les 4 côtés sont de la MÊME COULEUR (égaux), mais SANS angle droit." },
-                    m3: { title: "Mission 3 : Le Vaisseau", desc: "Enquête : Une forme peut-elle pointer vers l'intérieur ? \n\nBUT : Créez une Flèche (Dart) avec un grand angle rentrant." },
-                    m4: { title: "Mission 4 : Le Bateau", desc: "Enquête : Et si seuls le haut et le bas sont parallèles ? \n\nBUT : Créez une forme avec EXACTEMENT 1 paire de lignes parallèles (Trapèze)." }
+                title: "MétaQuad", subtitle: "Enquête & Découverte",
+                tabs: { guide: "📖 Guide", playground: "🎮 Jeu Libre", dok1: "🎓 Découverte", dok2: "🚀 Exploration", dok3: "👑 Maîtrise" },
+                lbl: { par: "Parallèles :", rights: "Angles 90° :", eq: "Côtés Égaux :", back: "Retour", addShape: "+ Forme", diag: "⤡ Diagonales", goals: "Objectifs :" },
+                modLbl: { sides: "Côtés :", angles: "Angles :", par: "Parallèles :", diag: "Diagonales :" },
+                val: { no: "Non", none: "Aucun", all: "Les 4", opp2: "2 Paires Opposées", opp1: "1 Paire Opposée", adj2: "2 Paires Adjacentes", adj1: "1 Paire Adjacente" },
+                status: { prog: "🛠️ En cours...", succ: "🎉 SUCCÈS ! Mission accomplie !" },
+                guide: { title: "Dictionnaire des Formes", desc: "Explore les formes. Une coche (✓) apparaît quand tu as découvert une forme !", gloss: "Glossaire" },
+                glossary: { title: "Glossaire", desc: "Termes importants de géométrie.", terms: [
+                    { t: "Sommet (Vertex)", d: "Le point de rencontre de deux côtés (le coin)." },
+                    { t: "Lignes Parallèles", d: "Des lignes qui ne se croiseront jamais, comme des rails de train." },
+                    { t: "Angle Droit", d: "Un angle parfait de 90°, comme le coin d'une feuille de papier." },
+                    { t: "Diagonale", d: "Une ligne droite qui relie deux sommets opposés à l'intérieur (ou extérieur) de la forme." },
+                    { t: "Concave", d: "Une forme qui 'pointe vers l'intérieur', avec un angle supérieur à 180°." },
+                    { t: "Convexe", d: "Une forme dont tous les coins pointent vers l'extérieur." }
+                ]},
+                shapes: {
+                    square: { n: "Carré", dS: "4 égaux.", dA: "4 droits (90°).", dP: "2 paires.", dD: "Se coupent au milieu à 90°." },
+                    rect: { n: "Rectangle", dS: "Opposés égaux.", dA: "4 droits (90°).", dP: "2 paires.", dD: "Égales, se coupent au milieu." },
+                    rhombus: { n: "Losange", dS: "4 égaux.", dA: "Opposés égaux.", dP: "2 paires.", dD: "Se coupent au milieu à 90°." },
+                    para: { n: "Parallélogramme", dS: "Opposés égaux.", dA: "Opposés égaux.", dP: "2 paires.", dD: "Se coupent en leur milieu." },
+                    isoTrap: { n: "Trapèze Isocèle", dS: "1 paire opposée égale.", dA: "Angles de base égaux.", dP: "Exactement 1 paire.", dD: "Diagonales de même longueur." },
+                    rightTrap: { n: "Trapèze Rectangle", dS: "Généralement inégaux.", dA: "Exactement 2 angles droits.", dP: "Exactement 1 paire.", dD: "Se coupent." },
+                    trap: { n: "Trapèze", dS: "Inégaux.", dA: "Somme 360°.", dP: "Exactement 1 paire.", dD: "Se coupent." },
+                    kite: { n: "Cerf-volant", dS: "2 paires adjacentes (qui se touchent) égales.", dA: "1 paire opposée égale.", dP: "Aucune.", dD: "Se croisent à 90°." },
+                    dart: { n: "Fléchette (Concave)", dS: "2 paires adjacentes égales.", dA: "Un angle rentrant (> 180°).", dP: "Aucune.", dD: "Une diagonale à l'extérieur." },
+                    irreg: { n: "Irrégulier", dS: "Tous différents.", dA: "Tous différents.", dP: "Aucune.", dD: "Se coupent." },
+                    crossed: { n: "Croisé", dS: "Lignes qui se croisent.", dA: "Non applicables.", dP: "Aucune.", dD: "Forment l'extérieur." }
                 },
-                shapes: { 
-                    square: { name: "Carré", desc: "4 côtés égaux + 4 angles droits.", icon: "🟦" },
-                    rect: { name: "Rectangle", desc: "Côtés opposés égaux + 4 angles droits.", icon: "🟩" },
-                    rhombus: { name: "Losange", desc: "4 côtés égaux, mais pas d'angle droit obligatoire.", icon: "💠" },
-                    para: { name: "Parallélogramme", desc: "2 paires de lignes parallèles. Côtés opposés égaux.", icon: "▱" },
-                    trap: { name: "Trapèze", desc: "Une seule paire de lignes parallèles.", icon: "🚤" },
-                    kite: { name: "Cerf-volant", desc: "2 paires de côtés adjacents (qui se touchent) égaux.", icon: "🪁" },
-                    dart: { name: "Fléchette (Concave)", desc: "Forme un creux vers l'intérieur.", icon: "🚀" },
-                    irreg: { name: "Irrégulier", desc: "Rien n'est parallèle ou égal.", icon: "🧩" },
-                    crossed: { name: "Croisé", desc: "Les lignes se croisent !", icon: "🎀" }
-                }
+                playground: { title: "Jeu Libre", desc: "Crée jusqu'à 3 formes. Sélectionne un sommet pour l'analyser." }
             },
             en: {
-                title: "QuadForge",
-                subtitle: "Inquiry & Discovery: Morph the Shapes!",
-                tabs: { guide: "📖 Guide", playground: "🎮 Playground", m1: "Mission 1", m2: "Mission 2", m3: "Mission 3", m4: "Mission 4" },
-                labels: { parallel: "Parallel Pairs (Double Line):", rights: "Right Angles (90°):", equal: "Equal Sides:" },
-                values: { no: "No", yes: "Yes", none: "None", all: "All 4", opp: "2 Opposite Pairs", adj: "2 Adjacent Pairs" },
-                status: { progress: "🛠️ In Progress...", success: "🎉 SUCCESS! Goal Met!" },
-                guideTitle: "Shape Guide",
-                guideDesc: "Learn to recognize the quadrilateral family. Pay attention to parallel and equal lines!",
-                missions: {
-                    playground: { title: "Playground", desc: "Drag the corners on the grid. If lines are identical length, they share a color!" },
-                    m1: { title: "Mission 1: The Skew", desc: "Inquiry: How does a rectangle change when you tilt it? \n\nGOAL: Create a shape with 2 pairs of parallel lines, but NO right angles (Parallelogram)." },
-                    m2: { title: "Mission 2: The Diamond", desc: "Inquiry: Is a square the only shape with equal sides? \n\nGOAL: Create a shape where ALL 4 sides share the SAME COLOR, but NO right angles." },
-                    m3: { title: "Mission 3: The Spaceship", desc: "Inquiry: Can a shape have a dent? \n\nGOAL: Create an Arrowhead (Dart) that points inward." },
-                    m4: { title: "Mission 4: The Boat", desc: "Inquiry: What happens if only the top and bottom are parallel? \n\nGOAL: Create a shape with EXACTLY 1 pair of parallel lines (Trapezoid)." }
+                title: "QuadForge", subtitle: "Inquiry & Discovery",
+                tabs: { guide: "📖 Guide", playground: "🎮 Playground", dok1: "🎓 Discovery", dok2: "🚀 Exploration", dok3: "👑 Mastery" },
+                lbl: { par: "Parallel Pairs:", rights: "Right Angles:", eq: "Equal Sides:", back: "Back", addShape: "+ Shape", diag: "⤡ Diagonals", goals: "Goals:" },
+                modLbl: { sides: "Sides:", angles: "Angles:", par: "Parallel:", diag: "Diagonals:" },
+                val: { no: "No", none: "None", all: "All 4", opp2: "2 Opposite Pairs", opp1: "1 Opposite Pair", adj2: "2 Adjacent Pairs", adj1: "1 Adjacent Pair" },
+                status: { prog: "🛠️ In Progress...", succ: "🎉 SUCCESS! Mission completed!" },
+                guide: { title: "Shape Dictionary", desc: "Explore shapes. A checkmark (✓) appears when you discover a shape in the playground!", gloss: "Glossary" },
+                glossary: { title: "Glossary", desc: "Important geometric terms.", terms: [
+                    { t: "Vertex", d: "The meeting point of two sides (the corner)." },
+                    { t: "Parallel Lines", d: "Lines that stay the same distance apart and never cross." },
+                    { t: "Right Angle", d: "A perfect 90° angle, like the corner of a book." },
+                    { t: "Diagonal", d: "A straight line connecting two opposite corners." },
+                    { t: "Concave", d: "A shape that 'caves in' with an interior angle greater than 180°." },
+                    { t: "Convex", d: "A shape where all corners point outward." }
+                ]},
+                shapes: {
+                    square: { n: "Square", dS: "4 equal.", dA: "4 right (90°).", dP: "2 pairs.", dD: "Bisect at 90°." },
+                    rect: { n: "Rectangle", dS: "Opposite equal.", dA: "4 right (90°).", dP: "2 pairs.", dD: "Equal length, bisect." },
+                    rhombus: { n: "Rhombus", dS: "4 equal.", dA: "Opposite equal.", dP: "2 pairs.", dD: "Bisect at 90°." },
+                    para: { n: "Parallelogram", dS: "Opposite equal.", dA: "Opposite equal.", dP: "2 pairs.", dD: "Bisect each other." },
+                    isoTrap: { n: "Isosceles Trapezoid", dS: "1 opposite pair equal.", dA: "Base angles equal.", dP: "Exactly 1 pair.", dD: "Equal length." },
+                    rightTrap: { n: "Right Trapezoid", dS: "Usually unequal.", dA: "Exactly 2 right angles.", dP: "Exactly 1 pair.", dD: "Intersect." },
+                    trap: { n: "Trapezoid", dS: "Unequal.", dA: "Sum 360°.", dP: "Exactly 1 pair.", dD: "Intersect." },
+                    kite: { n: "Kite", dS: "2 adjacent pairs equal.", dA: "1 opposite pair equal.", dP: "None.", dD: "Cross at 90°." },
+                    dart: { n: "Arrowhead", dS: "2 adjacent pairs equal.", dA: "One reflex angle (>180°).", dP: "None.", dD: "One outside." },
+                    irreg: { n: "Irregular", dS: "All different.", dA: "All different.", dP: "None.", dD: "Intersect." },
+                    crossed: { n: "Crossed", dS: "Lines intersect.", dA: "Not applicable.", dP: "None.", dD: "Form the boundary." }
                 },
-                shapes: { 
-                    square: { name: "Square", desc: "4 equal sides + 4 right angles.", icon: "🟦" },
-                    rect: { name: "Rectangle", desc: "Opposite sides equal + 4 right angles.", icon: "🟩" },
-                    rhombus: { name: "Rhombus", desc: "4 equal sides, no right angles needed.", icon: "💠" },
-                    para: { name: "Parallelogram", desc: "2 pairs of parallel lines. Opposite sides equal.", icon: "▱" },
-                    trap: { name: "Trapezoid", desc: "Exactly one pair of parallel lines.", icon: "🚤" },
-                    kite: { name: "Kite", desc: "2 pairs of adjacent (touching) sides equal.", icon: "🪁" },
-                    dart: { name: "Arrowhead", desc: "Points inward (concave).", icon: "🚀" },
-                    irreg: { name: "Irregular", desc: "Nothing is parallel or equal.", icon: "🧩" },
-                    crossed: { name: "Crossed", desc: "The lines crossed!", icon: "🎀" }
-                }
+                playground: { title: "Playground", desc: "Build up to 3 shapes. Click a vertex to analyze." }
             }
         };
 
-        // --- 2. Moteur Mathématique ---
-        const TOLERANCE_PX = 2; // Tolerance très basse grâce à la grille magnétique
-        const TOLERANCE_DEG = 3;
+        // --- Missions Configuration ---
+        const missions = [
+            { id: 'd1', dok: 'dok1', en: "1. The Square", fr: "1. Le Carré", req: [
+                { en: "4 Equal Sides", fr: "4 Côtés Égaux", fn: d => d.eqKey === 'all' },
+                { en: "4 Right Angles", fr: "4 Angles Droits", fn: d => d.rights === 4 }
+            ]},
+            { id: 'd2', dok: 'dok1', en: "2. The Rectangle", fr: "2. Le Rectangle", req: [
+                { en: "4 Right Angles", fr: "4 Angles Droits", fn: d => d.rights === 4 },
+                { en: "NOT all sides equal", fr: "Pas tous égaux", fn: d => d.eqKey !== 'all' }
+            ]},
+            { id: 'd3', dok: 'dok1', en: "3. The Rhombus", fr: "3. Le Losange", req: [
+                { en: "4 Equal Sides", fr: "4 Côtés Égaux", fn: d => d.eqKey === 'all' },
+                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }
+            ]},
+            { id: 'd4', dok: 'dok1', en: "4. The Parallelogram", fr: "4. Parallélogramme", req: [
+                { en: "2 Parallel Pairs", fr: "2 Paires Parallèles", fn: d => d.par === 2 },
+                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 },
+                { en: "NOT all sides equal", fr: "Pas tous égaux", fn: d => d.eqKey !== 'all' }
+            ]},
+            { id: 'd5', dok: 'dok1', en: "5. The Trapezoid", fr: "5. Le Trapèze", req: [
+                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 }
+            ]},
+            { id: 'd6', dok: 'dok1', en: "6. The Kite", fr: "6. Le Cerf-volant", req: [
+                { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' },
+                { en: "0 Parallel Lines", fr: "0 Parallèle", fn: d => d.par === 0 },
+                { en: "Convex (Points Outward)", fr: "Convexe", fn: d => !d.concave }
+            ]},
+            { id: 'd7', dok: 'dok1', en: "7. The Arrowhead", fr: "7. La Fléchette", req: [
+                { en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave }
+            ]},
 
-        const dist = (p1, p2) => Math.hypot(p2.x - p1.x, p2.y - p1.y);
-        const crossProduct = (A, B, C) => (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x);
+            { id: 'e1', dok: 'dok2', en: "Parallel without 90°", fr: "Parallèles sans 90°", req: [
+                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 },
+                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }
+            ]},
+            { id: 'e2', dok: 'dok2', en: "Equal but Skewed", fr: "Égaux mais Penché", req: [
+                { en: "2 Opposite Pairs Equal", fr: "2 Paires Opposées Égales", fn: d => d.eqKey === 'opp2' },
+                { en: "0 Right Angles", fr: "0 Angle Droit", fn: d => d.rights === 0 }
+            ]},
+
+            { id: 'm1', dok: 'dok3', en: "Right Trapezoid", fr: "Trapèze Rectangle", req: [
+                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 },
+                { en: "Exactly 2 Right Angles", fr: "Exactement 2 Angles Droits", fn: d => d.rights === 2 }
+            ]},
+            { id: 'm2', dok: 'dok3', en: "Isosceles Trapezoid", fr: "Trapèze Isocèle", req: [
+                { en: "Exactly 1 Parallel Pair", fr: "1 seule Paire Parallèle", fn: d => d.par === 1 },
+                { en: "1 Opposite Pair Equal", fr: "1 Paire Opposée Égale", fn: d => d.eqKey === 'opp1' }
+            ]},
+            { id: 'm3', dok: 'dok3', en: "Asymmetric Concave", fr: "Concave Asymétrique", req: [
+                { en: "Concave (Points Inward)", fr: "Concave (Rentrant)", fn: d => d.concave },
+                { en: "0 Equal Sides", fr: "0 Côté Égal", fn: d => d.eqKey === 'none' }
+            ]},
+            { id: 'm4', dok: 'dok3', en: "90° Kite", fr: "Cerf-volant 90°", req: [
+                { en: "2 Adjacent Pairs Equal", fr: "2 Paires Adjacentes Égales", fn: d => d.eqKey === 'adj2' },
+                { en: "Exactly 1 Right Angle", fr: "Exactement 1 Angle Droit", fn: d => d.rights === 1 }
+            ]}
+        ];
+
+        // --- State ---
+        let lang = 'en'; // Default to English
+        let tab = 'guide';
+        let actMission = null;
+        let progress = {};
+        let exploredShapes = new Set(); 
         
-        function getAngle(p0, p1, p2) {
-            let a = Math.atan2(p2.y - p1.y, p2.x - p1.x) - Math.atan2(p0.y - p1.y, p0.x - p1.x);
-            a = a * 180 / Math.PI;
-            if (a < 0) a += 360;
-            return a;
-        }
+        const GRID = 40;
+        let shapes = [ [{x:160,y:120}, {x:320,y:120}, {x:320,y:280}, {x:160,y:280}] ];
+        let actShape = 0;
+        let showDiag = false;
 
-        function doIntersect(p1, p2, p3, p4) {
-            let cp1 = crossProduct(p1, p2, p3), cp2 = crossProduct(p1, p2, p4);
-            let cp3 = crossProduct(p3, p4, p1), cp4 = crossProduct(p3, p4, p2);
-            return ((cp1 > 0 && cp2 < 0) || (cp1 < 0 && cp2 > 0)) && ((cp3 > 0 && cp4 < 0) || (cp3 < 0 && cp4 > 0));
-        }
-
-        function analyzeShape() {
-            const L = [dist(pts[0], pts[1]), dist(pts[1], pts[2]), dist(pts[2], pts[3]), dist(pts[3], pts[0])];
-
-            if (doIntersect(pts[0], pts[1], pts[2], pts[3]) || doIntersect(pts[1], pts[2], pts[3], pts[0])) {
-                return { key: 'crossed', rights: 0, parallels: 0, equalKey: 'none', isConcave: false, angles: [], lengths: L, isPar: [false,false,false,false] };
+        // --- Init & UI Flow ---
+        document.addEventListener('mousemove', (e) => {
+            const l = document.getElementById('pointer-light');
+            if (l && document.getElementById('splash').style.display !== 'none') {
+                l.style.left = e.clientX + 'px'; l.style.top = e.clientY + 'px';
             }
+        });
 
-            let a0 = getAngle(pts[3], pts[0], pts[1]), a1 = getAngle(pts[0], pts[1], pts[2]);
-            let a2 = getAngle(pts[1], pts[2], pts[3]), a3 = getAngle(pts[2], pts[3], pts[0]);
-            let angles = [a0, a1, a2, a3];
-            let sum = a0 + a1 + a2 + a3;
-            if (Math.abs(sum - 720) < Math.abs(sum - 360)) angles = angles.map(a => 360 - a);
-            
-            let rightAngles = angles.filter(a => Math.abs(a - 90) < TOLERANCE_DEG).length;
-            let isConcave = angles.some(a => a > 180);
-            
-            const par02 = Math.abs((angles[0] + angles[3]) - 180) < TOLERANCE_DEG && Math.abs((angles[1] + angles[2]) - 180) < TOLERANCE_DEG;
-            const par13 = Math.abs((angles[0] + angles[1]) - 180) < TOLERANCE_DEG && Math.abs((angles[2] + angles[3]) - 180) < TOLERANCE_DEG;
-            let parallelPairs = (par02 ? 1 : 0) + (par13 ? 1 : 0);
-
-            const eqAll = Math.abs(L[0]-L[1])<TOLERANCE_PX && Math.abs(L[1]-L[2])<TOLERANCE_PX && Math.abs(L[2]-L[3])<TOLERANCE_PX;
-            const eqOpposite = Math.abs(L[0]-L[2])<TOLERANCE_PX && Math.abs(L[1]-L[3])<TOLERANCE_PX;
-            const eqAdjacent = (Math.abs(L[0]-L[1])<TOLERANCE_PX && Math.abs(L[2]-L[3])<TOLERANCE_PX) || (Math.abs(L[1]-L[2])<TOLERANCE_PX && Math.abs(L[3]-L[0])<TOLERANCE_PX);
-
-            let shapeKey = 'irreg', equalKey = 'none';
-            if (isConcave) { shapeKey = 'dart'; equalKey = eqAdjacent ? 'adj' : 'none'; }
-            else if (eqAll && rightAngles === 4) { shapeKey = 'square'; equalKey = 'all'; }
-            else if (eqOpposite && rightAngles === 4) { shapeKey = 'rect'; equalKey = 'opp'; }
-            else if (eqAll) { shapeKey = 'rhombus'; equalKey = 'all'; }
-            else if (parallelPairs === 2) { shapeKey = 'para'; equalKey = eqOpposite ? 'opp' : 'none'; }
-            else if (parallelPairs === 1) { shapeKey = 'trap'; }
-            else if (eqAdjacent) { shapeKey = 'kite'; equalKey = 'adj'; }
-
-            return { key: shapeKey, rights: rightAngles, parallels: parallelPairs, equalKey: equalKey, isConcave: isConcave, angles: angles, lengths: L, isPar: [par02, par13, par02, par13] };
-        }
-
-        // --- 3. Logique Applicative & UI ---
-        
-        function initApp(lang) {
-            currentLang = lang;
+        function initApp(l) {
+            lang = l || 'en'; 
             document.getElementById('splash').style.opacity = '0';
-            updateUIText();
-            buildGuide();
-            setTimeout(() => { document.getElementById('splash').remove(); document.getElementById('app').classList.remove('hidden'); setTab('guide'); }, 800);
+            missions.forEach(m => { if(progress[m.id] === undefined) progress[m.id] = false; });
+            setTimeout(() => { 
+                document.getElementById('splash').style.display = 'none'; // CRUCIAL FIX: physically removes splash from the layout!
+                document.getElementById('app').style.display = 'flex'; 
+                buildUI(); 
+                setTab('guide'); 
+            }, 800);
         }
 
-        function toggleLang() {
-            currentLang = currentLang === 'en' ? 'fr' : 'en';
-            document.querySelector('.fredoka.text-2xl.text-blue-600').innerText = textData[currentLang].title;
-            updateUIText();
-            buildGuide();
-            if (currentTab !== 'guide') recalcAndDraw();
-        }
+        function toggleLang() { lang = lang === 'en' ? 'fr' : 'en'; buildUI(); if (tab === 'playground' || tab === 'canvas') recalcAndDraw(); }
 
-        function buildGuide() {
-            const grid = document.getElementById('guide-grid');
-            grid.innerHTML = '';
-            const shapes = textData[currentLang].shapes;
-            // Order of display
-            const keys = ['square', 'rect', 'rhombus', 'para', 'trap', 'kite', 'dart'];
+        function buildUI() {
+            const t = tData[lang];
+            document.querySelector('.fredoka.text-2xl.text-cyan-600').innerText = t.title;
+            ['guide', 'playground', 'dok1', 'dok2', 'dok3'].forEach(k => {
+                const el = document.getElementById('tab-'+k);
+                if(el) el.innerText = t.tabs[k];
+            });
             
-            keys.forEach(k => {
-                const s = shapes[k];
-                const card = document.createElement('div');
-                card.className = "bg-slate-50 border-2 border-slate-100 rounded-xl p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow";
-                card.innerHTML = `
-                    <div class="text-5xl mb-2">${s.icon}</div>
-                    <h3 class="font-bold text-slate-800 text-lg">${s.name}</h3>
-                    <p class="text-slate-500 text-sm mt-1">${s.desc}</p>
-                `;
-                grid.appendChild(card);
+            document.getElementById('guide-title').innerText = t.guide.title; 
+            document.getElementById('guide-desc').innerText = t.guide.desc;
+            document.getElementById('btn-glossary').innerText = t.guide.gloss;
+            
+            document.getElementById('lbl-par').innerText = t.lbl.par; 
+            document.getElementById('lbl-rights').innerText = t.lbl.rights;
+            document.getElementById('lbl-eq').innerText = t.lbl.eq; 
+            document.getElementById('lbl-back').innerText = t.lbl.back;
+            document.getElementById('btn-add-shape').innerText = `${t.lbl.addShape} (${shapes.length}/3)`;
+            document.getElementById('btn-toggle-diag').innerText = t.lbl.diag;
+            document.getElementById('lbl-goals').innerText = t.lbl.goals;
+
+            // Guide Grid 
+            const g = document.getElementById('guide-grid'); g.innerHTML = '';
+            ['square', 'rect', 'rhombus', 'para', 'isoTrap', 'rightTrap', 'trap', 'kite', 'dart', 'irreg', 'crossed'].forEach(k => {
+                const isExplored = exploredShapes.has(k);
+                const badge = isExplored ? `<div class="absolute top-2 right-2 bg-emerald-100 text-emerald-600 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-sm font-bold">✓</div>` : ``;
+                g.innerHTML += `<div onclick="openModal('${k}')" class="relative bg-slate-50 border-2 border-slate-100 rounded-xl p-4 flex flex-col items-center text-center hover:shadow-lg hover:border-cyan-300 transition cursor-pointer group">
+                    ${badge}
+                    <div class="w-16 h-16 text-cyan-500 mb-2 group-hover:scale-110 transition shape-icon">${svgs[k]}</div>
+                    <h3 class="font-bold text-slate-800">${t.shapes[k].n}</h3>
+                </div>`;
+            });
+
+            // Dashboards
+            if(tab === 'dok1' || tab === 'dok2' || tab === 'dok3') buildDashGrid(tab);
+            
+            if(actMission) {
+                const mDef = missions.find(m => m.id === actMission);
+                document.getElementById('panel-title').innerText = mDef[lang];
+                document.getElementById('panel-desc').innerText = "";
+            } else {
+                document.getElementById('panel-title').innerText = t.playground.title;
+                document.getElementById('panel-desc').innerText = t.playground.desc;
+            }
+        }
+
+        function buildDashGrid(dok) {
+            const t = tData[lang]; 
+            document.getElementById('dash-title').innerText = t.tabs[dok];
+            const g = document.getElementById('dash-grid'); 
+            g.innerHTML = '';
+            
+            missions.filter(m => m.dok === dok).forEach(m => {
+                const isDone = progress[m.id]; 
+                const bg = isDone ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-200';
+                g.innerHTML += `<div onclick="startMission('${m.id}')" class="${bg} border-2 rounded-xl p-4 cursor-pointer hover:shadow-md transition flex flex-col group"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800 group-hover:text-cyan-600">${m[lang]}</h4><span>${isDone?'✅':'🔒'}</span></div><button class="mt-auto w-full py-1.5 text-sm rounded bg-slate-100 text-slate-600 font-bold group-hover:bg-cyan-100 group-hover:text-cyan-700 transition">▶ Play</button></div>`;
             });
         }
 
-        function updateUIText() {
-            const t = textData[currentLang];
-            document.getElementById('tab-guide').innerText = t.tabs.guide;
-            document.getElementById('tab-playground').innerText = t.tabs.playground;
-            document.getElementById('tab-m1').innerText = t.tabs.m1;
-            document.getElementById('tab-m2').innerText = t.tabs.m2;
-            document.getElementById('tab-m3').innerText = t.tabs.m3;
-            document.getElementById('tab-m4').innerText = t.tabs.m4;
+        function setTab(newTab) {
+            tab = newTab; actMission = null; shapes = [ initSquare() ]; actShape = 0;
+            ['guide', 'playground', 'dok1', 'dok2', 'dok3'].forEach(k => {
+                const el = document.getElementById('tab-'+k);
+                if (el) el.classList.remove('active-tab');
+            });
+            const activeEl = document.getElementById('tab-'+newTab);
+            if (activeEl) activeEl.classList.add('active-tab');
             
-            document.getElementById('guide-title').innerText = t.guideTitle;
-            document.getElementById('guide-desc').innerText = t.guideDesc;
-            
-            if(currentTab !== 'guide') {
-                document.getElementById('panel-title').innerText = t.missions[currentTab].title;
-                document.getElementById('panel-desc').innerText = t.missions[currentTab].desc;
-            }
-            
-            document.getElementById('lbl-parallel').innerText = t.labels.parallel;
-            document.getElementById('lbl-rights').innerText = t.labels.rights;
-            document.getElementById('lbl-equal').innerText = t.labels.equal;
-            updateMissionStatusBox();
-        }
+            document.getElementById('view-guide').classList.add('hidden'); 
+            document.getElementById('view-missions').classList.add('hidden');
+            document.getElementById('view-canvas').classList.add('hidden'); 
+            document.getElementById('side-panel').classList.add('hidden');
+            document.getElementById('btn-back').classList.add('hidden'); 
+            document.getElementById('btn-add-shape').classList.add('hidden');
+            document.getElementById('telemetry-box').classList.add('hidden'); 
+            document.getElementById('mission-criteria-box').classList.add('hidden');
+            document.getElementById('mission-status-box').classList.add('hidden');
 
-        function setTab(tab) {
-            currentTab = tab;
-            isSuccess = false;
-            
-            document.querySelectorAll('#tabs button').forEach(b => b.classList.remove('active-tab'));
-            document.getElementById('tab-' + tab).classList.add('active-tab');
-            
-            const guideView = document.getElementById('guide-view');
-            const canvasView = document.getElementById('canvas-container');
-            const sidePanel = document.getElementById('side-panel');
-            
-            if(tab === 'guide') {
-                guideView.classList.remove('hidden');
-                canvasView.classList.add('hidden');
-                sidePanel.classList.add('hidden');
-            } else {
-                guideView.classList.add('hidden');
-                canvasView.classList.remove('hidden');
-                sidePanel.classList.remove('hidden');
-                
-                const statusBox = document.getElementById('mission-status-box');
-                if(tab === 'playground') {
-                    statusBox.classList.add('hidden');
-                } else {
-                    statusBox.classList.remove('hidden');
-                    statusBox.classList.remove('bg-green-100', 'border-green-400', 'text-green-700', 'success-anim');
-                    statusBox.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-600');
-                }
-                updateUIText();
+            if (tab === 'guide') { 
+                buildUI(); // Refresh checkmarks
+                document.getElementById('view-guide').classList.remove('hidden'); 
+            } 
+            else if (tab.startsWith('dok')) { 
+                document.getElementById('view-missions').classList.remove('hidden'); 
+                buildDashGrid(tab); 
+            } 
+            else if (tab === 'playground') {
+                document.getElementById('view-canvas').classList.remove('hidden'); 
+                document.getElementById('side-panel').classList.remove('hidden');
+                document.getElementById('btn-add-shape').classList.remove('hidden'); 
+                document.getElementById('telemetry-box').classList.remove('hidden');
+                buildUI(); 
                 recalcAndDraw();
             }
         }
 
-        function updateMissionStatusBox() {
-            if(currentTab === 'playground' || currentTab === 'guide') return;
-            const statusBox = document.getElementById('mission-status-box');
-            const statusText = document.getElementById('mission-status-text');
+        function startMission(id) {
+            tab = 'canvas'; 
+            actMission = id; shapes = [ randomizePts() ]; actShape = 0;
             
-            if (isSuccess) {
-                statusText.innerText = textData[currentLang].status.success;
-                if(!statusBox.classList.contains('bg-green-100')) {
-                    statusBox.className = "mt-4 p-4 rounded-xl text-center font-bold border-2 bg-green-100 border-green-400 text-green-700 success-anim";
-                }
-            } else {
-                statusText.innerText = textData[currentLang].status.progress;
-                statusBox.className = "mt-4 p-4 rounded-xl text-center font-bold border-2 bg-blue-50 border-blue-200 text-blue-600";
-            }
-        }
-
-        function checkMission(data) {
-            let passed = false;
-            if (currentTab === 'm1') { passed = (data.parallels === 2 && data.rights === 0); } // Para
-            else if (currentTab === 'm2') { passed = (data.equalKey === 'all' && data.rights === 0); } // Rhombus
-            else if (currentTab === 'm3') { passed = (data.isConcave === true); } // Dart
-            else if (currentTab === 'm4') { passed = (data.parallels === 1); } // Trapezoid
-            
-            if (passed && !isSuccess) {
-                isSuccess = true;
-                updateMissionStatusBox();
-            } else if (!passed && isSuccess) {
-                isSuccess = false;
-                updateMissionStatusBox();
-            }
-        }
-
-        function recalcAndDraw() {
-            const t = textData[currentLang];
-            
-            // 1. Position HTML Vertices
-            pts.forEach((p, i) => {
-                const v = document.getElementById('v'+i);
-                v.style.left = p.x + 'px'; v.style.top = p.y + 'px';
+            ['guide', 'playground', 'dok1', 'dok2', 'dok3'].forEach(k => {
+                const el = document.getElementById('tab-'+k);
+                if (el) el.classList.remove('active-tab');
             });
+            const mDef = missions.find(m => m.id === id);
+            if (mDef) {
+                const activeEl = document.getElementById('tab-'+mDef.dok);
+                if (activeEl) activeEl.classList.add('active-tab');
+            }
 
-            // 2. Analyser la forme
-            const data = analyzeShape();
-            checkMission(data);
+            document.getElementById('view-missions').classList.add('hidden');
+            document.getElementById('view-canvas').classList.remove('hidden'); 
+            document.getElementById('side-panel').classList.remove('hidden');
+            document.getElementById('btn-back').classList.remove('hidden'); 
+            document.getElementById('mission-criteria-box').classList.remove('hidden');
+            document.getElementById('mission-status-box').classList.remove('hidden');
+            buildUI(); recalcAndDraw();
+        }
 
-            // 3. Mise à jour de la Télémetrie
-            document.getElementById('live-shape-name').innerText = t.shapes[data.key].name;
-            document.getElementById('val-parallel').innerText = data.parallels;
-            document.getElementById('val-rights').innerText = data.rights;
-            document.getElementById('val-equal').innerText = t.values[data.equalKey];
+        function backToDash() { 
+            const t = missions.find(m => m.id === actMission).dok; 
+            setTab(t); 
+        }
 
-            // 4. Remplissage du fond (SVG)
-            const fillPath = document.getElementById('shape-fill');
-            fillPath.setAttribute('d', `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y} L ${pts[2].x} ${pts[2].y} L ${pts[3].x} ${pts[3].y} Z`);
-            if (data.isConcave) fillPath.setAttribute('fill', 'url(#diagonalHatchRed)');
-            else fillPath.setAttribute('fill', 'url(#diagonalHatch)');
+        function toggleDiagonals() { showDiag = !showDiag; recalcAndDraw(); }
+        
+        function addShape() { 
+            if(shapes.length < 3) { 
+                shapes.push(initSquare(true)); 
+                actShape = shapes.length-1; 
+                buildUI(); 
+                recalcAndDraw(); 
+            } 
+        }
 
-            // 5. Logique des Couleurs (Identique = Même Couleur)
-            let colors = ['#94a3b8', '#94a3b8', '#94a3b8', '#94a3b8']; // Gris par défaut si tout différent
-            const palette = ['#ec4899', '#10b981', '#f59e0b', '#8b5cf6']; // Rose, Vert, Orange, Violet
-            let colorIdx = 0;
-            let assigned = [false, false, false, false];
+        function initSquare(offset = false) { 
+            const off = offset ? shapes.length * 40 : 0;
+            return [{x:160+off,y:120+off}, {x:320+off,y:120+off}, {x:320+off,y:280+off}, {x:160+off,y:280+off}]; 
+        }
+        
+        function randomizePts() {
+            const r = () => Math.floor((Math.random() * 300 + 80)/GRID)*GRID;
+            return [{x:r(),y:r()},{x:r()+160,y:r()},{x:r()+160,y:r()+160},{x:r(),y:r()+160}];
+        }
+
+        // --- Math & Validator ---
+        const dist = (p1, p2) => Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        const cross = (A, B, C) => (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x);
+        
+        function getAng(p0, p1, p2) { 
+            let a = Math.atan2(p2.y - p1.y, p2.x - p1.x) - Math.atan2(p0.y - p1.y, p0.x - p1.x); 
+            a = a * 180 / Math.PI; 
+            if (a < 0) a += 360; 
+            return a; 
+        }
+        
+        function intersect(p1, p2, p3, p4) { 
+            return ((cross(p1,p2,p3)>0 && cross(p1,p2,p4)<0) || (cross(p1,p2,p3)<0 && cross(p1,p2,p4)>0)) && 
+                   ((cross(p3,p4,p1)>0 && cross(p3,p4,p2)<0) || (cross(p3,p4,p1)<0 && cross(p3,p4,p2)>0)); 
+        }
+
+        function analyze(pts) {
+            const L = [dist(pts[0],pts[1]), dist(pts[1],pts[2]), dist(pts[2],pts[3]), dist(pts[3],pts[0])];
+            if (intersect(pts[0],pts[1],pts[2],pts[3]) || intersect(pts[1],pts[2],pts[3],pts[0])) return { key: 'crossed', rights: 0, par: 0, eqKey: 'none', concave: false, L, a: [], isPar: [0,0,0,0] };
+
+            let a = [getAng(pts[3],pts[0],pts[1]), getAng(pts[0],pts[1],pts[2]), getAng(pts[1],pts[2],pts[3]), getAng(pts[2],pts[3],pts[0])];
+            if (Math.abs((a[0]+a[1]+a[2]+a[3])-720) < Math.abs((a[0]+a[1]+a[2]+a[3])-360)) a = a.map(x => 360 - x);
             
-            for(let i=0; i<4; i++) {
-                if(assigned[i]) continue;
-                let group = [i];
-                for(let j=i+1; j<4; j++) {
-                    if(!assigned[j] && Math.abs(data.lengths[i] - data.lengths[j]) < TOLERANCE_PX) {
-                        group.push(j);
-                    }
-                }
-                if(group.length > 1) { 
-                    // Si plusieurs lignes ont la même longueur, on leur assigne une couleur vive
-                    group.forEach(idx => { colors[idx] = palette[colorIdx]; assigned[idx] = true; });
-                    colorIdx++;
-                } else {
-                    assigned[i] = true; // Reste gris (indépendant)
-                }
+            let rights = a.filter(x => Math.abs(x - 90) < 3).length; let concave = a.some(x => x > 180);
+            const p02 = Math.abs((a[0]+a[3])-180)<3 && Math.abs((a[1]+a[2])-180)<3; const p13 = Math.abs((a[0]+a[1])-180)<3 && Math.abs((a[2]+a[3])-180)<3;
+            let par = (p02?1:0) + (p13?1:0);
+
+            let op1 = Math.abs(L[0]-L[2])<2; let op2 = Math.abs(L[1]-L[3])<2; let opP = (op1?1:0) + (op2?1:0);
+            let ad1 = Math.abs(L[0]-L[1])<2; let ad2 = Math.abs(L[1]-L[2])<2; let ad3 = Math.abs(L[2]-L[3])<2; let ad4 = Math.abs(L[3]-L[0])<2;
+            let eqAll = (ad1 && ad2 && ad3);
+            let eqKey = 'none';
+            if (eqAll) eqKey = 'all'; else if (opP === 2) eqKey = 'opp2'; else if (opP === 1) eqKey = 'opp1'; else if ((ad1&&ad3)||(ad2&&ad4)) eqKey = 'adj2'; else if (ad1||ad2||ad3||ad4) eqKey = 'adj1';
+
+            let key = 'irreg';
+            if (concave) key = 'dart';
+            else if (eqAll && rights===4) key = 'square';
+            else if (opP===2 && rights===4) key = 'rect';
+            else if (eqAll) key = 'rhombus';
+            else if (par===2) key = 'para';
+            else if (par===1 && opP===1) key = 'isoTrap';
+            else if (par===1 && rights===2) key = 'rightTrap';
+            else if (par===1) key = 'trap';
+            else if (eqKey==='adj2') key = 'kite';
+
+            return { key, rights, par, eqKey, concave, a, L, isPar: [p02, p13, p02, p13] };
+        }
+
+        function fireConfetti() {
+            const colors = ['#06b6d4', '#10b981', '#f59e0b', '#8b5cf6'];
+            for(let i=0; i<50; i++) {
+                let c = document.createElement('div'); 
+                c.style.cssText = `position:fixed; left:50%; top:50%; width:10px; height:10px; background:${colors[i%4]}; border-radius:${i%2?'50%':'0'}; z-index:1000; pointer-events:none;`; 
+                document.body.appendChild(c);
+                let a = Math.random()*Math.PI*2, v = 5+Math.random()*15, vx = Math.cos(a)*v, vy = Math.sin(a)*v, r = 0, dr = (Math.random()-0.5)*20, op = 1;
+                function anim() { 
+                    if(op<=0) { c.remove(); return; } 
+                    vy += 0.4; 
+                    let x = parseFloat(c.style.left) + vx;
+                    let y = parseFloat(c.style.top) + vy; 
+                    r += dr; op -= 0.02; 
+                    c.style.left = x + 'px';
+                    c.style.top = y + 'px';
+                    c.style.transform = `translate(-50%,-50%) rotate(${r}deg) scale(${op})`;
+                    requestAnimationFrame(anim); 
+                } 
+                anim();
             }
+        }
 
-            // 6. Dessiner les Lignes & Textes
-            const linesGroup = document.getElementById('custom-lines');
-            const textsGroup = document.getElementById('length-texts');
-            linesGroup.innerHTML = ''; textsGroup.innerHTML = '';
+        // --- Modals ---
+        function openGlossary() {
+            const m = document.getElementById('modal-overlay'); 
+            document.getElementById('modal-title').innerText = tData[lang].glossary.title; 
+            document.getElementById('modal-desc').innerText = tData[lang].glossary.desc;
+            document.getElementById('modal-icon').innerHTML = svgs.glossary;
+            document.getElementById('modal-props').classList.add('hidden'); 
+            document.getElementById('modal-glossary').classList.remove('hidden');
+            
+            let h = ''; 
+            tData[lang].glossary.terms.forEach(t => h+=`<div class="border-b pb-2"><h4 class="font-bold text-cyan-700">${t.t}</h4><p class="text-sm text-slate-600">${t.d}</p></div>`);
+            document.getElementById('modal-glossary').innerHTML = h;
+            
+            m.style.display = 'flex'; // Use display flex to show
+            setTimeout(()=>m.classList.remove('opacity-0'),10);
+        }
+        
+        function openModal(k) {
+            const s = tData[lang].shapes[k]; 
+            const m = document.getElementById('modal-overlay');
+            
+            document.getElementById('modal-title').innerText = s.n; 
+            document.getElementById('modal-desc').innerText = "";
+            document.getElementById('modal-icon').innerHTML = svgs[k];
+            
+            document.getElementById('modal-props').classList.remove('hidden'); 
+            document.getElementById('modal-glossary').classList.add('hidden');
+            
+            ['sides','angles','par','diag'].forEach(p => { 
+                document.getElementById('mod-lbl-'+p).innerText = tData[lang].modLbl[p]; 
+                document.getElementById('modal-'+p).innerText = s['d'+p.charAt(0).toUpperCase()]; // Fix for correct properties mapping!
+            });
+            
+            m.style.display = 'flex'; 
+            setTimeout(()=>m.classList.remove('opacity-0'),10);
+        }
+        
+        function closeModal() { 
+            const m = document.getElementById('modal-overlay'); 
+            m.classList.add('opacity-0'); 
+            setTimeout(()=> m.style.display = 'none', 300); 
+        }
 
-            for(let i=0; i<4; i++) {
-                const p1 = pts[i], p2 = pts[(i+1)%4];
-                const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
-                const dx = p2.x - p1.x, dy = p2.y - p1.y;
-                const len = Math.hypot(dx, dy);
-                if(len === 0) continue;
-                const nx = -dy / len, ny = dx / len;
-                
-                const col = colors[i];
-                const isPar = data.isPar[i];
-                
-                // Différencier les Côtés Opposés : La paire 1 (0 et 2) est pleine, la paire 2 (1 et 3) est en pointillés
-                const dashStyle = (i === 1 || i === 3) ? '8 6' : 'none';
-
-                if(isPar && data.key !== 'crossed') {
-                    // Ligne Doublée pour les parallèles
-                    const gap = 4;
-                    const l1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    l1.setAttribute('x1', p1.x + nx*gap); l1.setAttribute('y1', p1.y + ny*gap);
-                    l1.setAttribute('x2', p2.x + nx*gap); l1.setAttribute('y2', p2.y + ny*gap);
-                    l1.setAttribute('stroke', col); l1.setAttribute('stroke-width', '3');
-                    l1.setAttribute('stroke-dasharray', dashStyle);
-
-                    const l2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    l2.setAttribute('x1', p1.x - nx*gap); l2.setAttribute('y1', p1.y - ny*gap);
-                    l2.setAttribute('x2', p2.x - nx*gap); l2.setAttribute('y2', p2.y - ny*gap);
-                    l2.setAttribute('stroke', col); l2.setAttribute('stroke-width', '3');
-                    l2.setAttribute('stroke-dasharray', dashStyle);
-
-                    linesGroup.appendChild(l1); linesGroup.appendChild(l2);
-                } else {
-                    // Ligne Simple
-                    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    l.setAttribute('x1', p1.x); l.setAttribute('y1', p1.y);
-                    l.setAttribute('x2', p2.x); l.setAttribute('y2', p2.y);
-                    l.setAttribute('stroke', col); l.setAttribute('stroke-width', '5');
-                    l.setAttribute('stroke-dasharray', dashStyle);
-                    linesGroup.appendChild(l);
-                }
-
-                // Texte de Longueur Dynamique (en unités de grille)
-                const gridLength = Math.round(data.lengths[i] / GRID_SIZE * 10) / 10;
-                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                const tnx = -nx * 22, tny = -ny * 22; // Décaler le texte vers l'extérieur
-                text.setAttribute('x', mx + tnx); text.setAttribute('y', my + tny);
-                text.setAttribute('fill', col === '#94a3b8' ? '#475569' : col); // Fonce un peu le gris pour la lecture
-                text.setAttribute('font-weight', '900'); text.setAttribute('font-size', '18');
-                text.setAttribute('text-anchor', 'middle'); text.setAttribute('dominant-baseline', 'middle');
-                // Effet de contour pour lisibilité
-                text.setAttribute('paint-order', 'stroke'); text.setAttribute('stroke', '#ffffff'); text.setAttribute('stroke-width', '4');
-                text.textContent = gridLength;
-                textsGroup.appendChild(text);
-            }
-
-            // 7. Dessiner Angles Droits
-            const arcs = document.getElementById('right-angles');
-            arcs.innerHTML = '';
-            if (data.key !== 'crossed') {
-                pts.forEach((p, i) => {
-                    if (Math.abs(data.angles[i] - 90) < TOLERANCE_DEG) {
-                        const p0 = pts[(i + 3) % 4], p2 = pts[(i + 1) % 4];
-                        let v1 = { x: p0.x - p.x, y: p0.y - p.y }, v2 = { x: p2.x - p.x, y: p2.y - p.y };
-                        let l1 = dist(p0, p), l2 = dist(p2, p);
-                        if(l1 > 0 && l2 > 0) {
-                            v1 = { x: v1.x/l1 * 20, y: v1.y/l1 * 20 }; v2 = { x: v2.x/l2 * 20, y: v2.y/l2 * 20 };
-                            const pCorner = { x: p.x + v1.x + v2.x, y: p.y + v1.y + v2.y };
-                            const arc = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                            arc.setAttribute('d', `M ${p.x+v1.x} ${p.y+v1.y} L ${pCorner.x} ${pCorner.y} L ${p.x+v2.x} ${p.y+v2.y}`);
-                            arc.setAttribute('fill', 'none'); arc.setAttribute('stroke', '#ef4444'); arc.setAttribute('stroke-width', '3');
-                            arcs.appendChild(arc);
-                        }
-                    }
+        // --- Render Engine ---
+        function recalcAndDraw() {
+            const gVert = document.getElementById('html-vertices'); 
+            
+            // 1. Efficiently Reconcile HTML Vertices (Do NOT destroy elements to keep dragging intact)
+            let totalVertices = shapes.reduce((acc, pts) => acc + pts.length, 0);
+            if (gVert.children.length !== totalVertices) {
+                gVert.innerHTML = '';
+                shapes.forEach((pts, sIdx) => {
+                    pts.forEach((p, i) => {
+                        const v = document.createElement('div');
+                        v.id = `v_${sIdx}_${i}`;
+                        v.dataset.s = sIdx; v.dataset.i = i; v.innerText = i+1;
+                        gVert.appendChild(v);
+                    });
                 });
             }
+
+            const svShapes = document.getElementById('svg-shapes'), svDiag = document.getElementById('svg-diagonals'), svAng = document.getElementById('svg-angles'), svLin = document.getElementById('svg-lines'), svTxt = document.getElementById('svg-texts');
+            svShapes.innerHTML = ''; svDiag.innerHTML = ''; svAng.innerHTML = ''; svLin.innerHTML = ''; svTxt.innerHTML = '';
+
+            let actData = null;
+
+            shapes.forEach((pts, sIdx) => {
+                const data = analyze(pts);
+                if (sIdx === actShape) actData = data;
+
+                // Track Shape Exploration
+                exploredShapes.add(data.key);
+
+                // Update Vertices CSS & Positions
+                pts.forEach((p, i) => {
+                    const v = document.getElementById(`v_${sIdx}_${i}`);
+                    v.className = `vertex ${sIdx===actShape?'v-active':''}`;
+                    v.style.left = p.x+'px'; v.style.top = p.y+'px'; 
+                });
+
+                // Proximity Color (Missions only)
+                let hatch = 'url(#hatch-cyan)', stroke = '#06b6d4';
+                if (actMission && sIdx === 0) {
+                    const reqs = missions.find(m => m.id === actMission).req;
+                    const met = reqs.filter(r => r.fn(data)).length;
+                    const pct = met / reqs.length;
+                    if (pct === 1) { hatch = 'url(#hatch-emerald)'; stroke = '#10b981'; }
+                    else if (pct > 0) { hatch = 'url(#hatch-amber)'; stroke = '#f59e0b'; }
+                    else { hatch = 'url(#hatch-red)'; stroke = '#f43f5e'; }
+                }
+
+                // Fill Path
+                const d = `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y} L ${pts[2].x} ${pts[2].y} L ${pts[3].x} ${pts[3].y} Z`;
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute('d', d); path.setAttribute('fill', hatch); svShapes.appendChild(path);
+
+                // Diagonals
+                if (showDiag) {
+                    [[0,2],[1,3]].forEach(pair => {
+                        const dl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        dl.setAttribute('x1', pts[pair[0]].x); dl.setAttribute('y1', pts[pair[0]].y); dl.setAttribute('x2', pts[pair[1]].x); dl.setAttribute('y2', pts[pair[1]].y);
+                        dl.setAttribute('stroke', '#cbd5e1'); dl.setAttribute('stroke-width', '2'); dl.setAttribute('stroke-dasharray', '4 4'); svDiag.appendChild(dl);
+                    });
+                }
+
+                // Line Colors (Equal lengths)
+                let cols = ['#94a3b8','#94a3b8','#94a3b8','#94a3b8']; const pal = ['#ec4899','#10b981','#f59e0b','#8b5cf6'];
+                let cIdx = 0, asgn = [0,0,0,0];
+                for(let i=0; i<4; i++) {
+                    if(asgn[i]) continue; let grp = [i];
+                    for(let j=i+1; j<4; j++) if(!asgn[j] && Math.abs(data.L[i]-data.L[j])<2) grp.push(j);
+                    if(grp.length>1) { grp.forEach(x => { cols[x]=pal[cIdx]; asgn[x]=1; }); cIdx++; }
+                }
+
+                for(let i=0; i<4; i++) {
+                    const p1=pts[i], p2=pts[(i+1)%4], mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2;
+                    const len=data.L[i]; if(len===0) continue; const nx=-(p2.y-p1.y)/len, ny=(p2.x-p1.x)/len;
+                    const col = (sIdx===actShape) ? cols[i] : '#cbd5e1'; const dash = (i===1||i===3)?'8 6':'none';
+
+                    if(data.isPar[i] && data.key!=='crossed') {
+                        [4,-4].forEach(g => {
+                            const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            l.setAttribute('x1', p1.x+nx*g); l.setAttribute('y1', p1.y+ny*g); l.setAttribute('x2', p2.x+nx*g); l.setAttribute('y2', p2.y+ny*g);
+                            l.setAttribute('stroke', col); l.setAttribute('stroke-width', sIdx===actShape?'3':'2'); l.setAttribute('stroke-dasharray', dash); svLin.appendChild(l);
+                        });
+                    } else {
+                        const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        l.setAttribute('x1', p1.x); l.setAttribute('y1', p1.y); l.setAttribute('x2', p2.x); l.setAttribute('y2', p2.y);
+                        l.setAttribute('stroke', col); l.setAttribute('stroke-width', sIdx===actShape?'5':'3'); l.setAttribute('stroke-dasharray', dash); svLin.appendChild(l);
+                    }
+
+                    if(sIdx===actShape) {
+                        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        txt.setAttribute('x', mx-nx*25); txt.setAttribute('y', my-ny*25); txt.setAttribute('fill', col==='#94a3b8'?'#475569':col); txt.setAttribute('font-weight', '900'); txt.setAttribute('font-size', '16'); txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('dominant-baseline', 'middle'); txt.setAttribute('paint-order', 'stroke'); txt.setAttribute('stroke', '#fff'); txt.setAttribute('stroke-width', '4');
+                        txt.textContent = Math.round(len/GRID * 10)/10; svTxt.appendChild(txt);
+                    }
+                }
+
+                // Right Angles
+                if (data.key !== 'crossed') {
+                    pts.forEach((p, i) => {
+                        if (Math.abs(data.a[i] - 90) < 3) {
+                            const p0=pts[(i+3)%4], p2=pts[(i+1)%4]; let v1={x:p0.x-p.x, y:p0.y-p.y}, v2={x:p2.x-p.x, y:p2.y-p.y}; let l1=dist(p0,p), l2=dist(p2,p);
+                            if(l1>0 && l2>0) {
+                                v1={x:v1.x/l1*20, y:v1.y/l1*20}; v2={x:v2.x/l2*20, y:v2.y/l2*20};
+                                const arc = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                arc.setAttribute('d', `M ${p.x+v1.x} ${p.y+v1.y} L ${p.x+v1.x+v2.x} ${p.y+v1.y+v2.y} L ${p.x+v2.x} ${p.y+v2.y}`);
+                                arc.setAttribute('fill', 'none'); arc.setAttribute('stroke', sIdx===actShape?'#ef4444':'#cbd5e1'); arc.setAttribute('stroke-width', '3'); svAng.appendChild(arc);
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Update Telemetry Panel
+            if(actData && !actMission) {
+                document.getElementById('live-shape-name').innerText = tData[lang].shapes[actData.key]?tData[lang].shapes[actData.key].n : "Shape";
+                document.getElementById('val-par').innerText = actData.par; document.getElementById('val-rights').innerText = actData.rights; document.getElementById('val-eq').innerText = tData[lang].val[actData.eqKey];
+            }
+
+            // Update Mission UI
+            if(actMission && actData) {
+                const mDef = missions.find(m => m.id === actMission); const reqs = mDef.req;
+                const list = document.getElementById('criteria-list'); list.innerHTML = '';
+                let passedAll = true;
+                reqs.forEach(r => {
+                    const met = r.fn(actData); if(!met) passedAll = false;
+                    list.innerHTML += `<li class="${met?'text-emerald-600':'text-slate-500'} flex items-center gap-2">${met?'✅':'⬜'} ${r[lang]}</li>`;
+                });
+
+                const box = document.getElementById('mission-status-box'); const txt = document.getElementById('mission-status-text');
+                if(passedAll && !progress[actMission]) { progress[actMission] = true; fireConfetti(); }
+                if(passedAll) {
+                    txt.innerText = tData[lang].status.succ;
+                    if(!box.classList.contains('bg-emerald-100')) box.className = "mt-4 p-4 rounded-xl text-center font-bold border-2 bg-emerald-100 border-emerald-400 text-emerald-700 success-anim block";
+                } else {
+                    txt.innerText = tData[lang].status.prog;
+                    box.className = "mt-4 p-4 rounded-xl text-center font-bold border-2 bg-slate-50 border-cyan-200 text-cyan-600 block";
+                }
+            }
         }
 
-        // --- 4. Interactions & Magnétisme (Grid Snap) ---
-        let draggedPoint = null;
-        const container = document.getElementById('canvas-container');
-
-        container.addEventListener('pointerdown', (e) => {
-            if (e.target.classList.contains('vertex')) {
-                draggedPoint = parseInt(e.target.id.replace('v', ''));
-                e.target.setPointerCapture(e.pointerId);
-                e.preventDefault();
-            }
+        // --- Drag Logic ---
+        let dragInfo = null; 
+        const cont = document.getElementById('canvas-container');
+        
+        cont.addEventListener('pointerdown', e => { 
+            const target = e.target.closest('.vertex');
+            if (target) { 
+                const s = parseInt(target.dataset.s); const i = parseInt(target.dataset.i);
+                actShape = s; dragInfo = {s, i}; 
+                target.setPointerCapture(e.pointerId); 
+                e.preventDefault(); 
+                recalcAndDraw();
+            } 
         });
-
-        container.addEventListener('pointermove', (e) => {
-            if (draggedPoint === null) return;
-            const rect = container.getBoundingClientRect();
-            
-            // Position brute de la souris
-            let rawX = e.clientX - rect.left;
-            let rawY = e.clientY - rect.top;
-            
-            // Magnétisme : Arrondir au multiple de GRID_SIZE (40px) le plus proche
-            let x = Math.round(rawX / GRID_SIZE) * GRID_SIZE;
-            let y = Math.round(rawY / GRID_SIZE) * GRID_SIZE;
-
-            // Garder les points dans l'écran visible (avec marge)
-            const maxX = Math.floor((rect.width - 20) / GRID_SIZE) * GRID_SIZE;
-            const maxY = Math.floor((rect.height - 20) / GRID_SIZE) * GRID_SIZE;
-            
-            x = Math.max(GRID_SIZE, Math.min(maxX, x));
-            y = Math.max(GRID_SIZE, Math.min(maxY, y));
-
-            pts[draggedPoint] = { x, y };
+        
+        cont.addEventListener('pointermove', e => {
+            if (!dragInfo) return; 
+            const r = cont.getBoundingClientRect();
+            let x = Math.round((e.clientX - r.left)/GRID)*GRID, y = Math.round((e.clientY - r.top)/GRID)*GRID;
+            x = Math.max(GRID, Math.min(Math.floor((r.width-20)/GRID)*GRID, x)); y = Math.max(GRID, Math.min(Math.floor((r.height-20)/GRID)*GRID, y));
+            shapes[dragInfo.s][dragInfo.i] = {x, y}; 
             requestAnimationFrame(recalcAndDraw);
         });
-
-        container.addEventListener('pointerup', (e) => { draggedPoint = null; });
-        window.addEventListener('resize', () => { if(currentTab !== 'guide') recalcAndDraw(); });
         
+        window.addEventListener('pointerup', () => dragInfo = null);
+        window.addEventListener('resize', () => { if(tab==='playground' || tab==='canvas') recalcAndDraw(); });
     </script>
 </body>
 </html>
