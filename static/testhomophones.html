@@ -3,156 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maître des Homophones - Homophone Master</title>
+    <title>Homophones Master - Édition Premium</title>
     
-    <!-- Tailwind CSS pour le style -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel pour compiler le JSX dans le navigateur -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                        display: ['Fredoka', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Fredoka:wght@400;600;700&display=swap');
-        body { font-family: 'Nunito', sans-serif; }
-        h1, h2, h3 { font-family: 'Fredoka', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@500;600;700&display=swap');
+        body { font-family: 'Nunito', sans-serif; background-color: #f8fafc; overflow: hidden; }
+        h1, h2, h3, .font-display { font-family: 'Fredoka', sans-serif; }
+        
+        /* Custom Scrollbar for sleekness */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-slate-50">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- ICONS (Inline SVGs to prevent external dependency failures) ---
-        const IconGlobe = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" strokeWidth="2"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10zM2 12h20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        );
-        const IconAward = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="7" strokeWidth="2"/><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        );
-        const IconArrowRight = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M12 5l7 7-7 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        );
-        const IconChevronLeft = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15 18l-6-6 6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        );
-        const IconBookOpen = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zm20 0h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        );
-        const IconStar = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        );
-        const IconTrophy = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 2a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4 4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z" strokeWidth="2"/></svg>
-        );
+        // --- ICONS ---
+        const Icons = {
+            Globe: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" strokeWidth="2"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10zM2 12h20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+            Check: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="1.2em" height="1.2em" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+            X: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="1.2em" height="1.2em" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+            BookOpen: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zm20 0h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+            Layers: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 2 7 12 12 22 7 12 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><polyline points="2 17 12 22 22 17" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><polyline points="2 12 12 17 22 12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+            Award: () => <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="7" strokeWidth="2"/><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        };
 
-        // --- ENRICHED DATA (5 Questions Per Level * 3 Levels = 15 Questions per Homophone) ---
+        // --- ENRICHED CONTENT DATA (6 Homophones per Language, 3 Levels, 5 Questions minimum) ---
         const contentData = {
           fr: [
             {
-              id: 'a-a',
-              title: 'A / À',
-              icon: '🎯',
+              id: 'a-a', title: 'A / À', icon: '🎯',
               rules: [
-                { word: 'A', desc: 'Verbe avoir (indicatif présent).', tip: 'On peut le remplacer par "avait".' },
-                { word: 'À', desc: 'Préposition invariable.', tip: 'On ne peut pas le remplacer par "avait". Utile pour le lieu, le temps, ou le but.' }
+                { word: 'A', desc: 'Verbe avoir.', tip: 'Remplace-le par "avait".' },
+                { word: 'À', desc: 'Préposition invariable.', tip: 'Impossible de dire "avait". Indique un lieu ou une direction.' }
               ],
               levels: {
                 dok1: {
-                  title: "Niveau 1 : Automatisme",
-                  instructions: "Choisissez entre 'a' et 'à'. Appliquez la règle de substitution 'avait'.",
+                  title: "DoK 1 : Automatisme", desc: "Complétez la phrase (astuce : essayez 'avait').",
                   questions: [
                     { text: ["Il ", " mal de tête."], options: ["a", "à"], answer: "a" },
                     { text: ["Je vais ", " la piscine."], options: ["a", "à"], answer: "à" },
                     { text: ["Elle ", " réussi son examen."], options: ["a", "à"], answer: "a" },
-                    { text: ["Une machine ", " coudre."], options: ["a", "à"], answer: "à" },
+                    { text: ["C'est une machine ", " coudre."], options: ["a", "à"], answer: "à" },
                     { text: ["L'enfant ", " peur du noir."], options: ["a", "à"], answer: "a" }
                   ]
                 },
                 dok2: {
-                  title: "Niveau 2 : Concept & Logique",
-                  instructions: "Analysez la structure et le sens de la phrase.",
+                  title: "DoK 2 : Logique", desc: "Analysez la grammaire et le sens.",
                   questions: [
-                    { text: ["Dans 'Il a soif', peut-on remplacer 'a' par 'avait' ?"], options: ["Oui, c'est le verbe avoir", "Non, c'est une préposition"], answer: "Oui, c'est le verbe avoir" },
-                    { text: ["Dans 'Je mange à midi', quelle est la fonction du 'à' ?"], options: ["Il indique le temps", "Il exprime la possession"], answer: "Il indique le temps" },
-                    { text: ["Quelle phrase est correctement orthographiée ?"], options: ["Il à une jolie voiture", "Il a une jolie voiture"], answer: "Il a une jolie voiture" },
-                    { text: ["Complétez le sens : 'Une tarte ___ la crème'."], options: ["a", "à"], answer: "à" },
-                    { text: ["Dans 'Le train a du retard', 'a' est :"], options: ["L'auxiliaire avoir", "La préposition de lieu"], answer: "L'auxiliaire avoir" }
+                    { text: ["Dans 'Il a soif', peut-on dire 'avait' ?"], options: ["Oui (Verbe)", "Non (Préposition)"], answer: "Oui (Verbe)" },
+                    { text: ["Dans 'Je mange à midi', 'à' indique :"], options: ["Le temps", "La possession"], answer: "Le temps" },
+                    { text: ["Choisissez la phrase correcte :"], options: ["Il à une jolie voiture", "Il a une jolie voiture"], answer: "Il a une jolie voiture" },
+                    { text: ["C'est une tarte ___ la crème."], options: ["a", "à"], answer: "à" },
+                    { text: ["Dans 'Le train a du retard', 'a' est :"], options: ["Le verbe avoir", "Une préposition"], answer: "Le verbe avoir" }
                   ]
                 },
                 dok3: {
-                  title: "Niveau 3 : Chasse aux Fautes",
-                  instructions: "Détectez et corrigez l'erreur d'homographe.",
+                  title: "DoK 3 : Chasse aux Fautes", desc: "Trouvez l'erreur dans la phrase.",
                   questions: [
-                    { text: ["Quelle est l'erreur dans : 'Il à mangé toute sa pomme.' ?"], options: ["Le 'à' doit être un 'a'", "Il n'y a pas d'erreur"], answer: "Le 'à' doit être un 'a'" },
-                    { text: ["Quelle est l'erreur dans : 'C'est une machine a laver.' ?"], options: ["Le 'a' doit être un 'à'", "Le 'C'est' est incorrect"], answer: "Le 'a' doit être un 'à'" },
-                    { text: ["Quelle est l'erreur dans : 'Je suis à la maison hier.' (au présent) ?"], options: ["Le 'à' doit être un 'a'", "Pas de faute d'homophone"], answer: "Pas de faute d'homophone" },
-                    { text: ["Quelle est l'erreur dans : 'Il nous à tous invités.' ?"], options: ["Le 'à' doit être un 'a'", "Le 'invités' est incorrect"], answer: "Le 'à' doit être un 'a'" },
-                    { text: ["Quelle est l'erreur dans : 'Elle s'est mise a pleurer.' ?"], options: ["Le 'a' doit être un 'à'", "Le 's'est' doit être 'c'est'"], answer: "Le 'a' doit être un 'à'" }
+                    { text: ["'Il à mangé toute sa pomme.'"], options: ["Corriger par 'a'", "Pas d'erreur"], answer: "Corriger par 'a'" },
+                    { text: ["'C'est un fer a repasser.'"], options: ["Corriger par 'à'", "Pas d'erreur"], answer: "Corriger par 'à'" },
+                    { text: ["'Il a beaucoup de chance.'"], options: ["Corriger par 'à'", "Pas d'erreur"], answer: "Pas d'erreur" },
+                    { text: ["'Il nous à tous invités.'"], options: ["Corriger par 'a'", "Pas d'erreur"], answer: "Corriger par 'a'" },
+                    { text: ["'Elle a commencé a pleurer.'"], options: ["Corriger le 2e par 'à'", "Pas d'erreur"], answer: "Corriger le 2e par 'à'" }
                   ]
                 }
               }
             },
             {
-              id: 'ou-ou',
-              title: 'Ou / Où',
-              icon: '🗺️',
+              id: 'ou-ou', title: 'Ou / Où', icon: '🗺️',
               rules: [
-                { word: 'Ou', desc: 'Conjonction de coordination.', tip: 'On peut le remplacer par "ou bien". Utile pour proposer un choix.' },
-                { word: 'Où', desc: 'Adverbe de lieu ou de temps.', tip: 'On peut le remplacer par "à quel endroit" ou "au moment duquel".' }
+                { word: 'Ou', desc: 'Choix / Alternative.', tip: 'Remplace-le par "ou bien".' },
+                { word: 'Où', desc: 'Lieu ou temps.', tip: 'Remplace-le par "à quel endroit".' }
               ],
               levels: {
                 dok1: {
-                  title: "Niveau 1 : Automatisme",
-                  instructions: "Choisissez entre 'ou' et 'où'. Appliquez le remplacement par 'ou bien'.",
+                  title: "DoK 1 : Automatisme", desc: "Complétez la phrase (astuce : 'ou bien' ou 'endroit').",
                   questions: [
                     { text: ["Thé ", " café ?"], options: ["ou", "où"], answer: "ou" },
                     { text: ["", " vas-tu cet été ?"], options: ["Ou", "Où"], answer: "Où" },
                     { text: ["Le jour ", " il est né."], options: ["ou", "où"], answer: "où" },
                     { text: ["Blanc ", " noir, il faut choisir."], options: ["ou", "où"], answer: "ou" },
-                    { text: ["La ville ", " j'habite est belle."], options: ["ou", "où"], answer: "où" }
+                    { text: ["La ville ", " j'habite."], options: ["ou", "où"], answer: "où" }
                   ]
                 },
                 dok2: {
-                  title: "Niveau 2 : Concept & Logique",
-                  instructions: "Identifiez le rôle sémantique du mot.",
+                  title: "DoK 2 : Logique", desc: "Quel est le rôle du mot dans la phrase ?",
                   questions: [
-                    { text: ["Dans 'Je veux rire ou pleurer', que représente 'ou' ?"], options: ["Une alternative/choix", "Une indication de lieu"], answer: "Une alternative/choix" },
-                    { text: ["Dans 'C'est l'endroit où nous jouons', que représente 'où' ?"], options: ["Une question", "Une localisation géographique"], answer: "Une localisation géographique" },
-                    { text: ["Quelle phrase est correcte ?"], options: ["Où allons-nous maintenant ?", "Ou allons-nous maintenant ?"], answer: "Où allons-nous maintenant ?" },
-                    { text: ["Remplacer par l'analogue : 'Prends ce gâteau ___ cette tarte'."], options: ["ou", "où"], answer: "ou" },
-                    { text: ["Dans 'Le moment où tu parles', 'où' exprime :"], options: ["Le lieu", "Le temps / Le moment"], answer: "Le temps / Le moment" }
+                    { text: ["Dans 'Rire ou pleurer', 'ou' exprime :"], options: ["Une alternative", "Une position"], answer: "Une alternative" },
+                    { text: ["Dans 'Le parc où nous jouons', 'où' exprime :"], options: ["Un choix", "Une localisation"], answer: "Une localisation" },
+                    { text: ["Phrase correcte :"], options: ["Où allons-nous ?", "Ou allons-nous ?"], answer: "Où allons-nous ?" },
+                    { text: ["'Le moment ___ tu parles'"], options: ["ou", "où"], answer: "où" },
+                    { text: ["'Prends ce gâteau ___ cette tarte'"], options: ["ou", "où"], answer: "ou" }
                   ]
                 },
                 dok3: {
-                  title: "Niveau 3 : Chasse aux Fautes",
-                  instructions: "Identifiez le mot fautif.",
+                  title: "DoK 3 : Chasse aux Fautes", desc: "Identifiez le mot mal orthographié.",
                   questions: [
-                    { text: ["Quelle est la faute : 'Ou habites-tu exactement ?'"], options: ["Le 'Ou' doit être un 'Où'", "Il n'y a pas d'erreur"], answer: "Le 'Ou' doit être un 'Où'" },
-                    { text: ["Quelle est la faute : 'Je veux du pain où de la brioche.'"], options: ["Le 'où' doit être un 'ou'", "Il n'y a pas de faute"], answer: "Le 'où' doit être un 'ou'" },
-                    { text: ["Quelle est la faute : 'C'est la maison ou je suis né.'"], options: ["Le 'ou' doit être un 'où'", "Le 'C'est' doit être 'S'est'"], answer: "Le 'ou' doit être un 'où'" },
-                    { text: ["Quelle est la faute : 'Tu préfères le bleu où le rouge ?'"], options: ["Le 'où' doit être un 'ou'", "Pas d'erreur"], answer: "Le 'où' doit être un 'ou'" },
-                    { text: ["Quelle est la faute : 'D'ou viens-tu ?'"], options: ["Le 'ou' doit s'écrire 'où'", "Il n'y a pas d'erreur"], answer: "Le 'ou' doit s'écrire 'où'" }
+                    { text: ["'Ou habites-tu exactement ?'"], options: ["Changer en 'Où'", "Pas d'erreur"], answer: "Changer en 'Où'" },
+                    { text: ["'Je veux du pain où de la brioche.'"], options: ["Changer en 'ou'", "Pas d'erreur"], answer: "Changer en 'ou'" },
+                    { text: ["'C'est la maison ou je suis né.'"], options: ["Changer en 'où'", "Pas d'erreur"], answer: "Changer en 'où'" },
+                    { text: ["'Tu préfères le bleu où le rouge ?'"], options: ["Changer en 'ou'", "Pas d'erreur"], answer: "Changer en 'ou'" },
+                    { text: ["'D'où viens-tu ?'"], options: ["Changer en 'ou'", "Pas d'erreur"], answer: "Pas d'erreur" }
                   ]
                 }
               }
             },
             {
-              id: 'son-sont',
-              title: 'Son / Sont',
-              icon: '👤',
+              id: 'son-sont', title: 'Son / Sont', icon: '👥',
               rules: [
-                { word: 'Son', desc: 'Déterminant possessif.', tip: 'On peut le remplacer par "mon" ou "ton" (le sien).' },
-                { word: 'Sont', desc: 'Verbe être (3e personne du pluriel).', tip: 'On peut le remplacer par "étaient".' }
+                { word: 'Son', desc: 'Déterminant possessif.', tip: 'Remplace-le par "mon" ou "ton".' },
+                { word: 'Sont', desc: 'Verbe être (pluriel).', tip: 'Remplace-le par "étaient".' }
               ],
               levels: {
                 dok1: {
-                  title: "Niveau 1 : Automatisme",
-                  instructions: "Choisissez entre 'son' et 'sont'.",
+                  title: "DoK 1 : Automatisme", desc: "Complétez la phrase.",
                   questions: [
                     { text: ["Les enfants ", " fatigués."], options: ["son", "sont"], answer: "sont" },
                     { text: ["Il promène ", " chien."], options: ["son", "sont"], answer: "son" },
@@ -162,41 +152,36 @@
                   ]
                 },
                 dok2: {
-                  title: "Niveau 2 : Concept & Logique",
-                  instructions: "Évaluez la nature grammaticale des mots.",
+                  title: "DoK 2 : Logique", desc: "Analysez la nature grammaticale.",
                   questions: [
-                    { text: ["Dans 'Ils sont grands', quelle est la nature de 'sont' ?"], options: ["Verbe", "Déterminant"], answer: "Verbe" },
-                    { text: ["Dans 'Il prend son livre', quelle est la nature de 'son' ?"], options: ["Pronom", "Déterminant possessif"], answer: "Déterminant possessif" },
-                    { text: ["Quelle substitution fonctionne pour : 'Ses amis ___ arrivés' ?"], options: ["étaient (sont)", "mon (son)"], answer: "étaient (sont)" },
-                    { text: ["Quelle substitution fonctionne pour : 'Il range ___ cahier' ?"], options: ["étaient (sont)", "ton (son)"], answer: "ton (son)" },
-                    { text: ["Quelle phrase est correcte ?"], options: ["Ses parents sont gentils", "Ses parents son gentils"], answer: "Ses parents sont gentils" }
+                    { text: ["Dans 'Ils sont grands', 'sont' est :"], options: ["Le verbe être", "Un déterminant"], answer: "Le verbe être" },
+                    { text: ["Dans 'Il prend son livre', 'son' est :"], options: ["Un pronom", "Un déterminant possessif"], answer: "Un déterminant possessif" },
+                    { text: ["Peut-on dire : 'Ses amis (étaient) arrivés' ?"], options: ["Oui (donc 'sont')", "Non (donc 'son')"], answer: "Oui (donc 'sont')" },
+                    { text: ["Peut-on dire : 'Il range (ton) cahier' ?"], options: ["Oui (donc 'son')", "Non (donc 'sont')"], answer: "Oui (donc 'son')" },
+                    { text: ["Phrase correcte :"], options: ["Ils son gentils", "Ils sont gentils"], answer: "Ils sont gentils" }
                   ]
                 },
                 dok3: {
-                  title: "Niveau 3 : Chasse aux Fautes",
-                  instructions: "Trouvez la correction nécessaire.",
+                  title: "DoK 3 : Chasse aux Fautes", desc: "Trouvez et corrigez l'erreur.",
                   questions: [
-                    { text: ["Corrigez : 'Sont père est venu ce matin.'"], options: ["'Sont' doit être 'Son'", "Pas d'erreur"], answer: ["'Sont' doit être 'Son'"] },
-                    { text: ["Corrigez : 'Ils son en retard aujourd'hui.'"], options: ["'son' doit être 'sont'", "Pas d'erreur"], answer: "'son' doit être 'sont'" },
-                    { text: ["Corrigez : 'Il a oublié sont sac de sport.'"], options: ["'sont' doit être 'son'", "Pas d'erreur"], answer: "'sont' doit être 'son'" },
-                    { text: ["Corrigez : 'Les magasins son fermés le dimanche.'"], options: ["'son' doit être 'sont'", "'fermés' doit être 'fermé'"], answer: "'son' doit être 'sont'" },
-                    { text: ["Corrigez : 'Sont-ils prêts pour le départ ?'"], options: ["Le mot est correct", "'Sont' doit s'écrire 'Son'"], answer: "Le mot est correct" }
+                    { text: ["'Sont père est venu ce matin.'"], options: ["Remplacer par 'Son'", "Pas d'erreur"], answer: "Remplacer par 'Son'" },
+                    { text: ["'Ils son en retard aujourd'hui.'"], options: ["Remplacer par 'sont'", "Pas d'erreur"], answer: "Remplacer par 'sont'" },
+                    { text: ["'Il a oublié sont sac de sport.'"], options: ["Remplacer par 'son'", "Pas d'erreur"], answer: "Remplacer par 'son'" },
+                    { text: ["'Les magasins son fermés.'"], options: ["Remplacer par 'sont'", "Pas d'erreur"], answer: "Remplacer par 'sont'" },
+                    { text: ["'Ses amis sont tous là.'"], options: ["Remplacer par 'son'", "Pas d'erreur"], answer: "Pas d'erreur" }
                   ]
                 }
               }
             },
             {
-              id: 'ce-se',
-              title: 'Ce / Se',
-              icon: '👉',
+              id: 'ce-se', title: 'Ce / Se', icon: '👉',
               rules: [
-                { word: 'Ce', desc: 'Démonstratif (déterminant ou pronom).', tip: 'On peut le remplacer par "le", "cela" ou "ceux-ci".' },
-                { word: 'Se', desc: 'Pronom personnel réfléchi.', tip: 'Il est toujours placé devant un verbe pronominal (il se trompe).' }
+                { word: 'Ce', desc: 'Démonstratif (montrer).', tip: 'Devant un nom. Remplace par "le" ou "cela".' },
+                { word: 'Se', desc: 'Pronom réfléchi.', tip: 'Toujours placé juste devant un verbe (se laver).' }
               ],
               levels: {
                 dok1: {
-                  title: "Niveau 1 : Automatisme",
-                  instructions: "Choisissez entre 'ce' et 'se'.",
+                  title: "DoK 1 : Automatisme", desc: "Choisissez la bonne orthographe.",
                   questions: [
                     { text: ["", " garçon est poli."], options: ["Ce", "Se"], answer: "Ce" },
                     { text: ["Il ", " lève de bonne heure."], options: ["ce", "se"], answer: "se" },
@@ -206,25 +191,101 @@
                   ]
                 },
                 dok2: {
-                  title: "Niveau 2 : Concept & Logique",
-                  instructions: "Comprenez la relation avec le verbe.",
+                  title: "DoK 2 : Logique", desc: "Identifiez le contexte (Nom ou Verbe pronominal).",
                   questions: [
-                    { text: ["Si on change de sujet (Je), 'se' devient :"], options: ["me", "te"], answer: "me" },
-                    { text: ["Dans la phrase 'Ce gâteau est bon', 'ce' est un :"], options: ["Pronom personnel", "Déterminant démonstratif"], answer: "Déterminant démonstratif" },
-                    { text: ["Dans la phrase 'Il se promène', 'se' fait partie de :"], options: ["Un verbe pronominal", "Une négation"], answer: "Un verbe pronominal" },
-                    { text: ["Quelle phrase est correcte ?"], options: ["Il ce demande pourquoi", "Il se demande pourquoi"], answer: "Il se demande pourquoi" },
-                    { text: ["Complétez : '___ matin, tout est calme.'"], options: ["Ce", "Se"], answer: "Ce" }
+                    { text: ["Si on change 'Il se lave' avec 'Je', ça donne :"], options: ["Je me lave", "Je ce lave"], answer: "Je me lave" },
+                    { text: ["Dans 'Ce gâteau est bon', 'Ce' accompagne :"], options: ["Un nom", "Un verbe"], answer: "Un nom" },
+                    { text: ["Dans 'Il se promène', 'se' fait partie de :"], options: ["Un verbe pronominal", "Une description"], answer: "Un verbe pronominal" },
+                    { text: ["Phrase correcte :"], options: ["Il ce demande", "Il se demande"], answer: "Il se demande" },
+                    { text: ["'___ matin, tout est calme.'"], options: ["Ce", "Se"], answer: "Ce" }
                   ]
                 },
                 dok3: {
-                  title: "Niveau 3 : Chasse aux Fautes",
-                  instructions: "Corrigez les confusions de démonstratifs.",
+                  title: "DoK 3 : Chasse aux Fautes", desc: "Corrigez les confusions.",
                   questions: [
-                    { text: ["Corrigez : 'Se livre m'appartient.'"], options: ["'Se' doit s'écrire 'Ce'", "Pas de faute"], answer: "'Se' doit s'écrire 'Ce'" },
-                    { text: ["Corrigez : 'Il ce lève tard le samedi.'"], options: ["'ce' doit s'écrire 'se'", "Pas de faute"], answer: "'ce' doit s'écrire 'se'" },
-                    { text: ["Corrigez : 'Se n'est pas ma faute.'"], options: ["'Se' doit être 'Ce'", "Pas de faute"], answer: "'Se' doit être 'Ce'" },
-                    { text: ["Corrigez : 'Il se lave les mains.'"], options: ["C'est correct", "'se' doit être 'ce'"], answer: "C'est correct" },
-                    { text: ["Corrigez : 'Ce promener fait du bien.'"], options: ["'Ce' doit être 'Se'", "Pas de faute"], answer: "'Ce' doit être 'Se'" }
+                    { text: ["'Se livre m'appartient.'"], options: ["Changer en 'Ce'", "Pas d'erreur"], answer: "Changer en 'Ce'" },
+                    { text: ["'Il ce lève tard le samedi.'"], options: ["Changer en 'se'", "Pas d'erreur"], answer: "Changer en 'se'" },
+                    { text: ["'Se n'est pas ma faute.'"], options: ["Changer en 'Ce'", "Pas d'erreur"], answer: "Changer en 'Ce'" },
+                    { text: ["'Il se lave les mains.'"], options: ["Changer en 'ce'", "Pas d'erreur"], answer: "Pas d'erreur" },
+                    { text: ["'Il faut ce préparer.'"], options: ["Changer en 'se'", "Pas d'erreur"], answer: "Changer en 'se'" }
+                  ]
+                }
+              }
+            },
+            {
+              id: 'on-ont', title: 'On / Ont', icon: '🗣️',
+              rules: [
+                { word: 'On', desc: 'Pronom sujet (nous/les gens).', tip: 'Remplace par "il" ou "elle".' },
+                { word: 'Ont', desc: 'Verbe avoir (ils/elles).', tip: 'Remplace par "avaient".' }
+              ],
+              levels: {
+                dok1: {
+                  title: "DoK 1 : Automatisme", desc: "Complétez la phrase.",
+                  questions: [
+                    { text: ["", " a beaucoup ri hier."], options: ["On", "Ont"], answer: "On" },
+                    { text: ["Ils ", " terminé le travail."], options: ["on", "ont"], answer: "ont" },
+                    { text: ["Quand ", " a faim..."], options: ["on", "ont"], answer: "on" },
+                    { text: ["Les oiseaux ", " migré."], options: ["on", "ont"], answer: "ont" },
+                    { text: ["", " y va maintenant ?"], options: ["On", "Ont"], answer: "On" }
+                  ]
+                },
+                dok2: {
+                  title: "DoK 2 : Logique", desc: "Identifiez le sujet et le verbe.",
+                  questions: [
+                    { text: ["Peut-on dire : 'Ils (avaient) froid' ?"], options: ["Oui (donc 'ont')", "Non (donc 'on')"], answer: "Oui (donc 'ont')" },
+                    { text: ["Dans 'On frappe à la porte', 'On' est :"], options: ["Le sujet de la phrase", "Le verbe avoir"], answer: "Le sujet de la phrase" },
+                    { text: ["Les élèves (on/ont) compris."], options: ["on", "ont"], answer: "ont" },
+                    { text: ["Si on remplace 'On' par 'Il' dans 'On gagne', la phrase a-t-elle du sens ?"], options: ["Oui", "Non"], answer: "Oui" },
+                    { text: ["'(On/Ont) verra bien demain.'"], options: ["On", "Ont"], answer: "On" }
+                  ]
+                },
+                dok3: {
+                  title: "DoK 3 : Chasse aux Fautes", desc: "Corrigez l'erreur.",
+                  questions: [
+                    { text: ["'Les voisins on acheté une voiture.'"], options: ["Changer par 'ont'", "Pas d'erreur"], answer: "Changer par 'ont'" },
+                    { text: ["'Ont est bien ici au soleil.'"], options: ["Changer par 'On'", "Pas d'erreur"], answer: "Changer par 'On'" },
+                    { text: ["'Ils on tout mangé.'"], options: ["Changer par 'ont'", "Pas d'erreur"], answer: "Changer par 'ont'" },
+                    { text: ["'Ont ne sait jamais.'"], options: ["Changer par 'On'", "Pas d'erreur"], answer: "Changer par 'On'" },
+                    { text: ["'On y va tous ensemble.'"], options: ["Changer par 'Ont'", "Pas d'erreur"], answer: "Pas d'erreur" }
+                  ]
+                }
+              }
+            },
+            {
+              id: 'et-est', title: 'Et / Est', icon: '➕',
+              rules: [
+                { word: 'Et', desc: 'Conjonction d\'addition.', tip: 'Remplace par "et puis".' },
+                { word: 'Est', desc: 'Verbe être (il/elle/on).', tip: 'Remplace par "était".' }
+              ],
+              levels: {
+                dok1: {
+                  title: "DoK 1 : Automatisme", desc: "Choisissez entre Et (addition) et Est (verbe).",
+                  questions: [
+                    { text: ["Il ", " très fatigué."], options: ["et", "est"], answer: "est" },
+                    { text: ["Je prends du pain ", " du beurre."], options: ["et", "est"], answer: "et" },
+                    { text: ["La voiture ", " garée ici."], options: ["et", "est"], answer: "est" },
+                    { text: ["Toi ", " moi, on y va."], options: ["Et", "Est", "et", "est"], answer: "et" },
+                    { text: ["C'", " une belle journée."], options: ["et", "est"], answer: "est" }
+                  ]
+                },
+                dok2: {
+                  title: "DoK 2 : Logique", desc: "Le test du 'était' ou 'et puis'.",
+                  questions: [
+                    { text: ["Peut-on dire : 'Il (était) grand' ?"], options: ["Oui (donc 'est')", "Non (donc 'et')"], answer: "Oui (donc 'est')" },
+                    { text: ["Dans 'Le chat et le chien', 'et' marque :"], options: ["L'addition", "L'état"], answer: "L'addition" },
+                    { text: ["Complétez : 'Elle ___ belle ___ intelligente.'"], options: ["est / et", "et / est"], answer: "est / et" },
+                    { text: ["Dans 'C'est fini', quel mot entend-on ?"], options: ["L'addition 'et'", "Le verbe 'est'"], answer: "Le verbe 'est'" },
+                    { text: ["Phrase correcte :"], options: ["Vite et bien", "Vite est bien"], answer: "Vite et bien" }
+                  ]
+                },
+                dok3: {
+                  title: "DoK 3 : Chasse aux Fautes", desc: "Identifiez les confusions.",
+                  questions: [
+                    { text: ["'Il et vraiment grand.'"], options: ["Remplacer 'et' par 'est'", "Pas d'erreur"], answer: "Remplacer 'et' par 'est'" },
+                    { text: ["'Je veux du sel est du poivre.'"], options: ["Remplacer 'est' par 'et'", "Pas d'erreur"], answer: "Remplacer 'est' par 'et'" },
+                    { text: ["'C'et impossible !'"], options: ["Remplacer 'et' par 'est'", "Pas d'erreur"], answer: "Remplacer 'et' par 'est'" },
+                    { text: ["'Elle est belle.'"], options: ["Remplacer 'est' par 'et'", "Pas d'erreur"], answer: "Pas d'erreur" },
+                    { text: ["'Pierre est Paul sont là.'"], options: ["Remplacer 'est' par 'et'", "Pas d'erreur"], answer: "Remplacer 'est' par 'et'" }
                   ]
                 }
               }
@@ -232,135 +293,237 @@
           ],
           en: [
             {
-              id: 'there-their-theyre',
-              title: "There / Their / They're",
-              icon: '📍',
+              id: 'there-their-theyre', title: "There / Their / They're", icon: '📍',
               rules: [
-                { word: 'There', desc: 'Points to a place or states existence.', tip: 'Replace with "here" to check if it points to a location.' },
-                { word: 'Their', desc: 'Possessive determiner.', tip: 'Replace with "our" or "your" (belongs to them).' },
-                { word: 'They\'re', desc: 'Contraction of "they are".', tip: 'Replace with "they are" to test.' }
+                { word: 'There', desc: 'Place or existence.', tip: 'Replace with "here".' },
+                { word: 'Their', desc: 'Possession.', tip: 'Replace with "our" (belongs to them).' },
+                { word: 'They\'re', desc: 'Contraction.', tip: 'Replace with "they are".' }
               ],
               levels: {
                 dok1: {
-                  title: "Level 1: Recall & Automaticity",
-                  instructions: "Select there, their, or they're based on simple word replacements.",
+                  title: "Level 1: Recall", desc: "Select the correct word.",
                   questions: [
-                    { text: ["Look over ", ", near the lake."], options: ["there", "their", "they're"], answer: "there" },
-                    { text: ["", " going to be late!"], options: ["There", "Their", "They're"], answer: "They're" },
-                    { text: ["The dogs lost ", " bone."], options: ["there", "their", "they're"], answer: "their" },
-                    { text: ["Is ", " any apple juice left?"], options: ["there", "their", "they're"], answer: "there" },
-                    { text: ["I love ", " new garden."], options: ["there", "their", "they're"], answer: "their" }
+                    { text: ["Put the box over ", "."], options: ["there", "their", "they're"], answer: "there" },
+                    { text: ["", " going to the park."], options: ["There", "Their", "They're"], answer: "They're" },
+                    { text: ["The students lost ", " books."], options: ["there", "their", "they're"], answer: "their" },
+                    { text: ["Are ", " any apples left?"], options: ["there", "their", "they're"], answer: "there" },
+                    { text: ["I think ", " very happy."], options: ["there", "their", "they're"], answer: "they're" }
                   ]
                 },
                 dok2: {
-                  title: "Level 2: Concept & Logic",
-                  instructions: "Analyze the grammatical function in the sentence.",
+                  title: "Level 2: Concept", desc: "Analyze the grammatical function.",
                   questions: [
-                    { text: ["In 'This is their turn', what is the function of 'their'?"], options: ["Possessive adjective", "Adverb of place"], answer: "Possessive adjective" },
-                    { text: ["Which word can replace 'there' in 'Stop right there!'?"], options: ["here", "they are"], answer: "here" },
+                    { text: ["In 'This is their turn', 'their' is a:"], options: ["Possessive adjective", "Adverb of place"], answer: "Possessive adjective" },
+                    { text: ["What word replaces 'there' in 'Stop right there!'?"], options: ["here", "they are"], answer: "here" },
                     { text: ["What is the full form of 'they're'?"], options: ["they are", "their own"], answer: "they are" },
-                    { text: ["Which sentence has correct spelling?"], options: ["They're very excited", "There very excited"], answer: "They're very excited" },
-                    { text: ["Fill the blank: 'Once upon a time, ___ was a dragon.'"], options: ["there", "their"], answer: "there" }
+                    { text: ["Correct sentence:"], options: ["They're very excited", "There very excited"], answer: "They're very excited" },
+                    { text: ["'Once upon a time, ___ was a king.'"], options: ["there", "their"], answer: "there" }
                   ]
                 },
                 dok3: {
-                  title: "Level 3: Strategic Thinking & Error Correction",
-                  instructions: "Find the homophone error.",
+                  title: "Level 3: Strategic Thinking", desc: "Find the error.",
                   questions: [
-                    { text: ["Find the error: 'Put your bag over their.'"], options: ["'their' should be 'there'", "No error"], answer: "'their' should be 'there'" },
-                    { text: ["Find the error: 'There very happy with the results.'"], options: ["'There' should be 'They're'", "No error"], answer: "'There' should be 'They're'" },
-                    { text: ["Find the error: 'Is that they're new cat?'"], options: ["'they're' should be 'their'", "'they're' should be 'there'"], answer: "'they're' should be 'their'" },
-                    { text: ["Find the error: 'Their is no milk in the kitchen.'"], options: ["'Their' should be 'There'", "No error"], answer: "'Their' should be 'There'" },
-                    { text: ["Find the error: 'I really like their house.'"], options: ["No error", "'their' should be 'there'"], answer: "No error" }
+                    { text: ["'Put your bag over their.'"], options: ["'their' -> 'there'", "No error"], answer: "'their' -> 'there'" },
+                    { text: ["'There very happy with the results.'"], options: ["'There' -> 'They're'", "No error"], answer: "'There' -> 'They're'" },
+                    { text: ["'Is that they're new cat?'"], options: ["'they're' -> 'their'", "No error"], answer: "'they're' -> 'their'" },
+                    { text: ["'Their is no milk in the kitchen.'"], options: ["'Their' -> 'There'", "No error"], answer: "'Their' -> 'There'" },
+                    { text: ["'I really like their house.'"], options: ["No error", "'their' -> 'there'"], answer: "No error" }
                   ]
                 }
               }
             },
             {
-              id: 'to-too-two',
-              title: 'To / Too / Two',
-              icon: '✌️',
+              id: 'to-too-two', title: 'To / Too / Two', icon: '✌️',
               rules: [
-                { word: 'To', desc: 'Preposition of direction or infinitive marker.', tip: 'Going TO school. TO eat.' },
-                { word: 'Too', desc: 'Adverb meaning "also" or "excessively".', tip: 'Me TOO. It is TOO hot.' },
-                { word: 'Two', desc: 'The number 2.', tip: 'Countable number (1, 2, 3).' }
+                { word: 'To', desc: 'Direction or verb.', tip: 'Going TO school. Want TO eat.' },
+                { word: 'Too', desc: 'Also or excessively.', tip: 'Me TOO! TOO hot.' },
+                { word: 'Two', desc: 'Number 2.', tip: 'One, TWO, three.' }
               ],
               levels: {
                 dok1: {
-                  title: "Level 1: Recall & Automaticity",
-                  instructions: "Choose the correct spelling of to, too, or two.",
+                  title: "Level 1: Recall", desc: "Choose the correct spelling.",
                   questions: [
-                    { text: ["I am walking ", " the bookstore."], options: ["to", "too", "two"], answer: "to" },
+                    { text: ["I am walking ", " the store."], options: ["to", "too", "two"], answer: "to" },
                     { text: ["This laptop is ", " expensive."], options: ["to", "too", "two"], answer: "too" },
-                    { text: ["I purchased ", " tickets."], options: ["to", "too", "two"], answer: "two" },
+                    { text: ["I bought ", " tickets."], options: ["to", "too", "two"], answer: "two" },
                     { text: ["Do you want to come ", "?"], options: ["to", "too", "two"], answer: "too" },
-                    { text: ["He wanted ", " read a book."], options: ["to", "too", "two"], answer: "to" }
+                    { text: ["He wanted ", " read."], options: ["to", "too", "two"], answer: "to" }
                   ]
                 },
                 dok2: {
-                  title: "Level 2: Concept & Logic",
-                  instructions: "Categorize and analyze meaning.",
+                  title: "Level 2: Concept", desc: "Categorize the meaning.",
                   questions: [
-                    { text: ["In 'It is too late', what does 'too' mean?"], options: ["Excessively", "Also"], answer: "Excessively" },
-                    { text: ["In 'I want to speak', 'to' is used as:"], options: ["Infinitive verb marker", "Preposition of direction"], answer: "Infinitive verb marker" },
-                    { text: ["Which option represents a countable number?"], options: ["two", "too"], answer: "two" },
-                    { text: ["Which sentence is written correctly?"], options: ["It is way to far", "It is way too far"], answer: "It is way too far" },
-                    { text: ["What is the opposite of 'from'?"], options: ["to", "too"], answer: "to" }
+                    { text: ["In 'It is too late', 'too' means:"], options: ["Excessively", "Also"], answer: "Excessively" },
+                    { text: ["In 'I want to speak', 'to' is:"], options: ["Infinitive marker", "Number"], answer: "Infinitive marker" },
+                    { text: ["Which is a countable number?"], options: ["two", "too"], answer: "two" },
+                    { text: ["Correct sentence:"], options: ["Way to far", "Way too far"], answer: "Way too far" },
+                    { text: ["Opposite of 'from'?"], options: ["to", "too"], answer: "to" }
                   ]
                 },
                 dok3: {
-                  title: "Level 3: Strategic Thinking & Error Correction",
-                  instructions: "Correct common homophone errors.",
+                  title: "Level 3: Strategic Thinking", desc: "Correct the errors.",
                   questions: [
-                    { text: ["Find the error: 'I want two go home now.'"], options: ["'two' should be 'to'", "No error"], answer: "'two' should be 'to'" },
-                    { text: ["Find the error: 'It is to hot in here.'"], options: ["'to' should be 'too'", "No error"], answer: "'to' should be 'too'" },
-                    { text: ["Find the error: 'Can I have too apples, please?'"], options: ["'too' should be 'two'", "'too' should be 'to'"], answer: "'too' should be 'two'" },
-                    { text: ["Find the error: 'We are going too the beach.'"], options: ["'too' should be 'to'", "No error"], answer: "'too' should be 'to'" },
-                    { text: ["Find the error: 'The test was two difficult.'"], options: ["'two' should be 'too'", "No error"], answer: "'two' should be 'too'" }
+                    { text: ["'I want two go home now.'"], options: ["'two' -> 'to'", "No error"], answer: "'two' -> 'to'" },
+                    { text: ["'It is to hot in here.'"], options: ["'to' -> 'too'", "No error"], answer: "'to' -> 'too'" },
+                    { text: ["'Can I have too apples?'"], options: ["'too' -> 'two'", "No error"], answer: "'too' -> 'two'" },
+                    { text: ["'We are going too the beach.'"], options: ["'too' -> 'to'", "No error"], answer: "'too' -> 'to'" },
+                    { text: ["'The test was two difficult.'"], options: ["'two' -> 'too'", "No error"], answer: "'two' -> 'too'" }
                   ]
                 }
               }
             },
             {
-              id: 'your-youre',
-              title: "Your / You're",
-              icon: '🫵',
+              id: 'your-youre', title: "Your / You're", icon: '🫵',
               rules: [
-                { word: 'Your', desc: 'Possessive determiner.', tip: 'Replace with "my" or "his" (ownership).' },
-                { word: 'You\'re', desc: 'Contraction of "you are".', tip: 'Replace with "you are" to test.' }
+                { word: 'Your', desc: 'Possessive.', tip: 'Replace with "my".' },
+                { word: 'You\'re', desc: 'You are.', tip: 'Replace with "you are".' }
               ],
               levels: {
                 dok1: {
-                  title: "Level 1: Recall & Automaticity",
-                  instructions: "Choose between your and you're.",
+                  title: "Level 1: Recall", desc: "Choose between your and you're.",
                   questions: [
-                    { text: ["", " doing an excellent job."], options: ["Your", "You're"], answer: "You're" },
-                    { text: ["Is that ", " house over there?"], options: ["your", "you're"], answer: "your" },
+                    { text: ["", " doing a great job."], options: ["Your", "You're"], answer: "You're" },
+                    { text: ["Is that ", " house?"], options: ["your", "you're"], answer: "your" },
                     { text: ["We know ", " going to win."], options: ["your", "you're"], answer: "you're" },
                     { text: ["Where is ", " backpack?"], options: ["your", "you're"], answer: "your" },
                     { text: ["I really like ", " style."], options: ["your", "you're"], answer: "your" }
                   ]
                 },
                 dok2: {
-                  title: "Level 2: Concept & Logic",
-                  instructions: "Analyze the contraction test.",
+                  title: "Level 2: Concept", desc: "Use the contraction test.",
                   questions: [
-                    { text: ["Can you replace the word in '... dog is cute' with 'You are'?"], options: ["No, it must be 'Your'", "Yes, it must be 'You're'"], answer: "No, it must be 'Your'" },
-                    { text: ["In 'You're very kind', 'You're' represents:"], options: ["A pronoun + verb", "A possessive word"], answer: "A pronoun + verb" },
-                    { text: ["Which sentence has correct spelling?"], options: ["I hope you're ready", "I hope your ready"], answer: "I hope you're ready" },
-                    { text: ["What is the possessive form of 'you'?"], options: ["your", "you're"], answer: "your" },
-                    { text: ["Complete: 'Please wash ___ hands.'"], options: ["your", "you're"], answer: "your" }
+                    { text: ["Can you replace '... dog' with 'You are dog'?"], options: ["No, use 'Your'", "Yes, use 'You're'"], answer: "No, use 'Your'" },
+                    { text: ["In 'You're very kind', 'You're' is:"], options: ["Pronoun + verb", "Possessive word"], answer: "Pronoun + verb" },
+                    { text: ["Correct spelling:"], options: ["I hope you're ready", "I hope your ready"], answer: "I hope you're ready" },
+                    { text: ["Possessive form of 'you'?"], options: ["your", "you're"], answer: "your" },
+                    { text: ["'Please wash ___ hands.'"], options: ["your", "you're"], answer: "your" }
                   ]
                 },
                 dok3: {
-                  title: "Level 3: Strategic Thinking & Error Correction",
-                  instructions: "Audit sentences for grammar errors.",
+                  title: "Level 3: Strategic Thinking", desc: "Audit the grammar.",
                   questions: [
-                    { text: ["Find the error: 'Your going to trip on that wire!'"], options: ["'Your' should be 'You're'", "No error"], answer: "'Your' should be 'You're'" },
-                    { text: ["Find the error: 'Is this you're smartphone?'"], options: ["'you're' should be 'your'", "No error"], answer: "'you're' should be 'your'" },
-                    { text: ["Find the error: 'I really appreciate you're help.'"], options: ["'you're' should be 'your'", "No error"], answer: "'you're' should be 'your'" },
-                    { text: ["Find the error: 'Make sure your on time.'"], options: ["'your' should be 'you're'", "No error"], answer: "'your' should be 'you're'" },
-                    { text: ["Find the error: 'Call your father.'"], options: ["No error", "'your' should be 'you're'"], answer: "No error" }
+                    { text: ["'Your going to trip!'"], options: ["'Your' -> 'You're'", "No error"], answer: "'Your' -> 'You're'" },
+                    { text: ["'Is this you're phone?'"], options: ["'you're' -> 'your'", "No error"], answer: "'you're' -> 'your'" },
+                    { text: ["'I appreciate you're help.'"], options: ["'you're' -> 'your'", "No error"], answer: "'you're' -> 'your'" },
+                    { text: ["'Make sure your on time.'"], options: ["'your' -> 'you're'", "No error"], answer: "'your' -> 'you're'" },
+                    { text: ["'Call your father.'"], options: ["No error", "'your' -> 'you're'"], answer: "No error" }
+                  ]
+                }
+              }
+            },
+            {
+              id: 'its-its', title: "Its / It's", icon: '🐶',
+              rules: [
+                { word: 'Its', desc: 'Possessive (belongs to it).', tip: 'No apostrophe for possession!' },
+                { word: 'It\'s', desc: 'It is / It has.', tip: 'Replace with "It is".' }
+              ],
+              levels: {
+                dok1: {
+                  title: "Level 1: Recall", desc: "Its or It's?",
+                  questions: [
+                    { text: ["", " a beautiful day."], options: ["Its", "It's"], answer: "It's" },
+                    { text: ["The dog wagged ", " tail."], options: ["its", "it's"], answer: "its" },
+                    { text: ["I think ", " broken."], options: ["its", "it's"], answer: "it's" },
+                    { text: ["The tree lost ", " leaves."], options: ["its", "it's"], answer: "its" },
+                    { text: ["", " time to go."], options: ["Its", "It's"], answer: "It's" }
+                  ]
+                },
+                dok2: {
+                  title: "Level 2: Concept", desc: "Apply the 'It is' test.",
+                  questions: [
+                    { text: ["Can you say 'It is cold outside'?"], options: ["Yes -> It's", "No -> Its"], answer: "Yes -> It's" },
+                    { text: ["Can you say 'The cat ate it is food'?"], options: ["Yes -> It's", "No -> Its"], answer: "No -> Its" },
+                    { text: ["'___ a mystery.'"], options: ["Its", "It's"], answer: "It's" },
+                    { text: ["'The robot moved ___ arm.'"], options: ["its", "it's"], answer: "its" },
+                    { text: ["'London and ___ history.'"], options: ["its", "it's"], answer: "its" }
+                  ]
+                },
+                dok3: {
+                  title: "Level 3: Strategic Thinking", desc: "Fix the apostrophe mistakes.",
+                  questions: [
+                    { text: ["'Its a lovely morning.'"], options: ["'Its' -> 'It's'", "No error"], answer: "'Its' -> 'It's'" },
+                    { text: ["'The dog found it's bone.'"], options: ["'it's' -> 'its'", "No error"], answer: "'it's' -> 'its'" },
+                    { text: ["'Its going to rain.'"], options: ["'Its' -> 'It's'", "No error"], answer: "'Its' -> 'It's'" },
+                    { text: ["'The house lost it's roof.'"], options: ["'it's' -> 'its'", "No error"], answer: "'it's' -> 'its'" },
+                    { text: ["'I think it's over.'"], options: ["No error", "'it's' -> 'its'"], answer: "No error" }
+                  ]
+                }
+              }
+            },
+            {
+              id: 'than-then', title: 'Than / Then', icon: '⏱️',
+              rules: [
+                { word: 'Than', desc: 'Used for comparison.', tip: '"A" for compArison. Bigger THAN you.' },
+                { word: 'Then', desc: 'Used for time or sequence.', tip: '"E" for timE. We ate, THEN slept.' }
+              ],
+              levels: {
+                dok1: {
+                  title: "Level 1: Recall", desc: "Select than or then.",
+                  questions: [
+                    { text: ["I am older ", " you."], options: ["than", "then"], answer: "than" },
+                    { text: ["Finish work, ", " play."], options: ["than", "then"], answer: "then" },
+                    { text: ["Better late ", " never."], options: ["than", "then"], answer: "than" },
+                    { text: ["First flour, ", " eggs."], options: ["than", "then"], answer: "then" },
+                    { text: ["She is faster ", " him."], options: ["than", "then"], answer: "than" }
+                  ]
+                },
+                dok2: {
+                  title: "Level 2: Concept", desc: "Time or Comparison?",
+                  questions: [
+                    { text: ["'I like apples more than oranges.' Concept:"], options: ["Comparison", "Time"], answer: "Comparison" },
+                    { text: ["'We went to the park, then home.' Concept:"], options: ["Time/Sequence", "Comparison"], answer: "Time/Sequence" },
+                    { text: ["'It costs less than $5.'"], options: ["than", "then"], answer: "than" },
+                    { text: ["'Just then, the phone rang.'"], options: ["than", "then"], answer: "then" },
+                    { text: ["'Easier said than done.'"], options: ["than", "then"], answer: "than" }
+                  ]
+                },
+                dok3: {
+                  title: "Level 3: Strategic Thinking", desc: "Find the error.",
+                  questions: [
+                    { text: ["'I am smarter then him.'"], options: ["'then' -> 'than'", "No error"], answer: "'then' -> 'than'" },
+                    { text: ["'First shower, than dress.'"], options: ["'than' -> 'then'", "No error"], answer: "'than' -> 'then'" },
+                    { text: ["'Its more expensive then I thought.'"], options: ["'then' -> 'than'", "No error"], answer: "'then' -> 'than'" },
+                    { text: ["'I like cake better then pie.'"], options: ["'then' -> 'than'", "No error"], answer: "'then' -> 'than'" },
+                    { text: ["'If you study, then you will pass.'"], options: ["No error", "'then' -> 'than'"], answer: "No error" }
+                  ]
+                }
+              }
+            },
+            {
+              id: 'affect-effect', title: 'Affect / Effect', icon: '⚡',
+              rules: [
+                { word: 'Affect', desc: 'Verb (Action).', tip: 'A is for Action. It will AFFECT you.' },
+                { word: 'Effect', desc: 'Noun (Result).', tip: 'E is for End Result. A good EFFECT.' }
+              ],
+              levels: {
+                dok1: {
+                  title: "Level 1: Recall", desc: "Action or Result?",
+                  questions: [
+                    { text: ["Pollution will ", " the earth."], options: ["affect", "effect"], answer: "affect" },
+                    { text: ["Cause and ", "."], options: ["affect", "effect"], answer: "effect" },
+                    { text: ["The special ", "s were cool."], options: ["affect", "effect"], answer: "effect" },
+                    { text: ["Don't let it ", " you."], options: ["affect", "effect"], answer: "affect" },
+                    { text: ["What is the side ", "?"], options: ["affect", "effect"], answer: "effect" }
+                  ]
+                },
+                dok2: {
+                  title: "Level 2: Concept", desc: "Noun or Verb?",
+                  questions: [
+                    { text: ["'To affect change.' Is it a Verb or Noun?"], options: ["Verb", "Noun"], answer: "Verb" },
+                    { text: ["'The greenhouse effect.'"], options: ["Noun", "Verb"], answer: "Noun" },
+                    { text: ["'It affects us all.'"], options: ["Verb", "Noun"], answer: "Verb" },
+                    { text: ["'A visual effect.'"], options: ["Noun", "Verb"], answer: "Noun" },
+                    { text: ["'It had no effect.'"], options: ["Noun", "Verb"], answer: "Noun" }
+                  ]
+                },
+                dok3: {
+                  title: "Level 3: Strategic Thinking", desc: "Find the confusion.",
+                  questions: [
+                    { text: ["'The movie had a strange affect on me.'"], options: ["'affect' -> 'effect'", "No error"], answer: "'affect' -> 'effect'" },
+                    { text: ["'Will this effect my grade?'"], options: ["'effect' -> 'affect'", "No error"], answer: "'effect' -> 'affect'" },
+                    { text: ["'The special affects were bad.'"], options: ["'affects' -> 'effects'", "No error"], answer: "'affects' -> 'effects'" },
+                    { text: ["'Cause and affect.'"], options: ["'affect' -> 'effect'", "No error"], answer: "'affect' -> 'effect'" },
+                    { text: ["'It did not affect him.'"], options: ["No error", "'affect' -> 'effect'"], answer: "No error" }
                   ]
                 }
               }
@@ -368,62 +531,59 @@
           ]
         };
 
-        // --- MAIN APP COMPONENT ---
+        // --- UI STRINGS ---
+        const UI = {
+          fr: {
+            appTitle: "Maître des Homophones", subtitle: "Choisis une leçon",
+            progressTitle: "Progression Globale", backBtn: "Retour",
+            rulesTitle: "Règles & Astuces", theoryTab: "Théorie",
+            checkBtn: "Vérifier mes réponses", retryBtn: "Réessayer",
+            scoreText: "Score :", perfect: "Parfait ! Excellent travail ! 🎉",
+            keepGoing: "Regarde les corrections (en rouge) et réessaie.",
+            completed: "Terminé", start: "Commencer"
+          },
+          en: {
+            appTitle: "Homophone Master", subtitle: "Choose a lesson",
+            progressTitle: "Global Progress", backBtn: "Back",
+            rulesTitle: "Rules & Tips", theoryTab: "Theory",
+            checkBtn: "Check my answers", retryBtn: "Try again",
+            scoreText: "Score:", perfect: "Perfect! Outstanding job! 🎉",
+            keepGoing: "Check the red corrections and keep practicing.",
+            completed: "Completed", start: "Start"
+          }
+        };
+
+        // --- APP COMPONENT ---
         function App() {
-          const [language, setLanguage] = useState(null); // 'fr' or 'en'
-          const [currentView, setCurrentView] = useState('splash'); // 'splash', 'home', 'lesson'
+          const [language, setLanguage] = useState(null);
+          const [currentView, setCurrentView] = useState('splash'); 
           const [activeLesson, setActiveLesson] = useState(null);
-          
-          // Progress structure: { 'fr': { 'a-a': { dok1: 100, dok2: 0, dok3: 0 } } }
           const [progress, setProgress] = useState({ fr: {}, en: {} });
 
-          // Load local progress if available
           useEffect(() => {
-            const saved = localStorage.getItem('homophones_progress');
+            const saved = localStorage.getItem('homophones_v2_progress');
             if (saved) {
-              try {
-                setProgress(JSON.parse(saved));
-              } catch (e) {
-                console.error("Could not parse saved progress");
-              }
+              try { setProgress(JSON.parse(saved)); } catch (e) {}
             }
           }, []);
 
           const saveProgress = (newProgress) => {
             setProgress(newProgress);
-            localStorage.setItem('homophones_progress', JSON.stringify(newProgress));
-          };
-
-          const handleLanguageSelect = (lang) => {
-            setLanguage(lang);
-            setCurrentView('home');
-          };
-
-          const openLesson = (lesson) => {
-            setActiveLesson(lesson);
-            setCurrentView('lesson');
-          };
-
-          const goBack = () => {
-            setActiveLesson(null);
-            setCurrentView('home');
+            localStorage.setItem('homophones_v2_progress', JSON.stringify(newProgress));
           };
 
           const handleUpdateProgress = (lessonId, levelKey, percentage) => {
             const currentLang = language;
             const prevScore = progress[currentLang]?.[lessonId]?.[levelKey] || 0;
             if (percentage > prevScore) {
-              const updatedProgress = {
+              const updated = {
                 ...progress,
                 [currentLang]: {
                   ...progress[currentLang],
-                  [lessonId]: {
-                    ...(progress[currentLang]?.[lessonId] || {}),
-                    [levelKey]: percentage
-                  }
+                  [lessonId]: { ...(progress[currentLang]?.[lessonId] || {}), [levelKey]: percentage }
                 }
               };
-              saveProgress(updatedProgress);
+              saveProgress(updated);
             }
           };
 
@@ -431,9 +591,7 @@
             const levels = ['dok1', 'dok2', 'dok3'];
             const scores = progress[language]?.[lessonId] || {};
             let total = 0;
-            levels.forEach(lvl => {
-              total += (scores[lvl] || 0);
-            });
+            levels.forEach(lvl => { total += (scores[lvl] || 0); });
             return Math.round(total / levels.length);
           };
 
@@ -441,37 +599,28 @@
             if (!language) return 0;
             const lessons = contentData[language];
             if (lessons.length === 0) return 0;
-            
-            let totalScore = 0;
-            lessons.forEach(l => {
-              totalScore += getLessonAverage(l.id);
-            });
-            return Math.round(totalScore / lessons.length);
+            let total = 0;
+            lessons.forEach(l => { total += getLessonAverage(l.id); });
+            return Math.round(total / lessons.length);
           };
 
           if (currentView === 'splash') {
             return (
               <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-                <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 text-center border border-slate-100 transition-all hover:shadow-emerald-500/10">
-                  <div className="flex justify-center mb-6">
-                    <div className="w-24 h-24 bg-gradient-to-tr from-emerald-400 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-12 transition-transform duration-300">
-                      <IconGlobe className="w-12 h-12 text-white" />
+                <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-10 text-center border border-slate-100 fade-in">
+                  <div className="flex justify-center mb-8">
+                    <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-emerald-400 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-12 transition-transform duration-300">
+                      <Icons.Globe />
                     </div>
                   </div>
-                  <h1 className="text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">Maître des Homophones</h1>
-                  <h2 className="text-xl text-slate-500 mb-8 font-medium">Homophone Master</h2>
+                  <h1 className="text-4xl font-extrabold text-slate-800 mb-2 tracking-tight font-display">Maître des Homophones</h1>
+                  <h2 className="text-xl text-slate-500 mb-10 font-semibold">Homophone Master</h2>
                   
                   <div className="space-y-4">
-                    <button 
-                      onClick={() => handleLanguageSelect('fr')}
-                      className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-lg font-bold transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-3"
-                    >
+                    <button onClick={() => { setLanguage('fr'); setCurrentView('dashboard'); }} className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-lg font-bold shadow-lg transition-transform transform hover:-translate-y-1 flex items-center justify-center gap-3">
                       <span className="text-2xl">🇫🇷</span> Entrer en Français
                     </button>
-                    <button 
-                      onClick={() => handleLanguageSelect('en')}
-                      className="w-full py-4 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-lg font-bold transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-3"
-                    >
+                    <button onClick={() => { setLanguage('en'); setCurrentView('dashboard'); }} className="w-full py-4 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-lg font-bold shadow-lg transition-transform transform hover:-translate-y-1 flex items-center justify-center gap-3">
                       <span className="text-2xl">🇬🇧</span> Enter in English
                     </button>
                   </div>
@@ -482,400 +631,273 @@
 
           const ui = UI[language];
           const lessons = contentData[language];
-          const themeColor = language === 'fr' ? 'emerald' : 'indigo';
-          const bgTheme = language === 'fr' ? 'bg-emerald-50/40' : 'bg-indigo-50/40';
-          const textTheme = language === 'fr' ? 'text-emerald-800' : 'text-indigo-800';
+          const isFr = language === 'fr';
+          const themeColor = isFr ? 'emerald' : 'indigo';
 
-          if (currentView === 'home') {
+          // Component: Tabbed Lesson View
+          if (currentView === 'lesson') {
             return (
-              <div className={`min-h-screen ${bgTheme} p-4 md:p-8 font-sans text-slate-800`}>
-                <div className="max-w-4xl mx-auto">
-                  
-                  {/* Dashboard */}
-                  <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center justify-between border border-slate-100">
-                    <div className="text-center md:text-left mb-6 md:mb-0">
-                      <h1 className={`text-4xl font-black ${textTheme} mb-2`}>{ui.appTitle}</h1>
-                      <p className="text-slate-500 font-medium text-lg">{ui.subtitle}</p>
-                    </div>
-                    <div className="flex flex-col items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 min-w-[220px]">
-                      <span className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">{ui.progressTitle}</span>
-                      <div className="relative w-28 h-28">
-                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                          <circle cx="18" cy="18" r="16" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-                          <circle 
-                            cx="18" 
-                            cy="18" 
-                            r="16" 
-                            fill="none" 
-                            stroke={language === 'fr' ? "#10b981" : "#4f46e5"} 
-                            strokeWidth="3" 
-                            strokeDasharray={`${getAverageProgress()}, 100`}
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className={`text-2xl font-extrabold ${textTheme}`}>{getAverageProgress()}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Options bar */}
-                  <div className="mb-6 flex justify-between items-center bg-white/80 backdrop-blur-md px-6 py-3 rounded-2xl border border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Active Track: {language.toUpperCase()}</span>
-                    </div>
-                    <button 
-                      onClick={() => { setLanguage(null); setCurrentView('splash'); }}
-                      className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1"
-                    >
-                      <IconGlobe className="w-4 h-4" /> Change Language / Changer de langue
+              <div className="flex h-screen bg-slate-50">
+                {/* Sidebar Navigation */}
+                <div className="w-80 bg-white border-r border-slate-200 flex flex-col hidden md:flex h-full shadow-sm z-10">
+                  <div className="p-6 border-b border-slate-100">
+                    <button onClick={() => setCurrentView('dashboard')} className="text-slate-500 hover:text-slate-800 font-bold flex items-center transition-colors">
+                      <Icons.ChevronLeft /> {ui.backBtn}
                     </button>
                   </div>
-
-                  {/* Compact organized list of Homophones */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {lessons.map(lesson => {
-                      const avgScore = getLessonAverage(lesson.id);
-                      const isFinished = avgScore === 100;
-                      const scores = progress[language]?.[lesson.id] || {};
-
+                  <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 mb-3">Leçons / Lessons</div>
+                    {lessons.map(l => {
+                      const isActive = activeLesson.id === l.id;
+                      const avg = getLessonAverage(l.id);
                       return (
-                        <div 
-                          key={lesson.id} 
-                          onClick={() => openLesson(lesson)}
-                          className="bg-white rounded-2xl shadow-sm hover:shadow-lg border border-slate-100 transition-all duration-300 cursor-pointer p-6 flex items-center justify-between group relative overflow-hidden"
+                        <button 
+                          key={l.id} onClick={() => setActiveLesson(l)}
+                          className={`w-full text-left p-4 rounded-2xl transition-all border ${isActive ? `bg-${themeColor}-50 border-${themeColor}-200 shadow-sm` : 'bg-transparent border-transparent hover:bg-slate-50'}`}
                         >
-                          <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${isFinished ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
-                          
-                          <div className="flex items-center gap-4 pl-2">
-                            <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
-                              {lesson.icon}
-                            </div>
-                            <div>
-                              <h3 className="text-xl font-bold text-slate-800">{lesson.title}</h3>
-                              <div className="flex gap-1.5 mt-1.5">
-                                {['dok1', 'dok2', 'dok3'].map((lvl, index) => {
-                                  const lvlScore = scores[lvl] || 0;
-                                  return (
-                                    <span 
-                                      key={lvl} 
-                                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                                        lvlScore === 100 ? 'bg-emerald-100 text-emerald-700' : 
-                                        lvlScore > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400'
-                                      }`}
-                                    >
-                                      L{index+1}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            </div>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className={`text-lg font-bold ${isActive ? `text-${themeColor}-700` : 'text-slate-700'}`}>{l.icon} {l.title}</span>
+                            {avg === 100 && <Icons.Award />}
                           </div>
-
-                          <div className="flex items-center gap-3">
-                            <div className="text-right">
-                              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{ui.scoreText}</div>
-                              <div className={`text-lg font-black ${avgScore > 0 ? textTheme : 'text-slate-300'}`}>{avgScore}%</div>
-                            </div>
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                              isFinished ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'
-                            }`}>
-                              <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </div>
+                          <div className="flex gap-1">
+                            {['dok1', 'dok2', 'dok3'].map((lvl) => {
+                              const s = progress[language]?.[l.id]?.[lvl] || 0;
+                              return <div key={lvl} className={`h-1.5 flex-1 rounded-full ${s===100 ? `bg-${themeColor}-500` : (s>0 ? 'bg-amber-400' : 'bg-slate-200')}`}></div>;
+                            })}
                           </div>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
+                </div>
 
+                {/* Main Content Pane */}
+                <div className="flex-1 flex flex-col h-full overflow-hidden">
+                  <InteractiveLesson 
+                    lesson={activeLesson} 
+                    ui={ui} 
+                    themeColor={themeColor} 
+                    onUpdateProgress={handleUpdateProgress} 
+                    lessonScores={progress[language]?.[activeLesson.id] || {}}
+                    onMobileBack={() => setCurrentView('dashboard')}
+                  />
                 </div>
               </div>
             );
           }
 
-          // --- LESSON VIEW ---
+          // DASHBOARD VIEW
           return (
-            <LessonView 
-              lesson={activeLesson} 
-              ui={ui} 
-              goBack={goBack} 
-              themeColor={themeColor}
-              onUpdateProgress={handleUpdateProgress}
-              lessonProgress={progress[language]?.[activeLesson.id] || {}}
-            />
+            <div className={`min-h-screen ${isFr ? 'bg-emerald-50/50' : 'bg-indigo-50/50'} p-4 md:p-8 overflow-y-auto fade-in`}>
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 flex flex-col md:flex-row items-center justify-between border border-slate-100">
+                  <div className="text-center md:text-left mb-6 md:mb-0">
+                    <h1 className={`text-4xl font-black ${isFr ? 'text-emerald-800' : 'text-indigo-800'} mb-2 font-display`}>{ui.appTitle}</h1>
+                    <p className="text-slate-500 font-medium text-lg">{ui.subtitle}</p>
+                  </div>
+                  <div className="flex flex-col items-center bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <span className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">{ui.progressTitle}</span>
+                    <div className="text-4xl font-black text-slate-800">{getAverageProgress()}%</div>
+                  </div>
+                </div>
+
+                <div className="mb-6 flex justify-end">
+                   <button onClick={() => { setLanguage(null); setCurrentView('splash'); }} className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1 bg-white px-4 py-2 rounded-xl shadow-sm">
+                    <Icons.Globe /> Change Language
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {lessons.map(lesson => {
+                    const avgScore = getLessonAverage(lesson.id);
+                    const isFinished = avgScore === 100;
+                    return (
+                      <div key={lesson.id} onClick={() => openLesson(lesson)} className="bg-white rounded-3xl shadow-sm hover:shadow-xl border border-slate-100 transition-all cursor-pointer p-6 flex flex-col h-full relative overflow-hidden group">
+                        <div className={`absolute top-0 left-0 right-0 h-1.5 ${isFinished ? `bg-${themeColor}-500` : 'bg-slate-100'}`}></div>
+                        <div className="flex justify-between items-start mb-6 mt-2">
+                          <span className="text-5xl group-hover:scale-110 transition-transform">{lesson.icon}</span>
+                          {isFinished && <div className={`text-${themeColor}-500`}><Icons.Award /></div>}
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4">{lesson.title}</h3>
+                        <div className="mt-auto flex items-center justify-between">
+                          <div className="flex gap-1.5 w-1/2">
+                            {['dok1', 'dok2', 'dok3'].map((lvl, idx) => {
+                              const s = progress[language]?.[lesson.id]?.[lvl] || 0;
+                              let c = 'bg-slate-100 text-slate-400';
+                              if (s===100) c = `bg-${themeColor}-100 text-${themeColor}-700`;
+                              else if (s>0) c = 'bg-amber-100 text-amber-700';
+                              return <span key={lvl} className={`text-[10px] font-black px-2 py-0.5 rounded-md ${c}`}>L{idx+1}</span>;
+                            })}
+                          </div>
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isFinished ? `bg-${themeColor}-100 text-${themeColor}-600` : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
+                            <Icons.ArrowRight />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           );
         }
 
-        // --- SUB-COMPONENT FOR INTERACTIVE LESSONS (GUI COMPACT & TAB-BASED) ---
-        function LessonView({ lesson, ui, goBack, themeColor, onUpdateProgress, lessonProgress }) {
-          const [activeTab, setActiveTab] = useState('theory'); // 'theory', 'dok1', 'dok2', 'dok3'
-          const [selectedAnswers, setSelectedAnswers] = useState({}); // { qIndex: selected_option }
-          const [checkedLevels, setCheckedLevels] = useState({}); // { levelKey: boolean }
-          const [levelScores, setLevelScores] = useState({}); // { levelKey: score_percentage }
+        // --- INTERACTIVE LESSON COMPONENT ---
+        function InteractiveLesson({ lesson, ui, themeColor, onUpdateProgress, lessonScores, onMobileBack }) {
+          const [activeTab, setActiveTab] = useState('theory');
+          const [selectedAnswers, setSelectedAnswers] = useState({});
+          const [isChecked, setIsChecked] = useState(false);
+          const [score, setScore] = useState(0);
 
-          // Reset user choices when tab or lesson changes
+          // Reset when tab or lesson changes
           useEffect(() => {
             setSelectedAnswers({});
-          }, [activeTab, lesson]);
+            setIsChecked(false);
+            setScore(0);
+          }, [activeTab, lesson.id]);
 
-          const handleAnswerSelect = (qIndex, option) => {
-            if (checkedLevels[activeTab]) return; // locked once checked
-            setSelectedAnswers(prev => ({
-              ...prev,
-              [qIndex]: option
-            }));
-          };
+          const currentContent = activeTab === 'theory' ? null : lesson.levels[activeTab];
+          const isComplete = currentContent && currentContent.questions.every((_, i) => selectedAnswers[i] !== undefined);
 
-          const checkLevelAnswers = () => {
-            const currentLevel = lesson.levels[activeTab];
-            if (!currentLevel) return;
-
-            let correctCount = 0;
-            currentLevel.questions.forEach((q, idx) => {
-              if (selectedAnswers[idx] === q.answer) {
-                correctCount++;
-              }
+          const handleCheck = () => {
+            let correct = 0;
+            currentContent.questions.forEach((q, i) => {
+              if (selectedAnswers[i] === q.answer) correct++;
             });
-
-            const percentage = Math.round((correctCount / currentLevel.questions.length) * 100);
-            setLevelScores(prev => ({ ...prev, [activeTab]: percentage }));
-            setCheckedLevels(prev => ({ ...prev, [activeTab]: true }));
-            onUpdateProgress(lesson.id, activeTab, percentage);
+            const pct = Math.round((correct / currentContent.questions.length) * 100);
+            setScore(pct);
+            setIsChecked(true);
+            onUpdateProgress(lesson.id, activeTab, pct);
           };
 
-          const isLevelComplete = () => {
-            const currentLevel = lesson.levels[activeTab];
-            if (!currentLevel) return false;
-            return currentLevel.questions.every((_, idx) => selectedAnswers[idx] !== undefined);
-          };
-
-          const getStatusColor = (lvlKey) => {
-            const score = lessonProgress[lvlKey] || levelScores[lvlKey] || 0;
-            if (score === 100) return 'bg-emerald-500 text-white';
-            if (score > 0) return 'bg-amber-400 text-white';
-            return 'bg-slate-100 text-slate-400';
-          };
-
-          const themeClasses = {
-            text: themeColor === 'emerald' ? 'text-emerald-700' : 'text-indigo-700',
-            bg: themeColor === 'emerald' ? 'bg-emerald-600' : 'bg-indigo-600',
-            bgHover: themeColor === 'emerald' ? 'hover:bg-emerald-700' : 'hover:bg-indigo-700',
-            lightBg: themeColor === 'emerald' ? 'bg-emerald-50/50' : 'bg-indigo-50/50',
-            border: themeColor === 'emerald' ? 'border-emerald-200' : 'border-indigo-200',
-            activeTab: themeColor === 'emerald' ? 'border-emerald-500 text-emerald-600' : 'border-indigo-500 text-indigo-600'
-          };
+          const textCol = themeColor === 'emerald' ? 'text-emerald-700' : 'text-indigo-700';
+          const bgCol = themeColor === 'emerald' ? 'bg-emerald-600' : 'bg-indigo-600';
+          const activeTabClass = themeColor === 'emerald' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-indigo-100 text-indigo-800 border-indigo-300';
 
           return (
-            <div className={`min-h-screen ${themeClasses.lightBg} p-4 md:p-8 font-sans`}>
-              <div className="max-w-5xl mx-auto">
-                
-                {/* Top Nav */}
-                <button 
-                  onClick={goBack}
-                  className="flex items-center text-slate-500 hover:text-slate-800 font-bold mb-6 transition-colors"
-                >
-                  <IconChevronLeft className="w-5 h-5 mr-1" /> {ui.backBtn}
+            <div className="flex-1 flex flex-col h-full bg-white relative fade-in">
+              {/* Header Mobile Back */}
+              <div className="md:hidden p-4 border-b border-slate-100 flex items-center">
+                 <button onClick={onMobileBack} className="text-slate-500 font-bold flex items-center"><Icons.ChevronLeft /> {ui.backBtn}</button>
+              </div>
+
+              {/* Top Tabs */}
+              <div className="border-b border-slate-200 px-6 pt-6 flex overflow-x-auto hide-scrollbar gap-2 shrink-0">
+                <button onClick={() => setActiveTab('theory')} className={`px-5 py-3 font-bold border-b-2 whitespace-nowrap transition-colors rounded-t-xl ${activeTab==='theory' ? activeTabClass : 'border-transparent text-slate-500 hover:bg-slate-50'}`}>
+                  <div className="flex items-center gap-2"><Icons.BookOpen /> {ui.theoryTab}</div>
                 </button>
-
-                {/* Lesson Header Card */}
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 mb-8 flex items-center gap-4">
-                  <span className="text-5xl">{lesson.icon}</span>
-                  <div>
-                    <h1 className={`text-3xl font-black ${themeClasses.text}`}>{lesson.title}</h1>
-                    <p className="text-slate-400 text-sm font-semibold uppercase tracking-wider mt-1">Interactive Lesson Hub</p>
-                  </div>
-                </div>
-
-                {/* Sidebar + Tabbed Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  
-                  {/* Lesson Navigation (Left Sidebar) */}
-                  <div className="lg:col-span-4 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-2">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 mb-4">Steps & Levels</h3>
-                    
-                    <button 
-                      onClick={() => { setActiveTab('theory'); }}
-                      className={`w-full flex items-center justify-between p-3.5 rounded-2xl font-bold transition-all text-left ${
-                        activeTab === 'theory' ? 'bg-slate-100 text-slate-800 scale-102' : 'text-slate-500 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <IconBookOpen className="w-5 h-5 text-slate-400" />
-                        <span>📖 Leçon & Astuces</span>
-                      </span>
+                {['dok1', 'dok2', 'dok3'].map((lvl, idx) => {
+                  const s = lessonScores[lvl] || 0;
+                  return (
+                    <button key={lvl} onClick={() => setActiveTab(lvl)} className={`px-5 py-3 font-bold border-b-2 whitespace-nowrap transition-colors rounded-t-xl ${activeTab===lvl ? activeTabClass : 'border-transparent text-slate-500 hover:bg-slate-50'}`}>
+                      <div className="flex items-center gap-2">Niveau {idx+1} {s===100 && <Icons.Check/>}</div>
                     </button>
+                  );
+                })}
+              </div>
 
-                    {Object.keys(lesson.levels).map((lvlKey, idx) => {
-                      const levelObj = lesson.levels[lvlKey];
-                      const active = activeTab === lvlKey;
-                      const score = lessonProgress[lvlKey] || levelScores[lvlKey] || 0;
-
-                      return (
-                        <button 
-                          key={lvlKey}
-                          onClick={() => { setActiveTab(lvlKey); }}
-                          className={`w-full flex items-center justify-between p-3.5 rounded-2xl font-bold transition-all text-left ${
-                            active ? 'bg-slate-100 text-slate-800 scale-102' : 'text-slate-500 hover:bg-slate-50'
-                          }`}
-                        >
-                          <span className="flex items-center gap-2.5">
-                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${getStatusColor(lvlKey)}`}>
-                              {idx + 1}
-                            </span>
-                            <span>{levelObj.title}</span>
-                          </span>
-                          {score > 0 && <span className="text-xs font-black text-slate-400">{score}%</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Active Content Pane (Right Area) */}
-                  <div className="lg:col-span-8 bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8 min-h-[480px] flex flex-col justify-between">
-                    
-                    {activeTab === 'theory' ? (
-                      // THEORY TAB
-                      <div className="animate-fadeIn">
-                        <div className="flex items-center gap-3 border-b border-slate-100 pb-4 mb-6">
-                          <IconBookOpen className={`w-6 h-6 ${themeClasses.text}`} />
-                          <h2 className="text-xl font-bold text-slate-800">{ui.rulesTitle}</h2>
-                        </div>
-
-                        <div className="space-y-6">
-                          {lesson.rules.map((rule, idx) => (
-                            <div key={idx} className={`p-5 rounded-2xl border-l-4 ${themeClasses.border} bg-slate-50/50`}>
-                              <div className="flex items-baseline gap-2 mb-2">
-                                <span className={`text-xl font-black ${themeClasses.text}`}>{rule.word}</span>
-                                <span className="text-slate-600 font-medium">{rule.desc}</span>
-                              </div>
-                              <div className="text-xs font-bold text-slate-500 bg-white inline-block px-3 py-1.5 rounded-xl shadow-sm border border-slate-100 mt-2">
-                                💡 {rule.tip}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+              {/* Scrollable Content Area */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-slate-50/30">
+                <div className="max-w-3xl mx-auto">
+                  
+                  {activeTab === 'theory' ? (
+                    <div className="space-y-6 fade-in">
+                      <div className="flex items-center gap-3 mb-8">
+                        <h2 className="text-2xl font-black text-slate-800">{ui.rulesTitle}</h2>
                       </div>
-                    ) : (
-                      // EXERCISE LEVEL TABS
-                      <div className="animate-fadeIn flex flex-col justify-between h-full">
-                        <div>
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                            <div className="flex items-center gap-3">
-                              <IconStar className={`w-6 h-6 ${themeClasses.text}`} />
-                              <h2 className="text-xl font-bold text-slate-800">{lesson.levels[activeTab].title}</h2>
-                            </div>
-                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{lesson.levels[activeTab].questions.length} Questions</span>
+                      {lesson.rules.map((rule, idx) => (
+                        <div key={idx} className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                          <div className="flex items-baseline gap-3 mb-3">
+                            <span className={`text-2xl font-black ${textCol}`}>{rule.word}</span>
+                            <span className="text-lg text-slate-600 font-medium">{rule.desc}</span>
                           </div>
-
-                          <p className="text-sm text-slate-500 mb-6 font-medium">{lesson.levels[activeTab].instructions}</p>
-
-                          <div className="space-y-6">
-                            {lesson.levels[activeTab].questions.map((question, qIndex) => {
-                              const isChecked = checkedLevels[activeTab];
-                              const userAnswer = selectedAnswers[qIndex];
-                              const isCorrect = userAnswer === question.answer;
-
-                              return (
-                                <div key={qIndex} className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                                  {/* Question Text */}
-                                  <div className="text-base font-semibold text-slate-700 leading-relaxed mb-3">
-                                    {question.text.map((part, pIndex) => (
-                                      <span key={pIndex}>
-                                        {part}
-                                        {pIndex < question.text.length - 1 && (
-                                          <span className={`mx-2 inline-block border-b-2 font-bold px-2 py-0.5 min-w-[70px] text-center ${
-                                            isChecked 
-                                              ? (isCorrect ? 'text-emerald-600 border-emerald-500 bg-emerald-50' : 'text-rose-600 border-rose-500 bg-rose-50 line-through') 
-                                              : (userAnswer ? 'border-slate-800 text-slate-800' : 'border-slate-300 text-slate-300')
-                                          }`}>
-                                            {userAnswer || '____'}
-                                          </span>
-                                        )}
-                                      </span>
-                                    ))}
-
-                                    {/* Feedback Correction label */}
-                                    {isChecked && !isCorrect && (
-                                      <span className="ml-2 inline-block text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">
-                                        👉 {question.answer}
-                                      </span>
-                                    )}
-                                  </div>
-
-                                  {/* Answer Options */}
-                                  <div className="flex flex-wrap gap-2 mt-3">
-                                    {question.options.map((option, oIdx) => {
-                                      const isSelected = userAnswer === option;
-                                      return (
-                                        <button
-                                          key={oIdx}
-                                          disabled={isChecked}
-                                          onClick={() => handleAnswerSelect(qIndex, option)}
-                                          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                                            isSelected 
-                                              ? `${themeClasses.bg} text-white shadow-md shadow-slate-200` 
-                                              : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
-                                          } ${isChecked ? 'opacity-60 cursor-not-allowed' : ''}`}
-                                        >
-                                          {option}
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              );
-                            })}
+                          <div className="inline-block px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 font-bold text-sm">
+                            💡 {rule.tip}
                           </div>
                         </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-8 fade-in">
+                      <div className="mb-6">
+                        <h2 className="text-2xl font-black text-slate-800 mb-2">{currentContent.title}</h2>
+                        <p className="text-slate-500 font-medium">{currentContent.desc}</p>
+                      </div>
 
-                        {/* Checking Button / Result Output */}
-                        <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col items-center">
-                          {!checkedLevels[activeTab] ? (
-                            <button
-                              onClick={checkLevelAnswers}
-                              disabled={!isLevelComplete()}
-                              className={`py-3.5 px-8 rounded-2xl text-white font-extrabold text-base transition-all transform ${
-                                isLevelComplete() 
-                                  ? `${themeClasses.bg} ${themeClasses.bgHover} hover:-translate-y-0.5 shadow-lg` 
-                                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                              }`}
-                            >
-                              {ui.checkBtn}
-                            </button>
-                          ) : (
-                            <div className="text-center w-full">
-                              <div className="flex items-center justify-center gap-2 mb-2">
-                                <IconTrophy className={`w-8 h-8 ${themeColor === 'emerald' ? 'text-emerald-500' : 'text-indigo-500'}`} />
-                                <span className="text-2xl font-black text-slate-800">
-                                  {ui.scoreText} {levelScores[activeTab]}%
+                      {currentContent.questions.map((q, idx) => {
+                        const ans = selectedAnswers[idx];
+                        const isRight = ans === q.answer;
+                        return (
+                          <div key={idx} className={`p-6 rounded-3xl bg-white border ${isChecked ? (isRight ? 'border-emerald-200' : 'border-rose-200') : 'border-slate-200'} shadow-sm transition-colors`}>
+                            <div className="text-lg font-bold text-slate-700 mb-4 leading-relaxed flex flex-wrap items-center">
+                              {q.text.map((part, pIdx) => (
+                                <React.Fragment key={pIdx}>
+                                  <span>{part}</span>
+                                  {pIdx < q.text.length - 1 && (
+                                    <span className={`mx-2 px-3 py-1 min-w-[80px] text-center border-b-4 font-black rounded-t-lg transition-colors ${
+                                      isChecked ? (isRight ? 'text-emerald-600 border-emerald-500 bg-emerald-50' : 'text-rose-600 border-rose-500 bg-rose-50 line-through') 
+                                      : (ans ? `${textCol} border-slate-800 bg-slate-50` : 'text-slate-300 border-slate-300')
+                                    }`}>
+                                      {ans || '____'}
+                                    </span>
+                                  )}
+                                </React.Fragment>
+                              ))}
+                              {isChecked && !isRight && (
+                                <span className="ml-3 px-3 py-1 bg-emerald-100 text-emerald-700 font-black rounded-lg text-sm border border-emerald-200 fade-in">
+                                  👉 {q.answer}
                                 </span>
-                              </div>
-                              <p className="text-slate-500 text-sm font-medium mb-4">
-                                {levelScores[activeTab] === 100 ? ui.perfect : ui.keepGoing}
-                              </p>
-                              <button
-                                onClick={() => {
-                                  // Reset level to try again
-                                  setCheckedLevels(prev => ({ ...prev, [activeTab]: false }));
-                                  setSelectedAnswers({});
-                                }}
-                                className="text-sm font-bold text-slate-500 hover:text-slate-800 underline"
-                              >
-                                Réessayer / Try again
-                              </button>
+                              )}
                             </div>
-                          )}
-                        </div>
 
+                            {!isChecked && (
+                              <div className="flex flex-wrap gap-3 mt-4">
+                                {q.options.map((opt, oIdx) => (
+                                  <button
+                                    key={oIdx}
+                                    onClick={() => setSelectedAnswers(p => ({...p, [idx]: opt}))}
+                                    className={`px-5 py-2.5 rounded-xl font-bold transition-all border-2 active:scale-95 ${ans === opt ? `${bgCol} text-white border-transparent shadow-md` : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
+                                  >
+                                    {opt}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+
+                      {/* Controls Bottom */}
+                      <div className="pt-8 pb-10 flex flex-col items-center border-t border-slate-200">
+                        {!isChecked ? (
+                          <button
+                            onClick={handleCheck}
+                            disabled={!isComplete}
+                            className={`py-4 px-10 rounded-2xl font-black text-lg transition-all transform ${isComplete ? `${bgCol} text-white shadow-xl hover:-translate-y-1` : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+                          >
+                            {ui.checkBtn}
+                          </button>
+                        ) : (
+                          <div className="text-center fade-in bg-white p-8 rounded-3xl border border-slate-100 shadow-xl w-full max-w-md">
+                            <div className={`text-5xl font-black mb-4 ${score === 100 ? 'text-emerald-500' : textCol}`}>
+                              {score}%
+                            </div>
+                            <p className="text-slate-600 font-bold text-lg mb-6">
+                              {score === 100 ? ui.perfect : ui.keepGoing}
+                            </p>
+                            <button
+                              onClick={() => { setIsChecked(false); setSelectedAnswers({}); }}
+                              className="py-3 px-8 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold shadow-md transition-transform active:scale-95"
+                            >
+                              {ui.retryBtn}
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    )}
 
-                  </div>
-
+                    </div>
+                  )}
                 </div>
-
               </div>
             </div>
           );
