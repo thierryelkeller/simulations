@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Cycles & Traditional Knowledge / Cycles Lunaires et Savoirs Traditionnels</title>
+    <style>
+        :root {
+            --bg-space: #05070B;
+            --panel-bg: rgba(13, 17, 23, 0.85);
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --glow-cyan: #00f3ff;
+            --glow-amber: #ffb700;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --moon-bright: #f8fafc;
+            --moon-shadow: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-space);
+            color: var(--text-main);
+        }
+
+        /* Stars Background */
+        .stars {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #0a1128 0%, #020617 100%);
+            z-index: 0;
+            overflow: hidden;
+        }
+        .stars::after {
+            content: " ";
+            position: absolute;
+            top: 0; left: 0; width: 200%; height: 200%;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            opacity: 0.4;
+            transform: translateY(0);
+        }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .splash-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            padding: 3rem;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .splash-title {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .splash-subtitle {
+            font-size: 1rem;
+            color: var(--glow-cyan);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .lang-select, .grade-select {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover, .btn.active {
+            background: rgba(0, 243, 255, 0.15);
+            border-color: var(--glow-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-launch {
+            background: linear-gradient(135deg, rgba(0,243,255,0.2), rgba(0,122,255,0.2));
+            border: 1px solid var(--glow-cyan);
+            width: 100%;
+            padding: 1rem;
+            font-weight: bold;
+        }
+
+        /* Main Architecture Interface */
+        #app-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 320px 1fr 360px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Control Panels */
+        .panel {
+            background: var(--panel-bg);
+            border-right: 1px solid var(--panel-border);
+            backdrop-filter: blur(15px);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            z-index: 20;
+            overflow-y: auto;
+        }
+
+        .panel-right {
+            border-right: none;
+            border-left: 1px solid var(--panel-border);
+        }
+
+        .panel-header {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--glow-cyan);
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Viewport Canvas Area */
+        .viewport-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem;
+        }
+
+        .canvas-wrapper {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* HUD overlays */
+        .hud-element {
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Interactive Timeline Tracker */
+        .timeline-container {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 1rem;
+        }
+
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--glow-cyan);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--glow-cyan);
+        }
+
+        /* Tactical Organics: Tactile 3D Moon Display */
+        .moon-preview-box {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset -25px -25px 50px #000, inset 10px 10px 30px rgba(255,255,255,0.4), 0 0 30px rgba(255,255,255,0.1);
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><circle cx="40" cy="50" r="12" fill="%23ccc" opacity="0.15"/><circle cx="140" cy="80" r="25" fill="%23ccc" opacity="0.12"/><circle cx="90" cy="130" r="18" fill="%23ccc" opacity="0.15"/><path d="M20,90 Q40,70 80,100 T160,80" stroke="%23ccc" fill="none" opacity="0.08" stroke-width="3"/></svg>'), #e2e8f0;
+            overflow: hidden;
+            transition: all 0.1s linear;
+        }
+
+        .moon-preview-mask {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-space);
+            opacity: 0.85;
+            transition: all 0.1s linear;
+        }
+
+        /* Indigenous Knowledge Window */
+        .indigenous-card {
+            background: linear-gradient(135deg, rgba(255, 183, 0, 0.08), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255, 183, 0, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: auto;
+        }
+
+        .indigenous-card h3 {
+            color: var(--glow-amber);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .indigenous-text {
+            font-size: 0.88rem;
+            line-height: 1.4;
+            color: #cbd5e1;
+            font-style: italic;
+        }
+
+        /* Fact Grid System */
+        .fact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .fact-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--panel-border);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .fact-label {
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .fact-value {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Quick-Jump Phase Selector Wheels */
+        .phase-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        .phase-btn {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .phase-btn:hover, .phase-btn.active {
+            border-color: var(--glow-cyan);
+            color: #fff;
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        .phase-btn-icon {
+            width: 24px;
+            height: 24px;
+            margin: 0 auto 0.25rem;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: inset -6px -6px 0 #1e293b;
+        }
+
+        /* Mode & Exit Buttons Styling */
+        .exit-btn {
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        .exit-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Adaptive Styling Rules based on Level */
+        .elementary-hide { display: none !important; }
+        
+        .level-elementary .advanced-metric {
+            display: none !important;
+        }
+
+        /* Responsiveness & Layout tweaks */
+        @media(max-width: 1200px) {
+            #app-container {
+                grid-template-columns: 280px 1fr;
+            }
+            .panel-right {
+                grid-column: 1 / 2;
+                border-left: none;
+                border-top: 1px solid var(--panel-border);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stars"></div>
+
+    <div id="splash-screen">
+        <div class="splash-panel">
+            <h1 class="splash-title">LUNAR ARCHITECT & COSMOLOGY</h1>
+            <h2 class="splash-subtitle">Cycles & Traditional Knowledge / Cycles et Savoirs Traditionnels</h2>
+            
+            <div style="text-align: left; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--glow-cyan);">1. SELECT LANGUAGE / SÉLECTIONNER LA LANGUE</div>
+            <div class="lang-select">
+                <button class="btn active" id="lang-en" onclick="setLang('en')">English</button>
+                <button class="btn" id="lang-fr" onclick="setLang('fr')">Français</button>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--glow-cyan);">2. SELECT HORIZON / SÉLECTIONNER LE NIVEAU</div>
+            <div class="grade-select">
+                <button class="btn active" id="mode-elem" onclick="setMode('elementary')">Elementary / Élem. (Gr. 4-6)</button>
+                <button class="btn" id="mode-mid" onclick="setMode('middle')">Middle / Moyen (Gr. 7-9)</button>
+            </div>
+
+            <button class="btn btn-launch" onclick="launchSimulation()">INITIALIZE SIMULATION / INITIALISER</button>
+        </div>
+    </div>
+
+    <div id="app-container">
+        
+        <div class="panel">
+            <div class="panel-header" id="txt-nav-header">Simulation Controls</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label id="txt-lbl-time" style="font-size:0.8rem; color: var(--text-muted)">Synodic Orbit Progress</label>
+                <div class="timeline-container">
+                    <div style="display:flex; justify-content: space-between; font-size: 0.85rem;">
+                        <span id="txt-days">Day 0.0</span>
+                        <span id="txt-percent">0%</span>
+                    </div>
+                    <div class="slider-wrapper">
+                        <input type="range" id="orbit-slider" min="0" max="360" step="0.5" value="0" oninput="updateOrbit(this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn" style="flex: 1; font-size: 0.8rem;" id="btn-play" onclick="togglePlay()">Play</button>
+                <button class="btn" style="flex: 1; font-size: 0.8rem;" id="btn-reverse" onclick="reverseDirection()">Reverse</button>
+            </div>
+
+            <div class="panel-header" id="txt-phase-jump-header">Direct Phase Jumps</div>
+            <div class="phase-grid" id="phase-buttons-container">
+                </div>
+
+            <div class="indigenous-card" id="indigenous-panel">
+                <h3 id="txt-indigenous-title">✨ Traditional Ecological Knowledge</h3>
+                <p class="indigenous-text" id="txt-indigenous-body">Loading traditional lunar metrics...</p>
+            </div>
+        </div>
+
+        <div class="viewport-container">
+            <div class="hud-element top-nav">
+                <div>
+                    <span style="font-weight: 300; letter-spacing: 1px;" id="txt-app-title">LUNAR SYSTEM OBSERVATORY</span>
+                    <span id="badge-mode" style="margin-left: 10px; font-size: 0.7rem; background: var(--glow-cyan); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; vertical-align: middle;">MID</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;" id="btn-toggle-lang" onclick="toggleLanguageInline()">FR</button>
+                    <button class="btn exit-btn" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;" onclick="exitToIndex()">EXIT</button>
+                </div>
+            </div>
+
+            <div class="canvas-wrapper">
+                <canvas id="orbitalCanvas"></canvas>
+            </div>
+
+            <div class="hud-element timeline-container" style="margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; gap: 2rem;">
+                <div>
+                    <div id="txt-phase-name" style="font-size: 1.4rem; font-weight: 300; color: #fff;">New Moon / Nouvelle Lune</div>
+                    <div id="txt-phase-desc" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">The moon is between Earth and Sun, rendering its illuminated side completely hidden from view.</div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                    <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);" id="txt-view-earth">View from Earth</div>
+                    <div class="moon-preview-box" id="tactile-moon">
+                        <div class="moon-preview-mask" id="tactile-mask"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-right">
+            <div class="panel-header" id="txt-metrics-header">Analytical Metrics</div>
+            
+            <div class="fact-grid">
+                <div class="fact-item">
+                    <div class="fact-label" id="lbl-m1">Illumination</div>
+                    <div class="fact-value" id="val-illumination">0.0%</div>
+                </div>
+                <div class="fact-item">
+                    <div class="fact-label" id="lbl-m2">Age of Moon</div>
+                    <div class="fact-value" id="val-age">0.0 Days</div>
+                </div>
+                <div class="fact-item advanced-metric">
+                    <div class="fact-label" id="lbl-m3">Elongation Angle</div>
+                    <div class="fact-value" id="val-elongation">0.0°</div>
+                </div>
+                <div class="fact-item advanced-metric">
+                    <div class="fact-label" id="lbl-m4">Tidal Influence</div>
+                    <div class="fact-value" id="val-tides">Spring / Vives-eaux</div>
+                </div>
+            </div>
+
+            <div class="panel-header advanced-metric" id="txt-mechanics-header">Orbital Mechanics</div>
+            <div class="fact-grid advanced-metric">
+                <div class="fact-item" style="grid-column: span 2;">
+                    <div class="fact-label" id="lbl-m5">Syzygy Condition</div>
+                    <div class="fact-value" id="val-syzygy">True (Alignment)</div>
+                </div>
+            </div>
+
+            <div class="panel-header" id="txt-insights-header">Scientific Architecture</div>
+            <div id="scientific-insights-box" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-muted); display:flex; flex-direction:column; gap:0.75rem;">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        /* Multi-Lingual Multidimensional Localization Dictionary */
+        const dictionary = {
+            en: {
+                appTitle: "LUNAR ARCHITECT & SYSTEMS",
+                navHeader: "Simulation Controls",
+                phaseJumpHeader: "Direct Phase Jumps",
+                metricsHeader: "Analytical Metrics",
+                mechanicsHeader: "Orbital Mechanics",
+                insightsHeader: "Scientific Insights",
+                lblTime: "Synodic Orbit Progress (Angle)",
+                lblIllum: "Illumination",
+                lblAge: "Lunar Age",
+                lblElong: "Elongation Angle",
+                lblTides: "Tidal Phase",
+                lblSyzygy: "Syzygy Alignment",
+                viewEarth: "View from Earth",
+                play: "Animate Orbit",
+                pause: "Pause Orbit",
+                reverse: "Reverse Vector",
+                springTide: "Spring Tides (Maximum Range)",
+                neapTide: "Neap Tides (Minimum Range)",
+                modTide: "Intermediate Transition Tides",
+                syzygyYes: "In Alignment (Syzygy)",
+                syzygyNo: "Quadrature / Asynchronous",
+                phases: [
+                    { name: "New Moon", desc: "The Moon is positioned directly between the Earth and Sun. Its illuminated side faces entirely away from Earth, making it completely dark to our observers." },
+                    { name: "Waxing Crescent", desc: "As the Moon progresses in orbit, a silver sliver of reflected sunlight becomes visible on the right edge, expanding daily." },
+                    { name: "First Quarter", desc: "The Moon achieves a 90-degree elongation angle from the Sun. Exactly half of the visible lunar disc is lit by direct sunlight." },
+                    { name: "Waxing Gibbous", desc: "The solar illumination continues expanding past half-capacity, structural topography becomes vividly distinct near the lunar terminator line." },
+                    { name: "Full Moon", desc: "Opposite the Sun in configuration, the Earth-facing surface experiences full solar exposure. High architectural illumination yields structural brilliance." },
+                    { name: "Waning Gibbous", desc: "The visible solar percentage begins contracting. Illumination regresses from the right-hand limb toward the left hemisphere." },
+                    { name: "Third Quarter", desc: "An precise inversion of First Quarter. The left half remains brightly illuminated while the right recedes into systemic dark shadow." },
+                    { name: "Waning Crescent", desc: "The absolute terminal cycle phase. Only an intricate thin crescent remains glowing on the left, ready to return into the New Moon cycle." }
+                ],
+                indigenousTitle: "🌙 Mi'kmaw & Anishinaabe Star Teachings",
+                indigenousPhases: [
+                    "New Moon represents beginnings, quiet reflection, and profound spiritual renewal across global regional First Nations frameworks.",
+                    "The expanding crescent acts as a celestial tracking hand for ancestral timing of specialized local hunts.",
+                    "First Quarter signals balancing natural laws, matching systemic ecosystem action with lunar tidal phases.",
+                    "The swelling Gibbous phase governs increased nocturnal visibility for traditional trapping and gathering pathways.",
+                    "The Full Moon (Great Moon / Ojibwe: Gichi-giizis) serves as a vital community gathering signal, deeply structuring annual migratory rhythms.",
+                    "Waning cycles focus heavily on structural preparation, deep plant root harvests, and preservation of natural medicine reserves.",
+                    "Third Quarter indicates structural conservation, returning vital energetic assets back down to Earth ecosystems.",
+                    "The Waning Crescent invites community gathering for elder histories and traditional stargazing geometry lessons."
+                ],
+                insightsElem: "The Moon doesn't change its physical shape! Instead, as it travels around the Earth in a big loop every 29.5 days, we see different amounts of the side lit up by the Sun. Think of it like walking around a basketball with a single flashlight pointing at it!",
+                insightsMid: "Lunar phases emerge organically from the varying geometric orientation vectors between the Sun source, Earth anchor, and Lunar reflector. The synodic cycle lasts approximately 29.53 days, modulating gravitational tidal vectors. High syzygy configurations cause maximized spring tides, whereas quadrature positions prompt destructive neap interference vectors."
+            },
+            fr: {
+                appTitle: "ARCHITECTE ET SYSTEMES LUNAIRES",
+                navHeader: "Contrôles de Simulation",
+                phaseJumpHeader: "Sauts de Phase Directs",
+                metricsHeader: "Metriques Analytiques",
+                mechanicsHeader: "Mécanique Orbitale",
+                insightsHeader: "Architecture Scientifique",
+                lblTime: "Progression de l'Orbite Synodique",
+                lblIllum: "Illumination",
+                lblAge: "Âge de la Lune",
+                lblElong: "Angle d'Élongation",
+                lblTides: "Influence des Marées",
+                lblSyzygy: "Condition de Syzygie",
+                viewEarth: "Vue depuis la Terre",
+                play: "Animer l'Orbite",
+                pause: "Pause",
+                reverse: "Inverser le Vecteur",
+                springTide: "Marées de Vives-eaux (Max)",
+                neapTide: "Marées de Mortes-eaux (Min)",
+                modTide: "Marées Intermédiaires",
+                syzygyYes: "En Alignement (Syzygie)",
+                syzygyNo: "Quadrature / Asynchrone",
+                phases: [
+                    { name: "Nouvelle Lune", desc: "La Lune se trouve entre la Terre et le Soleil. Sa face illuminée est entièrement opposée à la Terre, la rendant invisible." },
+                    { name: "Premier Croissant", desc: "Une fine bordure de lumière solaire réfléchie apparaît sur le côté droit, grandissant jour après jour." },
+                    { name: "Premier Quartier", desc: "La Lune atteint un angle de 90° par rapport au Soleil. Exactement la moitié du disque visible est éclairée." },
+                    { name: "Gibbeuse Croissante", desc: "La zone éclairée continue de croître au-delà de la moitié, révélant les reliefs près de la ligne de terminaison." },
+                    { name: "Pleine Lune", desc: "En opposition complète avec le Soleil, toute la face tournée vers la Terre reçoit la lumière solaire de plein fouet." },
+                    { name: "Gibbeuse Décroissante", desc: "Le pourcentage éclairé commence à diminuer par la droite, se retirant vers l'hémisphère gauche." },
+                    { name: "Dernier Quartier", desc: "L'inversement exact du Premier Quartier. Seule la moitié gauche reste éclairée, la droite plonge dans l'ombre." },
+                    { name: "Dernier Croissant", desc: "L'ultime étape du cycle. Un mince croissant subsiste sur la gauche avant que le cycle ne recommence." }
+                ],
+                indigenousTitle: "🌙 Enseignements Mi'kmaw et Anishinaabe",
+                indigenousPhases: [
+                    "La Nouvelle Lune incarne le renouveau spirituel, le calme et la réflexion profonde au sein des Premières Nations.",
+                    "Le croissant croissant sert de repère temporel céleste pour la planification des activités traditionnelles de subsistance.",
+                    "Le Premier Quartier symbolise l'équilibre des lois naturelles et l'harmonisation avec les cycles des marées.",
+                    "La phase gibbeuse ascendante guidait les déplacements nocturnes pour le piégeage et la récolte de plantes médicinales.",
+                    "La Pleine Lune (Grande Lune / Ojibwe: Gichi-giizis) structure les grands rassemblements et les rythmes migratoires annuels.",
+                    "Les cycles décroissants sont dédiés à la préparation, aux récoltes racinaires et à la préservation des ressources.",
+                    "Le Dernier Quartier marque le retour des énergies vitales vers la Terre et le partage communautaire des surplus.",
+                    "Le Dernier Croissant invite au rassemblement autour des aînés pour la transmission des récits cosmologiques."
+                ],
+                insightsElem: "La Lune ne change pas de forme! C'est simplement que pendant son voyage de 29,5 jours autour de la Terre, nous voyons des portions différentes de sa face éclairée par le Soleil.",
+                insightsMid: "Les phases lunaires résultent de la géométrie variable des vecteurs de position entre le Soleil, la Terre et la Lune. Ce cycle synodique de 29,53 jours module la force gravitationnelle s'exerçant sur les océans terrestres."
+            }
+        };
+
+        /* State System Management variables */
+        let currentLang = 'en';
+        let currentMode = 'middle';
+        let currentAngle = 0; // 0 to 360 degrees of lunar orbit loop
+        let isPlaying = true;
+        let playDirection = 1;
+
+        // Architectural References
+        let canvas, ctx;
+
+        window.onload = function() {
+            canvas = document.getElementById('orbitalCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Loop Cycle Generator
+            setInterval(updateSimulationLoop, 30);
+        };
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+            document.getElementById('lang-fr').classList.toggle('active', lang === 'fr');
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-elem').classList.toggle('active', mode === 'elementary');
+            document.getElementById('mode-mid').classList.toggle('active', mode === 'middle');
+        }
+
+        function launchSimulation() {
+            document.getElementById('splash-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.display = 'none';
+                const mainApp = document.getElementById('app-container');
+                mainApp.style.opacity = '1';
+                
+                // Configure global class list selector matching level layout profiles
+                if(currentMode === 'elementary') {
+                    mainApp.classList.add('level-elementary');
+                    document.getElementById('badge-mode').innerText = currentLang === 'en' ? 'ELEM' : 'ÉLEM';
+                } else {
+                    mainApp.classList.remove('level-elementary');
+                    document.getElementById('badge-mode').innerText = currentLang === 'en' ? 'MID' : 'MOYEN';
+                }
+                
+                initPhaseButtons();
+                localizeUI();
+                updateOrbit(0);
+            }, 800);
+        }
+
+        function toggleLanguageInline() {
+            setLang(currentLang === 'en' ? 'fr' : 'en');
+            document.getElementById('btn-toggle-lang').innerText = currentLang === 'en' ? 'FR' : 'EN';
+            
+            if(currentMode === 'elementary') {
+                document.getElementById('badge-mode').innerText = currentLang === 'en' ? 'ELEM' : 'ÉLEM';
+            } else {
+                document.getElementById('badge-mode').innerText = currentLang === 'en' ? 'MID' : 'MOYEN';
+            }
+            
+            localizeUI();
+            initPhaseButtons();
+        }
+
+        function localizeUI() {
+            const data = dictionary[currentLang];
+            document.getElementById('txt-app-title').innerText = data.appTitle;
+            document.getElementById('txt-nav-header').innerText = data.navHeader;
+            document.getElementById('txt-phase-jump-header').innerText = data.phaseJumpHeader;
+            document.getElementById('txt-metrics-header').innerText = data.metricsHeader;
+            document.getElementById('txt-mechanics-header').innerText = data.mechanicsHeader;
+            document.getElementById('txt-insights-header').innerText = data.insightsHeader;
+            document.getElementById('txt-lbl-time').innerText = data.lblTime;
+            document.getElementById('lbl-m1').innerText = data.lblIllum;
+            document.getElementById('lbl-m2').innerText = data.lblAge;
+            document.getElementById('lbl-m3').innerText = data.lblElong;
+            document.getElementById('lbl-m4').innerText = data.lblTides;
+            document.getElementById('lbl-m5').innerText = data.lblSyzygy;
+            document.getElementById('txt-view-earth').innerText = data.viewEarth;
+            
+            document.getElementById('btn-play').innerText = isPlaying ? data.pause : data.play;
+            document.getElementById('btn-reverse').innerText = data.reverse;
+
+            // Fill insights context block
+            const insightsBox = document.getElementById('scientific-insights-box');
+            insightsBox.innerHTML = currentMode === 'elementary' ? `<p>${data.insightsElem}</p>` : `<p>${data.insightsMid}</p>`;
+        }
+
+        function initPhaseButtons() {
+            const container = document.getElementById('phase-buttons-container');
+            container.innerHTML = '';
+            const data = dictionary[currentLang];
+            
+            // Generate 8 core astronomical phase jumps
+            for(let i=0; i<8; i++) {
+                const targetAngle = i * 45;
+                const btn = document.createElement('div');
+                btn.className = `phase-btn ${Math.round(currentAngle/45)%8 === i ? 'active' : ''}`;
+                btn.onclick = () => updateOrbit(targetAngle);
+                
+                // Pure CSS/SVG Tactile Adaptive Miniatures representation inside panels
+                const icon = document.createElement('div');
+                icon.className = 'phase-btn-icon';
+                icon.style.background = `linear-gradient(${90 + targetAngle}deg, #fff 50%, #1e293b 50%)`;
+                
+                const label = document.createElement('div');
+                label.innerText = data.phases[i].name.split(' ')[0]; // short representation
+                
+                btn.appendChild(icon);
+                btn.appendChild(label);
+                container.appendChild(btn);
+            }
+        }
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            document.getElementById('btn-play').innerText = isPlaying ? dictionary[currentLang].pause : dictionary[currentLang].play;
+        }
+
+        function reverseDirection() {
+            playDirection *= -1;
+        }
+
+        function updateOrbit(value) {
+            currentAngle = parseFloat(value);
+            document.getElementById('orbit-slider').value = currentAngle;
+            
+            // Derive Physical Math Variables
+            const dayValue = ((currentAngle / 360) * 29.53).toFixed(1);
+            const percentageValue = Math.round((currentAngle / 360) * 100);
+            
+            document.getElementById('txt-days').innerText = `${dayValue} ${currentLang==='en'?'Days':'Jours'}`;
+            document.getElementById('txt-percent').innerText = `${percentageValue}%`;
+
+            // Identify Current Phase Domain Index
+            // Map 0-360 scale into 8 distinct categorical sectors matching data array
+            const exactSector = (currentAngle + 22.5) / 45;
+            const phaseIndex = Math.floor(exactSector) % 8;
+
+            const localizedData = dictionary[currentLang];
+            document.getElementById('txt-phase-name').innerText = localizedData.phases[phaseIndex].name;
+            document.getElementById('txt-phase-desc').innerText = localizedData.phases[phaseIndex].desc;
+            
+            // Sync traditional metrics text
+            document.getElementById('txt-indigenous-title').innerText = localizedData.indigenousTitle;
+            document.getElementById('txt-indigenous-body').innerText = localizedData.indigenousPhases[phaseIndex];
+
+            // Render Tactile Overlay Mask System representing view from Earth telescope
+            calculateEarthVisualMask(currentAngle);
+            
+            // Analytical Diagnostics Metrics Calculator Engine
+            calculateMetrics(currentAngle, dayValue);
+
+            // Update Highlight Class on selector elements
+            const btns = document.getElementsByClassName('phase-btn');
+            for(let idx=0; idx < btns.length; idx++) {
+                btns[idx].classList.toggle('active', idx === phaseIndex);
+            }
+        }
+
+        function calculateEarthVisualMask(angle) {
+            const mask = document.getElementById('tactile-mask');
+            // Calculate illumination percentage based on angle loop
+            // 0 deg = New (100% mask coverage), 180 deg = Full (0% mask coverage)
+            let rads = (angle * Math.PI) / 180;
+            let illumRatio = (1 + Math.cos(rads + Math.PI)) / 2;
+            
+            // Tactile 3D shadow element styling modifier
+            if(angle <= 180) {
+                // Waxing phases
+                mask.style.background = `linear-gradient(90deg, transparent 50%, var(--bg-space) 50%)`;
+                mask.style.transform = `scaleX(${1 - (illumRatio * 2)})`;
+                if(illumRatio >= 0.5) {
+                    mask.style.background = `linear-gradient(90deg, #e2e8f0 50%, transparent 50%)`;
+                    mask.style.transform = `scaleX(${(illumRatio - 0.5) * 2})`;
+                    mask.style.opacity = "0.15";
+                    return;
+                }
+                mask.style.opacity = "0.85";
+            } else {
+                // Waning phases
+                mask.style.background = `linear-gradient(90deg, var(--bg-space) 50%, transparent 50%)`;
+                let inverseIllum = (illumRatio);
+                mask.style.transform = `scaleX(${1 - (illumRatio * 2)})`;
+                mask.style.opacity = "0.85";
+            }
+        }
+
+        function calculateMetrics(angle, dayValue) {
+            // Illumination derived accurately from Cosine Waveforms
+            let rads = (angle * Math.PI) / 180;
+            let illumPct = Math.round(((1 + Math.cos(rads + Math.PI)) / 2) * 100);
+            document.getElementById('val-illumination').innerText = `${illumPct}%`;
+            document.getElementById('val-age').innerText = `${dayValue} Days`;
+            
+            // Advanced metrics processing 
+            document.getElementById('val-elongation').innerText = `${Math.round(angle)}°`;
+            
+            // Spring vs Neap Ocean Tides calculation logic
+            const data = dictionary[currentLang];
+            if ((angle >= 0 && angle <= 25) || (angle >= 155 && angle <= 205) || (angle >= 335)) {
+                document.getElementById('val-tides').innerText = data.springTide;
+                document.getElementById('val-syzygy').innerText = data.syzygyYes;
+            } else if ((angle >= 65 && angle <= 115) || (angle >= 245 && angle <= 295)) {
+                document.getElementById('val-tides').innerText = data.neapTide;
+                document.getElementById('val-syzygy').innerText = data.syzygyNo;
+            } else {
+                document.getElementById('val-tides').innerText = data.modTide;
+                document.getElementById('val-syzygy').innerText = data.syzygyNo;
+            }
+        }
+
+        function updateSimulationLoop() {
+            if (!isPlaying) {
+                renderOrbitalViewport();
+                return;
+            }
+
+            // Progression rate step sizing vector
+            let nextAngle = currentAngle + (0.4 * playDirection);
+            if (nextAngle >= 360) nextAngle = 0;
+            if (nextAngle < 0) nextAngle = 359.5;
+
+            updateOrbit(nextAngle);
+            renderOrbitalViewport();
+        }
+
+        // High Fidelity 2D Top-Down Spatial Geometry Render Engine
+        function renderOrbitalViewport() {
+            if(!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            // Adaptive scaling boundary system mapping
+            const systemRadius = Math.min(canvas.width, canvas.height) * 0.32;
+
+            // Draw Solar Light Energy Direction Vectors (Parallel Ray Fields from absolute left boundary)
+            ctx.strokeStyle = 'rgba(255, 183, 0, 0.08)';
+            ctx.lineWidth = 2;
+            for(let i = -4; i <= 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(centerX - systemRadius * 1.5, centerY + (i * 35));
+                ctx.lineTo(centerX + systemRadius * 1.5, centerY + (i * 35));
+                ctx.stroke();
+            }
+
+            // Draw Central Earth Base Unit
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 32, 0, 2 * Math.PI);
+            ctx.fillStyle = '#1d4ed8'; // Dark medical grade deep planet oceans texture
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            // Fleshy layered organic tactile vibe for Earth's active atmosphere shield
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 32, 0, 2 * Math.PI);
+            let earthGlow = ctx.createRadialGradient(centerX, centerY, 24, centerX, centerY, 35);
+            earthGlow.addColorStop(0, 'rgba(0, 243, 255, 0)');
+            earthGlow.addColorStop(0.8, 'rgba(0, 243, 255, 0.25)');
+            earthGlow.addColorStop(1, 'rgba(0, 243, 255, 0)');
+            ctx.fillStyle = earthGlow;
+            ctx.fill();
+
+            // Earth Shadow Overlay Boundary (Away from left side light source)
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 32.5, -Math.PI/2, Math.PI/2);
+            ctx.fillStyle = 'rgba(5, 7, 11, 0.75)';
+            ctx.fill();
+
+            // Draw System Track Orbital Orbit Ring Line Pathway
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, systemRadius, 0, 2 * Math.PI);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+            ctx.setLineDash([6, 6]);
+            ctx.stroke();
+            ctx.setLineDash([]); // clear constraint
+
+            // Calculate precise Space Matrix coordinates for local orbiting Lunar component
+            // Shift standard unit circle radians rotation vector matching systemic direction
+            let moonRad = (currentAngle * Math.PI) / 180;
+            let moonX = centerX + systemRadius * Math.cos(moonRad);
+            let moonY = centerY + systemRadius * Math.sin(moonRad);
+
+            // Draw contextual Vector Indicator Line connecting system bodies (Middle school specific adaptive)
+            if(currentMode === 'middle') {
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(moonX, moonY);
+                ctx.strokeStyle = 'rgba(0, 243, 255, 0.15)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Draw Physical Moon Object Unit Node
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 14, 0, 2 * Math.PI);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fill();
+
+            // Apply strict physical shadow block over moon body matrix matching spatial layout rules
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 14.5, 0, 2*Math.PI);
+            ctx.clip();
+            
+            // Draw dark shadow rectangle covering right hemisphere relative to light source
+            ctx.fillStyle = 'rgba(5, 7, 11, 0.82)';
+            // Sun comes from Left (-X), shadow always occupies absolute Right relative to node center position
+            ctx.fillRect(moonX, moonY - 20, 25, 40);
+            ctx.restore();
+
+            // Interactive Node Outlining Core Focus Glow
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 16, 0, 2 * Math.PI);
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+
+        function exitToIndex() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
