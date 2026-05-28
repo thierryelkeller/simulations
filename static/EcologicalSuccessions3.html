@@ -47,8 +47,6 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body, html { width: 100%; height: 100%; overflow: hidden; font-family: var(--font-family); background-color: #38bdf8; }
-        
-        /* Force typography across elements */
         button, select, input, textarea, h1, h2, h3, h4, p, span, div, summary { font-family: var(--font-family) !important; }
 
         #splash-screen {
@@ -160,6 +158,14 @@
 
         .hidden { display: none !important; }
         #event-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; z-index: 5; transition: opacity 0.5s ease, background 0.5s ease; }
+        
+        .modal-overlay {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 1000; min-width: 450px; max-height: 80vh; display: flex; flex-direction: column;
+        }
+        .modal-overlay table { width: 100%; text-align: left; border-collapse: collapse; font-size: 0.9rem; }
+        .modal-overlay th { padding: 10px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        .modal-overlay td { padding: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); }
     </style>
 </head>
 <body data-mode="high">
@@ -254,6 +260,24 @@
         </div>
     </div>
 
+    <div id="species-modal" class="glass-panel modal-overlay hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 10px;">
+            <h2 id="modal-title" style="color: var(--accent); margin: 0; font-size: 1.4rem;">Species Abundance</h2>
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-copy-data" style="background: rgba(0,0,0,0.2); border: 1px solid var(--accent); color: var(--accent); padding: 5px 12px; font-weight: bold; border-radius: 6px; cursor: pointer;">Copy Data</button>
+                <button id="btn-close-modal" style="background: var(--danger); border-color: var(--danger); padding: 5px 12px; font-weight: bold; color: white; border-radius: 6px; cursor: pointer;">X</button>
+            </div>
+        </div>
+        <div style="overflow-y: auto; flex-grow: 1;">
+            <table>
+                <thead>
+                    <tr><th id="th-name">Species</th><th id="th-type">Type</th><th id="th-count" style="text-align: right;">Abundance</th></tr>
+                </thead>
+                <tbody id="species-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
     <div id="splash-screen">
         <div class="splash-content">
             <h1 id="splash-title">Genesis of an Ecosystem</h1>
@@ -278,10 +302,9 @@
     </div>
 
 <script>
-// --- I18N DICTIONARY ---
 const dict = {
     en: {
-        splashTitle: "Genesis of an Ecosystem", splashSub: "A Journey Through Time.", lang: "Language / Langue", mode: "Choose Your Path", elem: "The Observer", mid: "The Explorer", high: "The Scientist", start: "Launch Simulation", navTitle: "Mixed Boreal Forest Succession Lab", camHint: "(Left-Click: Rotate | Right-Click: Pan | Scroll: Zoom)", back: "Back", exit: "Exit", time: "Timeline:", years: "Years", soil: "Soil Substrate Base", loam: "Loam (Balanced & Rich)", sandy: "Sandy (Fast Draining)", clay: "Clay (Cold/Waterlogged)", precip: "Precipitation (Abiotic)", grazing: "Grazing Pressure (Biotic)", low: "Low", med: "Medium", highLvl: "High", dist: "Trigger Disturbance", fire: "Wildfire", storm: "Windstorm", tekTitle: "Indigenous Perspective:", metricsTitle: "Ecosystem Health Metrics", biodiv: "Biodiversity Index", biomass: "Total Biomass", soilHealth: "Soil Nutrients", interactHint: "Click on flora/fauna to identify species.", regen: "Generate New Map", presentSpec: "Present Species", flora: "Flora", fauna: "Fauna", none: "None",
+        splashTitle: "Genesis of an Ecosystem", splashSub: "A Journey Through Time.", lang: "Language / Langue", mode: "Choose Your Path", elem: "The Observer", mid: "The Explorer", high: "The Scientist", start: "Launch Simulation", navTitle: "Mixed Boreal Forest Succession Lab", camHint: "(Left-Click: Rotate | Right-Click: Pan | Scroll: Zoom)", back: "Back", exit: "Exit", time: "Timeline:", years: "Years", soil: "Soil Substrate Base", loam: "Loam (Balanced & Rich)", sandy: "Sandy (Fast Draining)", clay: "Clay (Cold/Waterlogged)", precip: "Precipitation (Abiotic)", grazing: "Grazing Pressure (Biotic)", low: "Low", med: "Medium", highLvl: "High", dist: "Trigger Disturbance", fire: "Wildfire", storm: "Windstorm", tekTitle: "Indigenous Perspective:", metricsTitle: "Ecosystem Health Metrics", biodiv: "Biodiversity Index", biomass: "Total Biomass", soilHealth: "Soil Nutrients", interactHint: "Click on flora/fauna to identify species.", regen: "Generate New Map", presentSpec: "Present Species", flora: "Flora", fauna: "Fauna", none: "None", viewData: "View Abundance Data", spModalTitle: "Species Abundance", spName: "Species", spType: "Type", spCount: "Abundance", close: "Close", copyData: "Copy Data", copied: "Copied!",
         priTitle: "Primary Succession",
         priDesc: "Ecosystem is establishing on raw mineral geology lacking existing organic soil substrate banks.",
         secFireTitle: "Secondary Succession (Post-Fire)",
@@ -398,7 +421,7 @@ const dict = {
         }
     },
     fr: {
-        splashTitle: "Genèse d'un Écosystème", splashSub: "Un Voyage à Travers le Temps.", lang: "Langue", mode: "Choisissez Votre Voie", elem: "L'Observateur", mid: "L'Explorateur", high: "Le Scientifique", start: "Lancer la Simulation", navTitle: "Forêt Boréale Mixte", camHint: "(Gauche: Tourner | Droite: Déplacer | Molette: Zoom)", back: "Retour", exit: "Quitter", time: "Temps Écoulé:", years: "Ans", soil: "Substrat du Sol", loam: "Limon (Riche)", sandy: "Sableux (Sec)", clay: "Argileux (Froid/Humide)", precip: "Précipitations", grazing: "Pâturage (Biotique)", low: "Faible", med: "Moyen", highLvl: "Fort", dist: "Perturbation", fire: "Incendie", storm: "Tempête", tekTitle: "Perspective Autochtone :", metricsTitle: "Métriques de Santé", biodiv: "Indice de Biodiversité", biomass: "Biomasse Totale", soilHealth: "Nutriments du Sol", interactHint: "Cliquez sur la faune/flore pour identifier.", regen: "Générer une Carte", presentSpec: "Espèces Présentes", flora: "Flore", fauna: "Faune", none: "Aucune",
+        splashTitle: "Genèse d'un Écosystème", splashSub: "Un Voyage à Travers le Temps.", lang: "Langue", mode: "Choisissez Votre Voie", elem: "L'Observateur", mid: "L'Explorateur", high: "Le Scientifique", start: "Lancer la Simulation", navTitle: "Forêt Boréale Mixte", camHint: "(Gauche: Tourner | Droite: Déplacer | Molette: Zoom)", back: "Retour", exit: "Quitter", time: "Temps Écoulé:", years: "Ans", soil: "Substrat du Sol", loam: "Limon (Riche)", sandy: "Sableux (Sec)", clay: "Argileux (Froid/Humide)", precip: "Précipitations", grazing: "Pâturage (Biotique)", low: "Faible", med: "Moyen", highLvl: "Fort", dist: "Perturbation", fire: "Incendie", storm: "Tempête", tekTitle: "Perspective Autochtone :", metricsTitle: "Métriques de Santé", biodiv: "Indice de Biodiversité", biomass: "Biomasse Totale", soilHealth: "Nutriments du Sol", interactHint: "Cliquez sur la faune/flore pour identifier.", regen: "Générer une Carte", presentSpec: "Espèces Présentes", flora: "Flore", fauna: "Faune", none: "Aucune", viewData: "Voir les Données d'Abondance", spModalTitle: "Abondance des Espèces", spName: "Espèce", spType: "Type", spCount: "Abondance", close: "Fermer", copyData: "Copier", copied: "Copié !",
         priTitle: "Succession Primaire",
         priDesc: "L'écosystème s'établit sur une géologie minérale brute sans banque de sol organique préexistante.",
         secFireTitle: "Succession Secondaire (Après Incendie)",
@@ -471,17 +494,15 @@ const dict = {
     }
 };
 
-// --- STATE & CONSTANTS ---
 let state = { lang: 'en', mode: 'high', type: 'primary', time: 300, soil: 'loam', precip: 2, grazing: 1, stormHit: false, hideVegetation: false };
 let isSplashOrbit = true;
 let MAP_SIZE = 250; 
 let MAP_SEGS = 65; 
-let stormCounter = 0; // Windstorm counter to trigger collapse
-let lakeCX = 0, lakeCZ = 0; // Randomized Lake positions
+let stormCounter = 0; 
+let lakeCX = 0, lakeCZ = 0; 
 const WATER_LEVEL = -2;
 const SKIRT_DEPTH = -15; 
 
-// --- GLOBALS ---
 let scene, camera, renderer, controls, raycaster, mouse;
 let environmentGroup, groundMesh, waterMesh, skirtMesh, waterSkirtMesh, baseGeo;
 let beaverDamGroup;
@@ -495,7 +516,6 @@ let populations = {
 let instancedMeshes = {}; let animalPools = {}; 
 let interactables = []; let globalTreeGrid = []; let treeGridIndex = 0;
 
-// --- PROCEDURAL GENERATION ---
 let simplex = new SimplexNoise(); 
 const WATER_MARGIN = 0.2; 
 
@@ -507,18 +527,17 @@ function getElevation(x, z) {
     let rock = simplex.noise2D(x * 0.05 + 200, z * 0.05 + 200); if (rock > 0.6) el += (rock - 0.6) * 8; 
     el += (x + z) * 0.02 * mapScale;
     
-    // Irregular Lake Basin (less than 15% footprint)
     const dx = x - lakeCX; const dz = z - lakeCZ;
     const dist = Math.hypot(dx, dz);
     const angle = Math.atan2(dz, dx);
-    const baseRad = 25 * mapScale; // Max lake radius significantly reduced 
+    const baseRad = 25 * mapScale; 
     const lakeNoise = simplex.noise2D(lakeCX + Math.cos(angle)*1.5, lakeCZ + Math.sin(angle)*1.5);
     const lakeRad = baseRad + (lakeNoise * 18 * mapScale);
 
     if (dist < lakeRad * 1.5) {
         let t = Math.max(0, 1 - (dist / (lakeRad * 1.5)));
-        el -= (t * t * (3 - 2 * t)) * 15; // Deepen basin smoothly
-        if(dist < lakeRad) el = Math.min(el, WATER_LEVEL + 0.5); // Flatten floor
+        el -= (t * t * (3 - 2 * t)) * 15;
+        if(dist < lakeRad) el = Math.min(el, WATER_LEVEL + 0.5);
     }
     
     let riverWarp = simplex.noise2D(x * 0.015, z * 0.015) * (35 * mapScale); let riverAxis = (x - z) + riverWarp;
@@ -547,7 +566,6 @@ function isValidPlantLocation(x, z, canopyRadius) {
     return true;
 }
 
-// --- INIT THREE.JS ---
 function initThreeJS() {
     const canvasContainer = document.getElementById('webgl-canvas');
     scene = new THREE.Scene(); scene.background = new THREE.Color(0x38bdf8); 
@@ -602,7 +620,6 @@ function generateNewMap() {
     lakeCX = (Math.random() - 0.5) * MAP_SIZE * 0.6;
     lakeCZ = (Math.random() - 0.5) * MAP_SIZE * 0.6;
 
-    // Always force back to Primary upon full map regeneration
     state.type = 'primary';
     stormCounter = 0;
     
@@ -618,7 +635,6 @@ function generateNewMap() {
     createTerrain(); createSkirt(); setupTreeGrid(); populateEcosystem();
     state.time = 0; document.getElementById('time-slider').value = 0;
     
-    // Ensure vegetation visibility button configuration matches state reset
     state.hideVegetation = false;
     const vBtn = document.getElementById('btn-toggle-veg');
     if(vBtn) { vBtn.classList.remove('active-hide'); vBtn.textContent = "Hide Vegetation"; }
@@ -626,7 +642,6 @@ function generateNewMap() {
     updateTerrainColors(); updateSimulationVisuals(); updateUI();
 }
 
-// --- GEOMETRICAL MESH DIORAMA INFRASTRUCTURE ---
 function createTerrain() {
     const geo = new THREE.PlaneGeometry(MAP_SIZE, MAP_SIZE, MAP_SEGS, MAP_SEGS); const pos = geo.attributes.position;
     for (let i = 0; i < pos.count; i++) { let worldX = pos.getX(i); let worldZ = -pos.getY(i); pos.setZ(i, getElevation(worldX, worldZ)); } geo.computeVertexNormals();
@@ -679,9 +694,8 @@ function updateTerrainColors() {
     cols.needsUpdate = true;
 }
 
-// --- BIO-GEOMETRIC SEED GENERATORS ---
 function colorGeo(geo, hex) { if (geo.index) geo = geo.toNonIndexed(); if (geo.attributes.uv) geo.deleteAttribute('uv'); const c = new THREE.Color(hex); const arr = new Float32Array(geo.attributes.position.count * 3); for(let i=0; i<arr.length; i+=3) { arr[i]=c.r; arr[i+1]=c.g; arr[i+2]=c.b; } geo.setAttribute('color', new THREE.BufferAttribute(arr, 3)); return geo; }
-function createLichenGeo() { return colorGeo(new THREE.CylinderGeometry(0.8, 0.8, 0.1, 5).translate(0, 0.05, 0), 0xca8a04); } // Yellow-green pioneer crustose
+function createLichenGeo() { return colorGeo(new THREE.CylinderGeometry(0.8, 0.8, 0.1, 5).translate(0, 0.05, 0), 0xca8a04); }
 function createMossGeo() { 
     const m1 = colorGeo(new THREE.DodecahedronGeometry(1.0, 0).translate(0.5, 0.2, 0).scale(1, 0.3, 1), 0x4d7c0f);
     const m2 = colorGeo(new THREE.DodecahedronGeometry(0.8, 0).translate(-0.4, 0.1, 0.4).scale(1, 0.4, 1), 0x3f6212);
@@ -748,7 +762,7 @@ function createTamarackGeo() {
 }
 
 function setupTreeGrid() {
-    const gridSize = 130; const cellSize = MAP_SIZE / gridSize; // vastly increased tree slots
+    const gridSize = 130; const cellSize = MAP_SIZE / gridSize;
     for(let cx=0; cx<gridSize; cx++) {
         for(let cz=0; cz<gridSize; cz++) {
             const x = (cx * cellSize) - (MAP_SIZE/2) + (Math.random()*cellSize*0.6);
@@ -756,7 +770,6 @@ function setupTreeGrid() {
             if (isValidPlantLocation(x, z, 0.8)) { globalTreeGrid.push({x, y: getElevation(x,z), z}); }
         }
     }
-    // Randomize slot order to mix tree species
     for(let i=globalTreeGrid.length-1; i>0; i--) { const j = Math.floor(Math.random()*(i+1)); const t = globalTreeGrid[i]; globalTreeGrid[i] = globalTreeGrid[j]; globalTreeGrid[j] = t; }
 }
 
@@ -775,11 +788,28 @@ function createInstanced(key, geo, count, maxScaleVar, useStrictGrid = false, cl
     }
     for(let i=data.length-1; i>0; i--){ const j=Math.floor(Math.random()*(i+1)); const t=data[i].aliveIdx; data[i].aliveIdx=data[j].aliveIdx; data[j].aliveIdx=t; }
     const dummy = new THREE.Object3D(); for (let i=0; i<data.length; i++) { dummy.position.set(data[i].x, data[i].y - 0.3, data[i].z); dummy.scale.set(0,0,0); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix); }
-    
-    // Respect active hide vegetation configuration layer upon structural updates
     mesh.visible = !state.hideVegetation;
-
     environmentGroup.add(mesh); interactables.push(mesh); instancedMeshes[key] = { mesh: mesh, dummy: dummy, data: data, maxCount: placed };
+}
+
+function createBeaverDam() {
+    const g = new THREE.Group();
+    // Broad, flatter base mound
+    const mGeo = colorGeo(new THREE.CylinderGeometry(2.0, 2.8, 1.0, 12).translate(0, 0.5, 0), 0x5c4033);
+    const mMesh = new THREE.Mesh(mGeo, new THREE.MeshStandardMaterial({vertexColors:true, roughness:0.9, flatShading:true}));
+    g.add(mMesh);
+    
+    // Scattered textured sticks and logs woven into the mud
+    const stickMat = new THREE.MeshStandardMaterial({color: 0x4e342e, roughness: 1.0, flatShading: true});
+    for(let i=0; i<45; i++) {
+        const height = 0.5 + Math.random();
+        const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.08, height, 4), stickMat);
+        // Distribute around the mound surface
+        stick.position.set((Math.random()-0.5)*3.8, 0.2 + Math.random()*0.8, (Math.random()-0.5)*3.8);
+        stick.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+        g.add(stick);
+    }
+    return g;
 }
 
 function populateEcosystem() {
@@ -800,7 +830,6 @@ function populateEcosystem() {
     createInstanced('fir', createFirGeo(), Math.ceil(1200*scale), 0.6, true); 
     createInstanced('tamarack', createTamarackGeo(), Math.ceil(500*scale), 0.4, true);
     
-    // Fauna Pools
     initAnimalPool('frog', Math.ceil(20*scale), createFrog);
     initAnimalPool('squirrel', Math.ceil(20*scale), createSquirrel);
     initAnimalPool('hare', Math.ceil(30*scale), createHare); 
@@ -816,31 +845,11 @@ function populateEcosystem() {
     initAnimalPool('woodpecker', Math.ceil(15*scale), createWoodpecker);
     initAnimalPool('owl', Math.ceil(8*scale), createOwl);
 
-    // Create Beaver Dam
-    beaverDamGroup = new THREE.Group();
-    beaverDamGroup.userData = { targS: 0, currS: 0 };
-    
-    // Base mud mound
-    const mudGeo = colorGeo(new THREE.DodecahedronGeometry(2.0, 1).scale(1, 0.35, 1).translate(0, 0.3, 0), 0x4a3219);
-    const mudMesh = new THREE.Mesh(mudGeo, new THREE.MeshStandardMaterial({vertexColors:true, roughness:1.0, flatShading:true}));
-    beaverDamGroup.add(mudMesh);
-    
-    // Add scattered sticks/logs for texture
-    const stickGeo = new THREE.CylinderGeometry(0.06, 0.08, 1.5, 5);
-    const stickMat = new THREE.MeshStandardMaterial({color: 0x5c4033, roughness:0.9, flatShading:true});
-    for(let i=0; i<45; i++) {
-        const stick = new THREE.Mesh(stickGeo, stickMat);
-        stick.position.set((Math.random()-0.5)*3.0, 0.1 + Math.random()*0.7, (Math.random()-0.5)*3.0);
-        stick.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, (Math.random()-0.5)*0.5 + Math.PI/2);
-        beaverDamGroup.add(stick);
-    }
-
+    // Initializing properly positioned, flush-to-water Beaver Dam
+    beaverDamGroup = createBeaverDam();
     let rAngle = Math.random() * Math.PI * 2;
-    let mapScale = MAP_SIZE / 250;
-    let bx = lakeCX + Math.cos(rAngle) * 12 * mapScale;
-    let bz = lakeCZ + Math.sin(rAngle) * 12 * mapScale;
-    
-    // Base flush with water level
+    let bx = lakeCX + Math.cos(rAngle) * 20 * (MAP_SIZE/250);
+    let bz = lakeCZ + Math.sin(rAngle) * 20 * (MAP_SIZE/250);
     beaverDamGroup.position.set(bx, WATER_LEVEL, bz);
     beaverDamGroup.scale.set(0,0,0);
     environmentGroup.add(beaverDamGroup);
@@ -849,19 +858,7 @@ function populateEcosystem() {
 function initAnimalPool(key, count, createFunc) {
     const group = new THREE.Group(); const arr = []; let placed = 0; let attempts = 0; count = Math.max(1, count); 
     while(placed < count && attempts < count*15) {
-        attempts++; 
-        let x, z;
-        if (key === 'beaver') {
-            // Force beavers to spawn near the lake
-            let angle = Math.random() * Math.PI * 2;
-            let r = Math.random() * 22 * (MAP_SIZE/250);
-            x = lakeCX + Math.cos(angle) * r;
-            z = lakeCZ + Math.sin(angle) * r;
-        } else {
-            x = (Math.random()-0.5)*MAP_SIZE*0.9; 
-            z = (Math.random()-0.5)*MAP_SIZE*0.9;
-        }
-        const y = getElevation(x, z);
+        attempts++; const x = (Math.random()-0.5)*MAP_SIZE*0.9; const z = (Math.random()-0.5)*MAP_SIZE*0.9; const y = getElevation(x, z);
         const isFlyer = key==='bird'||key==='woodpecker'||key==='owl';
         if(y <= WATER_LEVEL + 0.5 && !isFlyer && key !== 'beaver' && key !== 'frog') continue;
         if(key === 'frog' && y > WATER_LEVEL + 3) continue; 
@@ -875,7 +872,6 @@ function initAnimalPool(key, count, createFunc) {
     environmentGroup.add(group); animalPools[key] = { group: group, data: arr, maxCount: placed };
 }
 
-// --- FAUNA MODEL SCHEMATICS ---
 function createFrog() { const g = new THREE.Group(); const m = new THREE.MeshStandardMaterial({color:0x22c55e, flatShading:true}); const b = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.15, 0.2), m); b.position.y=0.075; g.add(b); return g; }
 function createSquirrel() { const g = new THREE.Group(); const m = new THREE.MeshStandardMaterial({color:0x9a3412, flatShading:true}); const b = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.4), m); b.position.y=0.1; g.add(b); const tail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.3, 0.1), m); tail.position.set(0, 0.2, -0.2); tail.rotation.x = 0.5; g.add(tail); return g; }
 function createHare() { const g = new THREE.Group(); const m = new THREE.MeshStandardMaterial({color:0xffffff, flatShading:true}); const b = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.4, 0.7), m); b.position.y=0.2; g.add(b); const h = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.4), m); h.position.set(0, 0.5, 0.4); g.add(h); const e = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.4, 0.1), m); e.position.set(0.1, 0.8, 0.3); g.add(e); const e2 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.4, 0.1), m); e2.position.set(-0.1, 0.8, 0.3); g.add(e2); return g; }
@@ -891,7 +887,6 @@ function createBird() { const g = new THREE.Group(); const m = new THREE.MeshSta
 function createWoodpecker() { const g = new THREE.Group(); const m = new THREE.MeshStandardMaterial({color:0x111827, flatShading:true, side:THREE.DoubleSide}); const red = new THREE.MeshStandardMaterial({color:0xdc2626}); const b = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.6), m); g.add(b); const head = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), red); head.position.set(0, 0.1, 0.4); g.add(head); const w1 = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.4), m); w1.rotation.x=Math.PI/2; w1.position.x=0.4; g.add(w1); const w2 = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.4), m); w2.rotation.x=Math.PI/2; w2.position.x=-0.4; g.add(w2); return g; }
 function createOwl() { const g = new THREE.Group(); const m = new THREE.MeshStandardMaterial({color:0x78716c, flatShading:true, side:THREE.DoubleSide}); const b = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 1.2), m); g.add(b); const w1 = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.8), m); w1.rotation.x=Math.PI/2; w1.position.x=1.0; g.add(w1); const w2 = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.8), m); w2.rotation.x=Math.PI/2; w2.position.x=-1.0; g.add(w2); return g; }
 
-// --- MATHEMATICAL SUCCESSION MODELLING ---
 function updateSimulationVisuals() {
     const t = state.time; const effTime = t * (state.soil === 'clay' ? 0.7 : 1.0);
     const isPri = state.type === 'primary'; let rainMod = state.precip / 2; const grazeMod = state.grazing;
@@ -899,44 +894,32 @@ function updateSimulationVisuals() {
     let pLich=0, pMoss=0, pFern=0, pGr=0, pBlue=0, pSh=0, pAsp=0, pBir=0, pJP=0, pPine=0, pSpr=0, pBlkSpr=0, pFir=0, pTam=0;
 
     if (isPri) {
-        // High-fidelity Primary Lithosere tracking: Lichen and Algae burst instantly, then recede as Moss establishes
-        if (effTime <= 35) {
-            pLich = Math.sin((effTime / 35) * Math.PI * 0.5); 
-        } else {
-            pLich = Math.max(0, 1.0 - ((effTime - 35) / 60));
-        }
+        if (effTime <= 35) pLich = Math.sin((effTime / 35) * Math.PI * 0.5); 
+        else pLich = Math.max(0, 1.0 - ((effTime - 35) / 60));
         pMoss = Math.max(0, Math.min(1, (effTime - 25) / 40)) * Math.max(0, 1 - (effTime - 140) / 70);
-        
         pGr = Math.max(0, Math.min(1, (effTime-50)/50)) * Math.max(0, 1 - (effTime-200)/80);
         pBlue = Math.max(0, Math.min(1, (effTime-70)/60)) * Math.max(0, 1 - (effTime-250)/60);
         pSh = Math.max(0, Math.min(1, (effTime-80)/60)) * Math.max(0, 1 - (effTime-250)/60);
-        
         pAsp = Math.max(0, Math.min(1, (effTime-100)/60)) * Math.max(0, 1 - (effTime-280)/40);
         pBir = Math.max(0, Math.min(1, (effTime-120)/50)) * Math.max(0, 1 - (effTime-260)/50);
         pJP = Math.max(0, Math.min(1, (effTime-120)/50)) * Math.max(0.2, 1 - (effTime-290)/50);
         pFern = Math.max(0, Math.min(1, (effTime-150)/50)); 
-        
         pPine = Math.max(0, Math.min(1, (effTime-200)/80)) * Math.max(0.3, 1 - (effTime-450)/100);
         pTam = Math.max(0, Math.min(1, (effTime-200)/80)) * Math.max(0.2, 1 - (effTime-400)/100);
-        
         pSpr = Math.max(0, Math.min(1, (effTime-250)/100)); 
         pBlkSpr = Math.max(0, Math.min(1, (effTime-300)/100));
         pFir = Math.max(0, Math.min(1, (effTime-300)/100));
     } else {
-        // Secondary Succession (Bypasses primitive rock weathering entirely)
         pLich = 0; pMoss = 0;
         pGr = Math.max(0, Math.min(1, effTime/20)) * Math.max(0, 1 - (effTime-100)/60);
         pBlue = Math.max(0, Math.min(1, effTime/30)) * Math.max(0, 1 - (effTime-150)/60);
         pSh = Math.max(0, Math.min(1, (effTime-20)/30)) * Math.max(0, 1 - (effTime-140)/60);
-        
         pAsp = Math.max(0, Math.min(1, (effTime-30)/40)) * Math.max(0, 1 - (effTime-180)/60);
         pBir = Math.max(0, Math.min(1, (effTime-30)/40)) * Math.max(0, 1 - (effTime-160)/60);
         pJP = Math.max(0, Math.min(1, (effTime-40)/30)) * Math.max(0.1, 1 - (effTime-200)/80);
         pFern = Math.max(0, Math.min(1, (effTime-50)/50));
-        
         pPine = Math.max(0, Math.min(1, (effTime-80)/60)) * Math.max(0.3, 1 - (effTime-300)/100);
         pTam = Math.max(0, Math.min(1, (effTime-80)/60)) * Math.max(0.2, 1 - (effTime-250)/100);
-        
         pSpr = Math.max(0, Math.min(1, (effTime-120)/80));
         pBlkSpr = Math.max(0, Math.min(1, (effTime-160)/80));
         pFir = Math.max(0, Math.min(1, (effTime-160)/80));
@@ -953,24 +936,11 @@ function updateSimulationVisuals() {
     let totalClimax = Math.min(1, pSpr + pBlkSpr + pFir);
     pAsp *= Math.max(0, 1 - totalClimax); pBir *= Math.max(0, 1 - totalClimax); pGr *= Math.max(0, 1 - totalClimax);
 
-    const mode = state.mode; const hasMid = mode === 'mid' || mode === 'high'; const hasHigh = mode === 'high';
+    populations.lichen = pLich; populations.moss = pMoss; populations.grass = pGr; populations.fern = pFern;
+    populations.blueberry = pBlue; populations.shrub = pSh; populations.aspen = pAsp; populations.birch = pBir;
+    populations.jackpine = pJP; populations.pine = pPine; populations.spruce = pSpr; populations.blackspruce = pBlkSpr;
+    populations.fir = pFir; populations.tamarack = pTam;
 
-    populations.lichen = pLich;
-    populations.moss = pMoss;
-    populations.grass = pGr; 
-    populations.fern = pFern;
-    populations.blueberry = pBlue;
-    populations.shrub = pSh; 
-    populations.aspen = pAsp; 
-    populations.birch = pBir;
-    populations.jackpine = pJP; 
-    populations.pine = pPine;
-    populations.spruce = pSpr;
-    populations.blackspruce = pBlkSpr;
-    populations.fir = pFir;
-    populations.tamarack = pTam;
-
-    // Herbivore, Engineer, Predator trophic mechanics (Animals present in all modes)
     populations.hare = Math.min(1, pGr * 0.3 + pBlue * 0.4 + pSh * 0.6);
     populations.squirrel = Math.min(1, pJP * 0.4 + pPine * 0.4 + pSpr * 0.3);
     populations.frog = Math.min(1, pMoss * 0.3 + pFern * 0.5 + pTam * 0.4);
@@ -991,18 +961,15 @@ function updateSimulationVisuals() {
             const im = instancedMeshes[key]; 
             const alive = Math.floor(val * im.maxCount); 
             for(let i=0; i<im.maxCount; i++) {
-                if (im.data[i].isFallen) {
-                    im.data[i].targS = 0; // decays naturally
-                } else {
-                    im.data[i].targS = (im.data[i].aliveIdx < alive) ? im.data[i].maxS : 0; 
-                }
+                if (im.data[i].isFallen) im.data[i].targS = 0; 
+                else im.data[i].targS = (im.data[i].aliveIdx < alive) ? im.data[i].maxS : 0; 
             }
         }
         if(animalPools[key]) { const ap = animalPools[key]; const alive = Math.floor(val * ap.maxCount); for(let i=0; i<ap.maxCount; i++) ap.data[i].targS = (ap.data[i].aliveIdx < alive) ? ap.data[i].mesh.userData.baseS : 0; }
     };
     Object.keys(populations).forEach(k => setTarget(k, populations[k]));
 
-    if(beaverDamGroup) beaverDamGroup.userData.targS = populations.beaver > 0.1 ? populations.beaver : 0;
+    if(beaverDamGroup) beaverDamGroup.scale.setScalar(populations.beaver > 0.1 ? populations.beaver : 0);
 
     updateTerrainColors(); updateSpeciesPanel(); if (state.mode === 'high') updateMetrics(effTime);
 }
@@ -1011,26 +978,47 @@ function updateSpeciesPanel() {
     const pnl = document.getElementById('species-panel');
     if(state.mode === 'elem') { pnl.classList.add('hidden'); return; }
     pnl.classList.remove('hidden'); const l = dict[state.lang];
-    let html = `<details><summary style="font-size:0.85rem; margin-bottom:10px; color:var(--accent); text-transform:uppercase; cursor:pointer;">${l.presentSpec}</summary><div style="margin-top:8px;">`;
-    let plants = [], animals = [];
+    
+    if (state.mode === 'high') {
+        pnl.innerHTML = `<button id="btn-species-modal" style="width: 100%; background: var(--accent); color: white; padding: 10px; border: none; border-radius: var(--border-radius); font-weight: bold; cursor: pointer; text-transform: uppercase;">${l.viewData}</button>`;
+        document.getElementById('btn-species-modal').addEventListener('click', () => {
+            populateSpeciesModal();
+            document.getElementById('species-modal').classList.remove('hidden');
+        });
+    } else {
+        let html = `<details><summary style="font-size:0.85rem; margin-bottom:10px; color:var(--accent); text-transform:uppercase; cursor:pointer;">${l.presentSpec}</summary><div style="margin-top:8px;">`;
+        let plants = [], animals = [];
+        for(let key in populations) {
+            if(populations[key] > 0.05) {
+                let name = l.species[key] ? l.species[key].n : key;
+                if(['lichen','moss','fern','grass','blueberry','shrub','aspen','birch','jackpine','pine','spruce','blackspruce','fir','tamarack'].includes(key)) plants.push(name);
+                else animals.push(name);
+            }
+        }
+        html += `<div style="font-size:0.85rem; margin-bottom:8px;"><div class="sp-cat">${l.flora}</div>${plants.length > 0 ? plants.join(', ') : `<span style="opacity:0.5">${l.none}</span>`}</div>`;
+        html += `<div style="font-size:0.85rem;"><div class="sp-cat">${l.fauna}</div>${animals.length > 0 ? animals.join(', ') : `<span style="opacity:0.5">${l.none}</span>`}</div></div></details>`;
+        pnl.innerHTML = html;
+    }
+}
+
+function populateSpeciesModal() {
+    const l = dict[state.lang];
+    const tbody = document.getElementById('species-tbody');
+    tbody.innerHTML = '';
     
     for(let key in populations) {
         if(populations[key] > 0.05) {
             let name = l.species[key] ? l.species[key].n : key;
-            let countStr = "";
-            if(state.mode === 'high') {
-                let maxCount = instancedMeshes[key] ? instancedMeshes[key].maxCount : (animalPools[key] ? animalPools[key].maxCount : 0);
-                let alive = Math.floor(populations[key] * maxCount);
-                countStr = ` <span style="opacity:0.5; font-family:monospace;">[${alive}]</span>`;
-            }
-            if(['lichen','moss','fern','grass','blueberry','shrub','aspen','birch','jackpine','pine','spruce','blackspruce','fir','tamarack'].includes(key)) plants.push(name + countStr);
-            else animals.push(name + countStr);
+            let maxCount = instancedMeshes[key] ? instancedMeshes[key].maxCount : (animalPools[key] ? animalPools[key].maxCount : 0);
+            let alive = Math.floor(populations[key] * maxCount);
+            let isFlora = ['lichen','moss','fern','grass','blueberry','shrub','aspen','birch','jackpine','pine','spruce','blackspruce','fir','tamarack'].includes(key);
+            let type = isFlora ? l.flora : l.fauna;
+            
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<td>${name}</td><td>${type}</td><td style="text-align: right; font-family: monospace;">${alive}</td>`;
+            tbody.appendChild(tr);
         }
     }
-    
-    html += `<div style="font-size:0.85rem; margin-bottom:8px;"><div class="sp-cat">${l.flora}</div>${plants.length > 0 ? plants.join(', ') : `<span style="opacity:0.5">${l.none}</span>`}</div>`;
-    html += `<div style="font-size:0.85rem;"><div class="sp-cat">${l.fauna}</div>${animals.length > 0 ? animals.join(', ') : `<span style="opacity:0.5">${l.none}</span>`}</div></div></details>`;
-    pnl.innerHTML = html;
 }
 
 function updateMetrics(t) {
@@ -1045,7 +1033,6 @@ function updateMetrics(t) {
     document.getElementById('bar-soil-health').style.width = sl+'%'; document.getElementById('val-soil-health').textContent = sl+'%';
 }
 
-// --- MISSION ASSIGNMENT INJECTOR ---
 function loadProfileMissions() {
     const listContainer = document.getElementById('mission-list');
     const profileQuests = dict[state.lang].missions[state.mode];
@@ -1070,7 +1057,6 @@ function toggleMissionComplete(index) {
     else item.classList.remove('completed');
 }
 
-// --- ANIMATION SCHEDULER LOOP ---
 function animate() {
     requestAnimationFrame(animate);
     const tm = Date.now() * 0.002;
@@ -1088,11 +1074,10 @@ function animate() {
                 if(d.isFallen) {
                     im.dummy.rotation.z = Math.PI/2.2; 
                     im.dummy.position.y = d.y + 0.2;
-                    d.currS = Math.max(0, d.currS - 0.002); // Gradual decay
+                    d.currS = Math.max(0, d.currS - 0.002); 
                 } else {
-                    im.dummy.rotation.z = 0; // Ensure new trees always grow vertically
+                    im.dummy.rotation.z = 0; 
                 }
-                
                 im.dummy.updateMatrix(); im.mesh.setMatrixAt(i, im.dummy.matrix); needsUpd = true;
             }
         }
@@ -1106,7 +1091,7 @@ function animate() {
             if(Math.abs(d.currS - d.targS) > 0.01) { d.currS += (d.targS - d.currS) * 0.05; d.mesh.scale.set(d.currS, d.currS, d.currS); }
             if(d.currS > 0.1) { 
                 if(key==='bird' || key==='woodpecker' || key==='owl') { 
-                    d.mesh.translateZ(0.15); // Fly forward
+                    d.mesh.translateZ(0.15); 
                     if(Math.random()<0.02) d.mesh.rotation.y += (Math.random()-0.5)*Math.PI;
                     let elev = getElevation(d.mesh.position.x, d.mesh.position.z);
                     if (d.mesh.position.y < elev + 5) d.mesh.position.y += 0.5;
@@ -1126,24 +1111,21 @@ function animate() {
                     }
                 }
                 else { 
-                    // Terrestrial wandering 
                     if (Math.random() < 0.05) d.mesh.rotation.y += (Math.random()-0.5)*1.5;
                     
+                    // Specific Beaver Lake Bounds Constraint
                     if (key === 'beaver') {
-                        // Keep beavers near the lake
-                        let distToLake = Math.hypot(d.mesh.position.x - lakeCX, d.mesh.position.z - lakeCZ);
-                        if (distToLake > 22 * (MAP_SIZE/250)) {
-                            let angleToLake = Math.atan2(d.mesh.position.x - lakeCX, d.mesh.position.z - lakeCZ);
-                            d.mesh.rotation.y = angleToLake + Math.PI + (Math.random()-0.5); 
+                        const distToLake = Math.hypot(d.mesh.position.x - lakeCX, d.mesh.position.z - lakeCZ);
+                        if (distToLake > 30 * (MAP_SIZE/250)) {
+                            // Turn dynamically back towards the center of the lake
+                            d.mesh.rotation.y = Math.atan2(d.mesh.position.x - lakeCX, d.mesh.position.z - lakeCZ) + Math.PI;
                         }
                     }
 
                     d.mesh.translateZ(0.03 + (key==='hare'||key==='fox'||key==='wolf'?0.05:0));
                     
                     let elev = getElevation(d.mesh.position.x, d.mesh.position.z);
-                    // Avoid water 
                     if (elev < WATER_LEVEL + 0.2 && key !== 'beaver') { d.mesh.rotation.y += Math.PI; d.mesh.translateZ(0.4); elev = getElevation(d.mesh.position.x, d.mesh.position.z); }
-                    // Clamp to map bounds
                     if (Math.abs(d.mesh.position.x) > MAP_SIZE/2 - 2 || Math.abs(d.mesh.position.z) > MAP_SIZE/2 - 2) { d.mesh.rotation.y += Math.PI; d.mesh.translateZ(0.5); }
                     
                     d.mesh.position.y = elev;
@@ -1156,19 +1138,10 @@ function animate() {
         }
     }
     
-    if (beaverDamGroup) {
-        let bData = beaverDamGroup.userData;
-        if (Math.abs(bData.currS - bData.targS) > 0.005) {
-            bData.currS += (bData.targS - bData.currS) * 0.02; // Smooth construction animation
-            beaverDamGroup.scale.setScalar(bData.currS);
-        }
-    }
-    
     if(!isSplashOrbit) { controls.update(); const minCamY = getElevation(camera.position.x, camera.position.z) + 3; if (camera.position.y < minCamY) camera.position.y = minCamY; const minTargetY = getElevation(controls.target.x, controls.target.z); if (controls.target.y < minTargetY) controls.target.y = minTargetY; }
     renderer.render(scene, camera);
 }
 
-// --- SYSTEM INTERACTION DOM HANDLING ---
 document.addEventListener('DOMContentLoaded', () => {
     initThreeJS();
     const updStr = (q, cb) => document.querySelectorAll(q).forEach(b => b.addEventListener('click', (e) => { document.querySelectorAll(q).forEach(btn => btn.classList.remove('active')); e.target.classList.add('active'); cb(e); }));
@@ -1189,38 +1162,72 @@ document.addEventListener('DOMContentLoaded', () => {
     const upd = (id, key, isInt) => document.getElementById(id).addEventListener('input', e => { state[key] = isInt?parseInt(e.target.value):e.target.value; updateUI(); updateSimulationVisuals(); });
     upd('time-slider', 'time', true); upd('soil-selector', 'soil', false); upd('precip-slider', 'precip', true); upd('grazing-slider', 'grazing', true);
 
-    // Dynamic Wildfire Succession Shift (Forces secondary track and resets timeline clock)
     document.getElementById('btn-fire').addEventListener('click', () => triggerEvent('rgba(239, 68, 68, 0.6)', () => {
         state.type = 'secondary_fire'; state.time = 0; state.stormHit = false; stormCounter = 0;
         document.getElementById('time-slider').value = 0;
     }));
 
-    // Windstorm Catastrophe Tracking Logic (Consecutive impacts or mature damage trigger structural collapse into secondary track)
     document.getElementById('btn-storm').addEventListener('click', () => {
         triggerEvent('rgba(255, 255, 255, 0.7)', () => {
             state.stormHit = true;
             if (state.time > 200) state.type = 'secondary_storm';
             
-            // 20% blowdown logic - Decays fallen trees and allows new vertical growth
             ['spruce', 'fir', 'pine', 'aspen', 'birch', 'jackpine', 'blackspruce', 'tamarack'].forEach(sp => {
                 let im = instancedMeshes[sp];
                 if(!im) return;
                 for(let i=0; i<im.maxCount; i++) {
                     if(im.data[i].currS > 0.4 && Math.random() < 0.2 && !im.data[i].isFallen) {
                         im.data[i].isFallen = true;
-                        im.data[i].targS = 0; // Triggers gradual shrinking/decay in animate loop
+                        im.data[i].targS = 0;
                     }
                 }
             });
         });
     });
 
-    // X-Ray Animal Tracking Sub-Layer Visibility Filter
     document.getElementById('btn-toggle-veg').addEventListener('click', (e) => {
         state.hideVegetation = !state.hideVegetation;
         if(state.hideVegetation) { e.target.classList.add('active-hide'); e.target.textContent = "Show Vegetation"; } 
         else { e.target.classList.remove('active-hide'); e.target.textContent = "Hide Vegetation"; }
         for(let key in instancedMeshes) { instancedMeshes[key].mesh.visible = !state.hideVegetation; }
+    });
+
+    // Close Modal Events
+    document.getElementById('btn-close-modal').addEventListener('click', () => { document.getElementById('species-modal').classList.add('hidden'); });
+
+    // Copy to Clipboard Formatting Logic
+    document.getElementById('btn-copy-data').addEventListener('click', (e) => {
+        const l = dict[state.lang];
+        let typeText = state.type === 'primary' ? l.priTitle : (state.type === 'secondary_fire' ? l.secFireTitle : l.secStormTitle);
+        let textToCopy = `${typeText} - ${l.time} ${state.time} ${l.years}\n\n`;
+        textToCopy += `${l.spName}\t${l.spType}\t${l.spCount}\n`;
+        textToCopy += `--------------------------------------------------\n`;
+        
+        for(let key in populations) {
+            if(populations[key] > 0.05) {
+                let name = l.species[key] ? l.species[key].n : key;
+                let maxCount = instancedMeshes[key] ? instancedMeshes[key].maxCount : (animalPools[key] ? animalPools[key].maxCount : 0);
+                let alive = Math.floor(populations[key] * maxCount);
+                let isFlora = ['lichen','moss','fern','grass','blueberry','shrub','aspen','birch','jackpine','pine','spruce','blackspruce','fir','tamarack'].includes(key);
+                let type = isFlora ? l.flora : l.fauna;
+                textToCopy += `${name}\t${type}\t${alive}\n`;
+            }
+        }
+        
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            const origText = e.target.textContent;
+            e.target.textContent = l.copied;
+            e.target.style.background = 'var(--accent)'; e.target.style.color = 'white';
+            setTimeout(() => { e.target.textContent = origText; e.target.style.background = 'rgba(0,0,0,0.2)'; e.target.style.color = 'var(--accent)'; }, 2000);
+        } catch (err) {
+            console.error('Copy failed', err);
+        }
+        document.body.removeChild(textArea);
     });
 
     function triggerEvent(color, logicCb) { const ov = document.getElementById('event-overlay'); ov.style.background = color; ov.style.opacity = '1'; setTimeout(() => { logicCb(); updateUI(); updateSimulationVisuals(); ov.style.opacity = '0'; }, 400); }
@@ -1244,12 +1251,17 @@ function updateUI() {
     document.getElementById('lbl-dist').textContent = l.dist; document.getElementById('btn-fire').textContent = l.fire; document.getElementById('btn-storm').textContent = l.storm;
     document.getElementById('tek-title').textContent = l.tekTitle; document.getElementById('lbl-metrics-title').textContent = l.metricsTitle;
     document.getElementById('lbl-biodiv').textContent = l.biodiv; document.getElementById('lbl-biomass').textContent = l.biomass; document.getElementById('lbl-soil-health').textContent = l.soilHealth; document.getElementById('lbl-interact-hint').textContent = l.interactHint;
+    
+    document.getElementById('modal-title').textContent = l.spModalTitle;
+    document.getElementById('th-name').textContent = l.spName;
+    document.getElementById('th-type').textContent = l.spType;
+    document.getElementById('th-count').textContent = l.spCount;
+    document.getElementById('btn-copy-data').textContent = l.copyData;
 
-    // Direct Succession Explanation Widget Mapping
     const bTag = document.getElementById('status-title-tag'); const bDesc = document.getElementById('status-desc-text');
     if (state.type === 'primary') { bTag.textContent = l.priTitle; bDesc.textContent = l.priDesc; bTag.parentElement.style.borderLeftColor = "var(--accent)"; }
     else if (state.type === 'secondary_fire') { bTag.textContent = l.secFireTitle; bDesc.textContent = l.secFireDesc; bTag.parentElement.style.borderLeftColor = "var(--danger)"; }
-    else if (state.type === 'secondary_storm') { bTag.textContent = l.secStormTitle; bDesc.textContent = l.secStormDesc; bTag.parentElement.style.borderLeftColor = "ebca07"; }
+    else if (state.type === 'secondary_storm') { bTag.textContent = l.secStormTitle; bDesc.textContent = l.secStormDesc; bTag.parentElement.style.borderLeftColor = "#ebca07"; }
 
     let sIdx = 0;
     if (state.type === 'primary') { if (state.time >= 300) sIdx = 4; else if (state.time >= 200) sIdx = 3; else if (state.time >= 100) sIdx = 2; else if (state.time >= 50) sIdx = 1; }
