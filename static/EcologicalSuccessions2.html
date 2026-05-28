@@ -1,16 +1,3 @@
-Here is the fully revised simulation code. It updates the succession rules, integrates the full ecosystem sequence with enhanced mathematical tracking, removes the manual succession override toggle, fixes the typography system across all user profiles, and adds targeted interactive educational quests based on your design profiles.
-
-### Summary of Key Updates:
-
-1. **Unified Modern Typography:** Fixed CSS configuration errors to ensure that all UI layers, dropdown selectors, buttons, and popups run natively on `Segoe UI` or `Roboto`.
-2. **Succession Logic Overhaul:** Removed the manual "Secondary" selection button. The simulation always initializes in a clean **Primary Succession** state when a new map is generated. The system can only transition into a **Secondary Succession** track via real-time interactive events: triggering a **Wildfire** or causing deep ecosystem destruction via **Consecutive Windstorms** (tracked via an interactive internal damage counter).
-3. **Dynamic Succession Dashboard:** A highly visible status banner has been added to the main control dashboard, dynamically loading precise analytical explanations for *why* the terrain shifted states.
-4. **Authentic Lithosere Acceleration:** Modified the early time step tracking code. During the first few seral years of Primary Succession, autotrophic lichens and primitive algae multiply exponentially across the raw rock faces before getting crowded out by organic moss carpets.
-5. **X-Ray Vegetation Toggle:** Added an alternate rendering toggle to instantly clear out all complex flora instances, allowing students to inspect animal populations, migration vectors, and territory behaviors across raw topological reliefs.
-6. **Observer Profile Normalization:** Restored animal scale vectors back to standard `1.0` real-world proportions within the Observer layout mode to maintain ecological fidelity.
-7. **Interactive Depth of Knowledge (DoK) Quests:** Added a dedicated module tracking structured check-off missions matching each learning tier (3 observation prompts for Observer, 5 analytical questions for Explorer, and 10 research-grade synthesis problems for Scientist).
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -666,6 +653,7 @@ function updateTerrainColors() {
 }
 
 // --- BIO-GEOMETRIC SEED GENERATORS ---
+function colorGeo(geo, hex) { if (geo.index) geo = geo.toNonIndexed(); if (geo.attributes.uv) geo.deleteAttribute('uv'); const c = new THREE.Color(hex); const arr = new Float32Array(geo.attributes.position.count * 3); for(let i=0; i<arr.length; i+=3) { arr[i]=c.r; arr[i+1]=c.g; arr[i+2]=c.b; } geo.setAttribute('color', new THREE.BufferAttribute(arr, 3)); return geo; }
 function createLichenGeo() { return colorGeo(new THREE.CylinderGeometry(0.8, 0.8, 0.1, 5).translate(0, 0.05, 0), 0xca8a04); } // Yellow-green pioneer crustose
 function createMossGeo() { 
     const m1 = colorGeo(new THREE.DodecahedronGeometry(1.0, 0).translate(0.5, 0.2, 0).scale(1, 0.3, 1), 0x4d7c0f);
@@ -1148,5 +1136,3 @@ function updateUI() {
 </script>
 </body>
 </html>
-
-```
