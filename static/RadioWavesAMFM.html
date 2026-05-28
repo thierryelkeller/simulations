@@ -73,16 +73,17 @@
         }
 
         .splash-title-gradient {
-            font-size: 4rem;
+            font-size: 3.8rem;
             font-weight: 900;
-            margin-bottom: 1rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
             background: linear-gradient(270deg, #00ffff, #ff00cc, #eab308, #3b82f6, #00ffff);
             background-size: 400% 400%;
             animation: gradient-shift 6s ease infinite;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -1px;
-            text-shadow: 0 0 30px rgba(6, 182, 212, 0.4), 0 0 60px rgba(236, 72, 153, 0.3);
+            text-shadow: 0 0 40px rgba(6, 182, 212, 0.5), 0 0 80px rgba(236, 72, 153, 0.4);
         }
 
         .splash-subtitle-modern {
@@ -177,56 +178,75 @@
         }
 
         .tab-content {
-            display: none;
+            display: none !important;
             flex: 1;
             overflow: hidden;
         }
 
         .tab-content.active {
+            display: flex !important;
+        }
+
+        /* === NEW TOOLBAR CSS === */
+        .top-toolbar {
             display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        .top-toolbar .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            background: rgba(0,0,0,0.4);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .top-toolbar .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(0,0,0,0.4);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            width: 400px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .top-toolbar input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent-cyan);
         }
 
         /* === ANALOGY TAB === */
         .analogy-layout {
             display: flex;
+            flex-direction: column;
             flex: 1;
             gap: 1rem;
             padding: 1rem;
             height: 100%;
         }
 
-        .physics-reminder-box {
-            background: rgba(14, 116, 144, 0.15);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            border-left: 4px solid var(--accent-cyan);
-            padding: 1rem;
-            border-radius: 6px;
-            font-size: 0.88rem;
-            line-height: 1.5;
-            color: #e2e8f0;
-        }
-
-        .physics-reminder-box strong {
-            color: var(--accent-cyan);
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
         .analogy-visual-split {
             flex: 1;
             display: flex;
             gap: 1rem;
-            background: #020617;
-            border: 1px solid var(--panel-border);
-            border-radius: 8px;
-            padding: 1rem;
+            background: transparent;
+            border: none;
+            padding: 0;
         }
 
         .analogy-bay {
             flex: 1;
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -258,8 +278,8 @@
         }
 
         .lightbulb {
-            width: 100px;
-            height: 135px;
+            width: 80px;
+            height: 100px;
             background: #cbd5e1;
             border-radius: 50% 50% 30% 30%;
             position: relative;
@@ -273,7 +293,7 @@
             bottom: -15px;
             left: 50%;
             transform: translateX(-50%);
-            width: 45px;
+            width: 35px;
             height: 15px;
             background: #64748b;
             border-radius: 0 0 5px 5px;
@@ -282,20 +302,33 @@
         .analogy-fog {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(200, 210, 220, 0);
+            background: rgba(15, 23, 42, 0);
             pointer-events: none;
             z-index: 15;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: background 0.2s, backdrop-filter 0.2s;
+            overflow: hidden;
+        }
+
+        @keyframes fog-drift {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1.0); }
+            33% { transform: translate(-4%, 3%) rotate(2deg) scale(1.08); }
+            66% { transform: translate(3%, -4%) rotate(-1deg) scale(1.03); }
+            100% { transform: translate(0, 0) rotate(0deg) scale(1.0); }
         }
         
         .fog-particles {
-            width: 100%;
-            height: 100%;
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
             opacity: 0.15;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.08' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            animation: fog-drift 16s ease-in-out infinite;
+            pointer-events: none;
         }
 
         /* === MAIN SIMULATION SCREEN === */
@@ -455,6 +488,7 @@
             display: flex;
             flex-direction: column;
             backdrop-filter: blur(5px);
+            min-height: 200px;
         }
 
         .graph-title {
@@ -482,16 +516,19 @@
         @media (max-width: 900px) {
             .main-content, .analogy-layout { flex-direction: column; overflow-y: auto; }
             .controls-panel { width: 100%; }
-            .analogy-visual-split { flex-direction: column; height: 500px; }
+            .analogy-visual-split { flex-direction: column; height: 300px; }
+            .top-toolbar { flex-direction: column; gap: 1rem; }
+            .top-toolbar .slider-wrapper { width: 100%; }
         }
     </style>
 </head>
 <body>
 
+    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <canvas id="splash-canvas"></canvas>
         <div class="splash-content-modern">
-            <h1 class="splash-title-gradient" data-i18n="splash_title">Symphonie Hertzienne : Le Code de l'Invisible</h1>
+            <h1 class="splash-title-gradient" data-i18n="splash_title">Symphonie Hertzienne :<br>Le Code de l'Invisible</h1>
             <p class="splash-subtitle-modern" data-i18n="splash_subtitle">Laboratoire virtuel de physique - 11e et 12e année</p>
             
             <div class="lang-toggle-modern">
@@ -503,12 +540,13 @@
         </div>
     </div>
 
+    <!-- MAIN SIMULATION INTERFACE -->
     <div id="simulation-screen">
         <header>
             <div class="header-title" data-i18n="app_title">Laboratoire Modélisation Électromagnétique</div>
             <div class="header-controls">
                 <button class="nav-btn" onclick="setLanguage(currentLang === 'fr' ? 'en' : 'fr')" id="top-lang-btn">EN / FR</button>
-                <button class="nav-btn" onclick="backToSplash()" data-i18n="btn_back">Retour à l'accueil</button>
+                <button class="nav-btn" onclick="backToSplash()" data-i18n="btn_back">Retour</button>
                 <a href="index.html" class="nav-btn exit-btn" data-i18n="btn_exit">Quitter (Index)</a>
             </div>
         </header>
@@ -518,61 +556,56 @@
             <button class="tab-btn" onclick="switchTab('math')" data-i18n="tab_math">2. Modélisation Mathématique</button>
         </div>
 
-        <div id="tab-analogy" class="tab-content active">
-            <div class="analogy-layout">
-                <div class="controls-panel">
-                    <div class="control-group mod-type">
-                        <h3 data-i18n="panel_mod_type">Méthode de Transmission</h3>
-                        <div class="radio-group" style="flex-direction: column;">
-                            <label class="radio-label">
-                                <input type="radio" name="analogy_type" value="AM" checked> 
-                                <span data-i18n="analogy_am">Varier l'Intensité (AM)</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="analogy_type" value="FM"> 
-                                <span data-i18n="analogy_fm">Varier la Couleur (FM)</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="control-group">
-                        <h3 data-i18n="panel_env">Environnement</h3>
-                        <div class="slider-container">
-                            <label>
-                                <span data-i18n="lbl_fog">Épaisseur du Brouillard</span>
-                                <span id="val_fog">20%</span>
-                            </label>
-                            <input type="range" id="fog_level" min="0" max="100" step="1" value="20">
-                        </div>
-                    </div>
+        <!-- TAB 1: ANALOGY -->
+        <div id="tab-analogy" class="tab-content active" style="flex-direction: column; padding: 1rem; gap: 1rem;">
+            
+            <div class="top-toolbar">
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="analogy_type" value="AM" checked> 
+                        <span data-i18n="analogy_am">Varier l'Intensité (AM)</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="analogy_type" value="FM"> 
+                        <span data-i18n="analogy_fm">Varier la Couleur (FM)</span>
+                    </label>
+                </div>
+                
+                <div class="slider-wrapper">
+                    <span data-i18n="lbl_fog" style="color: var(--text-muted); font-size: 0.9rem; white-space: nowrap;">Épaisseur du Brouillard</span>
+                    <input type="range" id="fog_level" min="0" max="100" step="1" value="20">
+                    <span id="val_fog" style="color: var(--accent-cyan); font-weight: bold; min-width: 40px; text-align: right;">20%</span>
+                </div>
 
-                    <div class="physics-reminder-box">
-                        <strong data-i18n="physics_reminder_title">Lien Physique & Conceptuel</strong>
-                        <span data-i18n="physics_reminder_text">En AM, l'<strong>intensité</strong> lumineuse est l'analogue de l'<strong>amplitude</strong> de l'onde. En FM, la <strong>couleur</strong> (longueur d'onde) représente sa <strong>fréquence</strong>. Voyez comment le bruit du brouillard perturbe l'amplitude mais préserve la fréquence d'onde.</span>
+                <div class="slider-wrapper">
+                    <span data-i18n="lbl_distance" style="color: var(--text-muted); font-size: 0.9rem; white-space: nowrap;">Distance</span>
+                    <input type="range" id="distance_level" min="1" max="100" step="1" value="1">
+                    <span id="val_distance" style="color: var(--accent-cyan); font-weight: bold; min-width: 40px; text-align: right;">1</span>
+                </div>
+            </div>
+
+            <!-- The Split Bulbs -->
+            <div class="analogy-visual-split" style="border: none; background: transparent; padding: 0;">
+                <div class="analogy-bay source-bay">
+                    <div class="bay-title" data-i18n="lbl_source_emitted">Émetteur (Source Claire)</div>
+                    <div class="lightbulb-container">
+                        <div class="lightbulb" id="source-bulb"></div>
                     </div>
                 </div>
 
-                <div class="analogy-visual-split">
-                    <div class="analogy-bay source-bay">
-                        <div class="bay-title" data-i18n="lbl_source_emitted">Émetteur (Source Claire)</div>
-                        <div class="lightbulb-container">
-                            <div class="lightbulb" id="source-bulb"></div>
-                        </div>
-                    </div>
-
-                    <div class="analogy-bay perceived-bay">
-                        <div class="bay-title" data-i18n="lbl_perceived_obs">Observateur (Perception)</div>
-                        <div class="lightbulb-container">
-                            <div class="lightbulb" id="perceived-bulb"></div>
-                            <div class="analogy-fog" id="fog-overlay">
-                                <div class="fog-particles"></div>
-                            </div>
+                <div class="analogy-bay perceived-bay">
+                    <div class="bay-title" data-i18n="lbl_perceived_obs">Observateur (Perception)</div>
+                    <div class="lightbulb-container">
+                        <div class="lightbulb" id="perceived-bulb"></div>
+                        <div class="analogy-fog" id="fog-overlay">
+                            <div class="fog-particles"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- TAB 2: MATH SIMULATION -->
         <div id="tab-math" class="tab-content main-content">
             <div class="controls-panel">
                 <div class="control-group">
@@ -618,6 +651,17 @@
                     </div>
                 </div>
 
+                <div class="control-group">
+                    <h3 data-i18n="panel_noise">Interférence (Bruit)</h3>
+                    <div class="slider-container">
+                        <label>
+                            <span data-i18n="lbl_noise_level">Niveau de Bruit</span>
+                            <span id="val_noise">0.00</span>
+                        </label>
+                        <input type="range" id="noise_level" min="0" max="2.0" step="0.05" value="0.0">
+                    </div>
+                </div>
+
                 <div class="indigenous-box">
                     <strong data-i18n="indig_title">Perspective Autochtone : La Toile Invisible</strong>
                     <span data-i18n="indig_text">Bien avant la physique moderne, les savoirs autochtones reconnaissaient que l'univers est relié par une toile d'énergies invisibles et de vibrations. Tout comme nous modulons les ondes pour transmettre l'information, les traditions comprennent que la terre, l'air et l'eau agissent comme des vecteurs interconnectés transportant l'énergie à travers de vastes territoires.</span>
@@ -645,11 +689,11 @@
         // === TRANSLATION DICTIONARY ===
         const i18n = {
             fr: {
-                splash_title: "Symphonie Hertzienne : Le Code de l'Invisible",
+                splash_title: "Symphonie Hertzienne :<br>Le Code de l'Invisible",
                 splash_subtitle: "Laboratoire virtuel de physique - 11e et 12e année",
                 btn_start: "Démarrer l'Analyse",
                 app_title: "Laboratoire Modélisation Électromagnétique",
-                btn_back: "Retour à l'accueil",
+                btn_back: "Retour",
                 btn_exit: "Quitter (Index)",
                 tab_analogy: "1. Analogie du Brouillard",
                 tab_math: "2. Modélisation Mathématique",
@@ -669,19 +713,22 @@
                 indig_text: "Bien avant la physique moderne, les savoirs autochtones reconnaissaient que l'univers est relié par une toile d'énergies invisibles et de vibrations. Tout comme nous modulons les ondes pour transmettre l'information, les traditions comprennent que la terre, l'air et l'eau agissent comme des vecteurs interconnectés transportant l'énergie à travers de vastes territoires.",
                 analogy_am: "Varier l'Intensité (AM)",
                 analogy_fm: "Varier la Couleur (FM)",
-                panel_env: "Environnement",
                 lbl_fog: "Épaisseur du Brouillard",
-                physics_reminder_title: "Lien Physique & Conceptuel",
-                physics_reminder_text: "En AM, l'intensité lumineuse est l'analogue de l'amplitude de l'onde. En FM, la couleur (longueur d'onde) représente sa fréquence. Voyez comment le brouillard d'interférence perturbe l'amplitude mais préserve la fréquence.",
+                lbl_distance: "Distance",
                 lbl_source_emitted: "Émetteur (Source Claire)",
-                lbl_perceived_obs: "Observateur (Perception)"
+                lbl_perceived_obs: "Observateur (Perception)",
+                panel_noise: "Interférence (Bruit)",
+                lbl_noise_level: "Niveau de Bruit",
+                graph_analogy_title: "Comparaison des Signaux",
+                lbl_emitted_legend: "■ Émis (Source)",
+                lbl_perceived_legend: "■ Perçu (Décodé)"
             },
             en: {
-                splash_title: "Hertzian Symphony: Coding the Unseen",
+                splash_title: "Hertzian Symphony:<br>Coding the Unseen",
                 splash_subtitle: "Virtual Physics Lab - Grades 11 & 12",
                 btn_start: "Start Analysis",
                 app_title: "Electromagnetic Modeling Lab",
-                btn_back: "Back to Splash",
+                btn_back: "Back",
                 btn_exit: "Exit (Index)",
                 tab_analogy: "1. The Fog Analogy",
                 tab_math: "2. Mathematical Modeling",
@@ -701,12 +748,15 @@
                 indig_text: "Long before modern physics, Indigenous knowledge systems recognized the universe as being connected by an unseen web of energy and vibrations. Just as we modulate waves to transmit information, traditional practices understand that earth, air, and water act as interconnected vectors carrying energy across vast landscapes.",
                 analogy_am: "Vary Intensity (AM)",
                 analogy_fm: "Vary Color (FM)",
-                panel_env: "Environment",
                 lbl_fog: "Fog Thickness",
-                physics_reminder_title: "Physical Connection",
-                physics_reminder_text: "In AM, light intensity is analogous to wave amplitude. In FM, color (wavelength) represents frequency. Notice how interference fog disrupts amplitude but preserves the frequency.",
+                lbl_distance: "Distance",
                 lbl_source_emitted: "Transmitter (Clear Source)",
-                lbl_perceived_obs: "Observer (Perception)"
+                lbl_perceived_obs: "Observer (Perception)",
+                panel_noise: "Interference (Noise)",
+                lbl_noise_level: "Noise Level",
+                graph_analogy_title: "Signal Comparison",
+                lbl_emitted_legend: "■ Emitted (Source)",
+                lbl_perceived_legend: "■ Perceived (Decoded)"
             }
         };
 
@@ -727,6 +777,8 @@
             amCurrent: 1.0,
             fmTarget: [255, 30, 30],
             fmCurrent: [255, 30, 30],
+            fmLevelTarget: 1.0,
+            fmLevelCurrent: 1.0,
             amLevels: [1.0, 0.75, 0.5, 0.25, 0.0],
             fmColors: [
                 [255, 30, 30],    // Rouge
@@ -737,30 +789,25 @@
             ]
         };
 
+        // Sliders config
         const sliders = {
             infoAmp: document.getElementById('info_amp'),
             infoFreq: document.getElementById('info_freq'),
             carrierFreq: document.getElementById('carrier_freq'),
-            fogLevel: document.getElementById('fog_level')
+            fogLevel: document.getElementById('fog_level'),
+            noiseLevel: document.getElementById('noise_level'),
+            distanceLevel: document.getElementById('distance_level')
         };
         const displays = {
             infoAmp: document.getElementById('val_info_amp'),
             infoFreq: document.getElementById('val_info_freq'),
             carrierFreq: document.getElementById('val_carrier_freq'),
-            fogLevel: document.getElementById('val_fog')
+            fogLevel: document.getElementById('val_fog'),
+            noiseLevel: document.getElementById('val_noise'),
+            distanceLevel: document.getElementById('val_distance')
         };
 
-        const canvases = {
-            info: document.getElementById('canvas-info'),
-            carrier: document.getElementById('canvas-carrier'),
-            modulated: document.getElementById('canvas-modulated')
-        };
-        const ctxs = {
-            info: canvases.info.getContext('2d'),
-            carrier: canvases.carrier.getContext('2d'),
-            modulated: canvases.modulated.getContext('2d')
-        };
-
+        // UI elements that don't need continuous dynamic fetching
         const analogyElements = {
             sourceBulb: document.getElementById('source-bulb'),
             perceivedBulb: document.getElementById('perceived-bulb'),
@@ -800,23 +847,25 @@
             
             splashCtx.clearRect(0, 0, splashCanvas.width, splashCanvas.height);
             
-            let waveCount = 8;
-            let baseFrequency = 0.004 + (pointerX * 0.016);
+            let waveCount = 6;
+            let baseFrequency = 0.0035 + (pointerX * 0.012);
             let hueBase = Math.floor(pointerY * 360);
 
             for (let i = 0; i < waveCount; i++) {
                 splashCtx.beginPath();
-                splashCtx.lineWidth = i === 0 ? 4 : 1.5;
+                splashCtx.lineWidth = i === 0 ? 3 : 1.5; 
                 
                 let currentHue = (hueBase + (i * 25)) % 360;
-                splashCtx.strokeStyle = `hsla(${currentHue}, 95%, 65%, ${0.2 + (i * 0.07)})`;
-                splashCtx.shadowColor = `hsla(${currentHue}, 95%, 65%, 0.9)`;
-                splashCtx.shadowBlur = i === 0 ? 30 : 10;
+                let opacity = 0.15 + (i * 0.06); 
+                splashCtx.strokeStyle = `hsla(${currentHue}, 90%, 65%, ${opacity})`;
+                
+                splashCtx.shadowBlur = i === 0 ? 15 : 5; 
+                splashCtx.shadowColor = `hsla(${currentHue}, 90%, 65%, 0.4)`;
 
-                let amplitude = 60 + (i * 20) + (pointerY * 70);
-                let speed = 0.02 + (i * 0.005);
+                let amplitude = 45 + (i * 15) + (pointerY * 55);
+                let speed = (0.01 + (i * 0.003));
 
-                for (let x = 0; x < splashCanvas.width; x += 5) {
+                for (let x = 0; x < splashCanvas.width; x += 8) {
                     let y = splashCanvas.height / 2 + Math.sin(x * baseFrequency + phase * speed + i) * amplitude;
                     if (x === 0) splashCtx.moveTo(x, y);
                     else splashCtx.lineTo(x, y);
@@ -824,7 +873,7 @@
                 splashCtx.stroke();
             }
 
-            phase += 1;
+            phase += 0.35; 
             splashAnimationId = requestAnimationFrame(animateSplash);
         }
         animateSplash();
@@ -834,7 +883,7 @@
             currentLang = lang;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (i18n[lang][key]) el.textContent = i18n[lang][key];
+                if (i18n[lang][key]) el.innerHTML = i18n[lang][key]; 
             });
             
             const btns = document.querySelectorAll('.lang-btn-modern');
@@ -847,13 +896,24 @@
 
         function switchTab(tabId) {
             currentTab = tabId;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            event.target.classList.add('active');
-            document.getElementById('tab-' + tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
             
-            if (tabId === 'math') resizeCanvases();
+            const targetContent = document.getElementById('tab-' + tabId);
+            if(targetContent) {
+                targetContent.classList.add('active');
+            }
+            
+            setTimeout(resizeCanvases, 50); 
         }
 
         function startSimulation() {
@@ -862,7 +922,7 @@
                 document.getElementById('splash-screen').style.display = 'none';
                 document.getElementById('simulation-screen').style.display = 'flex';
                 cancelAnimationFrame(splashAnimationId);
-                if(currentTab === 'math') resizeCanvases();
+                setTimeout(resizeCanvases, 50);
                 if (!animationId) animate();
             }, 500);
         }
@@ -895,16 +955,30 @@
             if(!sliders[key]) return;
             sliders[key].addEventListener('input', (e) => {
                 let val = parseFloat(e.target.value);
-                displays[key].textContent = key === 'fogLevel' ? val + "%" : val.toFixed(2);
+                if (key === 'fogLevel') {
+                    displays[key].textContent = val + "%";
+                } else if (key === 'distanceLevel') {
+                    displays[key].textContent = val;
+                } else {
+                    displays[key].textContent = val.toFixed(2);
+                }
             });
         });
 
         function resizeCanvases() {
-            Object.values(canvases).forEach(canvas => {
-                if (!canvas) return;
-                const parent = canvas.parentElement;
-                canvas.width = parent.clientWidth - 32; 
-                canvas.height = parent.clientHeight - 32;
+            const canvasIds = ['canvas-info', 'canvas-carrier', 'canvas-modulated'];
+            
+            canvasIds.forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas && canvas.parentElement) {
+                    const parent = canvas.parentElement;
+                    const w = parent.clientWidth;
+                    const h = parent.clientHeight;
+                    if (w > 32 && h > 32) {
+                        canvas.width = w - 32; 
+                        canvas.height = h - 32;
+                    }
+                }
             });
         }
 
@@ -918,22 +992,32 @@
         }
 
         function drawWave(ctx, type, width, height) {
+            if (!ctx || width <= 0 || height <= 0) return;
+            
             ctx.clearRect(0, 0, width, height);
             drawGrid(ctx, width, height);
 
             ctx.beginPath();
             ctx.lineWidth = 2.5;
 
-            if (type === 'info') { ctx.strokeStyle = '#ec4899'; ctx.shadowColor = '#ec4899'; }
-            else if (type === 'carrier') { ctx.strokeStyle = '#06b6d4'; ctx.shadowColor = '#06b6d4'; }
-            else { ctx.strokeStyle = '#eab308'; ctx.shadowColor = '#eab308'; }
+            if (type === 'info') {
+                ctx.strokeStyle = '#ec4899'; 
+                ctx.shadowColor = '#ec4899';
+            } else if (type === 'carrier') {
+                ctx.strokeStyle = '#06b6d4'; 
+                ctx.shadowColor = '#06b6d4';
+            } else {
+                ctx.strokeStyle = '#eab308'; 
+                ctx.shadowColor = '#eab308';
+            }
             
             ctx.shadowBlur = 8;
 
-            const A_m = parseFloat(sliders.infoAmp.value);
-            const f_m = parseFloat(sliders.infoFreq.value);
+            const A_m = sliders.infoAmp ? parseFloat(sliders.infoAmp.value) : 0.8; 
+            const f_m = sliders.infoFreq ? parseFloat(sliders.infoFreq.value) : 1.0; 
             const A_c = 1;
-            const f_c = parseFloat(sliders.carrierFreq.value);
+            const f_c = sliders.carrierFreq ? parseFloat(sliders.carrierFreq.value) : 5.0; 
+            const noiseLevel = sliders.noiseLevel ? parseFloat(sliders.noiseLevel.value) : 0.0;
             const T = 4.0;
 
             for (let x = 0; x < width; x++) {
@@ -941,11 +1025,18 @@
                 let y = 0;
                 let v_m = A_m * Math.sin(2 * Math.PI * f_m * t);
 
-                if (type === 'info') y = v_m;
-                else if (type === 'carrier') y = A_c * Math.sin(2 * Math.PI * f_c * t);
-                else if (type === 'modulated') {
+                if (type === 'info') {
+                    y = v_m;
+                } else if (type === 'carrier') {
+                    y = A_c * Math.sin(2 * Math.PI * f_c * t);
+                } else if (type === 'modulated') {
                     if (currentModType === 'AM') y = (1 + v_m) * Math.sin(2 * Math.PI * f_c * t);
                     else if (currentModType === 'FM') y = A_c * Math.sin(2 * Math.PI * f_c * t + (A_m * 2) * Math.sin(2 * Math.PI * f_m * t));
+                    
+                    // Ajout du bruit sur le signal modulé
+                    if (noiseLevel > 0) {
+                        y += (Math.random() - 0.5) * 2 * noiseLevel;
+                    }
                 }
 
                 let canvasY = (height / 2) - (y * (height / 6));
@@ -960,61 +1051,89 @@
             timeOffset += 0.01; 
 
             if (currentTab === 'math') {
-                drawWave(ctxs.info, 'info', canvases.info.width, canvases.info.height);
-                drawWave(ctxs.carrier, 'carrier', canvases.carrier.width, canvases.carrier.height);
-                drawWave(ctxs.modulated, 'modulated', canvases.modulated.width, canvases.modulated.height);
+                const canvasInfo = document.getElementById('canvas-info');
+                if (canvasInfo) drawWave(canvasInfo.getContext('2d'), 'info', canvasInfo.width, canvasInfo.height);
+                
+                const canvasCarrier = document.getElementById('canvas-carrier');
+                if (canvasCarrier) drawWave(canvasCarrier.getContext('2d'), 'carrier', canvasCarrier.width, canvasCarrier.height);
+
+                const canvasMod = document.getElementById('canvas-modulated');
+                if (canvasMod) drawWave(canvasMod.getContext('2d'), 'modulated', canvasMod.width, canvasMod.height);
             }
             
             // Analogy view animation
             if (currentTab === 'analogy') {
                 let fog = parseInt(sliders.fogLevel.value) / 100;
+                let distance = parseInt(sliders.distanceLevel.value);
                 let isAM = analogyElements.radios[0].checked;
                 
+                // Calcul de l'échelle selon la distance (de 1.0 à ~0.0125 pour obtenir 1 pixel à 100 de distance)
+                let minScale = 0.0125;
+                let scale = 1.0 - ((distance - 1) / 99) * (1.0 - minScale);
+                
+                analogyElements.sourceBulb.style.transform = `scale(${scale})`;
+                analogyElements.perceivedBulb.style.transform = `scale(${scale})`;
+
+                // Fluctuation organique de l'opacité et de la distorsion de flou pour simuler un brouillard mouvant
+                let dynamicFogBase = fog * 0.96;
+                let fogOscillation = Math.sin(timeOffset * 1.5) * 0.04 * fog; // Légère vague d'épaisseur
+                let finalFogValue = Math.max(0, Math.min(1.0, dynamicFogBase + fogOscillation));
+
+                analogyElements.fog.style.backgroundColor = `rgba(15, 23, 42, ${finalFogValue})`;
+                analogyElements.fog.style.backdropFilter = `blur(${(dynamicFogBase + fogOscillation) * 18}px)`;
+
+                // Ajuste dynamiquement l'opacité propre aux particules du SVG de bruit
+                const fogParticles = document.querySelector('.fog-particles');
+                if (fogParticles) {
+                    let baseParticleOpacity = fog * 0.45;
+                    let particleOscillation = Math.sin(timeOffset * 0.8) * 0.08 * fog; // Wisps de brouillard
+                    fogParticles.style.opacity = Math.max(0, Math.min(0.65, baseParticleOpacity + particleOscillation));
+                }
+
                 // Random state manager
                 signalState.timer--;
                 if (signalState.timer <= 0) {
                     signalState.amTarget = signalState.amLevels[Math.floor(Math.random() * signalState.amLevels.length)];
-                    signalState.fmTarget = signalState.fmColors[Math.floor(Math.random() * signalState.fmColors.length)];
-                    // Durée de maintien très courte (entre 12 et 35 frames)
-                    signalState.timer = 12 + Math.floor(Math.random() * 23);
+                    
+                    let randIdx = Math.floor(Math.random() * signalState.fmColors.length);
+                    signalState.fmTarget = signalState.fmColors[randIdx];
+                    signalState.fmLevelTarget = (randIdx + 1) / 5; // Assigne un niveau logique de 0.2 à 1.0
+                    
+                    signalState.timer = 60 + Math.floor(Math.random() * 40);
                 }
                 
-                // Vitesse d'interpolation rapide (lerp élevé à 0.35 pour des transitions abruptes)
+                // Interpolation fluide
                 const lerpSpeed = 0.35;
                 signalState.amCurrent += (signalState.amTarget - signalState.amCurrent) * lerpSpeed;
                 signalState.fmCurrent[0] += (signalState.fmTarget[0] - signalState.fmCurrent[0]) * lerpSpeed;
                 signalState.fmCurrent[1] += (signalState.fmTarget[1] - signalState.fmCurrent[1]) * lerpSpeed;
                 signalState.fmCurrent[2] += (signalState.fmTarget[2] - signalState.fmCurrent[2]) * lerpSpeed;
-                
-                analogyElements.fog.style.backgroundColor = `rgba(15, 23, 42, ${fog * 0.96})`;
-                analogyElements.fog.style.backdropFilter = `blur(${fog * 18}px)`;
+                signalState.fmLevelCurrent += (signalState.fmLevelTarget - signalState.fmLevelCurrent) * lerpSpeed;
                 
                 if (isAM) {
                     let brightness = signalState.amCurrent;
                     let baseVisibility = 0.08 + (brightness * 0.92);
                     
-                    // 1. SOURCE
+                    // Calculs pour l'ampoule AM
                     analogyElements.sourceBulb.style.backgroundColor = `rgba(253, 224, 71, ${baseVisibility})`;
                     analogyElements.sourceBulb.style.boxShadow = `0 0 ${brightness * 130}px rgba(253, 224, 71, ${brightness})`;
 
-                    // 2. PERCEIVED
-                    let perceivedBrightness = brightness * (1 - (fog * 0.95));
+                    let perceivedBrightness = brightness * (1 - (finalFogValue * 0.95));
                     let perceivedVisibility = 0.08 + (perceivedBrightness * 0.92);
                     analogyElements.perceivedBulb.style.backgroundColor = `rgba(253, 224, 71, ${perceivedVisibility})`;
                     analogyElements.perceivedBulb.style.boxShadow = `0 0 ${perceivedBrightness * 130}px rgba(253, 224, 71, ${perceivedBrightness})`;
-                    
+
                 } else {
                     let r = Math.floor(signalState.fmCurrent[0]);
                     let g = Math.floor(signalState.fmCurrent[1]);
                     let b = Math.floor(signalState.fmCurrent[2]);
                     let colorStr = `rgb(${r}, ${g}, ${b})`;
                     
-                    // 1. SOURCE
+                    // Calculs pour l'ampoule FM
                     analogyElements.sourceBulb.style.backgroundColor = colorStr;
                     analogyElements.sourceBulb.style.boxShadow = `0 0 110px ${colorStr}`;
 
-                    // 2. PERCEIVED
-                    let perceivedIntensity = 1 - (fog * 0.55);
+                    let perceivedIntensity = 1 - (finalFogValue * 0.55);
                     let r_p = Math.floor(r * perceivedIntensity);
                     let g_p = Math.floor(g * perceivedIntensity);
                     let b_p = Math.floor(b * perceivedIntensity);
