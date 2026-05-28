@@ -818,13 +818,30 @@ function populateEcosystem() {
 
     // Create Beaver Dam
     beaverDamGroup = new THREE.Group();
-    const damGeo = colorGeo(new THREE.CylinderGeometry(1.5, 2.5, 1.2, 8).translate(0, 0.6, 0), 0x5c4033);
-    const dMesh = new THREE.Mesh(damGeo, new THREE.MeshStandardMaterial({vertexColors:true, roughness:0.9, flatShading:true}));
+    beaverDamGroup.userData = { targS: 0, currS: 0 };
+    
+    // Base mud mound
+    const mudGeo = colorGeo(new THREE.DodecahedronGeometry(2.0, 1).scale(1, 0.35, 1).translate(0, 0.3, 0), 0x4a3219);
+    const mudMesh = new THREE.Mesh(mudGeo, new THREE.MeshStandardMaterial({vertexColors:true, roughness:1.0, flatShading:true}));
+    beaverDamGroup.add(mudMesh);
+    
+    // Add scattered sticks/logs for texture
+    const stickGeo = new THREE.CylinderGeometry(0.06, 0.08, 1.5, 5);
+    const stickMat = new THREE.MeshStandardMaterial({color: 0x5c4033, roughness:0.9, flatShading:true});
+    for(let i=0; i<45; i++) {
+        const stick = new THREE.Mesh(stickGeo, stickMat);
+        stick.position.set((Math.random()-0.5)*3.0, 0.1 + Math.random()*0.7, (Math.random()-0.5)*3.0);
+        stick.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, (Math.random()-0.5)*0.5 + Math.PI/2);
+        beaverDamGroup.add(stick);
+    }
+
     let rAngle = Math.random() * Math.PI * 2;
-    let bx = lakeCX + Math.cos(rAngle) * 20 * (MAP_SIZE/250);
-    let bz = lakeCZ + Math.sin(rAngle) * 20 * (MAP_SIZE/250);
-    dMesh.position.set(bx, getElevation(bx, bz) - 0.5, bz);
-    beaverDamGroup.add(dMesh);
+    let mapScale = MAP_SIZE / 250;
+    let bx = lakeCX + Math.cos(rAngle) * 12 * mapScale;
+    let bz = lakeCZ + Math.sin(rAngle) * 12 * mapScale;
+    
+    // Base flush with water level
+    beaverDamGroup.position.set(bx, WATER_LEVEL, bz);
     beaverDamGroup.scale.set(0,0,0);
     environmentGroup.add(beaverDamGroup);
 }
@@ -832,7 +849,19 @@ function populateEcosystem() {
 function initAnimalPool(key, count, createFunc) {
     const group = new THREE.Group(); const arr = []; let placed = 0; let attempts = 0; count = Math.max(1, count); 
     while(placed < count && attempts < count*15) {
-        attempts++; const x = (Math.random()-0.5)*MAP_SIZE*0.9; const z = (Math.random()-0.5)*MAP_SIZE*0.9; const y = getElevation(x, z);
+        attempts++; 
+        let x, z;
+        if (key === 'beaver') {
+            // Force beavers to spawn near the lake
+            let angle = Math.random() * Math.PI * 2;
+            let r = Math.random() * 22 * (MAP_SIZE/250);
+            x = lakeCX + Math.cos(angle) * r;
+            z = lakeCZ + Math.sin(angle) * r;
+        } else {
+            x = (Math.random()-0.5)*MAP_SIZE*0.9; 
+            z = (Math.random()-0.5)*MAP_SIZE*0.9;
+        }
+        const y = getElevation(x, z);
         const isFlyer = key==='bird'||key==='woodpecker'||key==='owl';
         if(y <= WATER_LEVEL + 0.5 && !isFlyer && key !== 'beaver' && key !== 'frog') continue;
         if(key === 'frog' && y > WATER_LEVEL + 3) continue; 
@@ -973,7 +1002,7 @@ function updateSimulationVisuals() {
     };
     Object.keys(populations).forEach(k => setTarget(k, populations[k]));
 
-    if(beaverDamGroup) beaverDamGroup.scale.setScalar(populations.beaver > 0.1 ? populations.beaver : 0);
+    if(beaverDamGroup) beaverDamGroup.userData.targS = populations.beaver > 0.1 ? populations.beaver : 0;
 
     updateTerrainColors(); updateSpeciesPanel(); if (state.mode === 'high') updateMetrics(effTime);
 }
@@ -1099,6 +1128,16 @@ function animate() {
                 else { 
                     // Terrestrial wandering 
                     if (Math.random() < 0.05) d.mesh.rotation.y += (Math.random()-0.5)*1.5;
+                    
+                    if (key === 'beaver') {
+                        // Keep beavers near the lake
+                        let distToLake = Math.hypot(d.mesh.position.x - lakeCX, d.mesh.position.z - lakeCZ);
+                        if (distToLake > 22 * (MAP_SIZE/250)) {
+                            let angleToLake = Math.atan2(d.mesh.position.x - lakeCX, d.mesh.position.z - lakeCZ);
+                            d.mesh.rotation.y = angleToLake + Math.PI + (Math.random()-0.5); 
+                        }
+                    }
+
                     d.mesh.translateZ(0.03 + (key==='hare'||key==='fox'||key==='wolf'?0.05:0));
                     
                     let elev = getElevation(d.mesh.position.x, d.mesh.position.z);
@@ -1114,6 +1153,14 @@ function animate() {
                     else if(d.mesh.children[1] && key !== 'beaver') { d.mesh.children[1].rotation.y = Math.sin(tm*0.5 + i)*0.2; } 
                 }
             }
+        }
+    }
+    
+    if (beaverDamGroup) {
+        let bData = beaverDamGroup.userData;
+        if (Math.abs(bData.currS - bData.targS) > 0.005) {
+            bData.currS += (bData.targS - bData.currS) * 0.02; // Smooth construction animation
+            beaverDamGroup.scale.setScalar(bData.currS);
         }
     }
     
