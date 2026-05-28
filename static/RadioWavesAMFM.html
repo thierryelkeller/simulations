@@ -4,20 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Symphonie Hertzienne : Le Code de l'Invisible</title>
+    <!-- Modern Fonts: Outfit for UI, JetBrains Mono for data -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         /* === CSS VARIABLES & RESET === */
         :root {
-            --bg-color: #0b1120;
-            --panel-bg: rgba(30, 41, 59, 0.7);
-            --panel-border: #334155;
+            --bg-color: #050b14;
+            --panel-bg: rgba(15, 23, 42, 0.45);
+            --panel-border: rgba(255, 255, 255, 0.08);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --accent-cyan: #06b6d4;
-            --accent-pink: #ec4899;
-            --accent-yellow: #eab308;
+            --accent-cyan: #00e5ff;
+            --accent-pink: #ff007f;
+            --accent-yellow: #ffea00;
             --btn-bg: #3b82f6;
             --btn-hover: #2563eb;
-            --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-main: 'Outfit', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
         * {
@@ -29,6 +34,9 @@
         body {
             font-family: var(--font-main);
             background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.05), transparent 25%);
             color: var(--text-main);
             overflow-x: hidden;
             height: 100vh;
@@ -46,7 +54,7 @@
             justify-content: center;
             align-items: center;
             z-index: 100;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
         }
 
@@ -63,7 +71,7 @@
             z-index: 2;
             text-align: center;
             max-width: 900px;
-            padding: 2rem;
+            padding: 3rem;
         }
 
         @keyframes gradient-shift {
@@ -73,108 +81,183 @@
         }
 
         .splash-title-gradient {
-            font-size: 3.8rem;
-            font-weight: 900;
-            line-height: 1.2;
+            font-size: 4.2rem;
+            font-weight: 800;
+            line-height: 1.1;
             margin-bottom: 1.5rem;
-            background: linear-gradient(270deg, #00ffff, #ff00cc, #eab308, #3b82f6, #00ffff);
+            background: linear-gradient(270deg, #00e5ff, #ff007f, #ffea00, #3b82f6, #00e5ff);
             background-size: 400% 400%;
-            animation: gradient-shift 6s ease infinite;
+            animation: gradient-shift 8s ease infinite;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
-            text-shadow: 0 0 40px rgba(6, 182, 212, 0.5), 0 0 80px rgba(236, 72, 153, 0.4);
+            letter-spacing: -2px;
+            text-shadow: 0 0 40px rgba(6, 182, 212, 0.3);
         }
 
         .splash-subtitle-modern {
             color: var(--text-muted);
-            font-size: 1.25rem;
-            margin-bottom: 3rem;
-            font-weight: 400;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            font-size: 1.4rem;
+            margin-bottom: 3.5rem;
+            font-weight: 300;
+            letter-spacing: 0.5px;
         }
 
         .lang-toggle-modern {
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+            gap: 1rem;
+            margin-bottom: 3.5rem;
         }
 
         .lang-btn-modern {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-muted);
-            padding: 0.75rem 1.5rem;
+            padding: 0.8rem 2rem;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: bold;
-            backdrop-filter: blur(5px);
+            font-weight: 600;
+            font-family: inherit;
+            letter-spacing: 0.5px;
         }
 
         .lang-btn-modern:hover {
             border-color: var(--accent-cyan);
             color: var(--text-main);
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+            background: rgba(6, 182, 212, 0.05);
         }
 
         .lang-btn-modern.active {
             background: var(--accent-cyan);
             color: #020617;
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 25px rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.4);
         }
 
         .start-btn-modern {
-            background: linear-gradient(90deg, #3b82f6, #06b6d4);
-            color: white;
+            background: linear-gradient(135deg, #3b82f6, #00e5ff);
+            color: #020617;
             border: none;
-            padding: 1.25rem 4rem;
-            font-size: 1.3rem;
+            padding: 1.25rem 4.5rem;
+            font-size: 1.2rem;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: bold;
-            box-shadow: 0 4px 30px rgba(59, 130, 246, 0.3);
+            font-weight: 800;
+            font-family: inherit;
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.3);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }
 
         .start-btn-modern:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 35px rgba(6, 182, 212, 0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0, 229, 255, 0.5);
             filter: brightness(1.1);
+        }
+
+        /* === HEADER === */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            padding: 1.2rem 2.5rem;
+            margin: 1rem 1rem 0;
+            border-radius: 20px;
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-title::before {
+            content: '';
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-main);
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        .nav-btn.exit-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .nav-btn.exit-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fff;
         }
 
         /* === TABS CSS === */
         .tabs-container {
             display: flex;
-            background: #1e293b;
-            border-bottom: 1px solid var(--panel-border);
-            padding: 0 2rem;
-            gap: 1rem;
+            justify-content: center;
+            padding: 1.5rem 2rem 0.5rem;
+            gap: 1.5rem;
         }
 
         .tab-btn {
-            background: transparent;
-            border: none;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
             color: var(--text-muted);
-            padding: 1rem 1.5rem;
-            font-size: 1.1rem;
-            font-weight: bold;
+            padding: 0.8rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
+            border-radius: 50px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
         }
 
         .tab-btn:hover {
             color: var(--text-main);
+            background: rgba(255,255,255,0.08);
         }
 
         .tab-btn.active {
-            color: var(--accent-cyan);
-            border-bottom-color: var(--accent-cyan);
+            background: var(--text-main);
+            color: var(--bg-color);
+            border-color: var(--text-main);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
         }
 
         .tab-content {
@@ -187,40 +270,123 @@
             display: flex !important;
         }
 
-        /* === NEW TOOLBAR CSS === */
+        /* === TOOLBAR CSS === */
         .top-toolbar {
             display: flex;
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
-            gap: 2rem;
+            gap: 1.5rem;
             margin-bottom: 1rem;
             width: 100%;
         }
 
-        .top-toolbar .radio-group {
-            display: flex;
-            gap: 1.5rem;
-            background: rgba(0,0,0,0.4);
+        .top-toolbar .radio-group,
+        .top-toolbar .slider-wrapper {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
             padding: 0.8rem 1.5rem;
             border-radius: 50px;
-            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
         }
 
         .top-toolbar .slider-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: rgba(0,0,0,0.4);
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            width: 400px;
-            border: 1px solid var(--panel-border);
+            width: 350px;
         }
 
-        .top-toolbar input[type="range"] {
+        /* Custom Radio Buttons */
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .radio-label:hover {
+            color: var(--text-main);
+        }
+
+        .radio-label input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-muted);
+            border-radius: 50%;
+            outline: none;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-label input[type="radio"]:checked {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+        }
+
+        .radio-label input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px; height: 10px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-cyan);
+        }
+
+        .radio-label:has(input[type="radio"]:checked) {
+            color: var(--text-main);
+        }
+
+        /* Custom Sliders */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            outline: none;
             flex: 1;
-            accent-color: var(--accent-cyan);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--text-main);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #000;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: var(--accent-cyan);
+        }
+
+        .slider-value {
+            font-family: var(--font-mono);
+            color: var(--accent-cyan);
+            font-weight: 700;
+            min-width: 45px;
+            text-align: right;
+            font-size: 1rem;
         }
 
         /* === ANALOGY TAB === */
@@ -229,7 +395,7 @@
             flex-direction: column;
             flex: 1;
             gap: 1rem;
-            padding: 1rem;
+            padding: 0 1rem 1rem;
             height: 100%;
         }
 
@@ -244,25 +410,30 @@
 
         .analogy-bay {
             flex: 1;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 1.5rem;
+            padding: 2rem;
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
 
         .bay-title {
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1.5px;
             z-index: 10;
+            background: rgba(0,0,0,0.4);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .source-bay .bay-title { color: var(--accent-cyan); }
@@ -277,9 +448,10 @@
             width: 100%;
         }
 
+        /* Improved Lightbulb with 3D gloss overlay */
         .lightbulb {
-            width: 80px;
-            height: 100px;
+            width: 90px;
+            height: 110px;
             background: #cbd5e1;
             border-radius: 50% 50% 30% 30%;
             position: relative;
@@ -287,16 +459,28 @@
             z-index: 5;
         }
 
+        .lightbulb::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.3) 100%);
+            z-index: 10;
+            pointer-events: none;
+        }
+
         .lightbulb::after {
             content: '';
             position: absolute;
-            bottom: -15px;
+            bottom: -18px;
             left: 50%;
             transform: translateX(-50%);
-            width: 35px;
-            height: 15px;
-            background: #64748b;
-            border-radius: 0 0 5px 5px;
+            width: 40px;
+            height: 18px;
+            background: linear-gradient(90deg, #475569 0%, #94a3b8 50%, #475569 100%);
+            border-radius: 0 0 8px 8px;
+            box-shadow: inset 0 -2px 5px rgba(0,0,0,0.5);
+            z-index: 4;
         }
 
         .analogy-fog {
@@ -329,196 +513,149 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.08' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
             animation: fog-drift 16s ease-in-out infinite;
             pointer-events: none;
+            mix-blend-mode: overlay;
         }
 
-        /* === MAIN SIMULATION SCREEN === */
+        /* === MAIN SIMULATION SCREEN (TAB 2) === */
         #simulation-screen {
             display: none;
             flex-direction: column;
             height: 100vh;
-            padding: 1rem;
             gap: 1rem;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--panel-bg);
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            border: 1px solid var(--panel-border);
-            backdrop-filter: blur(5px);
-        }
-
-        .header-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent-cyan);
-        }
-
-        .header-controls {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .nav-btn {
-            background: transparent;
-            border: 1px solid var(--text-muted);
-            color: var(--text-main);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-
-        .nav-btn:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        
-        .nav-btn.exit-btn {
-            border-color: #ef4444;
-            color: #f87171;
         }
 
         .main-content {
             display: flex;
             flex: 1;
-            gap: 1rem;
+            gap: 1.5rem;
             overflow: hidden;
+            padding: 0 1rem 1rem;
         }
 
         .controls-panel {
-            width: 320px;
+            width: 340px;
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            border-radius: 8px;
+            border-radius: 24px;
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 1.5rem;
             overflow-y: auto;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
+
+        .controls-panel::-webkit-scrollbar { width: 6px; }
+        .controls-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 
         .control-group {
-            background: rgba(0,0,0,0.25);
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 3px solid var(--accent-pink);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.25rem;
+            border-radius: 16px;
+            border-left: 4px solid #3b82f6; /* Bleu */
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
         }
 
-        .control-group.carrier { border-left-color: var(--accent-cyan); }
-        .control-group.mod-type { border-left-color: var(--accent-yellow); }
+        .control-group.carrier { border-left-color: var(--accent-yellow); } /* Jaune */
+        .control-group.mod-type { border-left-color: #4ade80; } /* Vert */
 
         .control-group h3 {
-            font-size: 1rem;
-            margin-bottom: 1rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
             color: var(--text-main);
+            letter-spacing: 0.5px;
         }
 
         .slider-container {
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
+        }
+        .slider-container:last-child {
+            margin-bottom: 0;
         }
 
         .slider-container label {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 0.3rem;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            accent-color: var(--accent-cyan);
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .radio-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
             font-size: 0.9rem;
-        }
-
-        .radio-label input {
-            accent-color: var(--accent-yellow);
-            width: 1.2rem;
-            height: 1.2rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.6rem;
         }
 
         .indigenous-box {
-            background: rgba(20, 83, 45, 0.2);
-            border: 1px solid #166534;
-            padding: 1rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            line-height: 1.4;
+            background: linear-gradient(145deg, rgba(20, 83, 45, 0.3), rgba(6, 78, 59, 0.1));
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            padding: 1.5rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
             color: #bbf7d0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         
         .indigenous-box strong {
             display: block;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.6rem;
             color: #4ade80;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
         }
 
         .graphs-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .graph-container {
             flex: 1;
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            border-radius: 8px;
+            border-radius: 24px;
             position: relative;
             padding: 1rem;
             display: flex;
             flex-direction: column;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(16px);
             min-height: 200px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
 
         .graph-title {
             position: absolute;
-            top: 1rem;
-            left: 1rem;
-            font-size: 0.9rem;
-            font-weight: bold;
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            background: rgba(0,0,0,0.5);
+            top: 1.5rem;
+            left: 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 800;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
             z-index: 10;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
-        .graph-title.info { color: var(--accent-pink); border: 1px solid var(--accent-pink); }
-        .graph-title.carrier { color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
-        .graph-title.modulated { color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+        .graph-title.info { color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .graph-title.carrier { color: var(--accent-yellow); border: 1px solid rgba(255, 234, 0, 0.3); }
+        .graph-title.modulated { color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
 
         canvas {
             width: 100%;
             height: 100%;
             display: block;
+            border-radius: 12px;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1000px) {
             .main-content, .analogy-layout { flex-direction: column; overflow-y: auto; }
             .controls-panel { width: 100%; }
-            .analogy-visual-split { flex-direction: column; height: 300px; }
+            .analogy-visual-split { flex-direction: column; height: 350px; }
             .top-toolbar { flex-direction: column; gap: 1rem; }
-            .top-toolbar .slider-wrapper { width: 100%; }
+            .top-toolbar .slider-wrapper { width: 100%; max-width: 400px; }
         }
     </style>
 </head>
@@ -547,7 +684,7 @@
             <div class="header-controls">
                 <button class="nav-btn" onclick="setLanguage(currentLang === 'fr' ? 'en' : 'fr')" id="top-lang-btn">EN / FR</button>
                 <button class="nav-btn" onclick="backToSplash()" data-i18n="btn_back">Retour</button>
-                <a href="index.html" class="nav-btn exit-btn" data-i18n="btn_exit">Quitter (Index)</a>
+                <button class="nav-btn exit-btn" onclick="location.reload()" data-i18n="btn_exit">Quitter (Index)</button>
             </div>
         </header>
 
@@ -557,7 +694,7 @@
         </div>
 
         <!-- TAB 1: ANALOGY -->
-        <div id="tab-analogy" class="tab-content active" style="flex-direction: column; padding: 1rem; gap: 1rem;">
+        <div id="tab-analogy" class="tab-content active" style="flex-direction: column; padding: 0 1rem 1rem; gap: 1rem;">
             
             <div class="top-toolbar">
                 <div class="radio-group">
@@ -572,20 +709,20 @@
                 </div>
                 
                 <div class="slider-wrapper">
-                    <span data-i18n="lbl_fog" style="color: var(--text-muted); font-size: 0.9rem; white-space: nowrap;">Épaisseur du Brouillard</span>
+                    <span data-i18n="lbl_fog" style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; white-space: nowrap;">Épaisseur Brouillard</span>
                     <input type="range" id="fog_level" min="0" max="100" step="1" value="20">
-                    <span id="val_fog" style="color: var(--accent-cyan); font-weight: bold; min-width: 40px; text-align: right;">20%</span>
+                    <span id="val_fog" class="slider-value">20%</span>
                 </div>
 
                 <div class="slider-wrapper">
-                    <span data-i18n="lbl_distance" style="color: var(--text-muted); font-size: 0.9rem; white-space: nowrap;">Distance</span>
+                    <span data-i18n="lbl_distance" style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; white-space: nowrap;">Distance</span>
                     <input type="range" id="distance_level" min="1" max="100" step="1" value="1">
-                    <span id="val_distance" style="color: var(--accent-cyan); font-weight: bold; min-width: 40px; text-align: right;">1</span>
+                    <span id="val_distance" class="slider-value">1</span>
                 </div>
             </div>
 
             <!-- The Split Bulbs -->
-            <div class="analogy-visual-split" style="border: none; background: transparent; padding: 0;">
+            <div class="analogy-visual-split">
                 <div class="analogy-bay source-bay">
                     <div class="bay-title" data-i18n="lbl_source_emitted">Émetteur (Source Claire)</div>
                     <div class="lightbulb-container">
@@ -613,14 +750,14 @@
                     <div class="slider-container">
                         <label>
                             <span data-i18n="lbl_amp">Amplitude (Indice m)</span>
-                            <span id="val_info_amp">0.80</span>
+                            <span id="val_info_amp" class="slider-value">0.80</span>
                         </label>
                         <input type="range" id="info_amp" min="0" max="1.5" step="0.05" value="0.8">
                     </div>
                     <div class="slider-container">
                         <label>
                             <span data-i18n="lbl_freq">Fréquence (Hz)</span>
-                            <span id="val_info_freq">1.00</span>
+                            <span id="val_info_freq" class="slider-value">1.00</span>
                         </label>
                         <input type="range" id="info_freq" min="0.05" max="5.0" step="0.05" value="1.0">
                     </div>
@@ -631,7 +768,7 @@
                     <div class="slider-container">
                         <label>
                             <span data-i18n="lbl_freq_carrier">Fréquence (Hz)</span>
-                            <span id="val_carrier_freq">5.0</span>
+                            <span id="val_carrier_freq" class="slider-value">5.00</span>
                         </label>
                         <input type="range" id="carrier_freq" min="1" max="10" step="0.5" value="5.0">
                     </div>
@@ -639,7 +776,7 @@
 
                 <div class="control-group mod-type">
                     <h3 data-i18n="panel_mod_type">Type de Modulation</h3>
-                    <div class="radio-group">
+                    <div class="radio-group" style="flex-direction: column; gap: 0.5rem; background: transparent; padding: 0; border: none; box-shadow: none; backdrop-filter: none;">
                         <label class="radio-label">
                             <input type="radio" name="mod_type" value="AM" checked onchange="updateModType()"> 
                             <span data-i18n="lbl_am">AM (Amplitude)</span>
@@ -656,15 +793,10 @@
                     <div class="slider-container">
                         <label>
                             <span data-i18n="lbl_noise_level">Niveau de Bruit</span>
-                            <span id="val_noise">0.00</span>
+                            <span id="val_noise" class="slider-value">0.00</span>
                         </label>
                         <input type="range" id="noise_level" min="0" max="2.0" step="0.05" value="0.0">
                     </div>
-                </div>
-
-                <div class="indigenous-box">
-                    <strong data-i18n="indig_title">Perspective Autochtone : La Toile Invisible</strong>
-                    <span data-i18n="indig_text">Bien avant la physique moderne, les savoirs autochtones reconnaissaient que l'univers est relié par une toile d'énergies invisibles et de vibrations. Tout comme nous modulons les ondes pour transmettre l'information, les traditions comprennent que la terre, l'air et l'eau agissent comme des vecteurs interconnectés transportant l'énergie à travers de vastes territoires.</span>
                 </div>
             </div>
 
@@ -694,7 +826,7 @@
                 btn_start: "Démarrer l'Analyse",
                 app_title: "Laboratoire Modélisation Électromagnétique",
                 btn_back: "Retour",
-                btn_exit: "Quitter (Index)",
+                btn_exit: "Quitter",
                 tab_analogy: "1. Analogie du Brouillard",
                 tab_math: "2. Modélisation Mathématique",
                 panel_info_sig: "Signal Modulant (Information)",
@@ -709,19 +841,16 @@
                 graph_carrier: "2. Onde Porteuse V_c(t)",
                 graph_mod_am: "3. Signal Modulé (AM)",
                 graph_mod_fm: "3. Signal Modulé (FM)",
-                indig_title: "Perspective Autochtone : La Toile Invisible",
+                indig_title: "Perspective Autochtone",
                 indig_text: "Bien avant la physique moderne, les savoirs autochtones reconnaissaient que l'univers est relié par une toile d'énergies invisibles et de vibrations. Tout comme nous modulons les ondes pour transmettre l'information, les traditions comprennent que la terre, l'air et l'eau agissent comme des vecteurs interconnectés transportant l'énergie à travers de vastes territoires.",
                 analogy_am: "Varier l'Intensité (AM)",
                 analogy_fm: "Varier la Couleur (FM)",
-                lbl_fog: "Épaisseur du Brouillard",
+                lbl_fog: "Épaisseur Brouillard",
                 lbl_distance: "Distance",
-                lbl_source_emitted: "Émetteur (Source Claire)",
+                lbl_source_emitted: "Émetteur (Source)",
                 lbl_perceived_obs: "Observateur (Perception)",
                 panel_noise: "Interférence (Bruit)",
-                lbl_noise_level: "Niveau de Bruit",
-                graph_analogy_title: "Comparaison des Signaux",
-                lbl_emitted_legend: "■ Émis (Source)",
-                lbl_perceived_legend: "■ Perçu (Décodé)"
+                lbl_noise_level: "Niveau de Bruit"
             },
             en: {
                 splash_title: "Hertzian Symphony:<br>Coding the Unseen",
@@ -729,7 +858,7 @@
                 btn_start: "Start Analysis",
                 app_title: "Electromagnetic Modeling Lab",
                 btn_back: "Back",
-                btn_exit: "Exit (Index)",
+                btn_exit: "Exit",
                 tab_analogy: "1. The Fog Analogy",
                 tab_math: "2. Mathematical Modeling",
                 panel_info_sig: "Modulating Signal (Information)",
@@ -744,19 +873,16 @@
                 graph_carrier: "2. Carrier Wave V_c(t)",
                 graph_mod_am: "3. Modulated Signal (AM)",
                 graph_mod_fm: "3. Modulated Signal (FM)",
-                indig_title: "Indigenous Perspective: The Unseen Web",
+                indig_title: "Indigenous Perspective",
                 indig_text: "Long before modern physics, Indigenous knowledge systems recognized the universe as being connected by an unseen web of energy and vibrations. Just as we modulate waves to transmit information, traditional practices understand that earth, air, and water act as interconnected vectors carrying energy across vast landscapes.",
                 analogy_am: "Vary Intensity (AM)",
                 analogy_fm: "Vary Color (FM)",
                 lbl_fog: "Fog Thickness",
                 lbl_distance: "Distance",
-                lbl_source_emitted: "Transmitter (Clear Source)",
+                lbl_source_emitted: "Transmitter (Source)",
                 lbl_perceived_obs: "Observer (Perception)",
                 panel_noise: "Interference (Noise)",
-                lbl_noise_level: "Noise Level",
-                graph_analogy_title: "Signal Comparison",
-                lbl_emitted_legend: "■ Emitted (Source)",
-                lbl_perceived_legend: "■ Perceived (Decoded)"
+                lbl_noise_level: "Noise Level"
             }
         };
 
@@ -784,8 +910,8 @@
                 [255, 30, 30],    // Rouge
                 [255, 220, 0],    // Jaune
                 [34, 197, 94],    // Vert
-                [59, 130, 246],   // Bleu
-                [168, 85, 247]    // Violet
+                [0, 229, 255],    // Cyan
+                [255, 0, 127]     // Rose Neon
             ]
         };
 
@@ -924,7 +1050,7 @@
                 cancelAnimationFrame(splashAnimationId);
                 setTimeout(resizeCanvases, 50);
                 if (!animationId) animate();
-            }, 500);
+            }, 600);
         }
 
         function backToSplash() {
@@ -974,6 +1100,7 @@
                     const parent = canvas.parentElement;
                     const w = parent.clientWidth;
                     const h = parent.clientHeight;
+                    // Taking padding into account
                     if (w > 32 && h > 32) {
                         canvas.width = w - 32; 
                         canvas.height = h - 32;
@@ -983,11 +1110,17 @@
         }
 
         function drawGrid(ctx, width, height) {
-            ctx.strokeStyle = '#334155';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(0, height / 2);
             ctx.lineTo(width, height / 2);
+            
+            // Add subtle vertical grid lines for modern look
+            for(let i=0; i<width; i+=50) {
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, height);
+            }
             ctx.stroke();
         }
 
@@ -998,20 +1131,20 @@
             drawGrid(ctx, width, height);
 
             ctx.beginPath();
-            ctx.lineWidth = 2.5;
+            ctx.lineWidth = 3;
 
             if (type === 'info') {
-                ctx.strokeStyle = '#ec4899'; 
-                ctx.shadowColor = '#ec4899';
+                ctx.strokeStyle = '#3b82f6'; 
+                ctx.shadowColor = '#3b82f6';
             } else if (type === 'carrier') {
-                ctx.strokeStyle = '#06b6d4'; 
-                ctx.shadowColor = '#06b6d4';
+                ctx.strokeStyle = '#ffea00'; 
+                ctx.shadowColor = '#ffea00';
             } else {
-                ctx.strokeStyle = '#eab308'; 
-                ctx.shadowColor = '#eab308';
+                ctx.strokeStyle = '#4ade80'; 
+                ctx.shadowColor = '#4ade80';
             }
             
-            ctx.shadowBlur = 8;
+            ctx.shadowBlur = 12;
 
             const A_m = sliders.infoAmp ? parseFloat(sliders.infoAmp.value) : 0.8; 
             const f_m = sliders.infoFreq ? parseFloat(sliders.infoFreq.value) : 1.0; 
@@ -1067,42 +1200,41 @@
                 let distance = parseInt(sliders.distanceLevel.value);
                 let isAM = analogyElements.radios[0].checked;
                 
-                // Calcul de l'échelle selon la distance (de 1.0 à ~0.0125 pour obtenir 1 pixel à 100 de distance)
-                let minScale = 0.0125;
+                // Scale based on distance
+                let minScale = 0.02;
                 let scale = 1.0 - ((distance - 1) / 99) * (1.0 - minScale);
                 
                 analogyElements.sourceBulb.style.transform = `scale(${scale})`;
                 analogyElements.perceivedBulb.style.transform = `scale(${scale})`;
 
-                // Fluctuation organique de l'opacité et de la distorsion de flou pour simuler un brouillard mouvant
+                // Dynamic fog oscillation
                 let dynamicFogBase = fog * 0.96;
-                let fogOscillation = Math.sin(timeOffset * 1.5) * 0.04 * fog; // Légère vague d'épaisseur
+                let fogOscillation = Math.sin(timeOffset * 1.5) * 0.04 * fog; 
                 let finalFogValue = Math.max(0, Math.min(1.0, dynamicFogBase + fogOscillation));
 
                 analogyElements.fog.style.backgroundColor = `rgba(15, 23, 42, ${finalFogValue})`;
                 analogyElements.fog.style.backdropFilter = `blur(${(dynamicFogBase + fogOscillation) * 18}px)`;
 
-                // Ajuste dynamiquement l'opacité propre aux particules du SVG de bruit
                 const fogParticles = document.querySelector('.fog-particles');
                 if (fogParticles) {
                     let baseParticleOpacity = fog * 0.45;
-                    let particleOscillation = Math.sin(timeOffset * 0.8) * 0.08 * fog; // Wisps de brouillard
+                    let particleOscillation = Math.sin(timeOffset * 0.8) * 0.08 * fog; 
                     fogParticles.style.opacity = Math.max(0, Math.min(0.65, baseParticleOpacity + particleOscillation));
                 }
 
-                // Random state manager
+                // State manager
                 signalState.timer--;
                 if (signalState.timer <= 0) {
                     signalState.amTarget = signalState.amLevels[Math.floor(Math.random() * signalState.amLevels.length)];
                     
                     let randIdx = Math.floor(Math.random() * signalState.fmColors.length);
                     signalState.fmTarget = signalState.fmColors[randIdx];
-                    signalState.fmLevelTarget = (randIdx + 1) / 5; // Assigne un niveau logique de 0.2 à 1.0
+                    signalState.fmLevelTarget = (randIdx + 1) / 5; 
                     
                     signalState.timer = 60 + Math.floor(Math.random() * 40);
                 }
                 
-                // Interpolation fluide
+                // Fluid interpolation
                 const lerpSpeed = 0.35;
                 signalState.amCurrent += (signalState.amTarget - signalState.amCurrent) * lerpSpeed;
                 signalState.fmCurrent[0] += (signalState.fmTarget[0] - signalState.fmCurrent[0]) * lerpSpeed;
@@ -1114,7 +1246,6 @@
                     let brightness = signalState.amCurrent;
                     let baseVisibility = 0.08 + (brightness * 0.92);
                     
-                    // Calculs pour l'ampoule AM
                     analogyElements.sourceBulb.style.backgroundColor = `rgba(253, 224, 71, ${baseVisibility})`;
                     analogyElements.sourceBulb.style.boxShadow = `0 0 ${brightness * 130}px rgba(253, 224, 71, ${brightness})`;
 
@@ -1129,7 +1260,6 @@
                     let b = Math.floor(signalState.fmCurrent[2]);
                     let colorStr = `rgb(${r}, ${g}, ${b})`;
                     
-                    // Calculs pour l'ampoule FM
                     analogyElements.sourceBulb.style.backgroundColor = colorStr;
                     analogyElements.sourceBulb.style.boxShadow = `0 0 110px ${colorStr}`;
 
