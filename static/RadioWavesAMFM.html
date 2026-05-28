@@ -73,17 +73,16 @@
         }
 
         .splash-title-gradient {
-            font-size: 3.8rem;
+            font-size: 4rem;
             font-weight: 900;
-            line-height: 1.2;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             background: linear-gradient(270deg, #00ffff, #ff00cc, #eab308, #3b82f6, #00ffff);
             background-size: 400% 400%;
             animation: gradient-shift 6s ease infinite;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -1px;
-            text-shadow: 0 0 40px rgba(6, 182, 212, 0.5), 0 0 80px rgba(236, 72, 153, 0.4);
+            text-shadow: 0 0 30px rgba(6, 182, 212, 0.4), 0 0 60px rgba(236, 72, 153, 0.3);
         }
 
         .splash-subtitle-modern {
@@ -185,41 +184,6 @@
 
         .tab-content.active {
             display: flex;
-        }
-
-        /* === NEW TOOLBAR CSS === */
-        .top-toolbar {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
-            width: 100%;
-        }
-
-        .top-toolbar .radio-group {
-            display: flex;
-            gap: 1.5rem;
-            background: rgba(0,0,0,0.4);
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            border: 1px solid var(--panel-border);
-        }
-
-        .top-toolbar .slider-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: rgba(0,0,0,0.4);
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            width: 400px;
-            border: 1px solid var(--panel-border);
-        }
-
-        .top-toolbar input[type="range"] {
-            flex: 1;
-            accent-color: var(--accent-cyan);
         }
 
         /* === ANALOGY TAB === */
@@ -505,6 +469,7 @@
             z-index: 10;
         }
 
+        .graph-title.info { color: var(--accent-pink); border: 1px solid var(--accent-pink); }
         .graph-title.carrier { color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
         .graph-title.modulated { color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
 
@@ -518,18 +483,15 @@
             .main-content, .analogy-layout { flex-direction: column; overflow-y: auto; }
             .controls-panel { width: 100%; }
             .analogy-visual-split { flex-direction: column; height: 500px; }
-            .top-toolbar { flex-direction: column; gap: 1rem; }
-            .top-toolbar .slider-wrapper { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <canvas id="splash-canvas"></canvas>
         <div class="splash-content-modern">
-            <h1 class="splash-title-gradient" data-i18n="splash_title">Symphonie Hertzienne :<br>Le Code de l'Invisible</h1>
+            <h1 class="splash-title-gradient" data-i18n="splash_title">Symphonie Hertzienne : Le Code de l'Invisible</h1>
             <p class="splash-subtitle-modern" data-i18n="splash_subtitle">Laboratoire virtuel de physique - 11e et 12e année</p>
             
             <div class="lang-toggle-modern">
@@ -541,13 +503,12 @@
         </div>
     </div>
 
-    <!-- MAIN SIMULATION INTERFACE -->
     <div id="simulation-screen">
         <header>
             <div class="header-title" data-i18n="app_title">Laboratoire Modélisation Électromagnétique</div>
             <div class="header-controls">
                 <button class="nav-btn" onclick="setLanguage(currentLang === 'fr' ? 'en' : 'fr')" id="top-lang-btn">EN / FR</button>
-                <button class="nav-btn" onclick="backToSplash()" data-i18n="btn_back">Retour</button>
+                <button class="nav-btn" onclick="backToSplash()" data-i18n="btn_back">Retour à l'accueil</button>
                 <a href="index.html" class="nav-btn exit-btn" data-i18n="btn_exit">Quitter (Index)</a>
             </div>
         </header>
@@ -557,51 +518,126 @@
             <button class="tab-btn" onclick="switchTab('math')" data-i18n="tab_math">2. Modélisation Mathématique</button>
         </div>
 
-        <!-- TAB 1: ANALOGY -->
-        <div id="tab-analogy" class="tab-content active" style="flex-direction: column; padding: 1rem;">
-            
-            <div class="top-toolbar">
-                <div class="radio-group">
-                    <label class="radio-label">
-                        <input type="radio" name="analogy_type" value="AM" checked> 
-                        <span data-i18n="analogy_am">Varier l'Intensité (AM)</span>
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="analogy_type" value="FM"> 
-                        <span data-i18n="analogy_fm">Varier la Couleur (FM)</span>
-                    </label>
-                </div>
-                
-                <div class="slider-wrapper">
-                    <span data-i18n="lbl_fog" style="color: var(--text-muted); font-size: 0.9rem; white-space: nowrap;">Épaisseur du Brouillard</span>
-                    <input type="range" id="fog_level" min="0" max="100" step="1" value="20">
-                    <span id="val_fog" style="color: var(--accent-cyan); font-weight: bold; min-width: 40px; text-align: right;">20%</span>
-                </div>
-            </div>
+        <div id="tab-analogy" class="tab-content active">
+            <div class="analogy-layout">
+                <div class="controls-panel">
+                    <div class="control-group mod-type">
+                        <h3 data-i18n="panel_mod_type">Méthode de Transmission</h3>
+                        <div class="radio-group" style="flex-direction: column;">
+                            <label class="radio-label">
+                                <input type="radio" name="analogy_type" value="AM" checked> 
+                                <span data-i18n="analogy_am">Varier l'Intensité (AM)</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="analogy_type" value="FM"> 
+                                <span data-i18n="analogy_fm">Varier la Couleur (FM)</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3 data-i18n="panel_env">Environnement</h3>
+                        <div class="slider-container">
+                            <label>
+                                <span data-i18n="lbl_fog">Épaisseur du Brouillard</span>
+                                <span id="val_fog">20%</span>
+                            </label>
+                            <input type="range" id="fog_level" min="0" max="100" step="1" value="20">
+                        </div>
+                    </div>
 
-            <div class="analogy-visual-split" style="border: none; background: transparent; padding: 0;">
-                <div class="analogy-bay source-bay">
-                    <div class="bay-title" data-i18n="lbl_source_emitted">Émetteur (Source Claire)</div>
-                    <div class="lightbulb-container">
-                        <div class="lightbulb" id="source-bulb"></div>
+                    <div class="physics-reminder-box">
+                        <strong data-i18n="physics_reminder_title">Lien Physique & Conceptuel</strong>
+                        <span data-i18n="physics_reminder_text">En AM, l'<strong>intensité</strong> lumineuse est l'analogue de l'<strong>amplitude</strong> de l'onde. En FM, la <strong>couleur</strong> (longueur d'onde) représente sa <strong>fréquence</strong>. Voyez comment le bruit du brouillard perturbe l'amplitude mais préserve la fréquence d'onde.</span>
                     </div>
                 </div>
 
-                <div class="analogy-bay perceived-bay">
-                    <div class="bay-title" data-i18n="lbl_perceived_obs">Observateur (Perception)</div>
-                    <div class="lightbulb-container">
-                        <div class="lightbulb" id="perceived-bulb"></div>
-                        <div class="analogy-fog" id="fog-overlay">
-                            <div class="fog-particles"></div>
+                <div class="analogy-visual-split">
+                    <div class="analogy-bay source-bay">
+                        <div class="bay-title" data-i18n="lbl_source_emitted">Émetteur (Source Claire)</div>
+                        <div class="lightbulb-container">
+                            <div class="lightbulb" id="source-bulb"></div>
+                        </div>
+                    </div>
+
+                    <div class="analogy-bay perceived-bay">
+                        <div class="bay-title" data-i18n="lbl_perceived_obs">Observateur (Perception)</div>
+                        <div class="lightbulb-container">
+                            <div class="lightbulb" id="perceived-bulb"></div>
+                            <div class="analogy-fog" id="fog-overlay">
+                                <div class="fog-particles"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 2: MATH SIMULATION -->
-        <div id="tab-math" class="tab-content main-content" style="padding: 1rem; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 8px;">
-            <canvas id="canvas-modulated" style="display: block; width: 100%; height: 100%;"></canvas>
+        <div id="tab-math" class="tab-content main-content">
+            <div class="controls-panel">
+                <div class="control-group">
+                    <h3 data-i18n="panel_info_sig">Signal Modulant (Information)</h3>
+                    <div class="slider-container">
+                        <label>
+                            <span data-i18n="lbl_amp">Amplitude (Indice m)</span>
+                            <span id="val_info_amp">0.80</span>
+                        </label>
+                        <input type="range" id="info_amp" min="0" max="1.5" step="0.05" value="0.8">
+                    </div>
+                    <div class="slider-container">
+                        <label>
+                            <span data-i18n="lbl_freq">Fréquence (Hz)</span>
+                            <span id="val_info_freq">1.00</span>
+                        </label>
+                        <input type="range" id="info_freq" min="0.05" max="5.0" step="0.05" value="1.0">
+                    </div>
+                </div>
+
+                <div class="control-group carrier">
+                    <h3 data-i18n="panel_carrier_sig">Onde Porteuse</h3>
+                    <div class="slider-container">
+                        <label>
+                            <span data-i18n="lbl_freq_carrier">Fréquence (Hz)</span>
+                            <span id="val_carrier_freq">5.0</span>
+                        </label>
+                        <input type="range" id="carrier_freq" min="1" max="10" step="0.5" value="5.0">
+                    </div>
+                </div>
+
+                <div class="control-group mod-type">
+                    <h3 data-i18n="panel_mod_type">Type de Modulation</h3>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="mod_type" value="AM" checked onchange="updateModType()"> 
+                            <span data-i18n="lbl_am">AM (Amplitude)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="mod_type" value="FM" onchange="updateModType()"> 
+                            <span data-i18n="lbl_fm">FM (Fréquence)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="indigenous-box">
+                    <strong data-i18n="indig_title">Perspective Autochtone : La Toile Invisible</strong>
+                    <span data-i18n="indig_text">Bien avant la physique moderne, les savoirs autochtones reconnaissaient que l'univers est relié par une toile d'énergies invisibles et de vibrations. Tout comme nous modulons les ondes pour transmettre l'information, les traditions comprennent que la terre, l'air et l'eau agissent comme des vecteurs interconnectés transportant l'énergie à travers de vastes territoires.</span>
+                </div>
+            </div>
+
+            <div class="graphs-panel">
+                <div class="graph-container">
+                    <div class="graph-title info" data-i18n="graph_info">1. Signal Modulant V_m(t)</div>
+                    <canvas id="canvas-info"></canvas>
+                </div>
+                <div class="graph-container">
+                    <div class="graph-title carrier" data-i18n="graph_carrier">2. Onde Porteuse V_c(t)</div>
+                    <canvas id="canvas-carrier"></canvas>
+                </div>
+                <div class="graph-container">
+                    <div class="graph-title modulated" id="mod-title" data-i18n="graph_mod_am">3. Signal Modulé (AM)</div>
+                    <canvas id="canvas-modulated"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -609,19 +645,26 @@
         // === TRANSLATION DICTIONARY ===
         const i18n = {
             fr: {
-                splash_title: "Symphonie Hertzienne :<br>Le Code de l'Invisible",
+                splash_title: "Symphonie Hertzienne : Le Code de l'Invisible",
                 splash_subtitle: "Laboratoire virtuel de physique - 11e et 12e année",
                 btn_start: "Démarrer l'Analyse",
                 app_title: "Laboratoire Modélisation Électromagnétique",
-                btn_back: "Retour",
+                btn_back: "Retour à l'accueil",
                 btn_exit: "Quitter (Index)",
                 tab_analogy: "1. Analogie du Brouillard",
                 tab_math: "2. Modélisation Mathématique",
+                panel_info_sig: "Signal Modulant (Information)",
+                lbl_amp: "Amplitude (Indice m)",
+                lbl_freq: "Fréquence (Hz)",
+                panel_carrier_sig: "Onde Porteuse",
+                lbl_freq_carrier: "Fréquence (Hz)",
                 panel_mod_type: "Type de Modulation",
                 lbl_am: "AM (Amplitude)",
                 lbl_fm: "FM (Fréquence)",
-                graph_mod_am: "Signal Modulé (AM)",
-                graph_mod_fm: "Signal Modulé (FM)",
+                graph_info: "1. Signal Modulant V_m(t)",
+                graph_carrier: "2. Onde Porteuse V_c(t)",
+                graph_mod_am: "3. Signal Modulé (AM)",
+                graph_mod_fm: "3. Signal Modulé (FM)",
                 indig_title: "Perspective Autochtone : La Toile Invisible",
                 indig_text: "Bien avant la physique moderne, les savoirs autochtones reconnaissaient que l'univers est relié par une toile d'énergies invisibles et de vibrations. Tout comme nous modulons les ondes pour transmettre l'information, les traditions comprennent que la terre, l'air et l'eau agissent comme des vecteurs interconnectés transportant l'énergie à travers de vastes territoires.",
                 analogy_am: "Varier l'Intensité (AM)",
@@ -634,19 +677,26 @@
                 lbl_perceived_obs: "Observateur (Perception)"
             },
             en: {
-                splash_title: "Hertzian Symphony:<br>Coding the Unseen",
+                splash_title: "Hertzian Symphony: Coding the Unseen",
                 splash_subtitle: "Virtual Physics Lab - Grades 11 & 12",
                 btn_start: "Start Analysis",
                 app_title: "Electromagnetic Modeling Lab",
-                btn_back: "Back",
+                btn_back: "Back to Splash",
                 btn_exit: "Exit (Index)",
                 tab_analogy: "1. The Fog Analogy",
                 tab_math: "2. Mathematical Modeling",
+                panel_info_sig: "Modulating Signal (Information)",
+                lbl_amp: "Amplitude (Mod. Index)",
+                lbl_freq: "Frequency (Hz)",
+                panel_carrier_sig: "Carrier Wave",
+                lbl_freq_carrier: "Frequency (Hz)",
                 panel_mod_type: "Modulation Type",
                 lbl_am: "AM (Amplitude)",
                 lbl_fm: "FM (Frequency)",
-                graph_mod_am: "Modulated Signal (AM)",
-                graph_mod_fm: "Modulated Signal (FM)",
+                graph_info: "1. Modulating Signal V_m(t)",
+                graph_carrier: "2. Carrier Wave V_c(t)",
+                graph_mod_am: "3. Modulated Signal (AM)",
+                graph_mod_fm: "3. Modulated Signal (FM)",
                 indig_title: "Indigenous Perspective: The Unseen Web",
                 indig_text: "Long before modern physics, Indigenous knowledge systems recognized the universe as being connected by an unseen web of energy and vibrations. Just as we modulate waves to transmit information, traditional practices understand that earth, air, and water act as interconnected vectors carrying energy across vast landscapes.",
                 analogy_am: "Vary Intensity (AM)",
@@ -687,19 +737,28 @@
             ]
         };
 
-        // Sliders config
         const sliders = {
+            infoAmp: document.getElementById('info_amp'),
+            infoFreq: document.getElementById('info_freq'),
+            carrierFreq: document.getElementById('carrier_freq'),
             fogLevel: document.getElementById('fog_level')
         };
         const displays = {
+            infoAmp: document.getElementById('val_info_amp'),
+            infoFreq: document.getElementById('val_info_freq'),
+            carrierFreq: document.getElementById('val_carrier_freq'),
             fogLevel: document.getElementById('val_fog')
         };
 
         const canvases = {
+            info: document.getElementById('canvas-info'),
+            carrier: document.getElementById('canvas-carrier'),
             modulated: document.getElementById('canvas-modulated')
         };
         const ctxs = {
-            modulated: canvases.modulated ? canvases.modulated.getContext('2d') : null
+            info: canvases.info.getContext('2d'),
+            carrier: canvases.carrier.getContext('2d'),
+            modulated: canvases.modulated.getContext('2d')
         };
 
         const analogyElements = {
@@ -741,28 +800,23 @@
             
             splashCtx.clearRect(0, 0, splashCanvas.width, splashCanvas.height);
             
-            let waveCount = 6; // Le juste milieu (happy middle)
-            let baseFrequency = 0.0035 + (pointerX * 0.012);
+            let waveCount = 8;
+            let baseFrequency = 0.004 + (pointerX * 0.016);
             let hueBase = Math.floor(pointerY * 360);
 
             for (let i = 0; i < waveCount; i++) {
                 splashCtx.beginPath();
-                splashCtx.lineWidth = i === 0 ? 3 : 1.5; 
+                splashCtx.lineWidth = i === 0 ? 4 : 1.5;
                 
                 let currentHue = (hueBase + (i * 25)) % 360;
-                let opacity = 0.15 + (i * 0.06); // Opacité modérée
-                splashCtx.strokeStyle = `hsla(${currentHue}, 90%, 65%, ${opacity})`;
-                
-                // Un effet "glow" doux et subtil
-                splashCtx.shadowBlur = i === 0 ? 15 : 5; 
-                splashCtx.shadowColor = `hsla(${currentHue}, 90%, 65%, 0.4)`;
+                splashCtx.strokeStyle = `hsla(${currentHue}, 95%, 65%, ${0.2 + (i * 0.07)})`;
+                splashCtx.shadowColor = `hsla(${currentHue}, 95%, 65%, 0.9)`;
+                splashCtx.shadowBlur = i === 0 ? 30 : 10;
 
-                let amplitude = 45 + (i * 15) + (pointerY * 55);
-                
-                // Vitesse modérée
-                let speed = (0.01 + (i * 0.003));
+                let amplitude = 60 + (i * 20) + (pointerY * 70);
+                let speed = 0.02 + (i * 0.005);
 
-                for (let x = 0; x < splashCanvas.width; x += 8) {
+                for (let x = 0; x < splashCanvas.width; x += 5) {
                     let y = splashCanvas.height / 2 + Math.sin(x * baseFrequency + phase * speed + i) * amplitude;
                     if (x === 0) splashCtx.moveTo(x, y);
                     else splashCtx.lineTo(x, y);
@@ -770,7 +824,7 @@
                 splashCtx.stroke();
             }
 
-            phase += 0.35; // Progression de phase élégante
+            phase += 1;
             splashAnimationId = requestAnimationFrame(animateSplash);
         }
         animateSplash();
@@ -780,7 +834,7 @@
             currentLang = lang;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (i18n[lang][key]) el.innerHTML = i18n[lang][key]; // Using innerHTML to support <br>
+                if (i18n[lang][key]) el.textContent = i18n[lang][key];
             });
             
             const btns = document.querySelectorAll('.lang-btn-modern');
@@ -864,22 +918,22 @@
         }
 
         function drawWave(ctx, type, width, height) {
-            if (!ctx) return;
             ctx.clearRect(0, 0, width, height);
             drawGrid(ctx, width, height);
 
             ctx.beginPath();
             ctx.lineWidth = 2.5;
 
-            ctx.strokeStyle = '#eab308'; 
-            ctx.shadowColor = '#eab308';
+            if (type === 'info') { ctx.strokeStyle = '#ec4899'; ctx.shadowColor = '#ec4899'; }
+            else if (type === 'carrier') { ctx.strokeStyle = '#06b6d4'; ctx.shadowColor = '#06b6d4'; }
+            else { ctx.strokeStyle = '#eab308'; ctx.shadowColor = '#eab308'; }
+            
             ctx.shadowBlur = 8;
 
-            // Safe fallback constants as sliders were removed
-            const A_m = 0.8; 
-            const f_m = 1.0; 
+            const A_m = parseFloat(sliders.infoAmp.value);
+            const f_m = parseFloat(sliders.infoFreq.value);
             const A_c = 1;
-            const f_c = 5.0; // Steady 5Hz carrier wave
+            const f_c = parseFloat(sliders.carrierFreq.value);
             const T = 4.0;
 
             for (let x = 0; x < width; x++) {
@@ -887,8 +941,12 @@
                 let y = 0;
                 let v_m = A_m * Math.sin(2 * Math.PI * f_m * t);
 
-                if (currentModType === 'AM') y = (1 + v_m) * Math.sin(2 * Math.PI * f_c * t);
-                else if (currentModType === 'FM') y = A_c * Math.sin(2 * Math.PI * f_c * t + (A_m * 2) * Math.sin(2 * Math.PI * f_m * t));
+                if (type === 'info') y = v_m;
+                else if (type === 'carrier') y = A_c * Math.sin(2 * Math.PI * f_c * t);
+                else if (type === 'modulated') {
+                    if (currentModType === 'AM') y = (1 + v_m) * Math.sin(2 * Math.PI * f_c * t);
+                    else if (currentModType === 'FM') y = A_c * Math.sin(2 * Math.PI * f_c * t + (A_m * 2) * Math.sin(2 * Math.PI * f_m * t));
+                }
 
                 let canvasY = (height / 2) - (y * (height / 6));
                 if (x === 0) ctx.moveTo(x, canvasY);
@@ -902,6 +960,8 @@
             timeOffset += 0.01; 
 
             if (currentTab === 'math') {
+                drawWave(ctxs.info, 'info', canvases.info.width, canvases.info.height);
+                drawWave(ctxs.carrier, 'carrier', canvases.carrier.width, canvases.carrier.height);
                 drawWave(ctxs.modulated, 'modulated', canvases.modulated.width, canvases.modulated.height);
             }
             
@@ -915,11 +975,11 @@
                 if (signalState.timer <= 0) {
                     signalState.amTarget = signalState.amLevels[Math.floor(Math.random() * signalState.amLevels.length)];
                     signalState.fmTarget = signalState.fmColors[Math.floor(Math.random() * signalState.fmColors.length)];
-                    // Minimum 1 second (approx. 60 frames) to meet requirements
-                    signalState.timer = 60 + Math.floor(Math.random() * 40);
+                    // Durée de maintien très courte (entre 12 et 35 frames)
+                    signalState.timer = 12 + Math.floor(Math.random() * 23);
                 }
                 
-                // Fast visual transitions using lerp
+                // Vitesse d'interpolation rapide (lerp élevé à 0.35 pour des transitions abruptes)
                 const lerpSpeed = 0.35;
                 signalState.amCurrent += (signalState.amTarget - signalState.amCurrent) * lerpSpeed;
                 signalState.fmCurrent[0] += (signalState.fmTarget[0] - signalState.fmCurrent[0]) * lerpSpeed;
