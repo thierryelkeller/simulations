@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flottabilité & Principe d'Archimède</title>
+    <style>
+        :root {
+            /* Identité visuelle unifiée basée sur l'écran d'accueil */
+            --bg-color: #020617;
+            --text-color: #f1f5f9;
+            --panel-bg: rgba(15, 23, 42, 0.6);
+            --primary-color: #38bdf8;
+            --accent-color: #10b981;
+            --font-main: 'Segoe UI Light', 'Helvetica Neue', 'Roboto Light', 'Optima', sans-serif;
+            --font-data: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            --border-radius: 12px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.5);
+            --water-color: rgba(56, 189, 248, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            font-weight: 300;
+            overflow: hidden; /* No scrolling */
+            height: 100vh;
+            width: 100vw;
+            transition: background-color 0.5s, color 0.5s;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #020617;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #splash-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .splash-content {
+            position: relative;
+            z-index: 2;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 90%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .splash-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #38bdf8, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .control-group {
+            margin: 20px 0;
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: 2px solid #38bdf8;
+            color: #38bdf8;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .toggle-btn.active {
+            background: #38bdf8;
+            color: #020617;
+            font-weight: bold;
+        }
+
+        #start-btn {
+            background: linear-gradient(45deg, #10b981, #059669);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+        }
+
+        #start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .copyright {
+            position: absolute;
+            bottom: 20px;
+            z-index: 2;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        /* Main App Layout */
+        #app-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: var(--panel-bg);
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .nav-buttons button, .nav-buttons a {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-left: 10px;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .nav-buttons button:hover, .nav-buttons a:hover {
+            background: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        main {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            height: calc(100% - 60px);
+        }
+
+        /* Sidebar & Controls */
+        #sidebar {
+            flex: 0 0 350px;
+            background: var(--panel-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow);
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(128,128,128,0.2);
+        }
+
+        .panel-section:last-child {
+            border-bottom: none;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        /* Indigenous Context Box */
+        .indigenous-box {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        body[data-mode="intermediate"] .indigenous-box {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: var(--accent-color);
+        }
+
+        /* Elementary Specific Controls */
+        #elementary-controls .item-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .item-card {
+            background: rgba(0, 172, 193, 0.1);
+            border: 2px solid transparent;
+            padding: 15px 10px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+
+        .item-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+        }
+
+        /* Intermediate Specific Controls */
+        .slider-group {
+            margin-bottom: 15px;
+        }
+        
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-family: var(--font-data);
+            font-size: 0.9rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary-color);
+        }
+
+        .data-readout {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: var(--font-data);
+            font-size: 1rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .data-item span:first-child {
+            color: #888;
+            font-size: 0.8rem;
+            display: block;
+        }
+        .data-item span:last-child {
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .inquiry-label {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        .inquiry-label input {
+            margin-right: 8px;
+            margin-top: 3px;
+            accent-color: var(--primary-color);
+        }
+
+        /* Modal TK */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 2000;
+        }
+        .modal-content {
+            background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent-color);
+            padding: 30px; border-radius: 20px; max-width: 600px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: left;
+        }
+
+        /* Fluid Overlay */
+        .fluid-overlay {
+            position: absolute; bottom: 20px; left: 0; width: 100%;
+            display: flex; justify-content: center; gap: 15px; z-index: 5;
+        }
+        .fluid-btn {
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2); color: white;
+            padding: 10px 20px; border-radius: 15px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center;
+            transition: all 0.2s; font-weight: bold; font-family: var(--font-main);
+        }
+        .fluid-btn:hover { background: rgba(56, 189, 248, 0.4); transform: translateY(-5px); border-color: var(--primary-color); }
+
+        /* Simulation Area */
+        #simulation-area {
+            flex: 1;
+            background: var(--panel-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #sim-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Floating formula box for intermediate mode */
+        #formula-box {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            font-family: var(--font-data);
+            color: #e2e8f0;
+            display: none;
+            pointer-events: none;
+        }
+
+        body[data-mode="intermediate"] #formula-box {
+            display: block;
+        }
+
+        .formula-line {
+            margin: 5px 0;
+        }
+        .text-blue { color: #38bdf8; }
+        .text-green { color: #10b981; }
+        .text-red { color: #f43f5e; }
+
+        @media (max-width: 768px) {
+            main { flex-direction: column; }
+            #sidebar { flex: 0 0 auto; max-height: 40vh; }
+            #simulation-area { flex: 1; min-height: 40vh; }
+            header h2 { font-size: 1.2rem; }
+            .splash-content h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body data-mode="elementary">
+
+    <!-- Modal TK -->
+    <div id="tk-modal" class="modal-overlay" onclick="closeTK(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="indig-title" style="color: var(--accent-color); margin-bottom: 15px; font-size: 1.8rem; font-weight: 300;">Traditional Knowledge</h3>
+            <p id="indig-text" style="line-height: 1.6; font-size: 1.1rem; color: #e2e8f0;">...</p>
+            <div style="text-align: right; margin-top: 25px;">
+                <button onclick="closeTK()" style="padding: 10px 25px; background: transparent; border: 1px solid var(--accent-color); border-radius: 8px; color: var(--accent-color); cursor: pointer; font-size: 1.1rem; transition: all 0.2s;" onmouseover="this.style.background='var(--accent-color)'; this.style.color='#020617'" onmouseout="this.style.background='transparent'; this.style.color='var(--accent-color)'">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <canvas id="splash-canvas"></canvas>
+        <div class="splash-content" style="background: transparent; border: none; box-shadow: none;">
+            <h1 id="splash-title" style="font-size: 3.5rem; text-shadow: 0 5px 15px rgba(0,0,0,0.5);">HydroDynamics</h1>
+            <p style="color: rgba(255,255,255,0.8); margin-bottom: 40px; font-style: italic; font-size: 1.2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);" id="splash-subtitle">Choose your path to explore the forces of water</p>
+            
+            <div class="control-group">
+                <button class="toggle-btn active" onclick="setLang('en')" id="btn-en">English</button>
+                <button class="toggle-btn" onclick="setLang('fr')" id="btn-fr">Français</button>
+            </div>
+
+            <div class="control-group" style="display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
+                <div class="path-card" onclick="setMode('elementary')" id="card-elem" style="cursor: pointer; padding: 25px; border: 2px solid #38bdf8; border-radius: 15px; width: 220px; transition: all 0.3s; background: rgba(56,189,248,0.2); backdrop-filter: blur(5px);">
+                    <h3 id="btn-elem" style="color: #38bdf8; margin-bottom: 10px; font-size: 1.4rem;">Explorator</h3>
+                    <p id="desc-elem" style="font-size: 0.95rem; color: #e2e8f0; line-height: 1.4;">Observe how different materials behave in various fluids. Perfect for beginners!</p>
+                </div>
+                <div class="path-card" onclick="setMode('intermediate')" id="card-inter" style="cursor: pointer; padding: 25px; border: 2px solid rgba(255,255,255,0.2); border-radius: 15px; width: 220px; transition: all 0.3s; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);">
+                    <h3 id="btn-inter" style="color: #10b981; margin-bottom: 10px; font-size: 1.4rem;">Scientist</h3>
+                    <p id="desc-inter" style="font-size: 0.95rem; color: #e2e8f0; line-height: 1.4;">Measure, analyze vectors, and compute buoyancy dynamically.</p>
+                </div>
+            </div>
+
+            <button id="start-btn" onclick="startApp()" style="margin-top: 40px;">Enter Simulation</button>
+        </div>
+        <div class="copyright" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">(c) T. Keller</div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app-container">
+        <header>
+            <h2 id="app-title">Buoyancy Lab</h2>
+            <div class="nav-buttons">
+                <button onclick="openTK()" id="btn-tk">🌾 Traditional Knowledge</button>
+                <button onclick="toggleLang()" id="top-lang-btn">FR</button>
+                <button onclick="returnToSplash()" id="nav-back">Back</button>
+                <a href="index.html" id="nav-exit">Exit</a>
+            </div>
+        </header>
+
+        <main>
+            <!-- Sidebar -->
+            <div id="sidebar">
+                
+                <!-- Elementary Controls -->
+                <div id="elementary-controls" class="panel-section">
+                    <div class="panel-title" id="elem-title">Drop an object!</div>
+                    <div class="item-grid">
+                        <div class="item-card" onclick="spawnObject('wood')">🪵 <br><span class="t-wood">Wood</span></div>
+                        <div class="item-card" onclick="spawnObject('stone')">🪨 <br><span class="t-stone">Stone</span></div>
+                        <div class="item-card" onclick="spawnObject('canoe')">🛶 <br><span class="t-canoe">Canoe</span></div>
+                        <div class="item-card" onclick="spawnObject('gold')">🪙 <br><span class="t-gold">Gold Coin</span></div>
+                        <div class="item-card" onclick="spawnObject('duck')">🦆 <br><span class="t-duck">Rubber Duck</span></div>
+                        <div class="item-card" onclick="spawnObject('ice')">🧊 <br><span class="t-ice">Ice</span></div>
+                        <div class="item-card" onclick="spawnObject('iron')">⚓ <br><span class="t-iron">Iron Anchor</span></div>
+                        <div class="item-card" onclick="spawnObject('pumice')">🧽 <br><span class="t-pumice">Pumice</span></div>
+                    </div>
+
+                    <div class="panel-section" style="margin-top: 20px; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 15px;">
+                        <strong class="t-inquiry-title-elem" style="color: var(--primary-color); display: block; margin-bottom: 10px;">Observation Checklist</strong>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e1">Does the heavy stone always sink?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e2">Can ice float on oil?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e3">Does the canoe float better than wood?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e4">Does honey make things float higher?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e5">Does the rubber duck ever sink?</span></label>
+                    </div>
+                </div>
+
+                <!-- Intermediate Controls -->
+                <div id="intermediate-controls" class="panel-section" style="display: none;">
+                    
+                    <div class="panel-section" style="margin-bottom: 15px; border-bottom: none; padding-bottom: 0;">
+                        <strong class="t-instructions-title" style="color: var(--primary-color);">Instructions:</strong>
+                        <p class="t-instructions" style="font-size: 0.85rem; margin-top: 5px; margin-bottom: 15px;">Adjust parameters to test Archimedes' principle. Observe the resulting forces and check your hypotheses below.</p>
+                    </div>
+
+                    <div class="panel-title" id="inter-title">Simulation Parameters</div>
+                    
+                    <div class="slider-group" style="display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <button onclick="setSimShape('cube')" class="toggle-btn active" id="btn-cube" style="flex:1; font-size:0.8rem; padding: 8px 5px;">Cube</button>
+                        <button onclick="setSimShape('sphere')" class="toggle-btn" id="btn-sphere" style="flex:1; font-size:0.8rem; padding: 8px 5px;">Sphere</button>
+                        <button onclick="setSimShape('cylinder')" class="toggle-btn" id="btn-cylinder" style="flex:1; font-size:0.8rem; padding: 8px 5px;">Cylinder</button>
+                        <button onclick="setSimShape('pyramid')" class="toggle-btn" id="btn-pyramid" style="flex:1; font-size:0.8rem; padding: 8px 5px;">Pyramid</button>
+                    </div>
+
+                    <div class="slider-group" style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; cursor: pointer; color: var(--text-color); font-size: 0.9rem; justify-content: flex-start;">
+                            <input type="checkbox" id="toggle-arrows" checked style="margin-right: 8px; margin-top: 0;">
+                            <span class="t-show-arrows" style="font-family: var(--font-main);">Show Force Vectors</span>
+                        </label>
+                    </div>
+
+                    <div class="slider-group">
+                        <label><span class="t-obj-mass">Object Mass (kg)</span> <span id="val-mass">5.0</span></label>
+                        <input type="range" id="slider-mass" min="1" max="50" step="0.5" value="5">
+                    </div>
+                    
+                    <div class="slider-group">
+                        <label><span class="t-obj-vol">Object Volume (L)</span> <span id="val-vol">10.0</span></label>
+                        <input type="range" id="slider-vol" min="1" max="50" step="0.5" value="10">
+                    </div>
+
+                    <div class="slider-group">
+                        <label><span class="t-fluid-den">Fluid Density (kg/m³)</span> <span id="val-fluid">1000</span></label>
+                        <input type="range" id="slider-fluid" min="700" max="1500" step="10" value="1000">
+                    </div>
+
+                    <div class="data-readout">
+                        <div class="data-item">
+                            <span class="t-obj-den">Obj Density (kg/m³)</span>
+                            <span id="calc-den">500</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="t-state">State</span>
+                            <span id="calc-state" class="text-green">Floating</span>
+                        </div>
+                    </div>
+
+                    <div class="panel-section" style="margin-top: 20px; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 15px;">
+                        <strong class="t-inquiry-title" style="color: var(--primary-color); display: block; margin-bottom: 10px;">Inquiry Checklist</strong>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q1">Does mass alone determine sinking?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q2">Does density > fluid density cause sinking?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q3">Is buoyant force equal to displaced fluid weight?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q4">Does changing shape affect buoyancy?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q5">Does salt water increase buoyancy?</span></label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Simulation Visualization -->
+            <div id="simulation-area">
+                <canvas id="sim-canvas"></canvas>
+                
+                <div id="fluid-selector" class="fluid-overlay">
+                    <div class="fluid-btn" onclick="setSimFluid(1000, 'rgba(56, 189, 248, 0.4)')"><span style="font-size: 1.5rem;">💧</span> <span class="t-waterFresh" style="font-size: 0.8rem; margin-top: 5px;">Fresh Water</span></div>
+                    <div class="fluid-btn" onclick="setSimFluid(1025, 'rgba(16, 185, 129, 0.4)')"><span style="font-size: 1.5rem;">🌊</span> <span class="t-waterSalt" style="font-size: 0.8rem; margin-top: 5px;">Salt Water</span></div>
+                    <div class="fluid-btn" onclick="setSimFluid(850, 'rgba(251, 191, 36, 0.4)')"><span style="font-size: 1.5rem;">🛢️</span> <span class="t-waterOil" style="font-size: 0.8rem; margin-top: 5px;">Oil</span></div>
+                    <div class="fluid-btn" onclick="setSimFluid(1420, 'rgba(217, 119, 6, 0.6)')"><span style="font-size: 1.5rem;">🍯</span> <span class="t-honey" style="font-size: 0.8rem; margin-top: 5px;">Honey</span></div>
+                </div>
+
+                <div id="formula-box">
+                    <div class="formula-line"><span class="text-red">Fg (Gravity)</span> = m × g = <span id="out-fg">49.0</span> N</div>
+                    <div class="formula-line"><span class="text-blue">Fb (Buoyancy)</span> = V<sub>sub</sub> × ρ<sub>f</sub> × g = <span id="out-fb">49.0</span> N</div>
+                    <div class="formula-line text-green" id="out-conclusion" style="margin-top: 10px; font-weight: bold;">Fb = Fg (Equilibrium)</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        /* --- MULTILINGUAL DICTIONARY --- */
+        const dict = {
+            en: {
+                splashTitle: "HydroDynamics",
+                splashSub: "Choose your path to explore the forces of water",
+                btnElem: "Explorator",
+                btnInter: "Scientist",
+                descElem: "Observe how different materials behave in various fluids. Perfect for beginners!",
+                descInter: "Measure, analyze vectors, and compute buoyancy dynamically.",
+                startBtn: "Enter Simulation",
+                appTitle: "Buoyancy Lab",
+                navBack: "Back",
+                navExit: "Exit",
+                btnTk: "🌾 Traditional Knowledge",
+                indigTitle: "Traditional Knowledge",
+                indigText: "Indigenous peoples of North America mastered buoyancy by designing the birchbark canoe. By maximizing volume while using low-density materials, they created vessels capable of carrying heavy loads while navigating very shallow waters.",
+                elemTitleFluid: "Choose a Fluid",
+                elemTitle: "Drop an object in the fluid!",
+                tWood: "Wood",
+                tStone: "Stone",
+                tCanoe: "Canoe",
+                tGold: "Gold Coin",
+                tDuck: "Rubber Duck",
+                tIce: "Ice",
+                tIron: "Iron Anchor",
+                tPumice: "Pumice",
+                interTitle: "Simulation Parameters",
+                tInstructionsTitle: "Instructions:",
+                tInstructions: "Adjust parameters to test Archimedes' principle. Observe the resulting forces and check your hypotheses below.",
+                tShowArrows: "Show Force Vectors",
+                tObjMass: "Object Mass (kg)",
+                tObjVol: "Object Volume (L)",
+                tFluidDen: "Fluid Density (kg/m³)",
+                tObjDen: "Obj Density (kg/m³)",
+                tState: "Object State",
+                stateFloat: "Floating",
+                stateSink: "Sinking",
+                stateNeutral: "Neutral",
+                formulaEquil: "Fb = Fg (Equilibrium)",
+                formulaSink: "Fg > Fb (Sinking)",
+                waterFresh: "Fresh Water",
+                waterSalt: "Salt Water",
+                waterOil: "Oil",
+                tHoney: "Honey",
+                tInquiryTitle: "Inquiry Checklist",
+                tQ1: "Does mass alone determine sinking?",
+                tQ2: "Does density > fluid density cause sinking?",
+                tQ3: "Is buoyant force equal to displaced fluid weight?",
+                tQ4: "Does changing shape affect buoyancy?",
+                tQ5: "Does salt water increase buoyancy?",
+                tInquiryTitleElem: "Observation Checklist",
+                tE1: "Does the heavy stone always sink?",
+                tE2: "Can ice float on oil?",
+                tE3: "Does the canoe float better than wood?",
+                tE4: "Does honey make things float higher?",
+                tE5: "Does the rubber duck ever sink?"
+            },
+            fr: {
+                splashTitle: "Courants d'Archimède",
+                splashSub: "Choisissez votre voie pour explorer les forces de l'eau",
+                btnElem: "Explorateur",
+                btnInter: "Scientifique",
+                descElem: "Observez le comportement de différents matériaux dans divers fluides. Parfait pour débuter !",
+                descInter: "Mesurez, analysez les vecteurs et calculez la flottabilité de manière dynamique.",
+                startBtn: "Entrer dans la simulation",
+                appTitle: "Laboratoire de Flottabilité",
+                navBack: "Retour",
+                navExit: "Quitter",
+                btnTk: "🌾 Savoir Traditionnel",
+                indigTitle: "Savoir Traditionnel",
+                indigText: "Les peuples autochtones d'Amérique du Nord ont maîtrisé la flottabilité en concevant le canoë en écorce de bouleau. En maximisant le volume tout en utilisant des matériaux de faible masse volumique, ils créaient des embarcations capables de transporter de lourdes charges en eaux peu profondes.",
+                elemTitleFluid: "Choisir un fluide",
+                elemTitle: "Dépose un objet !",
+                tWood: "Bois",
+                tStone: "Pierre",
+                tCanoe: "Canoë",
+                tGold: "Pièce d'or",
+                tDuck: "Canard en plast.",
+                tIce: "Glace",
+                tIron: "Ancre en fer",
+                tPumice: "Pierre ponce",
+                interTitle: "Paramètres",
+                tInstructionsTitle: "Instructions :",
+                tInstructions: "Ajustez les paramètres pour tester le principe d'Archimède. Observez les forces et vérifiez vos hypothèses.",
+                tShowArrows: "Afficher les vecteurs de force",
+                tObjMass: "Masse (kg)",
+                tObjVol: "Volume (L)",
+                tFluidDen: "Densité du fluide (kg/m³)",
+                tObjDen: "Densité Obj. (kg/m³)",
+                tState: "État",
+                stateFloat: "Flotte",
+                stateSink: "Coule",
+                stateNeutral: "Neutre",
+                formulaEquil: "Fb = Fg (Équilibre)",
+                formulaSink: "Fg > Fb (Coule)",
+                waterFresh: "Eau douce",
+                waterSalt: "Eau salée",
+                waterOil: "Huile",
+                tHoney: "Miel",
+                tInquiryTitle: "Liste de vérification",
+                tQ1: "La masse seule détermine-t-elle si on coule ?",
+                tQ2: "Une densité > à celle du fluide fait-elle couler ?",
+                tQ3: "La poussée d'Archimède = poids du fluide déplacé ?",
+                tQ4: "La forme modifie-t-elle la flottabilité ?",
+                tQ5: "L'eau salée augmente-t-elle la flottabilité ?",
+                tInquiryTitleElem: "Liste d'observation",
+                tE1: "La pierre lourde coule-t-elle toujours ?",
+                tE2: "La glace peut-elle flotter sur l'huile ?",
+                tE3: "Le canoë flotte-t-il mieux que le bois ?",
+                tE4: "Le miel fait-il flotter les objets plus haut ?",
+                tE5: "Le canard en plastique coule-t-il parfois ?"
+            }
+        };
+
+        /* --- STATE MANAGEMENT --- */
+        let currentLang = 'en';
+        let currentMode = 'elementary';
+        const GRAVITY = 9.81; // m/s^2
+
+        // Physics State
+        let simFluidDensity = 1000; // kg/m3
+        let simObject = {
+            active: false,
+            mass: 5, // kg
+            volume: 10, // L (which is 0.01 m3)
+            density: 500, // kg/m3
+            y: 0, // position
+            vy: 0, // velocity
+            width: 100,
+            height: 100,
+            type: 'box' // box, wood, stone, canoe
+        };
+
+        /* --- UI FUNCTIONS --- */
+        function setLang(lang) {
+            currentLang = lang;
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
+            document.getElementById('top-lang-btn').innerText = lang === 'en' ? 'FR' : 'EN';
+            updateTexts();
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'en' ? 'fr' : 'en');
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('card-elem').style.borderColor = mode === 'elementary' ? '#38bdf8' : 'rgba(255,255,255,0.2)';
+            document.getElementById('card-elem').style.background = mode === 'elementary' ? 'rgba(56,189,248,0.2)' : 'rgba(0,0,0,0.3)';
+            document.getElementById('card-inter').style.borderColor = mode === 'intermediate' ? '#10b981' : 'rgba(255,255,255,0.2)';
+            document.getElementById('card-inter').style.background = mode === 'intermediate' ? 'rgba(16,185,129,0.2)' : 'rgba(0,0,0,0.3)';
+        }
+
+        function openTK() { document.getElementById('tk-modal').style.display = 'flex'; }
+        function closeTK(e) { document.getElementById('tk-modal').style.display = 'none'; }
+
+        function updateTexts() {
+            const d = dict[currentLang];
+            document.getElementById('splash-title').innerText = d.splashTitle;
+            document.getElementById('splash-subtitle').innerText = d.splashSub;
+            document.getElementById('btn-elem').innerText = d.btnElem;
+            document.getElementById('desc-elem').innerText = d.descElem;
+            document.getElementById('btn-inter').innerText = d.btnInter;
+            document.getElementById('desc-inter').innerText = d.descInter;
+            document.getElementById('start-btn').innerText = d.startBtn;
+            document.getElementById('app-title').innerText = d.appTitle;
+            document.getElementById('nav-back').innerText = d.navBack;
+            document.getElementById('nav-exit').innerText = d.navExit;
+            document.getElementById('btn-tk').innerText = d.btnTk;
+            document.getElementById('indig-title').innerText = d.indigTitle;
+            document.getElementById('indig-text').innerText = d.indigText;
+            
+            document.getElementById('elem-title').innerText = d.elemTitle;
+            document.querySelectorAll('.t-wood').forEach(e => e.innerText = d.tWood);
+            document.querySelectorAll('.t-stone').forEach(e => e.innerText = d.tStone);
+            document.querySelectorAll('.t-canoe').forEach(e => e.innerText = d.tCanoe);
+            document.querySelectorAll('.t-gold').forEach(e => e.innerText = d.tGold);
+            document.querySelectorAll('.t-duck').forEach(e => e.innerText = d.tDuck);
+            document.querySelectorAll('.t-ice').forEach(e => e.innerText = d.tIce);
+            document.querySelectorAll('.t-iron').forEach(e => e.innerText = d.tIron);
+            document.querySelectorAll('.t-pumice').forEach(e => e.innerText = d.tPumice);
+            
+            document.querySelectorAll('.t-waterFresh').forEach(e => e.innerText = d.waterFresh);
+            document.querySelectorAll('.t-waterSalt').forEach(e => e.innerText = d.waterSalt);
+            document.querySelectorAll('.t-waterOil').forEach(e => e.innerText = d.waterOil);
+            document.querySelectorAll('.t-honey').forEach(e => e.innerText = d.tHoney);
+
+            document.getElementById('inter-title').innerText = d.interTitle;
+            document.querySelector('.t-instructions-title').innerText = d.tInstructionsTitle;
+            document.querySelector('.t-instructions').innerText = d.tInstructions;
+            document.querySelector('.t-show-arrows').innerText = d.tShowArrows;
+            document.querySelector('.t-obj-mass').innerText = d.tObjMass;
+            document.querySelector('.t-obj-vol').innerText = d.tObjVol;
+            document.querySelector('.t-fluid-den').innerText = d.tFluidDen;
+            document.querySelector('.t-obj-den').innerText = d.tObjDen;
+            document.querySelector('.t-state').innerText = d.tState;
+
+            document.querySelector('.t-inquiry-title').innerText = d.tInquiryTitle;
+            document.querySelector('.t-q1').innerText = d.tQ1;
+            document.querySelector('.t-q2').innerText = d.tQ2;
+            document.querySelector('.t-q3').innerText = d.tQ3;
+            document.querySelector('.t-q4').innerText = d.tQ4;
+            document.querySelector('.t-q5').innerText = d.tQ5;
+
+            document.querySelector('.t-inquiry-title-elem').innerText = d.tInquiryTitleElem;
+            document.querySelector('.t-e1').innerText = d.tE1;
+            document.querySelector('.t-e2').innerText = d.tE2;
+            document.querySelector('.t-e3').innerText = d.tE3;
+            document.querySelector('.t-e4').innerText = d.tE4;
+            document.querySelector('.t-e5').innerText = d.tE5;
+
+            updatePhysicsReadouts();
+        }
+
+        let simFluidColor = 'rgba(56, 189, 248, 0.4)';
+
+        function setSimFluid(density, color) {
+            simFluidDensity = density;
+            simFluidColor = color;
+            updateObjectDensity();
+        }
+
+        function startApp() {
+            document.getElementById('splash-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            document.body.setAttribute('data-mode', currentMode);
+
+            if (currentMode === 'elementary') {
+                document.getElementById('elementary-controls').style.display = 'block';
+                document.getElementById('intermediate-controls').style.display = 'none';
+                document.getElementById('fluid-selector').style.display = 'flex';
+                spawnObject('canoe'); // default fun object
+            } else {
+                document.getElementById('elementary-controls').style.display = 'none';
+                document.getElementById('intermediate-controls').style.display = 'block';
+                document.getElementById('fluid-selector').style.display = 'none';
+                spawnObject('box');
+            }
+
+            resizeCanvas();
+        }
+
+        function returnToSplash() {
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('splash-screen').style.display = 'flex';
+            resizeSplashCanvas();
+        }
+
+        /* --- SPLASH SCREEN ANIMATION --- */
+        const splashCanvas = document.getElementById('splash-canvas');
+        const ctxS = splashCanvas.getContext('2d');
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let timeS = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            if(document.getElementById('splash-screen').style.display !== 'none') {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+        });
+
+        function resizeSplashCanvas() {
+            splashCanvas.width = window.innerWidth;
+            splashCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', () => {
+            if(document.getElementById('splash-screen').style.display !== 'none') resizeSplashCanvas();
+            if(document.getElementById('app-container').style.display !== 'none') resizeCanvas();
+        });
+        resizeSplashCanvas();
+
+        function animateSplash() {
+            if(document.getElementById('splash-screen').style.display !== 'none') {
+                // Blur effect via trail
+                ctxS.fillStyle = 'rgba(2, 6, 23, 0.2)';
+                ctxS.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
+
+                timeS += 0.01;
+                
+                // Draw elegant gradients & waves
+                let pointerInfluence = (mouseX / splashCanvas.width) * Math.PI * 2;
+
+                for(let i = 0; i < 3; i++) {
+                    ctxS.beginPath();
+                    ctxS.moveTo(0, splashCanvas.height);
+                    
+                    let phase = timeS * (1 + i * 0.2) + pointerInfluence * (i+1);
+                    let amp = 50 + i * 30 + (mouseY / splashCanvas.height) * 50;
+                    let yOffset = splashCanvas.height * 0.5 + i * 80;
+
+                    for(let x = 0; x <= splashCanvas.width; x += 10) {
+                        let y = yOffset + Math.sin(x * 0.003 + phase) * amp;
+                        ctxS.lineTo(x, y);
+                    }
+                    ctxS.lineTo(splashCanvas.width, splashCanvas.height);
+                    
+                    let grad = ctxS.createLinearGradient(0, yOffset, 0, splashCanvas.height);
+                    if (i === 0) {
+                        grad.addColorStop(0, 'rgba(56, 189, 248, 0.1)');
+                        grad.addColorStop(1, 'rgba(14, 165, 233, 0.05)');
+                    } else if (i === 1) {
+                        grad.addColorStop(0, 'rgba(16, 185, 129, 0.1)');
+                        grad.addColorStop(1, 'rgba(5, 150, 105, 0.05)');
+                    } else {
+                        grad.addColorStop(0, 'rgba(99, 102, 241, 0.1)');
+                        grad.addColorStop(1, 'rgba(79, 70, 229, 0.05)');
+                    }
+                    
+                    ctxS.fillStyle = grad;
+                    ctxS.fill();
+                }
+            }
+            requestAnimationFrame(animateSplash);
+        }
+        animateSplash();
+
+        /* --- PHYSICS & SIMULATION --- */
+        const simCanvas = document.getElementById('sim-canvas');
+        const ctx = simCanvas.getContext('2d');
+        let simWidth = 0;
+        let simHeight = 0;
+        let waterLevel = 0;
+
+        function resizeCanvas() {
+            const rect = document.getElementById('simulation-area').getBoundingClientRect();
+            simCanvas.width = rect.width;
+            simCanvas.height = rect.height;
+            simWidth = simCanvas.width;
+            simHeight = simCanvas.height;
+            waterLevel = simHeight * 0.4; // Top 40% is air, bottom 60% is water
+            if(simObject.active && simObject.y === 0) {
+                simObject.y = 50; // spawn point
+            }
+        }
+
+        // Object presets
+        const presets = {
+            'wood': { m: 4, v: 8, color: '#8B4513' }, // density 500
+            'stone': { m: 15, v: 5, color: '#7f8c8d' }, // density 3000
+            'canoe': { m: 2, v: 12, color: '#d4a373' }, // density 166 (very buoyant)
+            'gold': { m: 19.3, v: 1, color: '#ffd700' }, // density 19300
+            'duck': { m: 0.2, v: 1, color: '#ffeb3b' }, // density 200
+            'ice': { m: 9.17, v: 10, color: '#e0f7fa' }, // density 917
+            'iron': { m: 39, v: 5, color: '#424242' }, // density 7800
+            'pumice': { m: 1.5, v: 5, color: '#d7ccc8' }, // density 300
+            'box': { m: 5, v: 10, color: '#94a3b8' } // default intermediate, slate grey
+        };
+
+        let simObjectShape = 'cube';
+
+        function setSimShape(shape) {
+            simObjectShape = shape;
+            document.getElementById('btn-cube').classList.toggle('active', shape === 'cube');
+            document.getElementById('btn-sphere').classList.toggle('active', shape === 'sphere');
+            document.getElementById('btn-cylinder').classList.toggle('active', shape === 'cylinder');
+            document.getElementById('btn-pyramid').classList.toggle('active', shape === 'pyramid');
+        }
+
+        function spawnObject(type) {
+            const p = presets[type] || presets['box'];
+            simObject.active = true;
+            simObject.type = type;
+            simObject.mass = p.m;
+            simObject.volume = p.v;
+            simObject.density = (p.m / p.v) * 1000;
+            // Force intermediate objects to be grey
+            simObject.color = currentMode === 'intermediate' ? '#94a3b8' : p.color;
+            simObject.y = 20; // drop from top
+            simObject.vy = 0;
+            
+            updateVisualSize();
+            
+            if (currentMode === 'intermediate') {
+                document.getElementById('slider-mass').value = simObject.mass;
+                document.getElementById('slider-vol').value = simObject.volume;
+                updatePhysicsReadouts();
+            }
+        }
+
+        function updateVisualSize() {
+            // Make objects larger generally, significantly larger in elementary
+            const baseSize = currentMode === 'intermediate' ? 90 : 130;
+            const sizeMultiplier = Math.pow(simObject.volume / 5, 1/3);
+            simObject.width = baseSize * sizeMultiplier;
+            simObject.height = baseSize * sizeMultiplier;
+        }
+
+        // Listeners for intermediate sliders
+        document.getElementById('slider-mass').addEventListener('input', (e) => {
+            simObject.mass = parseFloat(e.target.value);
+            updateObjectDensity();
+        });
+        document.getElementById('slider-vol').addEventListener('input', (e) => {
+            simObject.volume = parseFloat(e.target.value);
+            updateObjectDensity();
+        });
+        document.getElementById('slider-fluid').addEventListener('input', (e) => {
+            simFluidDensity = parseFloat(e.target.value);
+            // Dynamic color mapping for custom slider
+            if(simFluidDensity < 950) setSimFluid(simFluidDensity, 'rgba(255, 193, 7, 0.3)');
+            else if(simFluidDensity > 1050) setSimFluid(simFluidDensity, 'rgba(76, 175, 80, 0.3)');
+            else setSimFluid(simFluidDensity, 'rgba(0, 172, 193, 0.3)');
+            updateObjectDensity();
+        });
+
+        function updateObjectDensity() {
+            simObject.density = (simObject.mass / simObject.volume) * 1000;
+            updateVisualSize();
+            updatePhysicsReadouts();
+        }
+
+        function updatePhysicsReadouts() {
+            const d = dict[currentLang];
+            
+            document.getElementById('val-mass').innerText = simObject.mass.toFixed(1);
+            document.getElementById('val-vol').innerText = simObject.volume.toFixed(1);
+            document.getElementById('val-fluid').innerText = simFluidDensity.toFixed(0);
+            
+            document.getElementById('calc-den').innerText = simObject.density.toFixed(0);
+
+            // Calculate Forces
+            const Fg = simObject.mass * GRAVITY; // Weight
+            let Fb_max = (simObject.volume / 1000) * simFluidDensity * GRAVITY; // Max buoyancy if fully submerged
+            
+            let isFloating = simObject.density < simFluidDensity;
+            
+            document.getElementById('out-fg').innerText = Fg.toFixed(1);
+            
+            const stateEl = document.getElementById('calc-state');
+            const conclEl = document.getElementById('out-conclusion');
+
+            if (isFloating) {
+                stateEl.innerText = d.stateFloat;
+                stateEl.className = 'text-green';
+                document.getElementById('out-fb').innerText = Fg.toFixed(1); // Balances out
+                conclEl.innerText = d.formulaEquil;
+                conclEl.className = 'text-green';
+            } else if (Math.abs(simObject.density - simFluidDensity) < 1) {
+                stateEl.innerText = d.stateNeutral;
+                stateEl.className = 'text-blue';
+                document.getElementById('out-fb').innerText = Fb_max.toFixed(1);
+                conclEl.innerText = d.formulaEquil;
+                conclEl.className = 'text-blue';
+            } else {
+                stateEl.innerText = d.stateSink;
+                stateEl.className = 'text-red';
+                document.getElementById('out-fb').innerText = Fb_max.toFixed(1);
+                conclEl.innerText = d.formulaSink;
+                conclEl.className = 'text-red';
+            }
+        }
+
+        // Water surface springs for realistic waves
+        let springs = [];
+        const numSprings = 100;
+        let springSpacing = 0;
+
+        function initSprings() {
+            springs = [];
+            springSpacing = simWidth / numSprings;
+            for(let i=0; i<=numSprings; i++) {
+                springs.push({y: 0, v: 0});
+            }
+        }
+
+        const originalResizeCanvas = resizeCanvas;
+        resizeCanvas = function() {
+            originalResizeCanvas();
+            initSprings();
+        };
+
+        let lastObjY = 0;
+
+        // Simulation Loop
+        function animateSimulation() {
+            if (document.getElementById('app-container').style.display !== 'none') {
+                // Clear
+                ctx.clearRect(0, 0, simWidth, simHeight);
+
+                if(springs.length === 0) initSprings();
+
+                // Update Wave Springs (Applied to both modes for realism)
+                for(let i=0; i<springs.length; i++) {
+                    let accel = -0.05 * springs[i].y - 0.03 * springs[i].v;
+                    springs[i].v += accel;
+                    springs[i].y += springs[i].v;
+                }
+                
+                let leftDeltas = [], rightDeltas = [];
+                for(let i=0; i<springs.length; i++) {
+                    if(i>0) leftDeltas[i] = 0.05 * (springs[i].y - springs[i-1].y);
+                    if(i<springs.length-1) rightDeltas[i] = 0.05 * (springs[i].y - springs[i+1].y);
+                }
+                for(let i=0; i<springs.length; i++) {
+                    if(i>0) springs[i-1].v += leftDeltas[i];
+                    if(i<springs.length-1) springs[i+1].v += rightDeltas[i];
+                }
+
+                // Draw Water
+                let waterBaseColor = simFluidColor;
+                if(currentMode === 'intermediate') {
+                    waterBaseColor = 'rgba(56, 189, 248, 0.15)';
+                    if(simFluidDensity > 1050) waterBaseColor = 'rgba(16, 185, 129, 0.15)';
+                    if(simFluidDensity < 950) waterBaseColor = 'rgba(251, 191, 36, 0.15)';
+                }
+
+                ctx.fillStyle = waterBaseColor;
+                ctx.beginPath();
+                ctx.moveTo(0, simHeight);
+                
+                for(let i=0; i<springs.length; i++) {
+                    ctx.lineTo(i * springSpacing, waterLevel + springs[i].y);
+                }
+                
+                ctx.lineTo(simWidth, simHeight);
+                ctx.fill();
+                
+                // Top line for water surface
+                ctx.strokeStyle = waterBaseColor.replace(/0\.[0-9]+\)/, '0.6)');
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                for(let i=0; i<springs.length; i++) {
+                    if(i===0) ctx.moveTo(i * springSpacing, waterLevel + springs[i].y);
+                    else ctx.lineTo(i * springSpacing, waterLevel + springs[i].y);
+                }
+                ctx.stroke();
+
+                if (simObject.active) {
+                    const dt = 0.016; // ~60fps
+                    
+                    let objBottom = simObject.y + simObject.height;
+                    let objCenterY = simObject.y + simObject.height / 2;
+                    let cx = simWidth / 2;
+                    
+                    // Interaction with water surface (splash generation in both modes)
+                    let centerSpringIndex = Math.floor(cx / springSpacing);
+                    let objWidthSprings = Math.floor(simObject.width / springSpacing);
+                    
+                    if (lastObjY < waterLevel - simObject.height/4 && objCenterY >= waterLevel - simObject.height/4) {
+                         let splashForce = simObject.vy * 2.5;
+                         for(let s = -objWidthSprings/2; s <= objWidthSprings/2; s++) {
+                             let idx = centerSpringIndex + Math.floor(s);
+                             if(idx >= 0 && idx < springs.length) {
+                                 springs[idx].v += splashForce * (1 - Math.abs(s)/(objWidthSprings/2));
+                             }
+                         }
+                    }
+                    lastObjY = objCenterY;
+
+                    // Calculate submerged fraction [0, 1]
+                    let submergedFrac = 0;
+                    if (objBottom > waterLevel) {
+                        submergedFrac = (objBottom - waterLevel) / simObject.height;
+                        if (submergedFrac > 1) submergedFrac = 1;
+                    }
+
+                    // Forces
+                    let Fg = simObject.mass * GRAVITY; // down
+                    let Fb = submergedFrac * (simObject.volume / 1000) * simFluidDensity * GRAVITY; // up
+                    
+                    let Fnet = Fg - Fb;
+                    let acc = Fnet / simObject.mass;
+                    
+                    // Realistic Damping (Viscous drag proportional to velocity squared and submerged volume)
+                    if (submergedFrac > 0) {
+                        let drag = 0.05 * submergedFrac * simObject.vy * Math.abs(simObject.vy);
+                        acc -= drag;
+                        simObject.vy *= 0.98; // Additional linear damping
+                    } else {
+                        simObject.vy *= 0.99; // Air resistance
+                    }
+
+                    simObject.vy += acc * dt * 50;
+                    simObject.y += simObject.vy;
+
+                    // Floor collision
+                    if (simObject.y + simObject.height >= simHeight) {
+                        simObject.y = simHeight - simObject.height;
+                        simObject.vy = simObject.vy * -0.3; // Realistic bouncing on floor
+                    }
+
+                    // Draw Object
+                    ctx.save();
+                    ctx.translate(cx - simObject.width/2, simObject.y);
+                    
+                    if (currentMode === 'elementary') {
+                        ctx.font = `${simObject.width * 0.8}px 'Segoe UI Emoji', Arial`;
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        let emoji = '📦';
+                        if(simObject.type === 'wood') emoji = '🪵';
+                        if(simObject.type === 'stone') emoji = '🪨';
+                        if(simObject.type === 'canoe') emoji = '🛶';
+                        if(simObject.type === 'gold') emoji = '🪙';
+                        if(simObject.type === 'duck') emoji = '🦆';
+                        if(simObject.type === 'ice') emoji = '🧊';
+                        if(simObject.type === 'iron') emoji = '⚓';
+                        if(simObject.type === 'pumice') emoji = '🧽';
+                        ctx.fillText(emoji, simObject.width/2, simObject.height/2);
+                    } else {
+                        ctx.fillStyle = simObject.color;
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 2;
+                        
+                        if(simObjectShape === 'sphere') {
+                            ctx.beginPath();
+                            ctx.arc(simObject.width/2, simObject.height/2, simObject.width/2, 0, Math.PI*2);
+                            ctx.fill();
+                            ctx.stroke();
+                        } else if(simObjectShape === 'cylinder') {
+                            ctx.beginPath();
+                            ctx.roundRect(0, 0, simObject.width, simObject.height, 15);
+                            ctx.fill();
+                            ctx.stroke();
+                        } else if(simObjectShape === 'pyramid') {
+                            ctx.beginPath();
+                            ctx.moveTo(simObject.width/2, 0);
+                            ctx.lineTo(simObject.width, simObject.height);
+                            ctx.lineTo(0, simObject.height);
+                            ctx.closePath();
+                            ctx.fill();
+                            ctx.stroke();
+                        } else {
+                            ctx.fillRect(0, 0, simObject.width, simObject.height);
+                            ctx.strokeRect(0, 0, simObject.width, simObject.height);
+                        }
+                        
+                        // Removed density text as requested
+                    }
+                    ctx.restore();
+
+                    // Draw Force Vectors (Arrows)
+                    if (currentMode === 'intermediate' && document.getElementById('toggle-arrows').checked) {
+                        let centerX = cx;
+                        let centerY = simObject.y + simObject.height/2; // Center of Gravity
+                        
+                        // Scale arrows significantly
+                        let visualForceScale = 2; 
+                        
+                        // Fg Arrow (Red, down) from Center of Gravity
+                        drawArrow(ctx, centerX, centerY, centerX, centerY + (Fg * visualForceScale), '#f43f5e');
+                        
+                        // Fb Arrow (Blue, up) from Center of Gravity
+                        if (Fb > 0) {
+                            drawArrow(ctx, centerX, centerY, centerX, centerY - (Fb * visualForceScale), '#38bdf8');
+                        }
+                    } else if (currentMode === 'elementary') {
+                        let centerX = cx;
+                        let centerY = simObject.y + simObject.height/2;
+                        drawArrow(ctx, centerX, centerY, centerX, centerY + (Fg * 2), '#f43f5e');
+                        if (Fb > 0) {
+                            drawArrow(ctx, centerX, centerY, centerX, centerY - (Fb * 2), '#38bdf8');
+                        }
+                    }
+                }
+            }
+            requestAnimationFrame(animateSimulation);
+        }
+
+        function drawArrow(ctx, fromx, fromy, tox, toy, color) {
+            let headlen = 20; // Bigger arrow heads
+            let dx = tox - fromx;
+            let dy = toy - fromy;
+            let angle = Math.atan2(dy, dx);
+            
+            let maxLen = 250; // Increased max length
+            let len = Math.hypot(dx, dy);
+            if (len > maxLen) {
+                tox = fromx + Math.cos(angle) * maxLen;
+                toy = fromy + Math.sin(angle) * maxLen;
+            }
+
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 6; // Made thicker
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.fill();
+        }
+
+        // Init
+        setLang('en');
+        animateSimulation();
+
+    </script>
+</body>
+</html>
