@@ -570,6 +570,14 @@
                                 <option value="1000" label="1000"></option>
                             </datalist>
                         </div>
+                        
+                        <div class="control-item" style="margin-top: 0.5rem;">
+                            <label class="toggle-container">
+                                <input type="checkbox" id="in-t1-sound" style="display:none;">
+                                <div class="toggle-switch"></div>
+                                <span id="t-t1-sound">Enable Sound</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div class="panel-section">
@@ -619,13 +627,21 @@
                             </datalist>
                         </div>
                         
-                        <label class="toggle-container">
-                            <input type="checkbox" id="in-t2-cone" style="display:none;" checked>
-                            <div class="toggle-switch"></div>
-                            <span id="t-t2-show">Show Mach Cone Envelope</span>
-                        </label>
-                        
-                        <div class="control-item" style="margin-top: 1rem;">
+                        <div class="control-item" style="margin-top: 0.5rem;">
+                            <label class="toggle-container">
+                                <input type="checkbox" id="in-t2-cone" style="display:none;" checked>
+                                <div class="toggle-switch"></div>
+                                <span id="t-t2-show">Show Mach Cone Envelope</span>
+                            </label>
+                            
+                            <label class="toggle-container" style="margin-top: 0.8rem;">
+                                <input type="checkbox" id="in-t2-sound" style="display:none;">
+                                <div class="toggle-switch"></div>
+                                <span id="t-t2-sound">Enable Sonic Boom Sound</span>
+                            </label>
+                        </div>
+
+                        <div class="control-item" style="margin-top: 0.5rem;">
                             <button class="btn-splash" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="resetT2Sensor()" id="btn-t2-reset">Reset Sensor</button>
                         </div>
                     </div>
@@ -726,8 +742,63 @@
             t1LastHitTime: -999,
             t1LastWaveHitTime: -999, // Tracks the time of the previous wave hit for delta-T calculation
             t1DisplayFobs: 0,
-            t1HitRipple: 0
+            t1HitRipple: 0,
+            t1SoundEnabled: false,
+            t2SoundEnabled: false,
+            lastFramePressure: 1.0
         };
+
+        // --- Audio Engine ---
+        let audioCtx;
+        let t1Osc, t1Gain;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                t1Osc = audioCtx.createOscillator();
+                t1Gain = audioCtx.createGain();
+                t1Osc.type = 'sine';
+                t1Gain.gain.value = 0;
+                t1Osc.connect(t1Gain);
+                t1Gain.connect(audioCtx.destination);
+                t1Osc.start();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSonicBoom() {
+            if (!audioCtx) return;
+            const boomTime = audioCtx.currentTime;
+            const boomOsc = audioCtx.createOscillator();
+            const boomGain = audioCtx.createGain();
+            
+            // Square wave creates a harsh, loud thump mimicking a boom
+            boomOsc.type = 'square'; 
+            boomOsc.frequency.setValueAtTime(150, boomTime);
+            boomOsc.frequency.exponentialRampToValueAtTime(10, boomTime + 0.4);
+            
+            boomGain.gain.setValueAtTime(0.3, boomTime);
+            boomGain.gain.exponentialRampToValueAtTime(0.01, boomTime + 0.4);
+            
+            boomOsc.connect(boomGain);
+            boomGain.connect(audioCtx.destination);
+            boomOsc.start(boomTime);
+            boomOsc.stop(boomTime + 0.5);
+        }
+
+        const inT1Sound = document.getElementById('in-t1-sound');
+        inT1Sound?.addEventListener('change', (e) => {
+            state.t1SoundEnabled = e.target.checked;
+            if (state.t1SoundEnabled) initAudio();
+        });
+
+        const inT2Sound = document.getElementById('in-t2-sound');
+        inT2Sound?.addEventListener('change', (e) => {
+            state.t2SoundEnabled = e.target.checked;
+            if (state.t2SoundEnabled) initAudio();
+        });
 
         // --- Dictionaries ---
         const dict = {
@@ -754,6 +825,7 @@
                 "t-t1-freq": "Source Frequency (f)",
                 "t-t1-fobs": "Observed Freq (f')",
                 "t-t1-wave": "Wave Speed (v)",
+                "t-t1-sound": "Enable Sound",
                 
                 // Tab 2
                 "t-t2-vs": "Supersonic Velocity (v_s)",
@@ -762,6 +834,7 @@
                 "t-t2-show": "Show Mach Cone Envelope",
                 "t-t2-pressure": "Real-time Pressure",
                 "t-t2-max-pressure": "Max Pressure",
+                "t-t2-sound": "Enable Sonic Boom Sound",
                 "btn-t2-reset": "Reset Sensor",
                 
                 // Tab 3
@@ -795,6 +868,7 @@
                 "t-t1-freq": "Fréquence Source (f)",
                 "t-t1-fobs": "Fréq. Observée (f')",
                 "t-t1-wave": "Célérité (v)",
+                "t-t1-sound": "Activer le Son",
                 
                 // Tab 2
                 "t-t2-vs": "Vitesse Supersonique (v_s)",
@@ -803,6 +877,7 @@
                 "t-t2-show": "Afficher le Cône de Mach",
                 "t-t2-pressure": "Pression en temps réel",
                 "t-t2-max-pressure": "Pression Max",
+                "t-t2-sound": "Activer le Bang Supersonique",
                 "btn-t2-reset": "Réinitialiser Capteur",
                 
                 // Tab 3
@@ -1028,14 +1103,16 @@
                 document.getElementById('out-t1-fobs').style.textShadow = 'none';
             } else if(state.currentTab === 2) {
                 source.x = 100;
-                t2Observer.x = canvas.width / 2;
+                t2Observer.x = canvas.width * 0.9;
                 t2Observer.y = canvas.height - 40;
                 t2MaxPressure = 1.0;
+                state.lastFramePressure = 1.0;
                 if (document.getElementById('out-t2-max-pressure')) {
                     document.getElementById('out-t2-max-pressure').innerText = '1.00 atm';
                 }
             } else if (state.currentTab === 3) {
                 source.x = canvas.width / 2;
+                source.lastEmit = simTime;
                 createSpectrumLines();
                 drawSpectrum();
             }
@@ -1043,6 +1120,7 @@
 
         function resetT2Sensor() {
             t2MaxPressure = 1.0;
+            state.lastFramePressure = 1.0;
             document.getElementById('out-t2-max-pressure').innerText = t2MaxPressure.toFixed(2) + ' atm';
         }
 
@@ -1051,9 +1129,10 @@
         const inT1Vo = document.getElementById('in-t1-vo');
         const inT1Freq = document.getElementById('in-t1-freq');
         
-        [inT1Vs, inT1Vo, inT1Freq].forEach(el => el.addEventListener('input', updateTab1Data));
+        [inT1Vs, inT1Vo, inT1Freq].forEach(el => el?.addEventListener('input', updateTab1Data));
 
         function updateTab1Data() {
+            if (!inT1Vs || !inT1Vo || !inT1Freq) return;
             const vs = parseFloat(inT1Vs.value);
             const vo = parseFloat(inT1Vo.value);
             const f = parseFloat(inT1Freq.value);
@@ -1068,10 +1147,11 @@
         // --- Tab 2 ---
         const inT2Vs = document.getElementById('in-t2-vs');
         const inT2Cone = document.getElementById('in-t2-cone');
-        inT2Vs.addEventListener('input', updateTab2Data);
-        inT2Cone.addEventListener('change', () => { /* triggers render update */ });
+        inT2Vs?.addEventListener('input', updateTab2Data);
+        inT2Cone?.addEventListener('change', () => { /* triggers render update */ });
 
         function updateTab2Data() {
+            if (!inT2Vs) return;
             const vs = parseFloat(inT2Vs.value);
             document.getElementById('val-t2-vs').innerText = `${vs} m/s`;
             
@@ -1089,7 +1169,7 @@
 
         // --- Tab 3 ---
         const inT3Vs = document.getElementById('in-t3-vs');
-        inT3Vs.addEventListener('input', updateTab3Data);
+        inT3Vs?.addEventListener('input', updateTab3Data);
         
         const HALPHA_REST = 656.28; 
         const spectralLinesData = [
@@ -1131,6 +1211,7 @@
         }
 
         function drawSpectrum() {
+            if (!inT3Vs) return;
             const beta = parseFloat(inT3Vs.value); 
             const z = Math.sqrt((1 + beta) / (1 - beta)) - 1;
             
@@ -1153,6 +1234,7 @@
         }
 
         function updateTab3Data() {
+            if (!inT3Vs) return;
             const beta = parseFloat(inT3Vs.value);
             document.getElementById('val-t3-vs').innerText = `${beta.toFixed(2)} c`;
             
@@ -1195,13 +1277,20 @@
             else if (state.currentTab === 2) renderTab2(dt);
             else if (state.currentTab === 3) renderTab3(dt);
 
+            // Global mute fallback for Tab 1
+            if (audioCtx && t1Gain) {
+                if (!state.isPlaying || state.currentTab !== 1 || !state.t1SoundEnabled) {
+                    t1Gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+                }
+            }
+
             requestAnimationFrame(renderSim);
         }
 
         function renderTab1(dt) {
-            const vs = parseFloat(inT1Vs.value);
-            const vo = parseFloat(inT1Vo.value);
-            const freq = parseFloat(inT1Freq.value);
+            const vs = inT1Vs ? parseFloat(inT1Vs.value) : 0;
+            const vo = inT1Vo ? parseFloat(inT1Vo.value) : 0;
+            const freq = inT1Freq ? parseFloat(inT1Freq.value) : 400;
             
             const simSpeedMultiplier = 0.5; 
             let hit = false;
@@ -1301,6 +1390,16 @@
                 displayEl.style.textShadow = 'none';
             }
 
+            // --- AUDIO SYNC ---
+            if (state.t1SoundEnabled && audioCtx && t1Gain) {
+                if (timeSinceHit < 0.8 && state.isPlaying) {
+                    t1Osc.frequency.setTargetAtTime(state.t1DisplayFobs, audioCtx.currentTime, 0.05);
+                    t1Gain.gain.setTargetAtTime(0.15, audioCtx.currentTime, 0.05);
+                } else {
+                    t1Gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+                }
+            }
+
             // Draw Obs with Hit Ripple
             if (state.t1HitRipple > 0) {
                 ctx.strokeStyle = `rgba(255, 255, 255, ${state.t1HitRipple / 25})`;
@@ -1329,7 +1428,7 @@
         }
 
         function renderTab2(dt) {
-            const vs = parseFloat(inT2Vs.value);
+            const vs = inT2Vs ? parseFloat(inT2Vs.value) : 0;
             const simSpeedMultiplier = 0.5;
             let currentPressure = 1.0; // Base atm
 
@@ -1365,7 +1464,7 @@
                 if (w.radius > canvas.width) waves.splice(i, 1);
             }
 
-            if (inT2Cone.checked && vs > V_SOUND) {
+            if (inT2Cone?.checked && vs > V_SOUND) {
                 const angleRad = Math.asin(V_SOUND / vs);
                 ctx.strokeStyle = '#00d4ff';
                 ctx.lineWidth = 2;
@@ -1390,6 +1489,12 @@
             ctx.font = '10px var(--font-mono)';
             ctx.fillText('SENSOR', t2Observer.x - 18, t2Observer.y + 20);
 
+            // Audio trigger on Constructive Interference Spike (Sonic Boom)
+            if (state.t2SoundEnabled && currentPressure > 1.5 && state.lastFramePressure <= 1.5) {
+                playSonicBoom();
+            }
+            state.lastFramePressure = currentPressure;
+
             // Update Pressure UI
             if (currentPressure > t2MaxPressure) t2MaxPressure = currentPressure;
             document.getElementById('out-t2-pressure').innerText = currentPressure.toFixed(2) + ' atm';
@@ -1403,69 +1508,93 @@
         }
 
         function renderTab3(dt) {
-            const beta = parseFloat(inT3Vs.value);
-            const obsX = canvas.width / 2;
-            const obsY = canvas.height / 2;
+            const beta = inT3Vs ? parseFloat(inT3Vs.value) : 0;
+            
+            // Adjust observer and star positions for better visual diagonal layout
+            const obsX = canvas.width / 2 - 120;
+            const obsY = canvas.height / 2 + 50;
+            const sX = canvas.width / 2 + 180;
+            const sY = canvas.height / 2 - 80;
             
             ctx.fillStyle = '#fff';
             ctx.beginPath();
             ctx.arc(obsX, obsY, 5, 0, Math.PI * 2);
             ctx.fill();
             ctx.font = '12px var(--font-mono)';
-            ctx.fillText('Observer', obsX - 25, obsY - 15);
+            ctx.fillText('Observer', obsX - 25, obsY + 20);
 
-            const starColor = beta > 0 ? `rgba(255, 50, 50, 0.9)` : (beta < 0 ? `rgba(50, 150, 255, 0.9)` : `#fff`);
-            const waveColor = beta > 0 ? `rgba(255, 50, 50, 0.4)` : (beta < 0 ? `rgba(50, 150, 255, 0.4)` : `rgba(255,255,255,0.4)`);
+            // Simulation speeds
+            const c_scale = 100; // Speed of light in pixels/s
+            const v = beta * c_scale;
+            const angle = Math.atan2(sY - obsY, sX - obsX); // Angle from obs to star
+            const v_x = v * Math.cos(angle);
+            const v_y = v * Math.sin(angle);
             
-            const f_rest = 1.5; // Decreased for larger gaps
-            const z = Math.sqrt((1 + beta) / (1 - beta)) - 1;
-            const f_obs = f_rest / (1 + z); 
-            
-            const visualPeriod = 1 / f_obs;
+            const visualPeriod = 0.25; // Fixed emission period in star frame
             
             if (state.isPlaying && simTime - source.lastEmit > visualPeriod) {
-                waves.push({ radius: canvas.width/1.5 }); // Start far away
+                waves.push({ age: 0 }); 
                 source.lastEmit = simTime;
             }
 
-            ctx.strokeStyle = waveColor;
-            ctx.lineWidth = 2;
             for (let i = waves.length - 1; i >= 0; i--) {
                 let w = waves[i];
-                // Slower animation multiplier (40 instead of 100)
-                if(state.isPlaying) w.radius -= 40 * dt; 
+                if(state.isPlaying) w.age += dt; 
                 
-                if (w.radius > 0) {
-                    ctx.beginPath();
-                    ctx.arc(obsX, obsY, w.radius, 0, Math.PI * 2);
-                    ctx.stroke();
-                } else {
+                let r = w.age * c_scale;
+                if (r > canvas.width * 1.5) {
                     waves.splice(i, 1);
+                    continue;
                 }
+                
+                // Position of wave center (drifts opposite to star's velocity in the star's rendered frame)
+                let wx = sX - v_x * w.age;
+                let wy = sY - v_y * w.age;
+
+                ctx.beginPath();
+                ctx.arc(wx, wy, r, 0, Math.PI * 2);
+                
+                // Color gradient based on direction of motion
+                if (Math.abs(beta) > 0.01) {
+                    let vDir = beta >= 0 ? angle : angle + Math.PI; // Actual direction star is moving
+                    // Gradient from rarefied (red) to compressed (blue)
+                    let grad = ctx.createLinearGradient(
+                        wx - r * Math.cos(vDir), wy - r * Math.sin(vDir),
+                        wx + r * Math.cos(vDir), wy + r * Math.sin(vDir)
+                    );
+                    grad.addColorStop(0, 'rgba(255, 50, 50, 0.6)'); // Red trailing edge
+                    grad.addColorStop(1, 'rgba(50, 150, 255, 0.6)'); // Blue compressed edge
+                    ctx.strokeStyle = grad;
+                } else {
+                    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                }
+                
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
             }
 
-            const starRadius = 12;
-            const sX = obsX + 180;
-            const sY = obsY - 100;
-            
+            // Star rendering
+            const starColor = beta > 0.01 ? `rgba(255, 50, 50, 1)` : (beta < -0.01 ? `rgba(50, 150, 255, 1)` : `#fff`);
             ctx.fillStyle = starColor;
             ctx.beginPath();
-            ctx.arc(sX, sY, starRadius, 0, Math.PI * 2);
+            ctx.arc(sX, sY, 12, 0, Math.PI * 2);
             ctx.shadowBlur = 25;
             ctx.shadowColor = starColor;
             ctx.fill();
             ctx.shadowBlur = 0; 
 
-            // Velocity Vector arrow
-            if (beta !== 0) {
+            // Velocity Vector arrow pointing in correct direction
+            if (Math.abs(beta) > 0.01) {
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.moveTo(sX, sY);
-                const vecLength = beta * 80;
-                const angle = Math.atan2(sY - obsY, sX - obsX);
-                const endX = sX + Math.cos(angle) * vecLength;
-                const endY = sY + Math.sin(angle) * vecLength;
+                
+                const vecLength = Math.abs(beta) * 120; // Length proportional to speed
+                const dirAngle = beta > 0 ? angle : angle + Math.PI; // Adjust direction based on approach/recede
+                
+                const endX = sX + Math.cos(dirAngle) * vecLength;
+                const endY = sY + Math.sin(dirAngle) * vecLength;
                 
                 // Arrow line
                 ctx.lineTo(endX, endY);
@@ -1474,8 +1603,8 @@
                 // Arrowhead
                 ctx.beginPath();
                 ctx.moveTo(endX, endY);
-                ctx.lineTo(endX - 8 * Math.cos(angle - Math.PI/6), endY - 8 * Math.sin(angle - Math.PI/6));
-                ctx.lineTo(endX - 8 * Math.cos(angle + Math.PI/6), endY - 8 * Math.sin(angle + Math.PI/6));
+                ctx.lineTo(endX - 8 * Math.cos(dirAngle - Math.PI/6), endY - 8 * Math.sin(dirAngle - Math.PI/6));
+                ctx.lineTo(endX - 8 * Math.cos(dirAngle + Math.PI/6), endY - 8 * Math.sin(dirAngle + Math.PI/6));
                 ctx.fillStyle = '#fff';
                 ctx.fill();
             }
