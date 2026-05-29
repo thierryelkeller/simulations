@@ -287,36 +287,45 @@
         input[type=range] {
             width: 100%;
             -webkit-appearance: none;
-            background: rgba(255,255,255,0.1);
-            height: 4px;
-            border-radius: 2px;
+            background: rgba(255,255,255,0.15);
+            height: 6px;
+            border-radius: 3px;
             outline: none;
             position: relative;
+            transition: background 0.3s ease;
+        }
+
+        input[type=range]:hover {
+            background: rgba(255,255,255,0.25);
         }
         
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            background: #fff;
-            border: 2px solid var(--accent-blue);
+            background: var(--bg-dark);
+            border: 3px solid var(--accent-blue);
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-            transition: transform 0.1s;
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Smooth bouncy effect */
         }
 
         input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
+            transform: scale(1.25);
+            background: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
         }
 
         datalist {
             display: flex;
             justify-content: space-between;
-            margin-top: 4px;
-            color: rgba(255,255,255,0.3);
-            font-size: 0.6rem;
+            margin-top: 8px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
             font-family: var(--font-mono);
+            font-weight: 500;
+            padding: 0 8px; /* Aligns the text better with the edges of the slider thumb */
         }
 
         .data-readout {
@@ -712,7 +721,10 @@
             appActive: false,
             isPlaying: true,
             currentTab: 1,
-            pointer: { x: window.innerWidth/2, y: window.innerHeight/2 }
+            pointer: { x: window.innerWidth/2, y: window.innerHeight/2 },
+            t1LastHitTime: -999,
+            t1DisplayFobs: 0,
+            t1HitRipple: 0
         };
 
         // --- Dictionaries ---
@@ -837,13 +849,15 @@
             if(globalShift > 20) globalShift = 20;
             if(globalShift < -20) globalShift = -20;
 
-            // Emit wave from random position
-            if (Math.random() < 0.08) { 
+            // Emit expanding waves from random positions
+            if (Math.random() < 0.04) { 
                 splashWaves.push({ 
                     x: Math.random() * splashCanvas.width, 
                     y: Math.random() * splashCanvas.height, 
                     radius: 0, 
-                    baseAlpha: Math.random() * 0.5 + 0.1
+                    alpha: Math.random() * 0.5 + 0.2, // Starting opacity
+                    fadeRate: Math.random() * 0.003 + 0.001, // Fade speed
+                    speed: Math.random() * 1.5 + 0.5 // Expansion speed
                 });
             }
 
@@ -855,25 +869,44 @@
 
             for(let i=splashWaves.length-1; i>=0; i--) {
                 let w = splashWaves[i];
-                w.radius += 1.5; // Much slower expansion
+                
+                // Expand wave
+                w.radius += w.speed;
 
-                const maxRadius = 350;
-                const progress = w.radius / maxRadius;
-                const alpha = Math.max(0, (1 - progress) * w.baseAlpha);
+                // Fade away
+                w.alpha -= w.fadeRate;
 
-                const colorStr = `rgba(${tintR}, 80, ${tintB}, ${alpha})`;
+                if (w.alpha <= 0) {
+                    splashWaves.splice(i, 1);
+                    continue;
+                }
+
+                const colorStr = `rgba(${tintR}, 80, ${tintB}, ${w.alpha})`;
                 
                 sctx.strokeStyle = colorStr;
-                sctx.lineWidth = 1 + (progress * 5); // Gets thicker as it expands
-                sctx.shadowBlur = 25; // Adds the glow
+                sctx.lineWidth = 1.5 + (w.radius / 200); // Gets slightly thicker as it expands
+                sctx.shadowBlur = 15; // Adds the glow
                 sctx.shadowColor = colorStr;
                 
-                sctx.beginPath();
-                sctx.arc(w.x, w.y, w.radius, 0, Math.PI*2);
-                sctx.stroke();
-
-                if (progress > 1) {
-                    splashWaves.splice(i, 1);
+                const W = splashCanvas.width;
+                const H = splashCanvas.height;
+                
+                // Calculate virtual sources for wave reflection
+                const virtualX = [w.x];
+                if (w.x - w.radius < 0) virtualX.push(-w.x);
+                if (w.x + w.radius > W) virtualX.push(2*W - w.x);
+                
+                const virtualY = [w.y];
+                if (w.y - w.radius < 0) virtualY.push(-w.y);
+                if (w.y + w.radius > H) virtualY.push(2*H - w.y);
+                
+                // Draw main wave and all reflections perfectly intersecting the edges
+                for(let vx of virtualX) {
+                    for(let vy of virtualY) {
+                        sctx.beginPath();
+                        sctx.arc(vx, vy, w.radius, 0, Math.PI*2);
+                        sctx.stroke();
+                    }
                 }
             }
             
@@ -976,6 +1009,11 @@
             if (state.currentTab === 1) {
                 source.x = canvas.width * 0.3;
                 observer.x = canvas.width * 0.7;
+                state.t1LastHitTime = -999;
+                state.t1HitRipple = 0;
+                document.getElementById('out-t1-fobs').innerText = `--- Hz`;
+                document.getElementById('out-t1-fobs').style.color = 'rgba(255,255,255,0.2)';
+                document.getElementById('out-t1-fobs').style.textShadow = 'none';
             } else if(state.currentTab === 2) {
                 source.x = 100;
                 t2Observer.x = canvas.width / 2;
@@ -1011,14 +1049,8 @@
             document.getElementById('val-t1-vs').innerText = `${vs > 0 ? '+':''}${vs} m/s`;
             document.getElementById('val-t1-vo').innerText = `${vo > 0 ? '+':''}${vo} m/s`;
             document.getElementById('val-t1-freq').innerText = `${f} Hz`;
-
-            let denom = (V_SOUND - vs);
-            if (Math.abs(denom) < 0.1) denom = 0.1 * Math.sign(denom);
             
-            let f_obs = f * ((V_SOUND - vo) / denom);
-            if (f_obs < 0) f_obs = Math.abs(f_obs); 
-            
-            document.getElementById('out-t1-fobs').innerText = `${f_obs.toFixed(1)} Hz`;
+            // Freq display is now handled dynamically on wave hits in renderTab1
         }
 
         // --- Tab 2 ---
@@ -1160,6 +1192,7 @@
             const freq = parseFloat(inT1Freq.value);
             
             const simSpeedMultiplier = 0.5; 
+            let hit = false;
             
             if(state.isPlaying) {
                 source.x += vs * PIXELS_PER_METER * dt * simSpeedMultiplier;
@@ -1181,7 +1214,17 @@
             ctx.lineWidth = 1.5;
             for (let i = waves.length - 1; i >= 0; i--) {
                 let w = waves[i];
-                if(state.isPlaying) w.radius += V_SOUND * PIXELS_PER_METER * dt * simSpeedMultiplier;
+                let dr = V_SOUND * PIXELS_PER_METER * dt * simSpeedMultiplier;
+                
+                if(state.isPlaying) {
+                    w.radius += dr;
+                    
+                    // Intersection detection for Observer
+                    let distToObs = Math.hypot(w.x - observer.x, w.y - observer.y);
+                    if (distToObs <= w.radius && distToObs > w.radius - dr) {
+                        hit = true;
+                    }
+                }
                 
                 ctx.beginPath();
                 ctx.arc(w.x, w.y, w.radius, 0, Math.PI * 2);
@@ -1190,7 +1233,68 @@
                 if (w.radius > canvas.width * 1.5) waves.splice(i, 1);
             }
 
-            // Draw Obs
+            // Real-time Dynamic Doppler Calculation (only triggered on hit)
+            if (hit) {
+                let dir = Math.sign(observer.x - source.x);
+                if (dir === 0) dir = 1;
+
+                const vs_eff = vs * dir;
+                const vo_eff = vo * -dir;
+
+                let denom = (V_SOUND - vs_eff);
+                if (Math.abs(denom) < 0.1) denom = 0.1 * Math.sign(denom);
+
+                let f_obs = freq * ((V_SOUND + vo_eff) / denom);
+                if (f_obs < 0) f_obs = Math.abs(f_obs);
+
+                state.t1LastHitTime = simTime;
+                state.t1DisplayFobs = f_obs;
+                state.t1HitRipple = 25; // Trigger visual ripple
+            }
+
+            // Handle UI Display of Frequency
+            let timeSinceHit = simTime - state.t1LastHitTime;
+            let displayEl = document.getElementById('out-t1-fobs');
+            
+            if (timeSinceHit < 0.8) {
+                displayEl.innerText = `${state.t1DisplayFobs.toFixed(1)} Hz`;
+                
+                // Calculate dynamic color intensity based on shift magnitude
+                let intensity = Math.min(1, Math.abs(state.t1DisplayFobs - freq) / (freq * 0.8));
+                let r=255, g=255, b=255;
+                
+                if (state.t1DisplayFobs > freq + 0.1) { // Blueshift
+                    r = Math.round(255 - intensity * 255);
+                    g = Math.round(255 - intensity * 43);
+                    b = 255;
+                } else if (state.t1DisplayFobs < freq - 0.1) { // Redshift
+                    r = 255;
+                    g = Math.round(255 - intensity * 204);
+                    b = Math.round(255 - intensity * 153);
+                }
+                
+                // Fade out effect
+                let alpha = 1;
+                if (timeSinceHit > 0.5) alpha = 1 - ((timeSinceHit - 0.5) / 0.3);
+                
+                displayEl.style.color = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                displayEl.style.textShadow = `0 0 15px rgba(${r}, ${g}, ${b}, ${alpha * 0.6})`;
+            } else if (timeSinceHit >= 0.8 && state.isPlaying) {
+                displayEl.innerText = `--- Hz`;
+                displayEl.style.color = 'rgba(255,255,255,0.2)';
+                displayEl.style.textShadow = 'none';
+            }
+
+            // Draw Obs with Hit Ripple
+            if (state.t1HitRipple > 0) {
+                ctx.strokeStyle = `rgba(255, 255, 255, ${state.t1HitRipple / 25})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(observer.x, observer.y, 25 - state.t1HitRipple + 8, 0, Math.PI * 2);
+                ctx.stroke();
+                if(state.isPlaying) state.t1HitRipple -= 60 * dt;
+            }
+            
             ctx.fillStyle = '#00d4ff';
             ctx.beginPath();
             ctx.arc(observer.x, observer.y, 8, 0, Math.PI * 2);
@@ -1370,4 +1474,3 @@
     </script>
 </body>
 </html>
-```
