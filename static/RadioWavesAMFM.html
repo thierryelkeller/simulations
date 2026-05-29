@@ -476,10 +476,12 @@
         .lightbulb-container {
             flex: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
             width: 100%;
+            gap: 1rem;
         }
 
         /* Improved Lightbulb with 3D gloss overlay */
@@ -515,6 +517,21 @@
             border-radius: 0 0 8px 8px;
             box-shadow: inset 0 -2px 5px rgba(0,0,0,0.5);
             z-index: 4;
+        }
+
+        /* Digital Intensity Display Under Source Bulb */
+        .bulb-telemetry {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            padding: 0.3rem 1rem;
+            border-radius: 8px;
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 10;
         }
 
         .analogy-fog {
@@ -804,6 +821,7 @@
                     <div class="bay-title" data-i18n="lbl_source_emitted">Émetteur (Source Claire)</div>
                     <div class="lightbulb-container">
                         <div class="lightbulb" id="source-bulb"></div>
+                        <div id="source-telemetry" class="bulb-telemetry">Intensity: 100%</div>
                     </div>
                 </div>
 
@@ -955,7 +973,8 @@
                 inquiry_title: "🔍 Questions d'Enquête & Instructions",
                 inquiry_q1: "Observez : Comment l'augmentation du brouillard affecte-t-elle l'intensité de la lumière en mode AM ?",
                 inquiry_q2: "Basculez en mode FM : Le brouillard altère-t-il la couleur (la fréquence) perçue par l'observateur ?",
-                inquiry_q3: "Conclusion : Quel type de modulation semble le plus résistant aux conditions environnementales (bruit) ?"
+                inquiry_q3: "Conclusion : Quel type de modulation semble le plus résistant aux conditions environnementales (bruit) ?",
+                lbl_intensity_val: "Intensité : "
             },
             en: {
                 splash_title: "Hertzian Symphony:<br>Coding the Unseen",
@@ -995,7 +1014,8 @@
                 inquiry_title: "🔍 Inquiry & Observation Instructions",
                 inquiry_q1: "Observe: How does increasing the fog thickness affect the light's intensity in AM mode?",
                 inquiry_q2: "Switch to FM mode: Does the fog alter the perceived color (frequency) reaching the observer?",
-                inquiry_q3: "Conclusion: Which modulation type appears more resistant to environmental noise and interference?"
+                inquiry_q3: "Conclusion: Which modulation type appears more resistant to environmental noise and interference?",
+                lbl_intensity_val: "Intensity: "
             }
         };
 
@@ -1052,7 +1072,8 @@
             sourceBulb: document.getElementById('source-bulb'),
             perceivedBulb: document.getElementById('perceived-bulb'),
             fog: document.getElementById('fog-overlay'),
-            radios: document.getElementsByName('analogy_type')
+            radios: document.getElementsByName('analogy_type'),
+            sourceTelemetry: document.getElementById('source-telemetry')
         };
 
         const splashCanvas = document.getElementById('splash-canvas');
@@ -1393,6 +1414,20 @@
                     analogyElements.perceivedBulb.style.backgroundColor = `rgba(253, 224, 71, ${perceivedVisibility})`;
                     analogyElements.perceivedBulb.style.boxShadow = `0 0 ${perceivedBrightness * 130}px rgba(253, 224, 71, ${perceivedBrightness})`;
 
+                    // AM digital intensity display
+                    if (analogyElements.sourceTelemetry) {
+                        analogyElements.sourceTelemetry.style.opacity = "1";
+                        // Map brightness linearly to fixed steps (0%, 25%, 50%, 75%, 100%) for intuitive grading
+                        let displayPercent = 0;
+                        if (brightness > 0.875) displayPercent = 100;
+                        else if (brightness > 0.625) displayPercent = 75;
+                        else if (brightness > 0.375) displayPercent = 50;
+                        else if (brightness > 0.125) displayPercent = 25;
+                        else displayPercent = 0;
+                        
+                        analogyElements.sourceTelemetry.textContent = i18n[currentLang]['lbl_intensity_val'] + displayPercent + "%";
+                    }
+
                 } else {
                     let r = Math.floor(signalState.fmCurrent[0]);
                     let g = Math.floor(signalState.fmCurrent[1]);
@@ -1410,6 +1445,11 @@
 
                     analogyElements.perceivedBulb.style.backgroundColor = perceivedColorStr;
                     analogyElements.perceivedBulb.style.boxShadow = `0 0 ${80 * perceivedIntensity}px ${perceivedColorStr}`;
+
+                    // Hide the AM telemetry label when in FM mode
+                    if (analogyElements.sourceTelemetry) {
+                        analogyElements.sourceTelemetry.style.opacity = "0";
+                    }
                 }
             }
 
