@@ -6,7 +6,6 @@
     <title>Flottabilité & Principe d'Archimède</title>
     <style>
         :root {
-            /* Identité visuelle unifiée basée sur l'écran d'accueil */
             --bg-color: #020617;
             --text-color: #f1f5f9;
             --panel-bg: rgba(15, 23, 42, 0.6);
@@ -31,7 +30,7 @@
             color: var(--text-color);
             font-family: var(--font-main);
             font-weight: 300;
-            overflow: hidden; /* No scrolling */
+            overflow: hidden;
             height: 100vh;
             width: 100vw;
             transition: background-color 0.5s, color 0.5s;
@@ -40,267 +39,96 @@
 
         /* Splash Screen */
         #splash-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #020617;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #020617; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
         }
 
-        #splash-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
+        #splash-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
         .splash-content {
-            position: relative;
-            z-index: 2;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            max-width: 90%;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            position: relative; z-index: 2; background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px); padding: 40px; border-radius: 20px;
+            text-align: center; color: white; border: 1px solid rgba(255,255,255,0.1);
+            max-width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
         .splash-content h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            font-size: 2.5rem; margin-bottom: 20px;
             background: linear-gradient(90deg, #38bdf8, #10b981);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        .control-group {
-            margin: 20px 0;
-        }
+        .control-group { margin: 20px 0; }
 
         .toggle-btn {
-            background: transparent;
-            border: 2px solid #38bdf8;
-            color: #38bdf8;
-            padding: 10px 20px;
-            margin: 0 5px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-            font-family: inherit;
+            background: transparent; border: 2px solid #38bdf8; color: #38bdf8;
+            padding: 10px 20px; margin: 0 5px; border-radius: 30px;
+            cursor: pointer; font-size: 1.1rem; transition: all 0.3s; font-family: inherit;
         }
 
-        .toggle-btn.active {
-            background: #38bdf8;
-            color: #020617;
-            font-weight: bold;
-        }
+        .toggle-btn.active { background: #38bdf8; color: #020617; font-weight: bold; }
 
         #start-btn {
-            background: linear-gradient(45deg, #10b981, #059669);
-            border: none;
-            color: white;
-            padding: 15px 40px;
-            font-size: 1.3rem;
-            border-radius: 30px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            font-weight: bold;
+            background: linear-gradient(45deg, #10b981, #059669); border: none; color: white;
+            padding: 15px 40px; font-size: 1.3rem; border-radius: 30px;
+            cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; font-weight: bold;
         }
 
-        #start-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-        }
+        #start-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
 
-        .copyright {
-            position: absolute;
-            bottom: 20px;
-            z-index: 2;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.9rem;
-        }
+        .copyright { position: absolute; bottom: 20px; z-index: 2; color: rgba(255,255,255,0.5); font-size: 0.9rem; }
 
         /* Main App Layout */
-        #app-container {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-        }
+        #app-container { display: none; width: 100%; height: 100%; flex-direction: column; }
 
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            background: var(--panel-bg);
-            box-shadow: var(--shadow);
-            z-index: 10;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; background: var(--panel-bg); box-shadow: var(--shadow); z-index: 10;
         }
 
-        header h2 {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-        }
+        header h2 { font-size: 1.5rem; color: var(--primary-color); }
 
         .nav-buttons button, .nav-buttons a {
-            background: transparent;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            margin-left: 10px;
-            font-family: inherit;
-            font-weight: bold;
-            transition: all 0.2s;
+            background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);
+            padding: 8px 15px; border-radius: 8px; cursor: pointer; text-decoration: none;
+            margin-left: 10px; font-family: inherit; font-weight: bold; transition: all 0.2s;
         }
 
-        .nav-buttons button:hover, .nav-buttons a:hover {
-            background: var(--primary-color);
-            color: var(--bg-color);
-        }
+        .nav-buttons button:hover, .nav-buttons a:hover { background: var(--primary-color); color: var(--bg-color); }
 
-        main {
-            display: flex;
-            flex: 1;
-            padding: 20px;
-            gap: 20px;
-            height: calc(100% - 60px);
-        }
+        main { display: flex; flex: 1; padding: 20px; gap: 20px; height: calc(100% - 60px); }
 
         /* Sidebar & Controls */
         #sidebar {
-            flex: 0 0 350px;
-            background: var(--panel-bg);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow);
-            overflow-y: auto;
+            flex: 0 0 350px; background: var(--panel-bg); border-radius: var(--border-radius);
+            padding: 20px; display: flex; flex-direction: column; box-shadow: var(--shadow); overflow-y: auto;
         }
 
-        .panel-section {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(128,128,128,0.2);
-        }
+        .panel-section { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(128,128,128,0.2); }
+        .panel-section:last-child { border-bottom: none; }
+        .panel-title { font-size: 1.2rem; margin-bottom: 15px; color: var(--primary-color); }
 
-        .panel-section:last-child {
-            border-bottom: none;
-        }
-
-        .panel-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: var(--primary-color);
-        }
-
-        /* Indigenous Context Box */
-        .indigenous-box {
-            background: rgba(255, 152, 0, 0.1);
-            border-left: 4px solid var(--accent-color);
-            padding: 15px;
-            border-radius: 0 var(--border-radius) var(--border-radius) 0;
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        body[data-mode="intermediate"] .indigenous-box {
-            background: rgba(16, 185, 129, 0.1);
-            border-left-color: var(--accent-color);
-        }
-
-        /* Elementary Specific Controls */
-        #elementary-controls .item-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
+        #elementary-controls .item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .item-card {
-            background: rgba(0, 172, 193, 0.1);
-            border: 2px solid transparent;
-            padding: 15px 10px;
-            border-radius: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: bold;
+            background: rgba(0, 172, 193, 0.1); border: 2px solid transparent; padding: 15px 10px;
+            border-radius: 15px; text-align: center; cursor: pointer; transition: all 0.2s; font-weight: bold;
         }
+        .item-card:hover { transform: translateY(-2px); border-color: var(--primary-color); }
 
-        .item-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary-color);
-        }
-
-        /* Intermediate Specific Controls */
-        .slider-group {
-            margin-bottom: 15px;
-        }
-        
-        .slider-group label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-family: var(--font-data);
-            font-size: 0.9rem;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            accent-color: var(--primary-color);
-        }
+        .slider-group { margin-bottom: 15px; }
+        .slider-group label { display: flex; justify-content: space-between; margin-bottom: 5px; font-family: var(--font-data); font-size: 0.9rem; }
+        input[type="range"] { width: 100%; accent-color: var(--primary-color); }
 
         .data-readout {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 8px;
-            font-family: var(--font-data);
-            font-size: 1rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;
+            font-family: var(--font-data); font-size: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
         }
+        .data-item span:first-child { color: #888; font-size: 0.8rem; display: block; }
+        .data-item span:last-child { font-weight: 600; color: var(--accent-color); }
 
-        .data-item span:first-child {
-            color: #888;
-            font-size: 0.8rem;
-            display: block;
-        }
-        .data-item span:last-child {
-            font-weight: 600;
-            color: var(--accent-color);
-        }
-
-        .inquiry-label {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            color: var(--text-color);
-        }
-        .inquiry-label input {
-            margin-right: 8px;
-            margin-top: 3px;
-            accent-color: var(--primary-color);
-        }
+        .inquiry-label { display: flex; align-items: flex-start; margin-bottom: 8px; font-size: 0.85rem; cursor: pointer; color: var(--text-color); }
+        .inquiry-label input { margin-right: 8px; margin-top: 3px; accent-color: var(--primary-color); }
 
         /* Modal TK */
         .modal-overlay {
@@ -310,75 +138,41 @@
         }
         .modal-content {
             background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent-color);
-            padding: 30px; border-radius: 20px; max-width: 600px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: left;
+            padding: 30px; border-radius: 20px; max-width: 600px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: left;
         }
 
-        /* Fluid Overlay */
+        /* Fluid Overlay (Vertical on Right, Below fluid level) */
         .fluid-overlay {
-            position: absolute; bottom: 20px; left: 0; width: 100%;
-            display: flex; justify-content: center; gap: 15px; z-index: 5;
+            position: absolute; bottom: 20px; right: 20px;
+            display: flex; flex-direction: column; gap: 15px; z-index: 5;
         }
         .fluid-btn {
-            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.2); color: white;
-            padding: 10px 20px; border-radius: 15px; cursor: pointer;
-            display: flex; flex-direction: column; align-items: center;
-            transition: all 0.2s; font-weight: bold; font-family: var(--font-main);
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); color: white;
+            padding: 8px 15px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: flex-end;
+            transition: all 0.2s; font-weight: bold; font-family: var(--font-main); width: 140px; text-align: right;
         }
-        .fluid-btn:hover { background: rgba(56, 189, 248, 0.4); transform: translateY(-5px); border-color: var(--primary-color); }
+        .fluid-btn span.icon { font-size: 1.5rem; margin-left: 10px; }
+        .fluid-btn:hover { background: rgba(56, 189, 248, 0.4); transform: translateX(-5px); border-color: var(--primary-color); }
 
         /* Simulation Area */
         #simulation-area {
-            flex: 1;
-            background: var(--panel-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            flex: 1; background: var(--panel-bg); border-radius: var(--border-radius);
+            box-shadow: var(--shadow); position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center;
         }
+        #sim-canvas { width: 100%; height: 100%; display: block; }
 
-        #sim-canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* Floating formula box for intermediate mode */
         #formula-box {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(15, 23, 42, 0.9);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            font-family: var(--font-data);
-            color: #e2e8f0;
-            display: none;
-            pointer-events: none;
+            position: absolute; top: 20px; right: 20px; background: rgba(15, 23, 42, 0.9);
+            padding: 15px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3);
+            font-family: var(--font-data); color: #e2e8f0; display: none; pointer-events: none;
         }
-
-        body[data-mode="intermediate"] #formula-box {
-            display: block;
-        }
-
-        .formula-line {
-            margin: 5px 0;
-        }
-        .text-blue { color: #38bdf8; }
-        .text-green { color: #10b981; }
-        .text-red { color: #f43f5e; }
+        body[data-mode="intermediate"] #formula-box { display: block; }
+        .formula-line { margin: 5px 0; }
+        .text-blue { color: #38bdf8; } .text-green { color: #10b981; } .text-red { color: #f43f5e; }
 
         @media (max-width: 768px) {
-            main { flex-direction: column; }
-            #sidebar { flex: 0 0 auto; max-height: 40vh; }
+            main { flex-direction: column; } #sidebar { flex: 0 0 auto; max-height: 40vh; }
             #simulation-area { flex: 1; min-height: 40vh; }
-            header h2 { font-size: 1.2rem; }
-            .splash-content h1 { font-size: 2rem; }
         }
     </style>
 </head>
@@ -439,18 +233,17 @@
             <!-- Sidebar -->
             <div id="sidebar">
                 
-                <!-- Elementary Controls -->
                 <div id="elementary-controls" class="panel-section">
                     <div class="panel-title" id="elem-title">Drop an object!</div>
                     <div class="item-grid">
-                        <div class="item-card" onclick="spawnObject('wood')">🪵 <br><span class="t-wood">Wood</span></div>
-                        <div class="item-card" onclick="spawnObject('stone')">🪨 <br><span class="t-stone">Stone</span></div>
-                        <div class="item-card" onclick="spawnObject('canoe')">🛶 <br><span class="t-canoe">Canoe</span></div>
-                        <div class="item-card" onclick="spawnObject('gold')">🪙 <br><span class="t-gold">Gold Coin</span></div>
-                        <div class="item-card" onclick="spawnObject('duck')">🦆 <br><span class="t-duck">Rubber Duck</span></div>
-                        <div class="item-card" onclick="spawnObject('ice')">🧊 <br><span class="t-ice">Ice</span></div>
-                        <div class="item-card" onclick="spawnObject('iron')">⚓ <br><span class="t-iron">Iron Anchor</span></div>
-                        <div class="item-card" onclick="spawnObject('pumice')">🧽 <br><span class="t-pumice">Pumice</span></div>
+                        <div class="item-card" onclick="spawnObject('wood')"><span class="t-wood">Wood</span></div>
+                        <div class="item-card" onclick="spawnObject('stone')"><span class="t-stone">Stone</span></div>
+                        <div class="item-card" onclick="spawnObject('canoe')"><span class="t-canoe">Canoe</span></div>
+                        <div class="item-card" onclick="spawnObject('gold')"><span class="t-gold">Gold Coin</span></div>
+                        <div class="item-card" onclick="spawnObject('duck')"><span class="t-duck">Rubber Duck</span></div>
+                        <div class="item-card" onclick="spawnObject('ice')"><span class="t-ice">Ice</span></div>
+                        <div class="item-card" onclick="spawnObject('iron')"><span class="t-iron">Iron Anchor</span></div>
+                        <div class="item-card" onclick="spawnObject('pumice')"><span class="t-pumice">Pumice</span></div>
                     </div>
 
                     <div class="panel-section" style="margin-top: 20px; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 15px;">
@@ -458,12 +251,11 @@
                         <label class="inquiry-label"><input type="checkbox"> <span class="t-e1">Does the heavy stone always sink?</span></label>
                         <label class="inquiry-label"><input type="checkbox"> <span class="t-e2">Can ice float on oil?</span></label>
                         <label class="inquiry-label"><input type="checkbox"> <span class="t-e3">Does the canoe float better than wood?</span></label>
-                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e4">Does honey make things float higher?</span></label>
-                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e5">Does the rubber duck ever sink?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e6">Can you rank the fluids by density?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e7">Can you rank the objects by buoyancy?</span></label>
                     </div>
                 </div>
 
-                <!-- Intermediate Controls -->
                 <div id="intermediate-controls" class="panel-section" style="display: none;">
                     
                     <div class="panel-section" style="margin-bottom: 15px; border-bottom: none; padding-bottom: 0;">
@@ -516,10 +308,10 @@
                     <div class="panel-section" style="margin-top: 20px; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 15px;">
                         <strong class="t-inquiry-title" style="color: var(--primary-color); display: block; margin-bottom: 10px;">Inquiry Checklist</strong>
                         <label class="inquiry-label"><input type="checkbox"> <span class="t-q1">Does mass alone determine sinking?</span></label>
-                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q2">Does density > fluid density cause sinking?</span></label>
                         <label class="inquiry-label"><input type="checkbox"> <span class="t-q3">Is buoyant force equal to displaced fluid weight?</span></label>
-                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q4">Does changing shape affect buoyancy?</span></label>
-                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q5">Does salt water increase buoyancy?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q4">Does changing shape affect buoyancy center?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q6">Rank the objects by calculated density.</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q7">Rank the fluids' densities by observing float height.</span></label>
                     </div>
                 </div>
 
@@ -530,10 +322,10 @@
                 <canvas id="sim-canvas"></canvas>
                 
                 <div id="fluid-selector" class="fluid-overlay">
-                    <div class="fluid-btn" onclick="setSimFluid(1000, 'rgba(56, 189, 248, 0.4)')"><span style="font-size: 1.5rem;">💧</span> <span class="t-waterFresh" style="font-size: 0.8rem; margin-top: 5px;">Fresh Water</span></div>
-                    <div class="fluid-btn" onclick="setSimFluid(1025, 'rgba(16, 185, 129, 0.4)')"><span style="font-size: 1.5rem;">🌊</span> <span class="t-waterSalt" style="font-size: 0.8rem; margin-top: 5px;">Salt Water</span></div>
-                    <div class="fluid-btn" onclick="setSimFluid(850, 'rgba(251, 191, 36, 0.4)')"><span style="font-size: 1.5rem;">🛢️</span> <span class="t-waterOil" style="font-size: 0.8rem; margin-top: 5px;">Oil</span></div>
-                    <div class="fluid-btn" onclick="setSimFluid(1420, 'rgba(217, 119, 6, 0.6)')"><span style="font-size: 1.5rem;">🍯</span> <span class="t-honey" style="font-size: 0.8rem; margin-top: 5px;">Honey</span></div>
+                    <div class="fluid-btn" onclick="setSimFluid(1000, 'rgba(56, 189, 248, 0.4)')"><span class="t-waterFresh" style="font-size: 0.9rem;">Fresh Water</span> <span class="icon">💧</span></div>
+                    <div class="fluid-btn" onclick="setSimFluid(1025, 'rgba(16, 185, 129, 0.4)')"><span class="t-waterSalt" style="font-size: 0.9rem;">Salt Water</span> <span class="icon">🌊</span></div>
+                    <div class="fluid-btn" onclick="setSimFluid(850, 'rgba(251, 191, 36, 0.4)')"><span class="t-waterOil" style="font-size: 0.9rem;">Oil</span> <span class="icon">🛢️</span></div>
+                    <div class="fluid-btn" onclick="setSimFluid(1420, 'rgba(217, 119, 6, 0.6)')"><span class="t-honey" style="font-size: 0.9rem;">Honey</span> <span class="icon">🍯</span></div>
                 </div>
 
                 <div id="formula-box">
@@ -549,137 +341,52 @@
         /* --- MULTILINGUAL DICTIONARY --- */
         const dict = {
             en: {
-                splashTitle: "HydroDynamics",
-                splashSub: "Choose your path to explore the forces of water",
-                btnElem: "Explorator",
-                btnInter: "Scientist",
+                splashTitle: "HydroDynamics", splashSub: "Choose your path to explore the forces of water",
+                btnElem: "Explorator", btnInter: "Scientist",
                 descElem: "Observe how different materials behave in various fluids. Perfect for beginners!",
                 descInter: "Measure, analyze vectors, and compute buoyancy dynamically.",
-                startBtn: "Enter Simulation",
-                appTitle: "Buoyancy Lab",
-                navBack: "Back",
-                navExit: "Exit",
-                btnTk: "🌾 Traditional Knowledge",
-                indigTitle: "Traditional Knowledge",
-                indigText: "Indigenous peoples of North America mastered buoyancy by designing the birchbark canoe. By maximizing volume while using low-density materials, they created vessels capable of carrying heavy loads while navigating very shallow waters.",
-                elemTitleFluid: "Choose a Fluid",
-                elemTitle: "Drop an object in the fluid!",
-                tWood: "Wood",
-                tStone: "Stone",
-                tCanoe: "Canoe",
-                tGold: "Gold Coin",
-                tDuck: "Rubber Duck",
-                tIce: "Ice",
-                tIron: "Iron Anchor",
-                tPumice: "Pumice",
-                interTitle: "Simulation Parameters",
-                tInstructionsTitle: "Instructions:",
-                tInstructions: "Adjust parameters to test Archimedes' principle. Observe the resulting forces and check your hypotheses below.",
-                tShowArrows: "Show Force Vectors",
-                tObjMass: "Object Mass (kg)",
-                tObjVol: "Object Volume (L)",
-                tFluidDen: "Fluid Density (kg/m³)",
-                tObjDen: "Obj Density (kg/m³)",
-                tState: "Object State",
-                stateFloat: "Floating",
-                stateSink: "Sinking",
-                stateNeutral: "Neutral",
-                formulaEquil: "Fb = Fg (Equilibrium)",
-                formulaSink: "Fg > Fb (Sinking)",
-                waterFresh: "Fresh Water",
-                waterSalt: "Salt Water",
-                waterOil: "Oil",
-                tHoney: "Honey",
-                tInquiryTitle: "Inquiry Checklist",
-                tQ1: "Does mass alone determine sinking?",
-                tQ2: "Does density > fluid density cause sinking?",
-                tQ3: "Is buoyant force equal to displaced fluid weight?",
-                tQ4: "Does changing shape affect buoyancy?",
-                tQ5: "Does salt water increase buoyancy?",
-                tInquiryTitleElem: "Observation Checklist",
-                tE1: "Does the heavy stone always sink?",
-                tE2: "Can ice float on oil?",
-                tE3: "Does the canoe float better than wood?",
-                tE4: "Does honey make things float higher?",
-                tE5: "Does the rubber duck ever sink?"
+                startBtn: "Enter Simulation", appTitle: "Buoyancy Lab", navBack: "Back", navExit: "Exit",
+                btnTk: "🌾 Traditional Knowledge", indigTitle: "Traditional Knowledge",
+                indigText: "Indigenous peoples of North America mastered buoyancy by designing the birchbark canoe. By maximizing volume while using low-density materials and a wide surface area, they created vessels capable of carrying heavy loads while navigating very shallow waters.",
+                elemTitleFluid: "Choose a Fluid", elemTitle: "Drop an object in the fluid!",
+                tWood: "Wood", tStone: "Stone", tCanoe: "Canoe", tGold: "Gold Coin", tDuck: "Rubber Duck", tIce: "Ice", tIron: "Iron Anchor", tPumice: "Pumice",
+                interTitle: "Simulation Parameters", tInstructionsTitle: "Instructions:", tInstructions: "Adjust parameters to test Archimedes' principle. Observe the resulting forces and check your hypotheses below.",
+                tShowArrows: "Show Force Vectors", tObjMass: "Object Mass (kg)", tObjVol: "Object Volume (L)", tFluidDen: "Fluid Density (kg/m³)", tObjDen: "Obj Density (kg/m³)",
+                tState: "Object State", stateFloat: "Floating", stateSink: "Sinking", stateNeutral: "Neutral",
+                formulaEquil: "Fb = Fg (Equilibrium)", formulaSink: "Fg > Fb (Sinking)",
+                waterFresh: "Fresh Water", waterSalt: "Salt Water", waterOil: "Oil", tHoney: "Honey",
+                tInquiryTitle: "Inquiry Checklist", tQ1: "Does mass alone determine sinking?", tQ3: "Is buoyant force equal to displaced fluid weight?", tQ4: "Does changing shape affect buoyancy center?", tQ6: "Rank the objects by calculated density.", tQ7: "Rank the fluids' densities by observing float height.",
+                tInquiryTitleElem: "Observation Checklist", tE1: "Does the heavy stone always sink?", tE2: "Can ice float on oil?", tE3: "Does the canoe float better than wood?", tE6: "Can you rank the fluids by density?", tE7: "Can you rank the objects by buoyancy?"
             },
             fr: {
-                splashTitle: "Courants d'Archimède",
-                splashSub: "Choisissez votre voie pour explorer les forces de l'eau",
-                btnElem: "Explorateur",
-                btnInter: "Scientifique",
+                splashTitle: "Courants d'Archimède", splashSub: "Choisissez votre voie pour explorer les forces de l'eau",
+                btnElem: "Explorateur", btnInter: "Scientifique",
                 descElem: "Observez le comportement de différents matériaux dans divers fluides. Parfait pour débuter !",
                 descInter: "Mesurez, analysez les vecteurs et calculez la flottabilité de manière dynamique.",
-                startBtn: "Entrer dans la simulation",
-                appTitle: "Laboratoire de Flottabilité",
-                navBack: "Retour",
-                navExit: "Quitter",
-                btnTk: "🌾 Savoir Traditionnel",
-                indigTitle: "Savoir Traditionnel",
+                startBtn: "Entrer dans la simulation", appTitle: "Laboratoire de Flottabilité", navBack: "Retour", navExit: "Quitter",
+                btnTk: "🌾 Savoir Traditionnel", indigTitle: "Savoir Traditionnel",
                 indigText: "Les peuples autochtones d'Amérique du Nord ont maîtrisé la flottabilité en concevant le canoë en écorce de bouleau. En maximisant le volume tout en utilisant des matériaux de faible masse volumique, ils créaient des embarcations capables de transporter de lourdes charges en eaux peu profondes.",
-                elemTitleFluid: "Choisir un fluide",
-                elemTitle: "Dépose un objet !",
-                tWood: "Bois",
-                tStone: "Pierre",
-                tCanoe: "Canoë",
-                tGold: "Pièce d'or",
-                tDuck: "Canard en plast.",
-                tIce: "Glace",
-                tIron: "Ancre en fer",
-                tPumice: "Pierre ponce",
-                interTitle: "Paramètres",
-                tInstructionsTitle: "Instructions :",
-                tInstructions: "Ajustez les paramètres pour tester le principe d'Archimède. Observez les forces et vérifiez vos hypothèses.",
-                tShowArrows: "Afficher les vecteurs de force",
-                tObjMass: "Masse (kg)",
-                tObjVol: "Volume (L)",
-                tFluidDen: "Densité du fluide (kg/m³)",
-                tObjDen: "Densité Obj. (kg/m³)",
-                tState: "État",
-                stateFloat: "Flotte",
-                stateSink: "Coule",
-                stateNeutral: "Neutre",
-                formulaEquil: "Fb = Fg (Équilibre)",
-                formulaSink: "Fg > Fb (Coule)",
-                waterFresh: "Eau douce",
-                waterSalt: "Eau salée",
-                waterOil: "Huile",
-                tHoney: "Miel",
-                tInquiryTitle: "Liste de vérification",
-                tQ1: "La masse seule détermine-t-elle si on coule ?",
-                tQ2: "Une densité > à celle du fluide fait-elle couler ?",
-                tQ3: "La poussée d'Archimède = poids du fluide déplacé ?",
-                tQ4: "La forme modifie-t-elle la flottabilité ?",
-                tQ5: "L'eau salée augmente-t-elle la flottabilité ?",
-                tInquiryTitleElem: "Liste d'observation",
-                tE1: "La pierre lourde coule-t-elle toujours ?",
-                tE2: "La glace peut-elle flotter sur l'huile ?",
-                tE3: "Le canoë flotte-t-il mieux que le bois ?",
-                tE4: "Le miel fait-il flotter les objets plus haut ?",
-                tE5: "Le canard en plastique coule-t-il parfois ?"
+                elemTitleFluid: "Choisir un fluide", elemTitle: "Dépose un objet !",
+                tWood: "Bois", tStone: "Pierre", tCanoe: "Canoë", tGold: "Pièce d'or", tDuck: "Canard en plast.", tIce: "Glace", tIron: "Ancre en fer", tPumice: "Pierre ponce",
+                interTitle: "Paramètres", tInstructionsTitle: "Instructions :", tInstructions: "Ajustez les paramètres pour tester le principe d'Archimède. Observez les forces et vérifiez vos hypothèses.",
+                tShowArrows: "Afficher les vecteurs de force", tObjMass: "Masse (kg)", tObjVol: "Volume (L)", tFluidDen: "Densité du fluide (kg/m³)", tObjDen: "Densité Obj. (kg/m³)",
+                tState: "État", stateFloat: "Flotte", stateSink: "Coule", stateNeutral: "Neutre",
+                formulaEquil: "Fb = Fg (Équilibre)", formulaSink: "Fg > Fb (Coule)",
+                waterFresh: "Eau douce", waterSalt: "Eau salée", waterOil: "Huile", tHoney: "Miel",
+                tInquiryTitle: "Liste de vérification", tQ1: "La masse seule détermine-t-elle si on coule ?", tQ3: "La poussée d'Archimède = poids du fluide déplacé ?", tQ4: "La forme modifie-t-elle le centre de poussée ?", tQ6: "Classez les objets par densité calculée.", tQ7: "Classez la densité des fluides en observant la flottaison.",
+                tInquiryTitleElem: "Liste d'observation", tE1: "La pierre lourde coule-t-elle toujours ?", tE2: "La glace peut-elle flotter sur l'huile ?", tE3: "Le canoë flotte-t-il mieux que le bois ?", tE6: "Pouvez-vous classer les fluides du plus léger au plus lourd ?", tE7: "Pouvez-vous classer les objets selon leur flottaison ?"
             }
         };
 
-        /* --- STATE MANAGEMENT --- */
         let currentLang = 'en';
         let currentMode = 'elementary';
-        const GRAVITY = 9.81; // m/s^2
+        const GRAVITY = 9.81;
 
-        // Physics State
-        let simFluidDensity = 1000; // kg/m3
-        let simObject = {
-            active: false,
-            mass: 5, // kg
-            volume: 10, // L (which is 0.01 m3)
-            density: 500, // kg/m3
-            y: 0, // position
-            vy: 0, // velocity
-            width: 100,
-            height: 100,
-            type: 'box' // box, wood, stone, canoe
-        };
+        let simFluidDensity = 1000;
+        let simObject = { active: false, mass: 5, volume: 10, density: 500, y: 0, vy: 0, width: 100, height: 100, type: 'box' };
+        let simFluidColor = 'rgba(56, 189, 248, 0.4)';
+        let simObjectShape = 'cube';
 
-        /* --- UI FUNCTIONS --- */
         function setLang(lang) {
             currentLang = lang;
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
@@ -687,10 +394,7 @@
             document.getElementById('top-lang-btn').innerText = lang === 'en' ? 'FR' : 'EN';
             updateTexts();
         }
-
-        function toggleLang() {
-            setLang(currentLang === 'en' ? 'fr' : 'en');
-        }
+        function toggleLang() { setLang(currentLang === 'en' ? 'fr' : 'en'); }
 
         function setMode(mode) {
             currentMode = mode;
@@ -744,24 +448,20 @@
             document.querySelector('.t-obj-den').innerText = d.tObjDen;
             document.querySelector('.t-state').innerText = d.tState;
 
-            document.querySelector('.t-inquiry-title').innerText = d.tInquiryTitle;
             document.querySelector('.t-q1').innerText = d.tQ1;
-            document.querySelector('.t-q2').innerText = d.tQ2;
             document.querySelector('.t-q3').innerText = d.tQ3;
             document.querySelector('.t-q4').innerText = d.tQ4;
-            document.querySelector('.t-q5').innerText = d.tQ5;
+            document.querySelector('.t-q6').innerText = d.tQ6;
+            document.querySelector('.t-q7').innerText = d.tQ7;
 
-            document.querySelector('.t-inquiry-title-elem').innerText = d.tInquiryTitleElem;
             document.querySelector('.t-e1').innerText = d.tE1;
             document.querySelector('.t-e2').innerText = d.tE2;
             document.querySelector('.t-e3').innerText = d.tE3;
-            document.querySelector('.t-e4').innerText = d.tE4;
-            document.querySelector('.t-e5').innerText = d.tE5;
+            document.querySelector('.t-e6').innerText = d.tE6;
+            document.querySelector('.t-e7').innerText = d.tE7;
 
             updatePhysicsReadouts();
         }
-
-        let simFluidColor = 'rgba(56, 189, 248, 0.4)';
 
         function setSimFluid(density, color) {
             simFluidDensity = density;
@@ -778,14 +478,13 @@
                 document.getElementById('elementary-controls').style.display = 'block';
                 document.getElementById('intermediate-controls').style.display = 'none';
                 document.getElementById('fluid-selector').style.display = 'flex';
-                spawnObject('canoe'); // default fun object
+                spawnObject('canoe'); 
             } else {
                 document.getElementById('elementary-controls').style.display = 'none';
                 document.getElementById('intermediate-controls').style.display = 'block';
                 document.getElementById('fluid-selector').style.display = 'none';
                 spawnObject('box');
             }
-
             resizeCanvas();
         }
 
@@ -798,21 +497,9 @@
         /* --- SPLASH SCREEN ANIMATION --- */
         const splashCanvas = document.getElementById('splash-canvas');
         const ctxS = splashCanvas.getContext('2d');
-        let mouseX = window.innerWidth / 2;
-        let mouseY = window.innerHeight / 2;
-        let timeS = 0;
-
-        window.addEventListener('mousemove', (e) => {
-            if(document.getElementById('splash-screen').style.display !== 'none') {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            }
-        });
-
-        function resizeSplashCanvas() {
-            splashCanvas.width = window.innerWidth;
-            splashCanvas.height = window.innerHeight;
-        }
+        let mouseX = window.innerWidth / 2; let mouseY = window.innerHeight / 2; let timeS = 0;
+        window.addEventListener('mousemove', (e) => { if(document.getElementById('splash-screen').style.display !== 'none') { mouseX = e.clientX; mouseY = e.clientY; } });
+        function resizeSplashCanvas() { splashCanvas.width = window.innerWidth; splashCanvas.height = window.innerHeight; }
         window.addEventListener('resize', () => {
             if(document.getElementById('splash-screen').style.display !== 'none') resizeSplashCanvas();
             if(document.getElementById('app-container').style.display !== 'none') resizeCanvas();
@@ -821,43 +508,20 @@
 
         function animateSplash() {
             if(document.getElementById('splash-screen').style.display !== 'none') {
-                // Blur effect via trail
-                ctxS.fillStyle = 'rgba(2, 6, 23, 0.2)';
-                ctxS.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
-
-                timeS += 0.01;
-                
-                // Draw elegant gradients & waves
-                let pointerInfluence = (mouseX / splashCanvas.width) * Math.PI * 2;
-
+                ctxS.fillStyle = 'rgba(2, 6, 23, 0.2)'; ctxS.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
+                timeS += 0.01; let pointerInfluence = (mouseX / splashCanvas.width) * Math.PI * 2;
                 for(let i = 0; i < 3; i++) {
-                    ctxS.beginPath();
-                    ctxS.moveTo(0, splashCanvas.height);
-                    
+                    ctxS.beginPath(); ctxS.moveTo(0, splashCanvas.height);
                     let phase = timeS * (1 + i * 0.2) + pointerInfluence * (i+1);
                     let amp = 50 + i * 30 + (mouseY / splashCanvas.height) * 50;
                     let yOffset = splashCanvas.height * 0.5 + i * 80;
-
-                    for(let x = 0; x <= splashCanvas.width; x += 10) {
-                        let y = yOffset + Math.sin(x * 0.003 + phase) * amp;
-                        ctxS.lineTo(x, y);
-                    }
+                    for(let x = 0; x <= splashCanvas.width; x += 10) { ctxS.lineTo(x, yOffset + Math.sin(x * 0.003 + phase) * amp); }
                     ctxS.lineTo(splashCanvas.width, splashCanvas.height);
-                    
                     let grad = ctxS.createLinearGradient(0, yOffset, 0, splashCanvas.height);
-                    if (i === 0) {
-                        grad.addColorStop(0, 'rgba(56, 189, 248, 0.1)');
-                        grad.addColorStop(1, 'rgba(14, 165, 233, 0.05)');
-                    } else if (i === 1) {
-                        grad.addColorStop(0, 'rgba(16, 185, 129, 0.1)');
-                        grad.addColorStop(1, 'rgba(5, 150, 105, 0.05)');
-                    } else {
-                        grad.addColorStop(0, 'rgba(99, 102, 241, 0.1)');
-                        grad.addColorStop(1, 'rgba(79, 70, 229, 0.05)');
-                    }
-                    
-                    ctxS.fillStyle = grad;
-                    ctxS.fill();
+                    if (i === 0) { grad.addColorStop(0, 'rgba(56, 189, 248, 0.1)'); grad.addColorStop(1, 'rgba(14, 165, 233, 0.05)'); } 
+                    else if (i === 1) { grad.addColorStop(0, 'rgba(16, 185, 129, 0.1)'); grad.addColorStop(1, 'rgba(5, 150, 105, 0.05)'); } 
+                    else { grad.addColorStop(0, 'rgba(99, 102, 241, 0.1)'); grad.addColorStop(1, 'rgba(79, 70, 229, 0.05)'); }
+                    ctxS.fillStyle = grad; ctxS.fill();
                 }
             }
             requestAnimationFrame(animateSplash);
@@ -867,36 +531,27 @@
         /* --- PHYSICS & SIMULATION --- */
         const simCanvas = document.getElementById('sim-canvas');
         const ctx = simCanvas.getContext('2d');
-        let simWidth = 0;
-        let simHeight = 0;
-        let waterLevel = 0;
+        let simWidth = 0, simHeight = 0, waterLevel = 0;
 
         function resizeCanvas() {
             const rect = document.getElementById('simulation-area').getBoundingClientRect();
-            simCanvas.width = rect.width;
-            simCanvas.height = rect.height;
-            simWidth = simCanvas.width;
-            simHeight = simCanvas.height;
-            waterLevel = simHeight * 0.4; // Top 40% is air, bottom 60% is water
-            if(simObject.active && simObject.y === 0) {
-                simObject.y = 50; // spawn point
-            }
+            simCanvas.width = rect.width; simCanvas.height = rect.height;
+            simWidth = simCanvas.width; simHeight = simCanvas.height;
+            waterLevel = simHeight * 0.4;
+            if(simObject.active && simObject.y === 0) { simObject.y = 50; }
         }
 
-        // Object presets
         const presets = {
-            'wood': { m: 4, v: 8, color: '#8B4513' }, // density 500
-            'stone': { m: 15, v: 5, color: '#7f8c8d' }, // density 3000
-            'canoe': { m: 2, v: 12, color: '#d4a373' }, // density 166 (very buoyant)
-            'gold': { m: 19.3, v: 1, color: '#ffd700' }, // density 19300
-            'duck': { m: 0.2, v: 1, color: '#ffeb3b' }, // density 200
-            'ice': { m: 9.17, v: 10, color: '#e0f7fa' }, // density 917
-            'iron': { m: 39, v: 5, color: '#424242' }, // density 7800
-            'pumice': { m: 1.5, v: 5, color: '#d7ccc8' }, // density 300
-            'box': { m: 5, v: 10, color: '#94a3b8' } // default intermediate, slate grey
+            'wood': { m: 4, v: 8, color: '#8B4513' },
+            'stone': { m: 15, v: 5, color: '#7f8c8d' },
+            'canoe': { m: 2, v: 12, color: '#d4a373' },
+            'gold': { m: 19.3, v: 1, color: '#ffd700' },
+            'duck': { m: 0.2, v: 1, color: '#ffeb3b' },
+            'ice': { m: 9.17, v: 10, color: '#e0f7fa' },
+            'iron': { m: 39, v: 5, color: '#424242' },
+            'pumice': { m: 1.5, v: 5, color: '#d7ccc8' },
+            'box': { m: 5, v: 10, color: '#94a3b8' }
         };
-
-        let simObjectShape = 'cube';
 
         function setSimShape(shape) {
             simObjectShape = shape;
@@ -908,18 +563,12 @@
 
         function spawnObject(type) {
             const p = presets[type] || presets['box'];
-            simObject.active = true;
-            simObject.type = type;
-            simObject.mass = p.m;
-            simObject.volume = p.v;
+            simObject.active = true; simObject.type = type;
+            simObject.mass = p.m; simObject.volume = p.v;
             simObject.density = (p.m / p.v) * 1000;
-            // Force intermediate objects to be grey
             simObject.color = currentMode === 'intermediate' ? '#94a3b8' : p.color;
-            simObject.y = 20; // drop from top
-            simObject.vy = 0;
-            
+            simObject.y = 20; simObject.vy = 0;
             updateVisualSize();
-            
             if (currentMode === 'intermediate') {
                 document.getElementById('slider-mass').value = simObject.mass;
                 document.getElementById('slider-vol').value = simObject.volume;
@@ -928,112 +577,192 @@
         }
 
         function updateVisualSize() {
-            // Make objects larger generally, significantly larger in elementary
             const baseSize = currentMode === 'intermediate' ? 90 : 130;
             const sizeMultiplier = Math.pow(simObject.volume / 5, 1/3);
             simObject.width = baseSize * sizeMultiplier;
             simObject.height = baseSize * sizeMultiplier;
         }
 
-        // Listeners for intermediate sliders
-        document.getElementById('slider-mass').addEventListener('input', (e) => {
-            simObject.mass = parseFloat(e.target.value);
-            updateObjectDensity();
-        });
-        document.getElementById('slider-vol').addEventListener('input', (e) => {
-            simObject.volume = parseFloat(e.target.value);
-            updateObjectDensity();
-        });
+        document.getElementById('slider-mass').addEventListener('input', (e) => { simObject.mass = parseFloat(e.target.value); updateObjectDensity(); });
+        document.getElementById('slider-vol').addEventListener('input', (e) => { simObject.volume = parseFloat(e.target.value); updateObjectDensity(); });
         document.getElementById('slider-fluid').addEventListener('input', (e) => {
             simFluidDensity = parseFloat(e.target.value);
-            // Dynamic color mapping for custom slider
-            if(simFluidDensity < 950) setSimFluid(simFluidDensity, 'rgba(255, 193, 7, 0.3)');
-            else if(simFluidDensity > 1050) setSimFluid(simFluidDensity, 'rgba(76, 175, 80, 0.3)');
-            else setSimFluid(simFluidDensity, 'rgba(0, 172, 193, 0.3)');
+            if(simFluidDensity < 950) setSimFluid(simFluidDensity, 'rgba(251, 191, 36, 0.3)');
+            else if(simFluidDensity > 1050) setSimFluid(simFluidDensity, 'rgba(16, 185, 129, 0.3)');
+            else setSimFluid(simFluidDensity, 'rgba(56, 189, 248, 0.3)');
             updateObjectDensity();
         });
 
         function updateObjectDensity() {
             simObject.density = (simObject.mass / simObject.volume) * 1000;
-            updateVisualSize();
-            updatePhysicsReadouts();
+            updateVisualSize(); updatePhysicsReadouts();
+        }
+
+        // Submerged fraction based on precise shape characteristics
+        function calculateSubmergedFraction(fracDepth) {
+            if (currentMode === 'elementary') return fracDepth; // Standard linear for low-poly
+            
+            if (simObjectShape === 'sphere') {
+                // Sphere volume fraction vs depth: h^2(3R - h) / 4R^3. Substituting h = fracDepth * 2R -> fracDepth^2 * (3 - 2*fracDepth)
+                return fracDepth * fracDepth * (3 - 2 * fracDepth);
+            } else if (simObjectShape === 'pyramid') {
+                // Upright pyramid (base at bottom). Tip is at top. Submerged is the base part.
+                return 1 - Math.pow(1 - fracDepth, 3);
+            }
+            return fracDepth; // Cube, Cylinder (vertical)
         }
 
         function updatePhysicsReadouts() {
             const d = dict[currentLang];
-            
             document.getElementById('val-mass').innerText = simObject.mass.toFixed(1);
             document.getElementById('val-vol').innerText = simObject.volume.toFixed(1);
             document.getElementById('val-fluid').innerText = simFluidDensity.toFixed(0);
-            
             document.getElementById('calc-den').innerText = simObject.density.toFixed(0);
 
-            // Calculate Forces
-            const Fg = simObject.mass * GRAVITY; // Weight
-            let Fb_max = (simObject.volume / 1000) * simFluidDensity * GRAVITY; // Max buoyancy if fully submerged
-            
+            const Fg = simObject.mass * GRAVITY;
+            let Fb_max = (simObject.volume / 1000) * simFluidDensity * GRAVITY;
             let isFloating = simObject.density < simFluidDensity;
             
             document.getElementById('out-fg').innerText = Fg.toFixed(1);
-            
             const stateEl = document.getElementById('calc-state');
             const conclEl = document.getElementById('out-conclusion');
 
             if (isFloating) {
-                stateEl.innerText = d.stateFloat;
-                stateEl.className = 'text-green';
-                document.getElementById('out-fb').innerText = Fg.toFixed(1); // Balances out
-                conclEl.innerText = d.formulaEquil;
-                conclEl.className = 'text-green';
+                stateEl.innerText = d.stateFloat; stateEl.className = 'text-green';
+                document.getElementById('out-fb').innerText = Fg.toFixed(1);
+                conclEl.innerText = d.formulaEquil; conclEl.className = 'text-green';
             } else if (Math.abs(simObject.density - simFluidDensity) < 1) {
-                stateEl.innerText = d.stateNeutral;
-                stateEl.className = 'text-blue';
+                stateEl.innerText = d.stateNeutral; stateEl.className = 'text-blue';
                 document.getElementById('out-fb').innerText = Fb_max.toFixed(1);
-                conclEl.innerText = d.formulaEquil;
-                conclEl.className = 'text-blue';
+                conclEl.innerText = d.formulaEquil; conclEl.className = 'text-blue';
             } else {
-                stateEl.innerText = d.stateSink;
-                stateEl.className = 'text-red';
+                stateEl.innerText = d.stateSink; stateEl.className = 'text-red';
                 document.getElementById('out-fb').innerText = Fb_max.toFixed(1);
-                conclEl.innerText = d.formulaSink;
-                conclEl.className = 'text-red';
+                conclEl.innerText = d.formulaSink; conclEl.className = 'text-red';
             }
         }
 
-        // Water surface springs for realistic waves
-        let springs = [];
-        const numSprings = 100;
-        let springSpacing = 0;
-
-        function initSprings() {
-            springs = [];
-            springSpacing = simWidth / numSprings;
-            for(let i=0; i<=numSprings; i++) {
-                springs.push({y: 0, v: 0});
-            }
-        }
-
-        const originalResizeCanvas = resizeCanvas;
-        resizeCanvas = function() {
-            originalResizeCanvas();
-            initSprings();
-        };
-
+        let springs = []; const numSprings = 100; let springSpacing = 0;
+        function initSprings() { springs = []; springSpacing = simWidth / numSprings; for(let i=0; i<=numSprings; i++) springs.push({y: 0, v: 0}); }
+        const originalResizeCanvas = resizeCanvas; resizeCanvas = function() { originalResizeCanvas(); initSprings(); };
         let lastObjY = 0;
 
-        // Simulation Loop
+        /* High-fidelity Low-Poly drawing arrays (20-50 polygons each, properly mapped to bounding boxes) */
+        function drawLowPolyObject(ctx, type, w, h) {
+            ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+            const drawPolys = (polys) => {
+                polys.forEach(p => {
+                    ctx.fillStyle = p.c; ctx.beginPath();
+                    ctx.moveTo(w * p.v[0][0], h * p.v[0][1]);
+                    for(let i=1; i<p.v.length; i++) ctx.lineTo(w * p.v[i][0], h * p.v[i][1]);
+                    ctx.closePath(); ctx.fill();
+                    ctx.strokeStyle = p.c; ctx.lineWidth = 0.5; ctx.stroke();
+                });
+            };
+
+            if (type === 'wood') {
+                drawPolys([
+                    {c: '#7c4d28', v: [[0.1,0.2], [0.3,0.1], [0.2,0.5]]}, {c: '#93633a', v: [[0.3,0.1], [0.6,0.15], [0.5,0.4]]},
+                    {c: '#a0522d', v: [[0.6,0.15], [0.9,0.2], [0.7,0.5]]}, {c: '#6b3410', v: [[0.1,0.2], [0.2,0.5], [0.15,0.8]]},
+                    {c: '#8B4513', v: [[0.2,0.5], [0.5,0.4], [0.6,0.7], [0.15,0.8]]}, {c: '#50260c', v: [[0.5,0.4], [0.7,0.5], [0.8,0.8], [0.6,0.7]]},
+                    {c: '#401e09', v: [[0.7,0.5], [0.9,0.2], [0.95,0.6], [0.8,0.8]]}, {c: '#5c2c16', v: [[0.15,0.8], [0.6,0.7], [0.5,0.95], [0.1,0.9]]},
+                    {c: '#7a3b11', v: [[0.6,0.7], [0.8,0.8], [0.9,1.0], [0.5,0.95]]}, {c: '#3d1c04', v: [[0.8,0.8], [0.95,0.6], [1.0,0.8], [0.9,1.0]]},
+                    /* End grain slices */
+                    {c: '#d2a679', v: [[0.05,0.3], [0.1,0.2], [0.15,0.5], [0.05,0.6]]}, {c: '#c6986a', v: [[0.05,0.6], [0.15,0.5], [0.15,0.8], [0.02,0.7]]},
+                    {c: '#b88656', v: [[0.02,0.7], [0.15,0.8], [0.1,0.9], [0.0,0.8]]}, {c: '#9e6d3f', v: [[0.0,0.8], [0.1,0.9], [0.05,1.0], [0.0,0.9]]}
+                ]);
+            } else if (type === 'stone') {
+                drawPolys([
+                    {c: '#bdc3c7', v: [[0.4,0.0], [0.6,0.05], [0.5,0.3]]}, {c: '#aab7b8', v: [[0.2,0.2], [0.4,0.0], [0.5,0.3]]},
+                    {c: '#95a5a6', v: [[0.6,0.05], [0.8,0.2], [0.7,0.4], [0.5,0.3]]}, {c: '#7f8c8d', v: [[0.0,0.5], [0.2,0.2], [0.5,0.3], [0.3,0.5]]},
+                    {c: '#6c7a89', v: [[0.5,0.3], [0.7,0.4], [0.8,0.6], [0.5,0.6]]}, {c: '#5d6d7e', v: [[0.3,0.5], [0.5,0.3], [0.5,0.6], [0.2,0.7]]},
+                    {c: '#34495e', v: [[0.0,0.5], [0.3,0.5], [0.2,0.7], [0.0,0.8]]}, {c: '#2c3e50', v: [[0.0,0.8], [0.2,0.7], [0.5,0.8], [0.3,1.0]]},
+                    {c: '#1a252f', v: [[0.3,1.0], [0.5,0.8], [0.8,0.9], [0.6,1.0]]}, {c: '#3b4d61', v: [[0.5,0.6], [0.8,0.6], [0.9,0.7], [0.8,0.9], [0.5,0.8]]},
+                    {c: '#5d6d7e', v: [[0.7,0.4], [1.0,0.4], [0.9,0.7], [0.8,0.6]]}, {c: '#95a5a6', v: [[0.8,0.2], [1.0,0.4], [0.7,0.4]]}
+                ]);
+            } else if (type === 'canoe') {
+                drawPolys([
+                    /* Outer Hull Darker */
+                    {c: '#5c3a21', v: [[0.0,0.0], [0.1,0.5], [0.2,0.8], [0.15,0.4]]}, {c: '#6e4527', v: [[0.15,0.4], [0.2,0.8], [0.4,0.95], [0.35,0.5]]},
+                    {c: '#7d4f2c', v: [[0.35,0.5], [0.4,0.95], [0.6,0.95], [0.5,0.55]]}, {c: '#8c5931', v: [[0.5,0.55], [0.6,0.95], [0.8,0.8], [0.65,0.5]]},
+                    {c: '#704524', v: [[0.65,0.5], [0.8,0.8], [0.9,0.5], [0.85,0.4]]}, {c: '#4a2c15', v: [[0.85,0.4], [0.9,0.5], [1.0,0.0], [0.9,0.3]]},
+                    /* Mid Hull Bark */
+                    {c: '#a67d58', v: [[0.15,0.4], [0.35,0.5], [0.4,0.3], [0.2,0.2]]}, {c: '#b88c64', v: [[0.35,0.5], [0.5,0.55], [0.6,0.35], [0.4,0.3]]},
+                    {c: '#c99b70', v: [[0.5,0.55], [0.65,0.5], [0.75,0.35], [0.6,0.35]]}, {c: '#a67b55', v: [[0.65,0.5], [0.85,0.4], [0.85,0.25], [0.75,0.35]]},
+                    /* Gunwale Wood */
+                    {c: '#e6cda3', v: [[0.0,0.0], [0.2,0.2], [0.4,0.3], [0.1,0.1]]}, {c: '#f5deb3', v: [[0.4,0.3], [0.6,0.35], [0.75,0.35], [0.5,0.25]]},
+                    {c: '#d9c096', v: [[0.75,0.35], [0.85,0.25], [1.0,0.0], [0.8,0.15]]},
+                    /* Flat Bottom detail to prevent hovering visually */
+                    {c: '#3d2513', v: [[0.3,0.9], [0.4,1.0], [0.6,1.0], [0.7,0.9], [0.5,0.95]]}
+                ]);
+            } else if (type === 'gold') {
+                drawPolys([
+                    {c: '#fff59d', v: [[0.3,0.0], [0.7,0.0], [0.8,0.1], [0.2,0.1]]}, {c: '#ffee58', v: [[0.2,0.1], [0.8,0.1], [0.9,0.3], [0.1,0.3]]},
+                    {c: '#fdd835', v: [[0.1,0.3], [0.9,0.3], [1.0,0.5], [0.0,0.5]]}, {c: '#fbc02d', v: [[0.0,0.5], [1.0,0.5], [0.9,0.7], [0.1,0.7]]},
+                    {c: '#f9a825', v: [[0.1,0.7], [0.9,0.7], [0.8,0.9], [0.2,0.9]]}, {c: '#f57f17', v: [[0.2,0.9], [0.8,0.9], [0.7,1.0], [0.3,1.0]]},
+                    /* Inner facet */
+                    {c: '#ffca28', v: [[0.3,0.2], [0.7,0.2], [0.8,0.5], [0.2,0.5]]}, {c: '#ffb300', v: [[0.2,0.5], [0.8,0.5], [0.7,0.8], [0.3,0.8]]},
+                    /* Star/Icon center */
+                    {c: '#ff8f00', v: [[0.5,0.3], [0.6,0.5], [0.5,0.7], [0.4,0.5]]}
+                ]);
+            } else if (type === 'duck') {
+                drawPolys([
+                    {c: '#fff59d', v: [[0.7,0.0], [0.8,0.0], [0.85,0.2], [0.65,0.2]]}, {c: '#ffee58', v: [[0.65,0.2], [0.85,0.2], [0.9,0.4], [0.6,0.4]]},
+                    {c: '#ffeb3b', v: [[0.4,0.5], [0.6,0.4], [0.9,0.4], [0.8,0.6]]}, {c: '#fdd835', v: [[0.2,0.5], [0.4,0.5], [0.8,0.6], [0.7,0.8]]},
+                    {c: '#fbc02d', v: [[0.0,0.6], [0.2,0.5], [0.7,0.8], [0.5,1.0], [0.1,0.8]]},
+                    /* Beak */
+                    {c: '#ff9800', v: [[0.85,0.2], [1.0,0.25], [0.9,0.35]]}, {c: '#e65100', v: [[0.9,0.35], [1.0,0.25], [0.95,0.4], [0.85,0.3]]},
+                    /* Wing */
+                    {c: '#f9a825', v: [[0.3,0.6], [0.5,0.55], [0.6,0.7], [0.4,0.8]]},
+                    /* Eye */
+                    {c: '#000000', v: [[0.75,0.12], [0.78,0.12], [0.78,0.15], [0.75,0.15]]}
+                ]);
+            } else if (type === 'ice') {
+                drawPolys([
+                    {c: '#ffffff', v: [[0.4,0.0], [0.6,0.1], [0.5,0.4]]}, {c: '#e0f7fa', v: [[0.6,0.1], [0.9,0.2], [0.7,0.5]]},
+                    {c: '#b2ebf2', v: [[0.9,0.2], [1.0,0.6], [0.7,0.5]]}, {c: '#80deea', v: [[0.5,0.4], [0.7,0.5], [0.6,0.8], [0.3,0.7]]},
+                    {c: '#4dd0e1', v: [[0.7,0.5], [1.0,0.6], [0.8,0.9], [0.6,0.8]]}, {c: '#e0f7fa', v: [[0.2,0.3], [0.4,0.0], [0.5,0.4]]},
+                    {c: '#b2ebf2', v: [[0.0,0.5], [0.2,0.3], [0.5,0.4], [0.3,0.7]]}, {c: '#80deea', v: [[0.0,0.5], [0.3,0.7], [0.2,0.9], [0.0,0.8]]},
+                    {c: '#26c6da', v: [[0.2,0.9], [0.3,0.7], [0.6,0.8], [0.5,1.0]]}, {c: '#00bcd4', v: [[0.5,1.0], [0.6,0.8], [0.8,0.9], [0.7,1.0]]}
+                ]);
+            } else if (type === 'iron') {
+                drawPolys([
+                    /* Top Ring */
+                    {c: '#b0bec5', v: [[0.45,0.0], [0.55,0.0], [0.6,0.1], [0.4,0.1]]}, {c: '#90a4ae', v: [[0.4,0.1], [0.6,0.1], [0.55,0.2], [0.45,0.2]]},
+                    /* Stock (crossbar) */
+                    {c: '#78909c', v: [[0.1,0.2], [0.9,0.2], [0.85,0.3], [0.15,0.3]]},
+                    /* Shank (vertical) */
+                    {c: '#546e7a', v: [[0.45,0.3], [0.55,0.3], [0.55,0.7], [0.45,0.7]]},
+                    /* Crown and Arms */
+                    {c: '#455a64', v: [[0.2,0.7], [0.8,0.7], [0.9,0.9], [0.1,0.9]]}, {c: '#37474f', v: [[0.1,0.9], [0.9,0.9], [0.7,1.0], [0.3,1.0]]},
+                    /* Flukes (tips) */
+                    {c: '#263238', v: [[0.0,0.6], [0.2,0.7], [0.1,0.9]]}, {c: '#263238', v: [[1.0,0.6], [0.9,0.9], [0.8,0.7]]}
+                ]);
+            } else if (type === 'pumice') {
+                drawPolys([
+                    {c: '#d7ccc8', v: [[0.3,0.0], [0.6,0.05], [0.5,0.3]]}, {c: '#d3c7c2', v: [[0.1,0.2], [0.3,0.0], [0.5,0.3]]},
+                    {c: '#cfc2bc', v: [[0.6,0.05], [0.9,0.2], [0.7,0.4], [0.5,0.3]]}, {c: '#cbbdb6', v: [[0.0,0.5], [0.1,0.2], [0.5,0.3], [0.3,0.6]]},
+                    {c: '#c7b8b0', v: [[0.5,0.3], [0.7,0.4], [0.9,0.6], [0.6,0.7]]}, {c: '#c3b3aa', v: [[0.3,0.6], [0.5,0.3], [0.6,0.7], [0.2,0.8]]},
+                    {c: '#bfaea4', v: [[0.0,0.5], [0.3,0.6], [0.2,0.8], [0.1,0.7]]}, {c: '#bba99f', v: [[0.2,0.8], [0.6,0.7], [0.7,0.9], [0.3,1.0]]},
+                    {c: '#b7a499', v: [[0.6,0.7], [0.9,0.6], [1.0,0.8], [0.7,0.9]]}, {c: '#b39f93', v: [[0.3,1.0], [0.7,0.9], [0.5,1.0]]},
+                    /* Pores / Divots */
+                    {c: '#5d4037', v: [[0.3,0.3], [0.35,0.25], [0.4,0.35]]}, {c: '#4e342e', v: [[0.7,0.3], [0.75,0.35], [0.65,0.35]]},
+                    {c: '#3e2723', v: [[0.4,0.6], [0.45,0.5], [0.5,0.65]]}, {c: '#5d4037', v: [[0.7,0.6], [0.8,0.55], [0.75,0.7]]},
+                    {c: '#4e342e', v: [[0.5,0.8], [0.55,0.75], [0.6,0.85]]}, {c: '#3e2723', v: [[0.2,0.5], [0.25,0.4], [0.3,0.55]]}
+                ]);
+            } else {
+                ctx.fillStyle = '#94a3b8'; ctx.fillRect(0, 0, w, h);
+            }
+        }
+
         function animateSimulation() {
             if (document.getElementById('app-container').style.display !== 'none') {
-                // Clear
                 ctx.clearRect(0, 0, simWidth, simHeight);
-
                 if(springs.length === 0) initSprings();
 
-                // Update Wave Springs (Applied to both modes for realism)
                 for(let i=0; i<springs.length; i++) {
                     let accel = -0.05 * springs[i].y - 0.03 * springs[i].v;
-                    springs[i].v += accel;
-                    springs[i].y += springs[i].v;
+                    springs[i].v += accel; springs[i].y += springs[i].v;
                 }
                 
                 let leftDeltas = [], rightDeltas = [];
@@ -1046,7 +775,6 @@
                     if(i<springs.length-1) springs[i+1].v += rightDeltas[i];
                 }
 
-                // Draw Water
                 let waterBaseColor = simFluidColor;
                 if(currentMode === 'intermediate') {
                     waterBaseColor = 'rgba(56, 189, 248, 0.15)';
@@ -1054,21 +782,11 @@
                     if(simFluidDensity < 950) waterBaseColor = 'rgba(251, 191, 36, 0.15)';
                 }
 
-                ctx.fillStyle = waterBaseColor;
-                ctx.beginPath();
-                ctx.moveTo(0, simHeight);
+                ctx.fillStyle = waterBaseColor; ctx.beginPath(); ctx.moveTo(0, simHeight);
+                for(let i=0; i<springs.length; i++) ctx.lineTo(i * springSpacing, waterLevel + springs[i].y);
+                ctx.lineTo(simWidth, simHeight); ctx.fill();
                 
-                for(let i=0; i<springs.length; i++) {
-                    ctx.lineTo(i * springSpacing, waterLevel + springs[i].y);
-                }
-                
-                ctx.lineTo(simWidth, simHeight);
-                ctx.fill();
-                
-                // Top line for water surface
-                ctx.strokeStyle = waterBaseColor.replace(/0\.[0-9]+\)/, '0.6)');
-                ctx.lineWidth = 3;
-                ctx.beginPath();
+                ctx.strokeStyle = waterBaseColor.replace(/0\.[0-9]+\)/, '0.6)'); ctx.lineWidth = 3; ctx.beginPath();
                 for(let i=0; i<springs.length; i++) {
                     if(i===0) ctx.moveTo(i * springSpacing, waterLevel + springs[i].y);
                     else ctx.lineTo(i * springSpacing, waterLevel + springs[i].y);
@@ -1076,13 +794,11 @@
                 ctx.stroke();
 
                 if (simObject.active) {
-                    const dt = 0.016; // ~60fps
-                    
+                    const dt = 0.016;
                     let objBottom = simObject.y + simObject.height;
                     let objCenterY = simObject.y + simObject.height / 2;
                     let cx = simWidth / 2;
                     
-                    // Interaction with water surface (splash generation in both modes)
                     let centerSpringIndex = Math.floor(cx / springSpacing);
                     let objWidthSprings = Math.floor(simObject.width / springSpacing);
                     
@@ -1090,117 +806,87 @@
                          let splashForce = simObject.vy * 2.5;
                          for(let s = -objWidthSprings/2; s <= objWidthSprings/2; s++) {
                              let idx = centerSpringIndex + Math.floor(s);
-                             if(idx >= 0 && idx < springs.length) {
-                                 springs[idx].v += splashForce * (1 - Math.abs(s)/(objWidthSprings/2));
-                             }
+                             if(idx >= 0 && idx < springs.length) springs[idx].v += splashForce * (1 - Math.abs(s)/(objWidthSprings/2));
                          }
                     }
                     lastObjY = objCenterY;
 
-                    // Calculate submerged fraction [0, 1]
-                    let submergedFrac = 0;
+                    // Calculate Depth Fraction
+                    let fracDepth = 0;
                     if (objBottom > waterLevel) {
-                        submergedFrac = (objBottom - waterLevel) / simObject.height;
-                        if (submergedFrac > 1) submergedFrac = 1;
+                        fracDepth = (objBottom - waterLevel) / simObject.height;
+                        if (fracDepth > 1) fracDepth = 1;
                     }
 
-                    // Forces
-                    let Fg = simObject.mass * GRAVITY; // down
-                    let Fb = submergedFrac * (simObject.volume / 1000) * simFluidDensity * GRAVITY; // up
+                    // Apply Shape-Specific Volume Integrals (Scientist Mode)
+                    let vFrac = calculateSubmergedFraction(fracDepth);
+
+                    let Fg = simObject.mass * GRAVITY; 
+                    let Fb = vFrac * (simObject.volume / 1000) * simFluidDensity * GRAVITY;
                     
                     let Fnet = Fg - Fb;
                     let acc = Fnet / simObject.mass;
                     
-                    // Realistic Damping (Viscous drag proportional to velocity squared and submerged volume)
-                    if (submergedFrac > 0) {
-                        let drag = 0.05 * submergedFrac * simObject.vy * Math.abs(simObject.vy);
-                        acc -= drag;
-                        simObject.vy *= 0.98; // Additional linear damping
+                    if (fracDepth > 0) {
+                        let drag = 0.05 * vFrac * simObject.vy * Math.abs(simObject.vy);
+                        acc -= drag; simObject.vy *= 0.98;
                     } else {
-                        simObject.vy *= 0.99; // Air resistance
+                        simObject.vy *= 0.99;
                     }
 
                     simObject.vy += acc * dt * 50;
                     simObject.y += simObject.vy;
 
-                    // Floor collision
                     if (simObject.y + simObject.height >= simHeight) {
                         simObject.y = simHeight - simObject.height;
-                        simObject.vy = simObject.vy * -0.3; // Realistic bouncing on floor
+                        simObject.vy = simObject.vy * -0.3;
                     }
 
-                    // Draw Object
                     ctx.save();
                     ctx.translate(cx - simObject.width/2, simObject.y);
                     
                     if (currentMode === 'elementary') {
-                        ctx.font = `${simObject.width * 0.8}px 'Segoe UI Emoji', Arial`;
-                        ctx.textAlign = "center";
-                        ctx.textBaseline = "middle";
-                        let emoji = '📦';
-                        if(simObject.type === 'wood') emoji = '🪵';
-                        if(simObject.type === 'stone') emoji = '🪨';
-                        if(simObject.type === 'canoe') emoji = '🛶';
-                        if(simObject.type === 'gold') emoji = '🪙';
-                        if(simObject.type === 'duck') emoji = '🦆';
-                        if(simObject.type === 'ice') emoji = '🧊';
-                        if(simObject.type === 'iron') emoji = '⚓';
-                        if(simObject.type === 'pumice') emoji = '🧽';
-                        ctx.fillText(emoji, simObject.width/2, simObject.height/2);
+                        drawLowPolyObject(ctx, simObject.type, simObject.width, simObject.height);
                     } else {
-                        ctx.fillStyle = simObject.color;
-                        ctx.strokeStyle = '#fff';
-                        ctx.lineWidth = 2;
-                        
+                        ctx.fillStyle = simObject.color; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
                         if(simObjectShape === 'sphere') {
-                            ctx.beginPath();
-                            ctx.arc(simObject.width/2, simObject.height/2, simObject.width/2, 0, Math.PI*2);
-                            ctx.fill();
-                            ctx.stroke();
+                            ctx.beginPath(); ctx.arc(simObject.width/2, simObject.height/2, simObject.width/2, 0, Math.PI*2); ctx.fill(); ctx.stroke();
                         } else if(simObjectShape === 'cylinder') {
-                            ctx.beginPath();
-                            ctx.roundRect(0, 0, simObject.width, simObject.height, 15);
-                            ctx.fill();
-                            ctx.stroke();
+                            ctx.beginPath(); ctx.roundRect(0, 0, simObject.width, simObject.height, 15); ctx.fill(); ctx.stroke();
                         } else if(simObjectShape === 'pyramid') {
-                            ctx.beginPath();
-                            ctx.moveTo(simObject.width/2, 0);
-                            ctx.lineTo(simObject.width, simObject.height);
-                            ctx.lineTo(0, simObject.height);
-                            ctx.closePath();
-                            ctx.fill();
-                            ctx.stroke();
+                            ctx.beginPath(); ctx.moveTo(simObject.width/2, 0); ctx.lineTo(simObject.width, simObject.height); ctx.lineTo(0, simObject.height); ctx.closePath(); ctx.fill(); ctx.stroke();
                         } else {
-                            ctx.fillRect(0, 0, simObject.width, simObject.height);
-                            ctx.strokeRect(0, 0, simObject.width, simObject.height);
+                            ctx.fillRect(0, 0, simObject.width, simObject.height); ctx.strokeRect(0, 0, simObject.width, simObject.height);
                         }
-                        
-                        // Removed density text as requested
                     }
                     ctx.restore();
 
-                    // Draw Force Vectors (Arrows)
+                    // Draw Force Vectors originating physically correctly
                     if (currentMode === 'intermediate' && document.getElementById('toggle-arrows').checked) {
                         let centerX = cx;
-                        let centerY = simObject.y + simObject.height/2; // Center of Gravity
                         
-                        // Scale arrows significantly
+                        // Center of Gravity (Cg)
+                        let cgYOffset = 0.5; // default center
+                        if (simObjectShape === 'pyramid') cgYOffset = 0.75; // 3D pyramid CG is lower
+                        let cgY = simObject.y + simObject.height * cgYOffset;
+                        
+                        // Center of Buoyancy (Cb) - approximated to center of submerged depth
+                        let cbY = simObject.y + simObject.height - (fracDepth * simObject.height) / 2;
+                        
                         let visualForceScale = 2; 
                         
                         // Fg Arrow (Red, down) from Center of Gravity
-                        drawArrow(ctx, centerX, centerY, centerX, centerY + (Fg * visualForceScale), '#f43f5e');
+                        drawArrow(ctx, centerX, cgY, centerX, cgY + (Fg * visualForceScale), '#f43f5e');
                         
-                        // Fb Arrow (Blue, up) from Center of Gravity
+                        // Fb Arrow (Blue, up) from Center of Buoyancy
                         if (Fb > 0) {
-                            drawArrow(ctx, centerX, centerY, centerX, centerY - (Fb * visualForceScale), '#38bdf8');
+                            drawArrow(ctx, centerX, cbY, centerX, cbY - (Fb * visualForceScale), '#38bdf8');
                         }
                     } else if (currentMode === 'elementary') {
                         let centerX = cx;
                         let centerY = simObject.y + simObject.height/2;
                         drawArrow(ctx, centerX, centerY, centerX, centerY + (Fg * 2), '#f43f5e');
-                        if (Fb > 0) {
-                            drawArrow(ctx, centerX, centerY, centerX, centerY - (Fb * 2), '#38bdf8');
-                        }
+                        if (Fb > 0) drawArrow(ctx, centerX, centerY, centerX, centerY - (Fb * 2), '#38bdf8');
                     }
                 }
             }
@@ -1208,34 +894,19 @@
         }
 
         function drawArrow(ctx, fromx, fromy, tox, toy, color) {
-            let headlen = 20; // Bigger arrow heads
-            let dx = tox - fromx;
-            let dy = toy - fromy;
-            let angle = Math.atan2(dy, dx);
-            
-            let maxLen = 250; // Increased max length
-            let len = Math.hypot(dx, dy);
-            if (len > maxLen) {
-                tox = fromx + Math.cos(angle) * maxLen;
-                toy = fromy + Math.sin(angle) * maxLen;
-            }
+            let headlen = 20; let dx = tox - fromx; let dy = toy - fromy; let angle = Math.atan2(dy, dx);
+            let maxLen = 250; let len = Math.hypot(dx, dy);
+            if (len > maxLen) { tox = fromx + Math.cos(angle) * maxLen; toy = fromy + Math.sin(angle) * maxLen; }
 
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 6; // Made thicker
-            ctx.moveTo(fromx, fromy);
-            ctx.lineTo(tox, toy);
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 6;
+            ctx.moveTo(fromx, fromy); ctx.lineTo(tox, toy); ctx.stroke();
+            ctx.beginPath(); ctx.fillStyle = color;
             ctx.moveTo(tox, toy);
             ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
             ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
             ctx.fill();
         }
 
-        // Init
         setLang('en');
         animateSimulation();
 
