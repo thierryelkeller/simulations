@@ -38,7 +38,7 @@
                 radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.05), transparent 25%),
                 radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.05), transparent 25%);
             color: var(--text-main);
-            overflow-x: hidden;
+            overflow: hidden; /* Fixé pour empêcher tout scroll global */
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -163,9 +163,9 @@
             justify-content: space-between;
             align-items: center;
             background: var(--panel-bg);
-            padding: 1.2rem 2.5rem;
-            margin: 1rem 1rem 0;
-            border-radius: 20px;
+            padding: 0.6rem 2rem;
+            margin: 0.5rem 1rem 0;
+            border-radius: 16px;
             border: 1px solid var(--panel-border);
             backdrop-filter: blur(16px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -230,7 +230,7 @@
         .tabs-container {
             display: flex;
             justify-content: center;
-            padding: 1.5rem 2rem 0.5rem;
+            padding: 0.5rem 2rem 0;
             gap: 1.5rem;
         }
 
@@ -238,7 +238,7 @@
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
             color: var(--text-muted);
-            padding: 0.8rem 2.5rem;
+            padding: 0.6rem 2.5rem;
             font-size: 1rem;
             font-weight: 600;
             font-family: inherit;
@@ -277,7 +277,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 1.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             width: 100%;
         }
 
@@ -285,7 +285,7 @@
         .top-toolbar .slider-wrapper {
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            padding: 0.8rem 1.5rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 50px;
             backdrop-filter: blur(16px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
@@ -389,14 +389,34 @@
             font-size: 1rem;
         }
 
+        select.modern-select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+        }
+
+        select.modern-select option {
+            background: var(--bg-color);
+            color: var(--text-main);
+        }
+
         /* === ANALOGY TAB === */
         .analogy-layout {
             display: flex;
             flex-direction: column;
             flex: 1;
-            gap: 1rem;
-            padding: 0 1rem 1rem;
+            gap: 0.8rem;
+            padding: 0 1rem 0.5rem;
             height: 100%;
+            min-height: 0;
         }
 
         .analogy-visual-split {
@@ -412,12 +432,12 @@
             flex: 1;
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            border-radius: 24px;
+            border-radius: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 2rem;
+            padding: 1rem;
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(16px);
@@ -425,13 +445,13 @@
         }
 
         .bay-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             z-index: 10;
             background: rgba(0,0,0,0.4);
-            padding: 0.5rem 1.5rem;
+            padding: 0.4rem 1.2rem;
             border-radius: 50px;
             border: 1px solid rgba(255,255,255,0.05);
         }
@@ -520,27 +540,29 @@
         #simulation-screen {
             display: none;
             flex-direction: column;
-            height: 100vh;
-            gap: 1rem;
+            flex: 1;
+            min-height: 0;
+            gap: 0.5rem;
         }
 
         .main-content {
             display: flex;
             flex: 1;
-            gap: 1.5rem;
+            gap: 1rem;
             overflow: hidden;
-            padding: 0 1rem 1rem;
+            padding: 0 1rem 0.5rem;
+            min-height: 0;
         }
 
         .controls-panel {
-            width: 340px;
+            width: 320px;
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            border-radius: 24px;
-            padding: 1.5rem;
+            border-radius: 20px;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 0.8rem;
             overflow-y: auto;
             backdrop-filter: blur(16px);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
@@ -551,25 +573,26 @@
 
         .control-group {
             background: rgba(0, 0, 0, 0.3);
-            padding: 1.25rem;
-            border-radius: 16px;
+            padding: 0.8rem;
+            border-radius: 12px;
             border-left: 4px solid #3b82f6; /* Bleu */
             box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
         }
 
         .control-group.carrier { border-left-color: var(--accent-yellow); } /* Jaune */
         .control-group.mod-type { border-left-color: #4ade80; } /* Vert */
+        .control-group.noise { border-left-color: #ef4444; } /* Rouge */
 
         .control-group h3 {
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             font-weight: 700;
-            margin-bottom: 1.2rem;
+            margin-bottom: 0.8rem;
             color: var(--text-main);
             letter-spacing: 0.5px;
         }
 
         .slider-container {
-            margin-bottom: 1.2rem;
+            margin-bottom: 0.6rem;
         }
         .slider-container:last-child {
             margin-bottom: 0;
@@ -578,28 +601,28 @@
         .slider-container label {
             display: flex;
             justify-content: space-between;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-muted);
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.4rem;
         }
 
         .indigenous-box {
             background: linear-gradient(145deg, rgba(20, 83, 45, 0.3), rgba(6, 78, 59, 0.1));
             border: 1px solid rgba(74, 222, 128, 0.2);
-            padding: 1.5rem;
-            border-radius: 16px;
-            font-size: 0.9rem;
-            line-height: 1.5;
+            padding: 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            line-height: 1.4;
             color: #bbf7d0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         
         .indigenous-box strong {
             display: block;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.4rem;
             color: #4ade80;
-            font-size: 1rem;
+            font-size: 0.9rem;
             letter-spacing: 0.5px;
         }
 
@@ -607,30 +630,31 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 0.8rem;
         }
 
         .graph-container {
             flex: 1;
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            border-radius: 24px;
+            border-radius: 20px;
             position: relative;
-            padding: 1rem;
+            padding: 0.5rem;
             display: flex;
             flex-direction: column;
             backdrop-filter: blur(16px);
-            min-height: 200px;
+            min-height: 0;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
 
         .graph-title {
             position: absolute;
-            top: 1.5rem;
-            left: 1.5rem;
-            font-size: 0.95rem;
+            top: 0.8rem;
+            left: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 800;
-            padding: 0.4rem 1rem;
+            padding: 0.3rem 0.8rem;
             border-radius: 50px;
             background: rgba(0,0,0,0.6);
             backdrop-filter: blur(5px);
@@ -749,6 +773,16 @@
                     <h3 data-i18n="panel_info_sig">Signal Modulant (Information)</h3>
                     <div class="slider-container">
                         <label>
+                            <span data-i18n="lbl_waveform">Forme d'onde</span>
+                        </label>
+                        <select id="info_waveform" class="modern-select" onchange="updateWaveform()">
+                            <option value="sine" data-i18n="opt_sine">Sinusoïdale</option>
+                            <option value="square" data-i18n="opt_square">Carrée</option>
+                            <option value="triangle" data-i18n="opt_triangle">Triangulaire</option>
+                        </select>
+                    </div>
+                    <div class="slider-container">
+                        <label>
                             <span data-i18n="lbl_amp">Amplitude (Indice m)</span>
                             <span id="val_info_amp" class="slider-value">0.80</span>
                         </label>
@@ -788,7 +822,7 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group noise">
                     <h3 data-i18n="panel_noise">Interférence (Bruit)</h3>
                     <div class="slider-container">
                         <label>
@@ -830,6 +864,10 @@
                 tab_analogy: "1. Analogie du Brouillard",
                 tab_math: "2. Modélisation Mathématique",
                 panel_info_sig: "Signal Modulant (Information)",
+                lbl_waveform: "Forme d'onde",
+                opt_sine: "Sinusoïdale",
+                opt_square: "Carrée",
+                opt_triangle: "Triangulaire",
                 lbl_amp: "Amplitude (Indice m)",
                 lbl_freq: "Fréquence (Hz)",
                 panel_carrier_sig: "Onde Porteuse",
@@ -862,6 +900,10 @@
                 tab_analogy: "1. The Fog Analogy",
                 tab_math: "2. Mathematical Modeling",
                 panel_info_sig: "Modulating Signal (Information)",
+                lbl_waveform: "Waveform",
+                opt_sine: "Sine",
+                opt_square: "Square",
+                opt_triangle: "Triangle",
                 lbl_amp: "Amplitude (Mod. Index)",
                 lbl_freq: "Frequency (Hz)",
                 panel_carrier_sig: "Carrier Wave",
@@ -889,6 +931,7 @@
         let currentLang = 'fr';
         let currentModType = 'AM';
         let currentTab = 'analogy';
+        let currentWaveform = 'sine';
         let animationId;
         let splashAnimationId;
         let timeOffset = 0;
@@ -1077,6 +1120,11 @@
             modTitleEl.textContent = currentModType === 'AM' ? i18n[currentLang]['graph_mod_am'] : i18n[currentLang]['graph_mod_fm'];
         }
 
+        function updateWaveform() {
+            const wfSelect = document.getElementById('info_waveform');
+            if (wfSelect) currentWaveform = wfSelect.value;
+        }
+
         Object.keys(sliders).forEach(key => {
             if(!sliders[key]) return;
             sliders[key].addEventListener('input', (e) => {
@@ -1156,15 +1204,35 @@
             for (let x = 0; x < width; x++) {
                 let t = (x / width) * T + timeOffset; 
                 let y = 0;
-                let v_m = A_m * Math.sin(2 * Math.PI * f_m * t);
+                let phase_m = 2 * Math.PI * f_m * t;
+                let v_m_raw = 0;
+                let v_m_integral = 0; // Utilisé pour une véritable visualisation de la FM
+
+                // Génération de la forme d'onde
+                if (currentWaveform === 'sine') {
+                    v_m_raw = Math.sin(phase_m);
+                    v_m_integral = -Math.cos(phase_m); // L'intégrale du sinus est un cosinus négatif
+                } else if (currentWaveform === 'square') {
+                    v_m_raw = Math.sin(phase_m) >= 0 ? 1 : -1;
+                    v_m_integral = Math.asin(Math.sin(phase_m)) * (2 / Math.PI); // L'intégrale d'une onde carrée est une onde triangulaire
+                } else if (currentWaveform === 'triangle') {
+                    v_m_raw = Math.asin(Math.sin(phase_m)) * (2 / Math.PI);
+                    v_m_integral = -Math.cos(phase_m); // Approximation visuelle (paraboles fluides)
+                }
+
+                let v_m = A_m * v_m_raw;
 
                 if (type === 'info') {
                     y = v_m;
                 } else if (type === 'carrier') {
                     y = A_c * Math.sin(2 * Math.PI * f_c * t);
                 } else if (type === 'modulated') {
-                    if (currentModType === 'AM') y = (1 + v_m) * Math.sin(2 * Math.PI * f_c * t);
-                    else if (currentModType === 'FM') y = A_c * Math.sin(2 * Math.PI * f_c * t + (A_m * 2) * Math.sin(2 * Math.PI * f_m * t));
+                    if (currentModType === 'AM') {
+                        y = (1 + v_m) * Math.sin(2 * Math.PI * f_c * t);
+                    } else if (currentModType === 'FM') {
+                        // En FM, l'excursion de fréquence est proportionnelle à l'intégrale du signal modulant
+                        y = A_c * Math.sin(2 * Math.PI * f_c * t + (A_m * 2) * v_m_integral);
+                    }
                     
                     // Ajout du bruit sur le signal modulé
                     if (noiseLevel > 0) {
