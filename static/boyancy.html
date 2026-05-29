@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flottabilité & Principe d'Archimède</title>
+    <style>
+        :root {
+            --bg-color: #020617;
+            --text-color: #f1f5f9;
+            --panel-bg: rgba(15, 23, 42, 0.6);
+            --primary-color: #38bdf8;
+            --accent-color: #10b981;
+            --font-main: 'Segoe UI Light', 'Helvetica Neue', 'Roboto Light', 'Optima', sans-serif;
+            --font-data: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            --border-radius: 12px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.5);
+            --water-color: rgba(56, 189, 248, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            font-weight: 300;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            transition: background-color 0.5s, color 0.5s;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #020617; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
+        }
+
+        #splash-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+        .splash-content {
+            position: relative; z-index: 2; background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px); padding: 40px; border-radius: 20px;
+            text-align: center; color: white; border: 1px solid rgba(255,255,255,0.1);
+            max-width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .splash-content h1 {
+            font-size: 2.5rem; margin-bottom: 20px;
+            background: linear-gradient(90deg, #38bdf8, #10b981);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .control-group { margin: 20px 0; }
+
+        .toggle-btn {
+            background: transparent; border: 2px solid #38bdf8; color: #38bdf8;
+            padding: 10px 20px; margin: 0 5px; border-radius: 30px;
+            cursor: pointer; font-size: 1.1rem; transition: all 0.3s; font-family: inherit;
+        }
+
+        .toggle-btn.active { background: #38bdf8; color: #020617; font-weight: bold; }
+
+        #start-btn {
+            background: linear-gradient(45deg, #10b981, #059669); border: none; color: white;
+            padding: 15px 40px; font-size: 1.3rem; border-radius: 30px;
+            cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; font-weight: bold;
+        }
+
+        #start-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+
+        .copyright { position: absolute; bottom: 20px; z-index: 2; color: rgba(255,255,255,0.5); font-size: 0.9rem; }
+
+        /* Main App Layout */
+        #app-container { display: none; width: 100%; height: 100%; flex-direction: column; }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; background: var(--panel-bg); box-shadow: var(--shadow); z-index: 10;
+        }
+
+        header h2 { font-size: 1.5rem; color: var(--primary-color); }
+
+        .nav-buttons button, .nav-buttons a {
+            background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);
+            padding: 8px 15px; border-radius: 8px; cursor: pointer; text-decoration: none;
+            margin-left: 10px; font-family: inherit; font-weight: bold; transition: all 0.2s;
+        }
+
+        .nav-buttons button:hover, .nav-buttons a:hover { background: var(--primary-color); color: var(--bg-color); }
+
+        main { display: flex; flex: 1; padding: 20px; gap: 20px; height: calc(100% - 60px); }
+
+        /* Sidebar & Controls */
+        #sidebar {
+            flex: 0 0 350px; background: var(--panel-bg); border-radius: var(--border-radius);
+            padding: 20px; display: flex; flex-direction: column; box-shadow: var(--shadow); overflow-y: auto;
+        }
+
+        .panel-section { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(128,128,128,0.2); }
+        .panel-section:last-child { border-bottom: none; }
+        .panel-title { font-size: 1.2rem; margin-bottom: 15px; color: var(--primary-color); }
+
+        #elementary-controls .item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .item-card {
+            background: rgba(0, 172, 193, 0.1); border: 2px solid transparent; padding: 15px 10px;
+            border-radius: 15px; text-align: center; cursor: pointer; transition: all 0.2s; font-weight: bold;
+        }
+        .item-card:hover { transform: translateY(-2px); border-color: var(--primary-color); }
+
+        .slider-group { margin-bottom: 15px; }
+        .slider-group label { display: flex; justify-content: space-between; margin-bottom: 5px; font-family: var(--font-data); font-size: 0.9rem; }
+        input[type="range"] { width: 100%; accent-color: var(--primary-color); }
+
+        .data-readout {
+            background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;
+            font-family: var(--font-data); font-size: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .data-item span:first-child { color: #888; font-size: 0.8rem; display: block; }
+        .data-item span:last-child { font-weight: 600; color: var(--accent-color); }
+
+        .inquiry-label { display: flex; align-items: flex-start; margin-bottom: 8px; font-size: 0.85rem; cursor: pointer; color: var(--text-color); }
+        .inquiry-label input { margin-right: 8px; margin-top: 3px; accent-color: var(--primary-color); }
+
+        /* Modal TK */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 2000;
+        }
+        .modal-content {
+            background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent-color);
+            padding: 30px; border-radius: 20px; max-width: 600px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: left;
+        }
+
+        /* Fluid Overlay (Vertical on Right, Below fluid level) */
+        .fluid-overlay {
+            position: absolute; bottom: 20px; right: 20px;
+            display: flex; flex-direction: column; gap: 15px; z-index: 5;
+        }
+        .fluid-btn {
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); color: white;
+            padding: 8px 15px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: flex-end;
+            transition: all 0.2s; font-weight: bold; font-family: var(--font-main); width: 140px; text-align: right;
+        }
+        .fluid-btn span.icon { font-size: 1.5rem; margin-left: 10px; }
+        .fluid-btn:hover { background: rgba(56, 189, 248, 0.4); transform: translateX(-5px); border-color: var(--primary-color); }
+
+        /* Simulation Area */
+        #simulation-area {
+            flex: 1; background: var(--panel-bg); border-radius: var(--border-radius);
+            box-shadow: var(--shadow); position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center;
+        }
+        #sim-canvas { width: 100%; height: 100%; display: block; }
+
+        #formula-box {
+            position: absolute; top: 20px; right: 20px; background: rgba(15, 23, 42, 0.9);
+            padding: 15px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3);
+            font-family: var(--font-data); color: #e2e8f0; display: none; pointer-events: none;
+        }
+        body[data-mode="intermediate"] #formula-box { display: block; }
+        .formula-line { margin: 5px 0; }
+        .text-blue { color: #38bdf8; } .text-green { color: #10b981; } .text-red { color: #f43f5e; }
+
+        @media (max-width: 768px) {
+            main { flex-direction: column; } #sidebar { flex: 0 0 auto; max-height: 40vh; }
+            #simulation-area { flex: 1; min-height: 40vh; }
+        }
+    </style>
+</head>
+<body data-mode="elementary">
+
+    <!-- Modal TK -->
+    <div id="tk-modal" class="modal-overlay" onclick="closeTK(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="indig-title" style="color: var(--accent-color); margin-bottom: 15px; font-size: 1.8rem; font-weight: 300;">Traditional Knowledge</h3>
+            <p id="indig-text" style="line-height: 1.6; font-size: 1.1rem; color: #e2e8f0;">...</p>
+            <div style="text-align: right; margin-top: 25px;">
+                <button onclick="closeTK()" style="padding: 10px 25px; background: transparent; border: 1px solid var(--accent-color); border-radius: 8px; color: var(--accent-color); cursor: pointer; font-size: 1.1rem; transition: all 0.2s;" onmouseover="this.style.background='var(--accent-color)'; this.style.color='#020617'" onmouseout="this.style.background='transparent'; this.style.color='var(--accent-color)'">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <canvas id="splash-canvas"></canvas>
+        <div class="splash-content" style="background: transparent; border: none; box-shadow: none;">
+            <h1 id="splash-title" style="font-size: 3.5rem; text-shadow: 0 5px 15px rgba(0,0,0,0.5);">HydroDynamics</h1>
+            <p style="color: rgba(255,255,255,0.8); margin-bottom: 40px; font-style: italic; font-size: 1.2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);" id="splash-subtitle">Choose your path to explore the forces of water</p>
+            
+            <div class="control-group">
+                <button class="toggle-btn active" onclick="setLang('en')" id="btn-en">English</button>
+                <button class="toggle-btn" onclick="setLang('fr')" id="btn-fr">Français</button>
+            </div>
+
+            <div class="control-group" style="display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
+                <div class="path-card" onclick="setMode('elementary')" id="card-elem" style="cursor: pointer; padding: 25px; border: 2px solid #38bdf8; border-radius: 15px; width: 220px; transition: all 0.3s; background: rgba(56,189,248,0.2); backdrop-filter: blur(5px);">
+                    <h3 id="btn-elem" style="color: #38bdf8; margin-bottom: 10px; font-size: 1.4rem;">Explorator</h3>
+                    <p id="desc-elem" style="font-size: 0.95rem; color: #e2e8f0; line-height: 1.4;">Observe how different materials behave in various fluids. Perfect for beginners!</p>
+                </div>
+                <div class="path-card" onclick="setMode('intermediate')" id="card-inter" style="cursor: pointer; padding: 25px; border: 2px solid rgba(255,255,255,0.2); border-radius: 15px; width: 220px; transition: all 0.3s; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);">
+                    <h3 id="btn-inter" style="color: #10b981; margin-bottom: 10px; font-size: 1.4rem;">Scientist</h3>
+                    <p id="desc-inter" style="font-size: 0.95rem; color: #e2e8f0; line-height: 1.4;">Measure, analyze vectors, and compute buoyancy dynamically.</p>
+                </div>
+            </div>
+
+            <button id="start-btn" onclick="startApp()" style="margin-top: 40px;">Enter Simulation</button>
+        </div>
+        <div class="copyright" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">(c) T. Keller</div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app-container">
+        <header>
+            <h2 id="app-title">Buoyancy Lab</h2>
+            <div class="nav-buttons">
+                <button onclick="openTK()" id="btn-tk">🌾 Traditional Knowledge</button>
+                <button onclick="toggleLang()" id="top-lang-btn">FR</button>
+                <button onclick="returnToSplash()" id="nav-back">Back</button>
+                <a href="index.html" id="nav-exit">Exit</a>
+            </div>
+        </header>
+
+        <main>
+            <!-- Sidebar -->
+            <div id="sidebar">
+                
+                <div id="elementary-controls" class="panel-section">
+                    <div class="panel-title" id="elem-title">Drop an object!</div>
+                    <div class="item-grid">
+                        <div class="item-card" onclick="spawnObject('wood')"><span class="t-wood">Wood</span></div>
+                        <div class="item-card" onclick="spawnObject('stone')"><span class="t-stone">Stone</span></div>
+                        <div class="item-card" onclick="spawnObject('canoe')"><span class="t-canoe">Canoe</span></div>
+                        <div class="item-card" onclick="spawnObject('gold')"><span class="t-gold">Gold Coin</span></div>
+                        <div class="item-card" onclick="spawnObject('duck')"><span class="t-duck">Rubber Duck</span></div>
+                        <div class="item-card" onclick="spawnObject('ice')"><span class="t-ice">Ice</span></div>
+                        <div class="item-card" onclick="spawnObject('iron')"><span class="t-iron">Iron Anchor</span></div>
+                        <div class="item-card" onclick="spawnObject('pumice')"><span class="t-pumice">Pumice</span></div>
+                    </div>
+
+                    <div class="panel-section" style="margin-top: 20px; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 15px;">
+                        <strong class="t-inquiry-title-elem" style="color: var(--primary-color); display: block; margin-bottom: 10px;">Observation Checklist</strong>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e1">Does the heavy stone always sink?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e2">Can ice float on oil?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e3">Does the canoe float better than wood?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e6">Can you rank the fluids by density?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-e7">Can you rank the objects by buoyancy?</span></label>
+                    </div>
+                </div>
+
+                <div id="intermediate-controls" class="panel-section" style="display: none;">
+                    
+                    <div class="panel-section" style="margin-bottom: 15px; border-bottom: none; padding-bottom: 0;">
+                        <strong class="t-instructions-title" style="color: var(--primary-color);">Instructions:</strong>
+                        <p class="t-instructions" style="font-size: 0.85rem; margin-top: 5px; margin-bottom: 15px;">Adjust parameters to test Archimedes' principle. Observe the resulting forces and check your hypotheses below.</p>
+                    </div>
+
+                    <div class="panel-title" id="inter-title">Simulation Parameters</div>
+                    
+                    <div class="slider-group" style="display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <button onclick="setSimShape('cube')" class="toggle-btn active" id="btn-cube" style="flex:1; font-size:0.8rem; padding: 8px 5px;">Cube</button>
+                        <button onclick="setSimShape('sphere')" class="toggle-btn" id="btn-sphere" style="flex:1; font-size:0.8rem; padding: 8px 5px;">Sphere</button>
+                        <button onclick="setSimShape('cylinder')" class="toggle-btn" id="btn-cylinder" style="flex:1; font-size:0.8rem; padding: 8px 5px;">Cylinder</button>
+                        <button onclick="setSimShape('pyramid')" class="toggle-btn" id="btn-pyramid" style="flex:1; font-size:0.8rem; padding: 8px 5px;">Pyramid</button>
+                    </div>
+
+                    <div class="slider-group" style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; cursor: pointer; color: var(--text-color); font-size: 0.9rem; justify-content: flex-start;">
+                            <input type="checkbox" id="toggle-arrows" checked style="margin-right: 8px; margin-top: 0;">
+                            <span class="t-show-arrows" style="font-family: var(--font-main);">Show Force Vectors</span>
+                        </label>
+                    </div>
+
+                    <div class="slider-group">
+                        <label><span class="t-obj-mass">Object Mass (kg)</span> <span id="val-mass">5.0</span></label>
+                        <input type="range" id="slider-mass" min="1" max="50" step="0.5" value="5">
+                    </div>
+                    
+                    <div class="slider-group">
+                        <label><span class="t-obj-vol">Object Volume (L)</span> <span id="val-vol">10.0</span></label>
+                        <input type="range" id="slider-vol" min="1" max="50" step="0.5" value="10">
+                    </div>
+
+                    <div class="slider-group">
+                        <label><span class="t-fluid-den">Fluid Density (kg/m³)</span> <span id="val-fluid">1000</span></label>
+                        <input type="range" id="slider-fluid" min="700" max="1500" step="10" value="1000">
+                    </div>
+
+                    <div class="data-readout">
+                        <div class="data-item">
+                            <span class="t-obj-den">Obj Density (kg/m³)</span>
+                            <span id="calc-den">500</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="t-state">State</span>
+                            <span id="calc-state" class="text-green">Floating</span>
+                        </div>
+                    </div>
+
+                    <div class="panel-section" style="margin-top: 20px; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 15px;">
+                        <strong class="t-inquiry-title" style="color: var(--primary-color); display: block; margin-bottom: 10px;">Inquiry Checklist</strong>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q1">Does mass alone determine sinking?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q3">Is buoyant force equal to displaced fluid weight?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q4">Does changing shape affect buoyancy center?</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q6">Rank the objects by calculated density.</span></label>
+                        <label class="inquiry-label"><input type="checkbox"> <span class="t-q7">Rank the fluids' densities by observing float height.</span></label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Simulation Visualization -->
+            <div id="simulation-area">
+                <canvas id="sim-canvas"></canvas>
+                
+                <div id="fluid-selector" class="fluid-overlay">
+                    <div class="fluid-btn" onclick="setSimFluid(1000, 'rgba(56, 189, 248, 0.4)')"><span class="t-waterFresh" style="font-size: 0.9rem;">Fresh Water</span> <span class="icon">💧</span></div>
+                    <div class="fluid-btn" onclick="setSimFluid(1025, 'rgba(16, 185, 129, 0.4)')"><span class="t-waterSalt" style="font-size: 0.9rem;">Salt Water</span> <span class="icon">🌊</span></div>
+                    <div class="fluid-btn" onclick="setSimFluid(850, 'rgba(251, 191, 36, 0.4)')"><span class="t-waterOil" style="font-size: 0.9rem;">Oil</span> <span class="icon">🛢️</span></div>
+                    <div class="fluid-btn" onclick="setSimFluid(1420, 'rgba(217, 119, 6, 0.6)')"><span class="t-honey" style="font-size: 0.9rem;">Honey</span> <span class="icon">🍯</span></div>
+                </div>
+
+                <div id="formula-box">
+                    <div class="formula-line"><span class="text-red">Fg (Gravity)</span> = m × g = <span id="out-fg">49.0</span> N</div>
+                    <div class="formula-line"><span class="text-blue">Fb (Buoyancy)</span> = V<sub>sub</sub> × ρ<sub>f</sub> × g = <span id="out-fb">49.0</span> N</div>
+                    <div class="formula-line text-green" id="out-conclusion" style="margin-top: 10px; font-weight: bold;">Fb = Fg (Equilibrium)</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        /* --- MULTILINGUAL DICTIONARY --- */
+        const dict = {
+            en: {
+                splashTitle: "HydroDynamics", splashSub: "Choose your path to explore the forces of water",
+                btnElem: "Explorator", btnInter: "Scientist",
+                descElem: "Observe how different materials behave in various fluids. Perfect for beginners!",
+                descInter: "Measure, analyze vectors, and compute buoyancy dynamically.",
+                startBtn: "Enter Simulation", appTitle: "Buoyancy Lab", navBack: "Back", navExit: "Exit",
+                btnTk: "🌾 Traditional Knowledge", indigTitle: "Traditional Knowledge",
+                indigText: "Indigenous peoples of North America mastered buoyancy by designing the birchbark canoe. By maximizing volume while using low-density materials and a wide surface area, they created vessels capable of carrying heavy loads while navigating very shallow waters.",
+                elemTitleFluid: "Choose a Fluid", elemTitle: "Drop an object in the fluid!",
+                tWood: "Wood", tStone: "Stone", tCanoe: "Canoe", tGold: "Gold Coin", tDuck: "Rubber Duck", tIce: "Ice", tIron: "Iron Anchor", tPumice: "Pumice",
+                interTitle: "Simulation Parameters", tInstructionsTitle: "Instructions:", tInstructions: "Adjust parameters to test Archimedes' principle. Observe the resulting forces and check your hypotheses below.",
+                tShowArrows: "Show Force Vectors", tObjMass: "Object Mass (kg)", tObjVol: "Object Volume (L)", tFluidDen: "Fluid Density (kg/m³)", tObjDen: "Obj Density (kg/m³)",
+                tState: "Object State", stateFloat: "Floating", stateSink: "Sinking", stateNeutral: "Neutral",
+                formulaEquil: "Fb = Fg (Equilibrium)", formulaSink: "Fg > Fb (Sinking)",
+                waterFresh: "Fresh Water", waterSalt: "Salt Water", waterOil: "Oil", tHoney: "Honey",
+                tInquiryTitle: "Inquiry Checklist", tQ1: "Does mass alone determine sinking?", tQ3: "Is buoyant force equal to displaced fluid weight?", tQ4: "Does changing shape affect buoyancy center?", tQ6: "Rank the objects by calculated density.", tQ7: "Rank the fluids' densities by observing float height.",
+                tInquiryTitleElem: "Observation Checklist", tE1: "Does the heavy stone always sink?", tE2: "Can ice float on oil?", tE3: "Does the canoe float better than wood?", tE6: "Can you rank the fluids by density?", tE7: "Can you rank the objects by buoyancy?"
+            },
+            fr: {
+                splashTitle: "Courants d'Archimède", splashSub: "Choisissez votre voie pour explorer les forces de l'eau",
+                btnElem: "Explorateur", btnInter: "Scientifique",
+                descElem: "Observez le comportement de différents matériaux dans divers fluides. Parfait pour débuter !",
+                descInter: "Mesurez, analysez les vecteurs et calculez la flottabilité de manière dynamique.",
+                startBtn: "Entrer dans la simulation", appTitle: "Laboratoire de Flottabilité", navBack: "Retour", navExit: "Quitter",
+                btnTk: "🌾 Savoir Traditionnel", indigTitle: "Savoir Traditionnel",
+                indigText: "Les peuples autochtones d'Amérique du Nord ont maîtrisé la flottabilité en concevant le canoë en écorce de bouleau. En maximisant le volume tout en utilisant des matériaux de faible masse volumique, ils créaient des embarcations capables de transporter de lourdes charges en eaux peu profondes.",
+                elemTitleFluid: "Choisir un fluide", elemTitle: "Dépose un objet !",
+                tWood: "Bois", tStone: "Pierre", tCanoe: "Canoë", tGold: "Pièce d'or", tDuck: "Canard en plast.", tIce: "Glace", tIron: "Ancre en fer", tPumice: "Pierre ponce",
+                interTitle: "Paramètres", tInstructionsTitle: "Instructions :", tInstructions: "Ajustez les paramètres pour tester le principe d'Archimède. Observez les forces et vérifiez vos hypothèses.",
+                tShowArrows: "Afficher les vecteurs de force", tObjMass: "Masse (kg)", tObjVol: "Volume (L)", tFluidDen: "Densité du fluide (kg/m³)", tObjDen: "Densité Obj. (kg/m³)",
+                tState: "État", stateFloat: "Flotte", stateSink: "Coule", stateNeutral: "Neutre",
+                formulaEquil: "Fb = Fg (Équilibre)", formulaSink: "Fg > Fb (Coule)",
+                waterFresh: "Eau douce", waterSalt: "Eau salée", waterOil: "Huile", tHoney: "Miel",
+                tInquiryTitle: "Liste de vérification", tQ1: "La masse seule détermine-t-elle si on coule ?", tQ3: "La poussée d'Archimède = poids du fluide déplacé ?", tQ4: "La forme modifie-t-elle le centre de poussée ?", tQ6: "Classez les objets par densité calculée.", tQ7: "Classez la densité des fluides en observant la flottaison.",
+                tInquiryTitleElem: "Liste d'observation", tE1: "La pierre lourde coule-t-elle toujours ?", tE2: "La glace peut-elle flotter sur l'huile ?", tE3: "Le canoë flotte-t-il mieux que le bois ?", tE6: "Pouvez-vous classer les fluides du plus léger au plus lourd ?", tE7: "Pouvez-vous classer les objets selon leur flottaison ?"
+            }
+        };
+
+        let currentLang = 'en';
+        let currentMode = 'elementary';
+        const GRAVITY = 9.81;
+
+        let simFluidDensity = 1000;
+        let simObject = { active: false, mass: 5, volume: 10, density: 500, y: 0, vy: 0, width: 100, height: 100, type: 'box' };
+        let simFluidColor = 'rgba(56, 189, 248, 0.4)';
+        let simObjectShape = 'cube';
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
+            document.getElementById('top-lang-btn').innerText = lang === 'en' ? 'FR' : 'EN';
+            updateTexts();
+        }
+        function toggleLang() { setLang(currentLang === 'en' ? 'fr' : 'en'); }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('card-elem').style.borderColor = mode === 'elementary' ? '#38bdf8' : 'rgba(255,255,255,0.2)';
+            document.getElementById('card-elem').style.background = mode === 'elementary' ? 'rgba(56,189,248,0.2)' : 'rgba(0,0,0,0.3)';
+            document.getElementById('card-inter').style.borderColor = mode === 'intermediate' ? '#10b981' : 'rgba(255,255,255,0.2)';
+            document.getElementById('card-inter').style.background = mode === 'intermediate' ? 'rgba(16,185,129,0.2)' : 'rgba(0,0,0,0.3)';
+        }
+
+        function openTK() { document.getElementById('tk-modal').style.display = 'flex'; }
+        function closeTK(e) { document.getElementById('tk-modal').style.display = 'none'; }
+
+        function updateTexts() {
+            const d = dict[currentLang];
+            document.getElementById('splash-title').innerText = d.splashTitle;
+            document.getElementById('splash-subtitle').innerText = d.splashSub;
+            document.getElementById('btn-elem').innerText = d.btnElem;
+            document.getElementById('desc-elem').innerText = d.descElem;
+            document.getElementById('btn-inter').innerText = d.btnInter;
+            document.getElementById('desc-inter').innerText = d.descInter;
+            document.getElementById('start-btn').innerText = d.startBtn;
+            document.getElementById('app-title').innerText = d.appTitle;
+            document.getElementById('nav-back').innerText = d.navBack;
+            document.getElementById('nav-exit').innerText = d.navExit;
+            document.getElementById('btn-tk').innerText = d.btnTk;
+            document.getElementById('indig-title').innerText = d.indigTitle;
+            document.getElementById('indig-text').innerText = d.indigText;
+            
+            document.getElementById('elem-title').innerText = d.elemTitle;
+            document.querySelectorAll('.t-wood').forEach(e => e.innerText = d.tWood);
+            document.querySelectorAll('.t-stone').forEach(e => e.innerText = d.tStone);
+            document.querySelectorAll('.t-canoe').forEach(e => e.innerText = d.tCanoe);
+            document.querySelectorAll('.t-gold').forEach(e => e.innerText = d.tGold);
+            document.querySelectorAll('.t-duck').forEach(e => e.innerText = d.tDuck);
+            document.querySelectorAll('.t-ice').forEach(e => e.innerText = d.tIce);
+            document.querySelectorAll('.t-iron').forEach(e => e.innerText = d.tIron);
+            document.querySelectorAll('.t-pumice').forEach(e => e.innerText = d.tPumice);
+            
+            document.querySelectorAll('.t-waterFresh').forEach(e => e.innerText = d.waterFresh);
+            document.querySelectorAll('.t-waterSalt').forEach(e => e.innerText = d.waterSalt);
+            document.querySelectorAll('.t-waterOil').forEach(e => e.innerText = d.waterOil);
+            document.querySelectorAll('.t-honey').forEach(e => e.innerText = d.tHoney);
+
+            document.getElementById('inter-title').innerText = d.interTitle;
+            document.querySelector('.t-instructions-title').innerText = d.tInstructionsTitle;
+            document.querySelector('.t-instructions').innerText = d.tInstructions;
+            document.querySelector('.t-show-arrows').innerText = d.tShowArrows;
+            document.querySelector('.t-obj-mass').innerText = d.tObjMass;
+            document.querySelector('.t-obj-vol').innerText = d.tObjVol;
+            document.querySelector('.t-fluid-den').innerText = d.tFluidDen;
+            document.querySelector('.t-obj-den').innerText = d.tObjDen;
+            document.querySelector('.t-state').innerText = d.tState;
+
+            document.querySelector('.t-q1').innerText = d.tQ1;
+            document.querySelector('.t-q3').innerText = d.tQ3;
+            document.querySelector('.t-q4').innerText = d.tQ4;
+            document.querySelector('.t-q6').innerText = d.tQ6;
+            document.querySelector('.t-q7').innerText = d.tQ7;
+
+            document.querySelector('.t-e1').innerText = d.tE1;
+            document.querySelector('.t-e2').innerText = d.tE2;
+            document.querySelector('.t-e3').innerText = d.tE3;
+            document.querySelector('.t-e6').innerText = d.tE6;
+            document.querySelector('.t-e7').innerText = d.tE7;
+
+            updatePhysicsReadouts();
+        }
+
+        function setSimFluid(density, color) {
+            simFluidDensity = density;
+            simFluidColor = color;
+            updateObjectDensity();
+        }
+
+        function startApp() {
+            document.getElementById('splash-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            document.body.setAttribute('data-mode', currentMode);
+
+            if (currentMode === 'elementary') {
+                document.getElementById('elementary-controls').style.display = 'block';
+                document.getElementById('intermediate-controls').style.display = 'none';
+                document.getElementById('fluid-selector').style.display = 'flex';
+                spawnObject('canoe'); 
+            } else {
+                document.getElementById('elementary-controls').style.display = 'none';
+                document.getElementById('intermediate-controls').style.display = 'block';
+                document.getElementById('fluid-selector').style.display = 'none';
+                spawnObject('box');
+            }
+            resizeCanvas();
+        }
+
+        function returnToSplash() {
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('splash-screen').style.display = 'flex';
+            resizeSplashCanvas();
+        }
+
+        /* --- SPLASH SCREEN ANIMATION --- */
+        const splashCanvas = document.getElementById('splash-canvas');
+        const ctxS = splashCanvas.getContext('2d');
+        let mouseX = window.innerWidth / 2; let mouseY = window.innerHeight / 2; let timeS = 0;
+        window.addEventListener('mousemove', (e) => { if(document.getElementById('splash-screen').style.display !== 'none') { mouseX = e.clientX; mouseY = e.clientY; } });
+        function resizeSplashCanvas() { splashCanvas.width = window.innerWidth; splashCanvas.height = window.innerHeight; }
+        window.addEventListener('resize', () => {
+            if(document.getElementById('splash-screen').style.display !== 'none') resizeSplashCanvas();
+            if(document.getElementById('app-container').style.display !== 'none') resizeCanvas();
+        });
+        resizeSplashCanvas();
+
+        function animateSplash() {
+            if(document.getElementById('splash-screen').style.display !== 'none') {
+                ctxS.fillStyle = 'rgba(2, 6, 23, 0.2)'; ctxS.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
+                timeS += 0.01; let pointerInfluence = (mouseX / splashCanvas.width) * Math.PI * 2;
+                for(let i = 0; i < 3; i++) {
+                    ctxS.beginPath(); ctxS.moveTo(0, splashCanvas.height);
+                    let phase = timeS * (1 + i * 0.2) + pointerInfluence * (i+1);
+                    let amp = 50 + i * 30 + (mouseY / splashCanvas.height) * 50;
+                    let yOffset = splashCanvas.height * 0.5 + i * 80;
+                    for(let x = 0; x <= splashCanvas.width; x += 10) { ctxS.lineTo(x, yOffset + Math.sin(x * 0.003 + phase) * amp); }
+                    ctxS.lineTo(splashCanvas.width, splashCanvas.height);
+                    let grad = ctxS.createLinearGradient(0, yOffset, 0, splashCanvas.height);
+                    if (i === 0) { grad.addColorStop(0, 'rgba(56, 189, 248, 0.1)'); grad.addColorStop(1, 'rgba(14, 165, 233, 0.05)'); } 
+                    else if (i === 1) { grad.addColorStop(0, 'rgba(16, 185, 129, 0.1)'); grad.addColorStop(1, 'rgba(5, 150, 105, 0.05)'); } 
+                    else { grad.addColorStop(0, 'rgba(99, 102, 241, 0.1)'); grad.addColorStop(1, 'rgba(79, 70, 229, 0.05)'); }
+                    ctxS.fillStyle = grad; ctxS.fill();
+                }
+            }
+            requestAnimationFrame(animateSplash);
+        }
+        animateSplash();
+
+        /* --- PHYSICS & SIMULATION --- */
+        const simCanvas = document.getElementById('sim-canvas');
+        const ctx = simCanvas.getContext('2d');
+        let simWidth = 0, simHeight = 0, waterLevel = 0;
+
+        function resizeCanvas() {
+            const rect = document.getElementById('simulation-area').getBoundingClientRect();
+            simCanvas.width = rect.width; simCanvas.height = rect.height;
+            simWidth = simCanvas.width; simHeight = simCanvas.height;
+            waterLevel = simHeight * 0.4;
+            if(simObject.active && simObject.y === 0) { simObject.y = 50; }
+        }
+
+        const presets = {
+            'wood': { m: 5, v: 10, color: '#8B4513', aspect: 2.0 },
+            'stone': { m: 15, v: 5, color: '#7f8c8d', aspect: 1.2 },
+            'canoe': { m: 1.5, v: 15, color: '#d4a373', aspect: 3.5 },
+            'gold': { m: 19.3, v: 1, color: '#ffd700', aspect: 1.0 },
+            'duck': { m: 1.6, v: 8, color: '#ffeb3b', aspect: 1.1 }, // Increased mass & volume by 8x to double the visual size (cube root of 8 = 2)
+            'ice': { m: 9.17, v: 10, color: '#e0f7fa', aspect: 1.0 },
+            'iron': { m: 39, v: 5, color: '#424242', aspect: 0.9 },
+            'pumice': { m: 1.5, v: 5, color: '#d7ccc8', aspect: 1.5 },
+            'box': { m: 5, v: 10, color: '#94a3b8', aspect: 1.0 }
+        };
+
+        function setSimShape(shape) {
+            simObjectShape = shape;
+            document.getElementById('btn-cube').classList.toggle('active', shape === 'cube');
+            document.getElementById('btn-sphere').classList.toggle('active', shape === 'sphere');
+            document.getElementById('btn-cylinder').classList.toggle('active', shape === 'cylinder');
+            document.getElementById('btn-pyramid').classList.toggle('active', shape === 'pyramid');
+        }
+
+        function spawnObject(type) {
+            const p = presets[type] || presets['box'];
+            simObject.active = true; simObject.type = type;
+            simObject.mass = p.m; simObject.volume = p.v;
+            simObject.density = (p.m / p.v) * 1000;
+            simObject.color = currentMode === 'intermediate' ? '#94a3b8' : p.color;
+            simObject.y = 20; simObject.vy = 0;
+            updateVisualSize();
+            if (currentMode === 'intermediate') {
+                document.getElementById('slider-mass').value = simObject.mass;
+                document.getElementById('slider-vol').value = simObject.volume;
+                updatePhysicsReadouts();
+            }
+        }
+
+        function updateVisualSize() {
+            const baseSize = currentMode === 'intermediate' ? 90 : 130;
+            const sizeMultiplier = Math.pow(simObject.volume / 5, 1/3);
+            simObject.width = baseSize * sizeMultiplier;
+            simObject.height = baseSize * sizeMultiplier;
+        }
+
+        document.getElementById('slider-mass').addEventListener('input', (e) => { simObject.mass = parseFloat(e.target.value); updateObjectDensity(); });
+        document.getElementById('slider-vol').addEventListener('input', (e) => { simObject.volume = parseFloat(e.target.value); updateObjectDensity(); });
+        document.getElementById('slider-fluid').addEventListener('input', (e) => {
+            simFluidDensity = parseFloat(e.target.value);
+            if(simFluidDensity < 950) setSimFluid(simFluidDensity, 'rgba(251, 191, 36, 0.3)');
+            else if(simFluidDensity > 1050) setSimFluid(simFluidDensity, 'rgba(16, 185, 129, 0.3)');
+            else setSimFluid(simFluidDensity, 'rgba(56, 189, 248, 0.3)');
+            updateObjectDensity();
+        });
+
+        function updateObjectDensity() {
+            simObject.density = (simObject.mass / simObject.volume) * 1000;
+            updateVisualSize(); updatePhysicsReadouts();
+        }
+
+        // Submerged fraction based on precise shape characteristics
+        function calculateSubmergedFraction(fracDepth) {
+            // Guard limits
+            if (fracDepth <= 0) return 0;
+            if (fracDepth >= 1) return 1;
+
+            let shape = currentMode === 'elementary' ? simObject.type : simObjectShape;
+            
+            if (currentMode === 'elementary') {
+                if (shape === 'canoe') {
+                    // Canoe: triangular prism (volume is proportional to depth^2)
+                    // Forces the canoe to sink deeper to displace enough fluid, fixing the "hovering" issue
+                    return fracDepth * fracDepth;
+                } else if (shape === 'duck' || shape === 'pumice' || shape === 'stone' || shape === 'gold') {
+                    // Smooth curved volume (Sphere approximation)
+                    return fracDepth * fracDepth * (3 - 2 * fracDepth);
+                } else if (shape === 'ice') {
+                    // Ice is drawn as an isometric cube, functioning like an octahedron
+                    // This forces the pointy top to visibly pop out of the water correctly
+                    if (fracDepth < 0.5) return 4 * Math.pow(fracDepth, 3);
+                    return 1 - 4 * Math.pow(1 - fracDepth, 3);
+                } else if (shape === 'iron') {
+                    return Math.pow(fracDepth, 0.5); // Bottom heavy
+                }
+                return fracDepth; // Default linear (wood, box)
+            }
+            
+            // Intermediate Mode calculations
+            if (shape === 'sphere') {
+                return fracDepth * fracDepth * (3 - 2 * fracDepth);
+            } else if (shape === 'pyramid') {
+                // Base at bottom: volume is total minus the non-submerged tip volume
+                return 1 - Math.pow(1 - fracDepth, 3);
+            }
+            return fracDepth; // Cube, Cylinder (vertical)
+        }
+
+        function updatePhysicsReadouts() {
+            const d = dict[currentLang];
+            document.getElementById('val-mass').innerText = simObject.mass.toFixed(1);
+            document.getElementById('val-vol').innerText = simObject.volume.toFixed(1);
+            document.getElementById('val-fluid').innerText = simFluidDensity.toFixed(0);
+            document.getElementById('calc-den').innerText = simObject.density.toFixed(0);
+
+            const Fg = simObject.mass * GRAVITY;
+            let Fb_max = (simObject.volume / 1000) * simFluidDensity * GRAVITY;
+            let isFloating = simObject.density < simFluidDensity;
+            
+            document.getElementById('out-fg').innerText = Fg.toFixed(1);
+            const stateEl = document.getElementById('calc-state');
+            const conclEl = document.getElementById('out-conclusion');
+
+            if (isFloating) {
+                stateEl.innerText = d.stateFloat; stateEl.className = 'text-green';
+                document.getElementById('out-fb').innerText = Fg.toFixed(1);
+                conclEl.innerText = d.formulaEquil; conclEl.className = 'text-green';
+            } else if (Math.abs(simObject.density - simFluidDensity) < 1) {
+                stateEl.innerText = d.stateNeutral; stateEl.className = 'text-blue';
+                document.getElementById('out-fb').innerText = Fb_max.toFixed(1);
+                conclEl.innerText = d.formulaEquil; conclEl.className = 'text-blue';
+            } else {
+                stateEl.innerText = d.stateSink; stateEl.className = 'text-red';
+                document.getElementById('out-fb').innerText = Fb_max.toFixed(1);
+                conclEl.innerText = d.formulaSink; conclEl.className = 'text-red';
+            }
+        }
+
+        let springs = []; const numSprings = 100; let springSpacing = 0;
+        function initSprings() { springs = []; springSpacing = simWidth / numSprings; for(let i=0; i<=numSprings; i++) springs.push({y: 0, v: 0}); }
+        const originalResizeCanvas = resizeCanvas; resizeCanvas = function() { originalResizeCanvas(); initSprings(); };
+        let lastObjY = 0;
+
+        /* High-fidelity Low-Poly Generative Architecture */
+        const polyModels = {};
+
+        function varyColor(hex) {
+            if(hex.length !== 7) return hex;
+            let amt = (Math.random()-0.5)*20;
+            let r = Math.max(0, Math.min(255, parseInt(hex.slice(1,3), 16) + amt)) | 0;
+            let g = Math.max(0, Math.min(255, parseInt(hex.slice(3,5), 16) + amt)) | 0;
+            let b = Math.max(0, Math.min(255, parseInt(hex.slice(5,7), 16) + amt)) | 0;
+            return "#" + r.toString(16).padStart(2,'0') + g.toString(16).padStart(2,'0') + b.toString(16).padStart(2,'0');
+        }
+
+        function subdivide(polys, iterations) {
+            let current = polys;
+            for(let it=0; it<iterations; it++) {
+                let next = [];
+                current.forEach(p => {
+                    let c = p.c; 
+                    if(p.v.length === 3) {
+                        let m12 = [(p.v[0][0]+p.v[1][0])/2, (p.v[0][1]+p.v[1][1])/2];
+                        let m23 = [(p.v[1][0]+p.v[2][0])/2, (p.v[1][1]+p.v[2][1])/2];
+                        let m31 = [(p.v[2][0]+p.v[0][0])/2, (p.v[2][1]+p.v[0][1])/2];
+                        next.push({c: varyColor(c), v: [p.v[0], m12, m31]});
+                        next.push({c: varyColor(c), v: [p.v[1], m23, m12]});
+                        next.push({c: varyColor(c), v: [p.v[2], m31, m23]});
+                        next.push({c: varyColor(c), v: [m12, m23, m31]});
+                    } else if(p.v.length === 4) {
+                        let m12 = [(p.v[0][0]+p.v[1][0])/2, (p.v[0][1]+p.v[1][1])/2];
+                        let m23 = [(p.v[1][0]+p.v[2][0])/2, (p.v[1][1]+p.v[2][1])/2];
+                        let m34 = [(p.v[2][0]+p.v[3][0])/2, (p.v[2][1]+p.v[3][1])/2];
+                        let m41 = [(p.v[3][0]+p.v[0][0])/2, (p.v[3][1]+p.v[0][1])/2];
+                        let center = [(p.v[0][0]+p.v[1][0]+p.v[2][0]+p.v[3][0])/4,
+                                      (p.v[0][1]+p.v[1][1]+p.v[2][1]+p.v[3][1])/4];
+                        next.push({c: varyColor(c), v: [p.v[0], m12, center, m41]});
+                        next.push({c: varyColor(c), v: [m12, p.v[1], m23, center]});
+                        next.push({c: varyColor(c), v: [center, m23, p.v[2], m34]});
+                        next.push({c: varyColor(c), v: [m41, center, m34, p.v[3]]});
+                    } else {
+                        next.push(p);
+                    }
+                });
+                current = next;
+            }
+            return current;
+        }
+
+        function initPolyModels() {
+            // Math offsets array to keep pseudo-random noise deterministic during caching
+            let offsets = [0.1,-0.05,0.02,-0.08,0.05,-0.02,0.07,-0.04,0.01];
+
+            // 1. GOLD COIN (Round, rim, star: 58 polys)
+            let gold = [];
+            let cx = 0.5, cy = 0.5;
+            for(let i=0; i<16; i++) {
+                let a1 = (i/16)*Math.PI*2, a2 = ((i+1)/16)*Math.PI*2;
+                let c1 = Math.cos(a1), s1 = Math.sin(a1), c2 = Math.cos(a2), s2 = Math.sin(a2);
+                gold.push({c: '#f5af00', v: [[cx+c1*0.45, cy+s1*0.45], [cx+c2*0.45, cy+s2*0.45], [cx+c2*0.4, cy+s2*0.4], [cx+c1*0.4, cy+s1*0.4]]});
+                gold.push({c: '#ffc107', v: [[cx+c1*0.4, cy+s1*0.4], [cx+c2*0.4, cy+s2*0.4], [cx+c2*0.35, cy+s2*0.35], [cx+c1*0.35, cy+s1*0.35]]});
+                let shade = Math.floor(180 + 75*s1);
+                gold.push({c: `rgb(255, ${shade}, 0)`, v: [[cx+c1*0.35, cy+s1*0.35], [cx+c2*0.35, cy+s2*0.35], [cx+c2*0.2, cy+s2*0.2], [cx+c1*0.2, cy+s1*0.2]]});
+            }
+            for(let i=0; i<5; i++) {
+                let a1 = (i/5)*Math.PI*2 - Math.PI/2, a2 = ((i+1)/5)*Math.PI*2 - Math.PI/2;
+                let am = (a1+a2)/2, c1 = Math.cos(a1)*0.2, s1 = Math.sin(a1)*0.2;
+                let cm = Math.cos(am)*0.08, sm = Math.sin(am)*0.08, c2 = Math.cos(a2)*0.2, s2 = Math.sin(a2)*0.2;
+                gold.push({c: '#fff176', v: [[cx+c1, cy+s1], [cx+cm, cy+sm], [cx, cy]]});
+                gold.push({c: '#ffd54f', v: [[cx+cm, cy+sm], [cx+c2, cy+s2], [cx, cy]]});
+            }
+            polyModels['gold'] = gold;
+
+            // 2. STONE (Deformed grid: 64 polys)
+            let stone = [];
+            let sColors = ['#f2f4f4', '#d5dbdb', '#bdc3c7', '#95a5a6', '#7f8c8d', '#566573', '#34495e', '#2c3e50'];
+            let sGrid = [];
+            for(let i=0; i<=8; i++) {
+                let col = [];
+                for(let j=0; j<=8; j++) {
+                    let u = (i/8)*2-1, v = (j/8)*2-1;
+                    let r = 0.4 + offsets[(i*3+j)%offsets.length]*0.5;
+                    col.push([0.5 + u*r*Math.sqrt(1 - v*v/2), 0.5 + v*r*Math.sqrt(1 - u*u/2)]);
+                }
+                sGrid.push(col);
+            }
+            for(let i=0; i<8; i++) {
+                for(let j=0; j<8; j++) {
+                    let cIdx = Math.floor(((j/8) + offsets[(i+j)%offsets.length])*sColors.length);
+                    cIdx = Math.max(0, Math.min(sColors.length-1, cIdx));
+                    stone.push({c: sColors[cIdx], v: [sGrid[i][j], sGrid[i+1][j], sGrid[i+1][j+1], sGrid[i][j+1]]});
+                }
+            }
+            polyModels['stone'] = stone;
+
+            // 3. ICE (Irregular rounded cube: 64 polys)
+            let ice = [];
+            let iColors = ['#ffffff', '#e0f7fa', '#b2ebf2', '#80deea', '#4dd0e1', '#26c6da', '#00bcd4'];
+            let iGrid = [];
+            for(let i=0; i<=8; i++) {
+                let col = [];
+                for(let j=0; j<=8; j++) {
+                    let u = (i/8)*2-1, v = (j/8)*2-1;
+                    let r = Math.max(Math.abs(u), Math.abs(v));
+                    let angle = Math.atan2(v, u);
+                    // Rounded cube math + irregularities
+                    let radius = 0.4 * (1 - 0.2*Math.pow(Math.cos(angle*4), 2)) + offsets[(i*2+j)%offsets.length]*0.2;
+                    col.push([0.5 + radius*Math.cos(angle), 0.5 + radius*Math.sin(angle)]);
+                }
+                iGrid.push(col);
+            }
+            for(let i=0; i<8; i++) {
+                for(let j=0; j<8; j++) {
+                    let cIdx = Math.floor(Math.abs(offsets[(i*j)%offsets.length])*iColors.length*3)%iColors.length;
+                    ice.push({c: iColors[cIdx], v: [iGrid[i][j], iGrid[i+1][j], iGrid[i+1][j+1], iGrid[i][j+1]]});
+                }
+            }
+            polyModels['ice'] = ice;
+
+            // 4. WOOD LOG (Long cylindric: 55 polys)
+            let wood = [];
+            let wColors = ['#e6c299', '#cba077', '#a37449', '#8f5f36', '#663b18', '#402208'];
+            let wGrid = [];
+            for(let i=0; i<=10; i++) {
+                let col = [];
+                for(let j=0; j<=5; j++) {
+                    let r = offsets[(i+j)%offsets.length];
+                    col.push([0.1 + (i/10)*0.75 + r*0.1, 0.3 + (j/5)*0.4 + r*0.1]);
+                }
+                wGrid.push(col);
+            }
+            for(let i=0; i<10; i++) {
+                for(let j=0; j<5; j++) {
+                    let c = wColors[j];
+                    // Add sprouting leaf
+                    if(i===4 && j===0) c = '#7cb342';
+                    if(i===5 && j===0) c = '#558b2f';
+                    wood.push({c: c, v: [wGrid[i][j], wGrid[i+1][j], wGrid[i+1][j+1], wGrid[i][j+1]]});
+                }
+            }
+            for(let j=0; j<5; j++) {
+                wood.push({c: wColors[j%2==0?0:2], v: [wGrid[10][j], [0.9+j*0.01, 0.5], wGrid[10][j+1]]}); // End cap
+            }
+            polyModels['wood'] = wood;
+
+            // 5. PUMICE (Oval, many pores: 94 polys)
+            let pumice = [];
+            let pColors = ['#e5dcd8', '#dcd1cb', '#d3c5bf', '#cabab2', '#c0aea5', '#b7a298', '#ad968b', '#a48b7e'];
+            let pGrid = [];
+            for(let i=0; i<=8; i++) {
+                let col = [];
+                for(let j=0; j<=8; j++) {
+                    let u = (i/8)*2-1, v = (j/8)*2-1;
+                    let r = offsets[(i+j*3)%offsets.length]*0.2;
+                    col.push([0.5 + u*0.4*Math.sqrt(1 - v*v/2) + r, 0.5 + v*0.25*Math.sqrt(1 - u*u/2) + r]);
+                }
+                pGrid.push(col);
+            }
+            for(let i=0; i<8; i++) {
+                for(let j=0; j<8; j++) {
+                    let cIdx = Math.floor((j/8)*pColors.length);
+                    pumice.push({c: pColors[cIdx], v: [pGrid[i][j], pGrid[i+1][j], pGrid[i+1][j+1], pGrid[i][j+1]]});
+                }
+            }
+            for(let k=0; k<15; k++) {
+                let px = 0.2 + (k*0.07)%0.6;
+                let py = 0.35 + (k*0.11)%0.3;
+                let s = 0.02 + offsets[k%offsets.length]*0.1;
+                pumice.push({c: '#4e3b32', v: [[px, py], [px+s, py-s], [px+s*1.5, py+s]]});
+                pumice.push({c: '#2b1d18', v: [[px, py], [px+s*1.5, py+s], [px-s*0.5, py+s]]});
+            }
+            polyModels['pumice'] = pumice;
+
+            // 6. CANOE (Longer, flat bottom, quarter circle ends: 60 polys)
+            let canoe = [];
+            let cColors = ['#d9a05b', '#a66124', '#753b0e', '#4a1f03', '#1f0a00'];
+            let cGrid = [];
+            for(let i=0; i<=15; i++) {
+                let t = i/15;
+                let x = 0.05 + t*0.9;
+                let yTop = 0.45 - Math.pow(t-0.5, 2)*0.6;
+                let yBot;
+                if (t < 0.25) {
+                    yBot = 0.3 + Math.sin((t/0.25) * Math.PI/2)*0.5;
+                    x = 0.3 - Math.cos((t/0.25) * Math.PI/2)*0.25;
+                } else if (t > 0.75) {
+                    yBot = 0.3 + Math.sin(((1-t)/0.25) * Math.PI/2)*0.5;
+                    x = 0.7 + Math.cos(((1-t)/0.25) * Math.PI/2)*0.25;
+                } else {
+                    yBot = 0.8;
+                    x = 0.3 + ((t-0.25)/0.5)*0.4;
+                }
+                let col = [];
+                for(let j=0; j<=4; j++) {
+                    col.push([x, yTop + (yBot-yTop)*(j/4)]);
+                }
+                cGrid.push(col);
+            }
+            for(let i=0; i<15; i++) {
+                for(let j=0; j<4; j++) {
+                    canoe.push({c: cColors[j], v: [cGrid[i][j], cGrid[i+1][j], cGrid[i+1][j+1], cGrid[i][j+1]]});
+                }
+            }
+            polyModels['canoe'] = canoe;
+
+            // 7. DUCK (Base 17 polys -> subdivide 1 -> 68 polys)
+            let baseDuck = [
+                {c: '#fff176', v: [[0.5,0.1], [0.7,0.1], [0.7,0.3], [0.5,0.3]]},
+                {c: '#ffee58', v: [[0.7,0.1], [0.8,0.2], [0.8,0.3], [0.7,0.3]]},
+                {c: '#ffeb3b', v: [[0.4,0.2], [0.5,0.1], [0.5,0.3], [0.4,0.3]]},
+                {c: '#ff9800', v: [[0.8,0.2], [0.95,0.25], [0.9,0.3], [0.8,0.3]]},
+                {c: '#f57c00', v: [[0.8,0.3], [0.9,0.3], [0.95,0.35], [0.8,0.35]]}, 
+                {c: '#fdd835', v: [[0.3,0.3], [0.5,0.3], [0.5,0.5], [0.3,0.5]]},
+                {c: '#fbc02d', v: [[0.5,0.3], [0.8,0.35], [0.85,0.5], [0.5,0.5]]},
+                {c: '#f9a825', v: [[0.8,0.35], [0.9,0.45], [0.9,0.5], [0.85,0.5]]},
+                {c: '#f57f17', v: [[0.4,0.4], [0.6,0.4], [0.7,0.6], [0.4,0.6]]},
+                {c: '#fbc02d', v: [[0.3,0.5], [0.4,0.4], [0.4,0.6], [0.3,0.6]]},
+                {c: '#fbc02d', v: [[0.6,0.4], [0.85,0.5], [0.7,0.6], [0.6,0.6]]},
+                {c: '#e65100', v: [[0.85,0.5], [0.9,0.5], [0.8,0.6], [0.7,0.6]]},
+                {c: '#ffee58', v: [[0.1,0.3], [0.3,0.3], [0.3,0.5], [0.15,0.45]]},
+                {c: '#fdd835', v: [[0.15,0.45], [0.3,0.5], [0.3,0.6], [0.2,0.6]]},
+                {c: '#f57f17', v: [[0.2,0.6], [0.3,0.6], [0.4,0.8], [0.25,0.8]]},
+                {c: '#e65100', v: [[0.3,0.6], [0.7,0.6], [0.7,0.8], [0.4,0.8]]},
+                {c: '#d84315', v: [[0.7,0.6], [0.8,0.6], [0.7,0.8]]},
+                {c: '#212121', v: [[0.65,0.18], [0.7,0.18], [0.7,0.22], [0.65,0.22]]} // Eye
+            ];
+            polyModels['duck'] = subdivide(baseDuck, 1);
+
+            // 8. IRON ANCHOR (Base 14 polys -> subdivide 1 -> 56 polys)
+            let baseIron = [
+                {c: '#b0bec5', v: [[0.4,0.05], [0.6,0.05], [0.65,0.15], [0.35,0.15]]},
+                {c: '#90a4ae', v: [[0.45,0.1], [0.55,0.1], [0.55,0.12], [0.45,0.12]]},
+                {c: '#78909c', v: [[0.35,0.15], [0.65,0.15], [0.6,0.2], [0.4,0.2]]},
+                {c: '#cfd8dc', v: [[0.1,0.2], [0.9,0.2], [0.9,0.25], [0.1,0.25]]},
+                {c: '#78909c', v: [[0.1,0.25], [0.9,0.25], [0.85,0.3], [0.15,0.3]]},
+                {c: '#90a4ae', v: [[0.45,0.3], [0.55,0.3], [0.55,0.5], [0.45,0.5]]},
+                {c: '#78909c', v: [[0.45,0.5], [0.55,0.5], [0.55,0.7], [0.45,0.7]]},
+                {c: '#546e7a', v: [[0.3,0.65], [0.45,0.7], [0.55,0.7], [0.7,0.65]]},
+                {c: '#37474f', v: [[0.2,0.75], [0.3,0.65], [0.7,0.65], [0.8,0.75]]},
+                {c: '#263238', v: [[0.2,0.75], [0.8,0.75], [0.6,0.9], [0.4,0.9]]},
+                {c: '#eceff1', v: [[0.15,0.5], [0.25,0.55], [0.25,0.65], [0.1,0.6]]},
+                {c: '#b0bec5', v: [[0.05,0.6], [0.1,0.6], [0.25,0.65], [0.2,0.75]]},
+                {c: '#eceff1', v: [[0.85,0.5], [0.75,0.55], [0.75,0.65], [0.9,0.6]]},
+                {c: '#b0bec5', v: [[0.95,0.6], [0.9,0.6], [0.75,0.65], [0.8,0.75]]}
+            ];
+            polyModels['iron'] = subdivide(baseIron, 1);
+        }
+
+        function drawLowPolyObject(ctx, type, w, h) {
+            ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+            let polys = polyModels[type];
+            if (polys) {
+                polys.forEach(p => {
+                    ctx.fillStyle = p.c; ctx.beginPath();
+                    ctx.moveTo(w * p.v[0][0], h * p.v[0][1]);
+                    for(let i=1; i<p.v.length; i++) ctx.lineTo(w * p.v[i][0], h * p.v[i][1]);
+                    ctx.closePath(); ctx.fill();
+                    ctx.strokeStyle = p.c; ctx.lineWidth = 0.5; ctx.stroke();
+                });
+            } else {
+                ctx.fillStyle = '#94a3b8'; ctx.fillRect(0, 0, w, h);
+            }
+        }
+
+        function animateSimulation() {
+            if (document.getElementById('app-container').style.display !== 'none') {
+                ctx.clearRect(0, 0, simWidth, simHeight);
+                if(springs.length === 0) initSprings();
+
+                for(let i=0; i<springs.length; i++) {
+                    let accel = -0.05 * springs[i].y - 0.03 * springs[i].v;
+                    springs[i].v += accel; springs[i].y += springs[i].v;
+                }
+                
+                let leftDeltas = [], rightDeltas = [];
+                for(let i=0; i<springs.length; i++) {
+                    if(i>0) leftDeltas[i] = 0.05 * (springs[i].y - springs[i-1].y);
+                    if(i<springs.length-1) rightDeltas[i] = 0.05 * (springs[i].y - springs[i+1].y);
+                }
+                for(let i=0; i<springs.length; i++) {
+                    if(i>0) springs[i-1].v += leftDeltas[i];
+                    if(i<springs.length-1) springs[i+1].v += rightDeltas[i];
+                }
+
+                let waterBaseColor = simFluidColor;
+                if(currentMode === 'intermediate') {
+                    waterBaseColor = 'rgba(56, 189, 248, 0.15)';
+                    if(simFluidDensity > 1050) waterBaseColor = 'rgba(16, 185, 129, 0.15)';
+                    if(simFluidDensity < 950) waterBaseColor = 'rgba(251, 191, 36, 0.15)';
+                }
+
+                ctx.fillStyle = waterBaseColor; ctx.beginPath(); ctx.moveTo(0, simHeight);
+                for(let i=0; i<springs.length; i++) ctx.lineTo(i * springSpacing, waterLevel + springs[i].y);
+                ctx.lineTo(simWidth, simHeight); ctx.fill();
+                
+                ctx.strokeStyle = waterBaseColor.replace(/0\.[0-9]+\)/, '0.6)'); ctx.lineWidth = 3; ctx.beginPath();
+                for(let i=0; i<springs.length; i++) {
+                    if(i===0) ctx.moveTo(i * springSpacing, waterLevel + springs[i].y);
+                    else ctx.lineTo(i * springSpacing, waterLevel + springs[i].y);
+                }
+                ctx.stroke();
+
+                if (simObject.active) {
+                    const dt = 0.016;
+                    let objBottom = simObject.y + simObject.height;
+                    let objCenterY = simObject.y + simObject.height / 2;
+                    let cx = simWidth / 2;
+                    
+                    let centerSpringIndex = Math.floor(cx / springSpacing);
+                    let objWidthSprings = Math.floor(simObject.width / springSpacing);
+                    
+                    if (lastObjY < waterLevel - simObject.height/4 && objCenterY >= waterLevel - simObject.height/4) {
+                         let splashForce = simObject.vy * 2.5;
+                         for(let s = -objWidthSprings/2; s <= objWidthSprings/2; s++) {
+                             let idx = centerSpringIndex + Math.floor(s);
+                             if(idx >= 0 && idx < springs.length) springs[idx].v += splashForce * (1 - Math.abs(s)/(objWidthSprings/2));
+                         }
+                    }
+                    lastObjY = objCenterY;
+
+                    // Calculate Depth Fraction
+                    let fracDepth = 0;
+                    if (objBottom > waterLevel) {
+                        fracDepth = (objBottom - waterLevel) / simObject.height;
+                        if (fracDepth > 1) fracDepth = 1;
+                    }
+
+                    // Apply Shape-Specific Volume Integrals for highly realistic buoyancy heights
+                    let vFrac = calculateSubmergedFraction(fracDepth);
+
+                    let Fg = simObject.mass * GRAVITY; 
+                    let Fb = vFrac * (simObject.volume / 1000) * simFluidDensity * GRAVITY;
+                    
+                    let Fnet = Fg - Fb;
+                    let acc = Fnet / simObject.mass;
+                    
+                    if (fracDepth > 0) {
+                        let drag = 0.05 * vFrac * simObject.vy * Math.abs(simObject.vy);
+                        acc -= drag; 
+                        simObject.vy *= 0.95; // Improved damping for stability with non-linear shapes
+                    } else {
+                        simObject.vy *= 0.99; // Air resistance
+                    }
+
+                    simObject.vy += acc * dt * 50;
+                    simObject.y += simObject.vy;
+
+                    if (simObject.y + simObject.height >= simHeight) {
+                        simObject.y = simHeight - simObject.height;
+                        simObject.vy = simObject.vy * -0.3;
+                    }
+
+                    ctx.save();
+                    ctx.translate(cx - simObject.width/2, simObject.y);
+                    
+                    if (currentMode === 'elementary') {
+                        drawLowPolyObject(ctx, simObject.type, simObject.width, simObject.height);
+                    } else {
+                        ctx.fillStyle = simObject.color; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+                        if(simObjectShape === 'sphere') {
+                            ctx.beginPath(); ctx.arc(simObject.width/2, simObject.height/2, simObject.width/2, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                        } else if(simObjectShape === 'cylinder') {
+                            ctx.beginPath(); ctx.roundRect(0, 0, simObject.width, simObject.height, 15); ctx.fill(); ctx.stroke();
+                        } else if(simObjectShape === 'pyramid') {
+                            ctx.beginPath(); ctx.moveTo(simObject.width/2, 0); ctx.lineTo(simObject.width, simObject.height); ctx.lineTo(0, simObject.height); ctx.closePath(); ctx.fill(); ctx.stroke();
+                        } else {
+                            ctx.fillRect(0, 0, simObject.width, simObject.height); ctx.strokeRect(0, 0, simObject.width, simObject.height);
+                        }
+                    }
+                    ctx.restore();
+
+                    // Draw Force Vectors originating physically correctly
+                    if (currentMode === 'intermediate' && document.getElementById('toggle-arrows').checked) {
+                        let centerX = cx;
+                        
+                        // Center of Gravity (Cg)
+                        let cgYOffset = 0.5; // default center
+                        if (simObjectShape === 'pyramid') cgYOffset = 0.75; // 3D pyramid CG is lower (base heavy)
+                        let cgY = simObject.y + simObject.height * cgYOffset;
+                        
+                        // Center of Buoyancy (Cb)
+                        let cbOffsetFromBottom;
+                        if (simObjectShape === 'pyramid') {
+                            cbOffsetFromBottom = (fracDepth * simObject.height) * (0.33 - 0.08 * fracDepth);
+                        } else if (simObjectShape === 'sphere') {
+                            cbOffsetFromBottom = (fracDepth * simObject.height) * (0.5 - 0.1 * fracDepth);
+                        } else {
+                            cbOffsetFromBottom = (fracDepth * simObject.height) * 0.5;
+                        }
+                        let cbY = simObject.y + simObject.height - cbOffsetFromBottom;
+                        if (fracDepth === 0) cbY = cgY; // Fallback if out of water
+                        
+                        let visualForceScale = 2; 
+                        
+                        // Fg Arrow (Red, down) from Center of Gravity
+                        drawArrow(ctx, centerX, cgY, centerX, cgY + (Fg * visualForceScale), '#f43f5e');
+                        
+                        // Fb Arrow (Blue, up) from Center of Buoyancy
+                        if (Fb > 0) {
+                            drawArrow(ctx, centerX, cbY, centerX, cbY - (Fb * visualForceScale), '#38bdf8');
+                        }
+                    } else if (currentMode === 'elementary') {
+                        let centerX = cx;
+                        
+                        // Adjust visual gravity centers for custom shapes
+                        let cgYOffset = 0.5;
+                        if (simObject.type === 'canoe') cgYOffset = 0.7; // canoe is bottom heavy
+                        if (simObject.type === 'iron') cgYOffset = 0.65;
+                        let cgY = simObject.y + simObject.height * cgYOffset;
+                        
+                        // Center of buoyancy roughly in the middle of submerged part
+                        let cbY = simObject.y + simObject.height - (fracDepth * simObject.height) * 0.4;
+                        if (fracDepth === 0) cbY = cgY;
+
+                        drawArrow(ctx, centerX, cgY, centerX, cgY + (Fg * 2), '#f43f5e');
+                        if (Fb > 0) drawArrow(ctx, centerX, cbY, centerX, cbY - (Fb * 2), '#38bdf8');
+                    }
+                }
+            }
+            requestAnimationFrame(animateSimulation);
+        }
+
+        function drawArrow(ctx, fromx, fromy, tox, toy, color) {
+            let headlen = 20; let dx = tox - fromx; let dy = toy - fromy; let angle = Math.atan2(dy, dx);
+            let maxLen = 250; let len = Math.hypot(dx, dy);
+            if (len > maxLen) { tox = fromx + Math.cos(angle) * maxLen; toy = fromy + Math.sin(angle) * maxLen; }
+
+            ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 6;
+            ctx.moveTo(fromx, fromy); ctx.lineTo(tox, toy); ctx.stroke();
+            ctx.beginPath(); ctx.fillStyle = color;
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.fill();
+        }
+
+        setLang('en');
+        initPolyModels();
+        animateSimulation();
+
+    </script>
+</body>
+</html>
