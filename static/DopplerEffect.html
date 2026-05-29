@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Echoes of the Cosmos: Doppler Effect</title>
-    <!-- Google Fonts for Modern, Elegant Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -31,7 +30,11 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             overflow: hidden;
+            width: 100vw;
+            height: 100vh;
             user-select: none;
+            display: flex;
+            flex-direction: column;
         }
 
         /* --- Splash Screen --- */
@@ -58,7 +61,7 @@
             text-align: center;
             max-width: 800px;
             width: 90%;
-            pointer-events: none; /* Let clicks pass to buttons */
+            pointer-events: none;
         }
 
         .splash-content h1 {
@@ -128,8 +131,8 @@
         #app {
             display: none;
             flex-direction: column;
-            height: 100vh;
-            width: 100vw;
+            flex: 1;
+            overflow: hidden;
         }
 
         header {
@@ -141,6 +144,7 @@
             backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--panel-border);
             height: 60px;
+            flex: 0 0 auto;
             z-index: 10;
         }
 
@@ -150,10 +154,10 @@
             background: none;
             border: 1px solid var(--panel-border);
             color: var(--text-main);
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 1rem;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
             font-family: var(--font-main);
             display: flex;
@@ -175,7 +179,7 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
             padding: 0 0.5rem;
@@ -195,7 +199,8 @@
             display: flex;
             flex-direction: column;
             flex: 1;
-            overflow: hidden;
+            min-height: 0; /* allows flexbox to compress it if needed */
+            position: relative;
         }
 
         .workspace {
@@ -203,6 +208,7 @@
             position: relative;
             background: radial-gradient(circle at center, #11141d 0%, #050608 100%);
             width: 100%;
+            height: 100%;
             overflow: hidden;
         }
 
@@ -213,16 +219,14 @@
 
         /* --- Bottom Control Panel --- */
         .bottom-panel {
-            height: 240px;
+            flex: 0 0 auto; /* Take natural height, do not stretch */
             background: var(--panel-bg);
             border-top: 1px solid var(--panel-border);
-            display: flex;
-            flex-direction: column;
             z-index: 10;
         }
 
-        .tab-content { display: none; width: 100%; height: 100%; padding: 1.5rem; }
-        .tab-content.active { display: grid; grid-template-columns: 1.2fr 1.5fr 1fr; gap: 2rem; }
+        .tab-content { display: none; width: 100%; padding: 1.2rem 1.5rem; }
+        .tab-content.active { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 2rem; align-items: center; }
 
         .panel-section {
             display: flex;
@@ -231,47 +235,28 @@
         }
 
         .explanation {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 1rem;
-        }
-
-        .equation-box {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-blue);
-            font-family: var(--font-main);
-        }
-
-        math {
-            display: math;
-            font-size: 1.4rem;
+            line-height: 1.4;
+            margin-bottom: 0;
         }
 
         .controls-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.2rem;
-            overflow-y: auto;
-            padding-right: 1rem;
         }
 
         .control-item {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.3rem;
         }
 
         .control-header {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -280,56 +265,74 @@
         .control-header .val {
             font-family: var(--font-mono);
             color: #fff;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
-        /* Simplified, clean slider styling */
+        /* Clean, Conventional Slider Styling */
         input[type=range] {
-            width: 100%;
             -webkit-appearance: none;
-            background: rgba(255, 255, 255, 0.1);
-            height: 4px;
-            border-radius: 2px;
-            outline: none;
-            margin: 8px 0;
-            transition: background 0.3s;
-        }
-
-        input[type=range]:hover {
-            background: rgba(255, 255, 255, 0.2);
+            width: 100%;
+            background: transparent;
+            margin: 6px 0;
         }
         
+        input[type=range]:focus { outline: none; }
+        
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            transition: background 0.2s;
+        }
+        
+        input[type=range]:hover::-webkit-slider-runnable-track {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
             height: 16px;
+            width: 16px;
             border-radius: 50%;
             background: var(--accent-blue);
             cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
+            -webkit-appearance: none;
+            margin-top: -6px; /* Aligns vertically with the track */
+            transition: transform 0.1s;
         }
 
         input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
             background: #fff;
-            transform: scale(1.1);
         }
 
-        datalist {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 4px;
-            color: rgba(255,255,255,0.6);
-            font-size: 0.8rem;
+        /* Perfectly Aligned Tick Marks */
+        .tick-marks {
+            position: relative;
+            height: 12px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
             font-family: var(--font-mono);
-            font-weight: 400;
-            padding: 0 4px;
+            margin-top: 2px;
+            pointer-events: none;
         }
 
+        .tick-marks span {
+            position: absolute;
+            transform: translateX(-50%);
+            top: 0;
+        }
+        /* Lock edges so text doesn't overflow */
+        .tick-marks span:first-child { transform: translateX(0); }
+        .tick-marks span:last-child { transform: translateX(-100%); }
+
+        /* Data Readouts */
         .data-readout {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 8px;
-            padding: 1.5rem;
+            padding: 1.2rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -339,11 +342,11 @@
         .data-row {
             display: flex;
             flex-direction: column;
-            gap: 0.3rem;
+            gap: 0.2rem;
         }
 
         .data-row .label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -351,7 +354,7 @@
 
         .data-row .val {
             font-family: var(--font-mono);
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             color: var(--accent-blue);
             font-weight: 700;
         }
@@ -361,17 +364,16 @@
             align-items: center;
             gap: 0.8rem;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-main);
-            margin-top: 0.5rem;
         }
 
         .toggle-switch {
             position: relative;
-            width: 40px;
-            height: 20px;
+            width: 36px;
+            height: 18px;
             background: rgba(255,255,255,0.1);
-            border-radius: 10px;
+            border-radius: 9px;
             transition: 0.3s;
         }
         
@@ -379,26 +381,22 @@
             content: '';
             position: absolute;
             top: 2px; left: 2px;
-            width: 16px; height: 16px;
+            width: 14px; height: 14px;
             background: #fff;
             border-radius: 50%;
             transition: 0.3s;
         }
 
-        input[type="checkbox"]:checked + .toggle-switch {
-            background: var(--accent-blue);
-        }
-        input[type="checkbox"]:checked + .toggle-switch::after {
-            transform: translateX(20px);
-        }
+        input[type="checkbox"]:checked + .toggle-switch { background: var(--accent-blue); }
+        input[type="checkbox"]:checked + .toggle-switch::after { transform: translateX(18px); }
 
         /* Screen specifically for Gr 12 Tab */
         .spectra-wrapper {
             position: absolute;
-            bottom: 30px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 70%;
+            width: 60%;
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -408,11 +406,11 @@
 
         .spectrum-bar {
             width: 100%;
-            height: 40px;
+            height: 35px;
             background: linear-gradient(to right, 
                 #1a0033 0%, #0000ff 15%, #00ffff 33%, 
                 #00ff00 50%, #ffff00 66%, #ff8000 83%, #330000 100%);
-            border-radius: 8px;
+            border-radius: 6px;
             border: 1px solid var(--panel-border);
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             position: relative;
@@ -421,9 +419,9 @@
         .spectrum-label-text {
             position: absolute;
             left: -90px;
-            top: 10px;
+            top: 8px;
             color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             width: 80px;
@@ -442,18 +440,17 @@
 
         .spectral-label {
             position: absolute;
-            top: -20px;
+            top: -18px;
             transform: translateX(-50%);
             color: #fff;
             font-family: var(--font-mono);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-shadow: 0 2px 4px #000;
         }
 
         @media (max-width: 900px) {
-            .tab-content.active { grid-template-columns: 1fr; }
+            .tab-content.active { grid-template-columns: 1fr; gap: 1rem; }
             .bottom-panel { height: 45vh; overflow-y: auto; }
-            .workspace { height: 55vh; }
         }
 
     </style>
@@ -520,19 +517,6 @@
                         <p class="explanation" id="t-t1-exp">
                             Observe how the frequency of sound changes as the source and observer move relative to each other along a single axis.
                         </p>
-                        <div class="equation-box">
-                            <math style="display: math;">
-                                <msup><mi>f</mi><mo>'</mo></msup>
-                                <mo>=</mo>
-                                <mi>f</mi>
-                                <mfenced>
-                                    <mfrac>
-                                        <mrow><mi>v</mi><mo>&#x00B1;</mo><msub><mi>v</mi><mi>o</mi></msub></mrow>
-                                        <mrow><mi>v</mi><mo>&#x2213;</mo><msub><mi>v</mi><mi>s</mi></msub></mrow>
-                                    </mfrac>
-                                </mfenced>
-                            </math>
-                        </div>
                     </div>
                     
                     <div class="panel-section controls-grid">
@@ -541,39 +525,36 @@
                                 <span id="t-t1-vs">Source Velocity (vs)</span>
                                 <span class="val" id="val-t1-vs">0 m/s</span>
                             </div>
-                            <input type="range" id="in-t1-vs" min="-300" max="300" value="0" step="10" list="ticks-v">
-                            <datalist id="ticks-v">
-                                <option value="-300" label="-300"></option>
-                                <option value="0" label="0"></option>
-                                <option value="300" label="300"></option>
-                            </datalist>
+                            <input type="range" id="in-t1-vs" min="-300" max="300" value="0" step="10">
+                            <div class="tick-marks">
+                                <span style="left: 0%">-300</span>
+                                <span style="left: 50%">0</span>
+                                <span style="left: 100%">300</span>
+                            </div>
                         </div>
                         <div class="control-item">
                             <div class="control-header">
                                 <span id="t-t1-vo">Observer Velocity (vo)</span>
                                 <span class="val" id="val-t1-vo">0 m/s</span>
                             </div>
-                            <input type="range" id="in-t1-vo" min="-300" max="300" value="0" step="10" list="ticks-v">
+                            <input type="range" id="in-t1-vo" min="-300" max="300" value="0" step="10">
+                            <div class="tick-marks">
+                                <span style="left: 0%">-300</span>
+                                <span style="left: 50%">0</span>
+                                <span style="left: 100%">300</span>
+                            </div>
                         </div>
                         <div class="control-item">
                             <div class="control-header">
                                 <span id="t-t1-freq">Source Frequency (f)</span>
                                 <span class="val" id="val-t1-freq">400 Hz</span>
                             </div>
-                            <input type="range" id="in-t1-freq" min="100" max="1000" value="400" step="50" list="ticks-f">
-                            <datalist id="ticks-f">
-                                <option value="100" label="100"></option>
-                                <option value="550" label="550"></option>
-                                <option value="1000" label="1000"></option>
-                            </datalist>
-                        </div>
-                        
-                        <div class="control-item" style="margin-top: 0.5rem;">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="in-t1-sound" style="display:none;">
-                                <div class="toggle-switch"></div>
-                                <span id="t-t1-sound">Enable Sound</span>
-                            </label>
+                            <input type="range" id="in-t1-freq" min="100" max="1000" value="400" step="50">
+                            <div class="tick-marks">
+                                <span style="left: 0%">100</span>
+                                <span style="left: 50%">550</span>
+                                <span style="left: 100%">1000</span>
+                            </div>
                         </div>
                     </div>
 
@@ -583,9 +564,16 @@
                                 <span class="label" id="t-t1-fobs">Observed Freq (f')</span>
                                 <span class="val" id="out-t1-fobs" style="color: var(--accent-red)">400.0 Hz</span>
                             </div>
-                            <div class="data-row">
-                                <span class="label" id="t-t1-wave">Wave Speed (v)</span>
-                                <span class="val" style="color: #fff">343 m/s</span>
+                            <div class="data-row" style="flex-direction: row; justify-content: space-between; align-items: center; margin-top: 5px;">
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <span class="label" id="t-t1-wave">Wave Speed</span>
+                                    <span class="val" style="color: #fff; font-size: 1.1rem;">343 m/s</span>
+                                </div>
+                                <label class="toggle-container">
+                                    <input type="checkbox" id="in-t1-sound" style="display:none;">
+                                    <div class="toggle-switch"></div>
+                                    <span id="t-t1-sound">Sound</span>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -597,70 +585,57 @@
                         <p class="explanation" id="t-t2-exp">
                             When a source exceeds the wave speed, the wavefronts constructively interfere to form a shock wave known as a Mach cone.
                         </p>
-                        <div class="equation-box">
-                            <math style="display: math;">
-                                <mi>sin</mi><mo>(</mo><mi>&#x03B8;</mi><mo>)</mo>
-                                <mo>=</mo>
-                                <mfrac><mi>v</mi><msub><mi>v</mi><mi>s</mi></msub></mfrac>
-                                <mo>=</mo>
-                                <mfrac><mn>1</mn><mi>M</mi></mfrac>
-                            </math>
-                        </div>
                     </div>
 
                     <div class="panel-section controls-grid">
-                        <div class="control-item" style="margin-top: 1rem;">
+                        <div class="control-item">
                             <div class="control-header">
                                 <span id="t-t2-vs">Supersonic Velocity (vs)</span>
                                 <span class="val" id="val-t2-vs">0 m/s</span>
                             </div>
-                            <input type="range" id="in-t2-vs" min="0" max="1000" value="0" step="1" list="ticks-mach">
-                            <datalist id="ticks-mach">
-                                <option value="0" label="0"></option>
-                                <option value="343" label="v"></option>
-                                <option value="686" label="2v"></option>
-                                <option value="1000" label="Max"></option>
-                            </datalist>
+                            <input type="range" id="in-t2-vs" min="0" max="1000" value="0" step="1">
+                            <div class="tick-marks">
+                                <span style="left: 0%">0</span>
+                                <span style="left: 34.3%">v</span>
+                                <span style="left: 68.6%">2v</span>
+                                <span style="left: 100%">Max</span>
+                            </div>
                         </div>
                         
-                        <div class="control-item" style="margin-top: 0.5rem;">
+                        <div style="display: flex; gap: 1rem; align-items: center; margin-top: 10px;">
                             <label class="toggle-container">
                                 <input type="checkbox" id="in-t2-cone" style="display:none;" checked>
                                 <div class="toggle-switch"></div>
-                                <span id="t-t2-show">Show Mach Cone Envelope</span>
+                                <span id="t-t2-show">Envelope</span>
                             </label>
                             
-                            <label class="toggle-container" style="margin-top: 0.8rem;">
+                            <label class="toggle-container">
                                 <input type="checkbox" id="in-t2-sound" style="display:none;">
                                 <div class="toggle-switch"></div>
-                                <span id="t-t2-sound">Enable Sonic Boom Sound</span>
+                                <span id="t-t2-sound">Boom</span>
                             </label>
-                        </div>
-
-                        <div class="control-item" style="margin-top: 0.5rem;">
-                            <button class="btn-splash" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="resetT2Sensor()" id="btn-t2-reset">Reset Sensor</button>
                         </div>
                     </div>
 
                     <div class="panel-section">
                         <div class="data-readout">
                             <div class="data-row" style="flex-direction: row; justify-content: space-between;">
-                                <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
                                     <span class="label" id="t-t2-mach">Mach Number (M)</span>
                                     <span class="val" id="out-t2-mach">1.02</span>
                                 </div>
-                                <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-end;">
                                     <span class="label" id="t-t2-angle">Mach Angle (θ)</span>
                                     <span class="val" id="out-t2-angle" style="color: var(--accent-red)">78.5°</span>
                                 </div>
                             </div>
-                            <hr style="border-color: rgba(255,255,255,0.1); border-style: dashed; margin: 0.5rem 0;">
+                            <hr style="border-color: rgba(255,255,255,0.1); border-style: dashed; margin: 0.2rem 0;">
                             <div class="data-row" style="flex-direction: row; justify-content: space-between;">
-                                <div style="display: flex; flex-direction: column; gap: 0.3rem;">
-                                    <span class="label" id="t-t2-pressure">Real-time Pressure</span>
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <span class="label" id="t-t2-pressure">Sensor Pressure</span>
                                     <span class="val" id="out-t2-pressure" style="font-size: 1.2rem;">1.00 atm</span>
                                 </div>
-                                <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-end;">
                                     <span class="label" id="t-t2-max-pressure">Max Pressure</span>
                                     <span class="val" id="out-t2-max-pressure" style="font-size: 1.2rem; color: var(--accent-red)">1.00 atm</span>
                                 </div>
@@ -672,39 +647,28 @@
                 <!-- Tab 3 Controls -->
                 <div id="controls-tab3" class="tab-content">
                     <div class="panel-section">
-                        <p class="explanation" id="t-t3-exp">
+                        <p class="explanation" id="t-t3-exp" style="margin-bottom: 10px;">
                             Light from receding stars stretches to longer wavelengths (Redshift), while approaching light compresses to shorter wavelengths (Blueshift).
                         </p>
-                        <p class="explanation" id="t-t3-h-exp" style="font-size: 0.85rem; border-left: 2px solid var(--accent-blue); padding-left: 10px;">
-                            <strong>Why Hydrogen?</strong> Hydrogen is the most abundant element in the universe. Its distinctive spectral lines (Balmer series) serve as a universal, recognizable standard to measure how much a galaxy's light has shifted.
+                        <p class="explanation" id="t-t3-h-exp" style="font-size: 0.8rem; border-left: 2px solid var(--accent-blue); padding-left: 10px;">
+                            <strong>Why Hydrogen?</strong> Its distinctive spectral lines (Balmer series) serve as a universal, recognizable standard to measure how much a galaxy's light has shifted.
                         </p>
-                        <div class="equation-box">
-                            <math style="display: math;">
-                                <mi>z</mi>
-                                <mo>=</mo>
-                                <msqrt>
-                                    <mfrac><mrow><mn>1</mn><mo>+</mo><mi>&#x03B2;</mi></mrow><mrow><mn>1</mn><mo>-</mo><mi>&#x03B2;</mi></mrow></mfrac>
-                                </msqrt>
-                                <mo>-</mo>
-                                <mn>1</mn>
-                            </math>
-                        </div>
                     </div>
 
                     <div class="panel-section controls-grid">
-                        <div class="control-item" style="margin-top: 1rem;">
+                        <div class="control-item">
                             <div class="control-header">
                                 <span id="t-t3-vs">Radial Velocity (β = v/c)</span>
                                 <span class="val" id="val-t3-vs">0.00 c</span>
                             </div>
-                            <input type="range" id="in-t3-vs" min="-0.60" max="0.60" value="0" step="0.05" list="ticks-beta">
-                            <datalist id="ticks-beta">
-                                <option value="-0.6" label="Blue"></option>
-                                <option value="0" label="0"></option>
-                                <option value="0.6" label="Red"></option>
-                            </datalist>
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;" id="t-t3-dir">
-                                Positive = Receding | Negative = Approaching
+                            <input type="range" id="in-t3-vs" min="-0.60" max="0.60" value="0" step="0.05">
+                            <div class="tick-marks">
+                                <span style="left: 0%">Blue</span>
+                                <span style="left: 50%">0</span>
+                                <span style="left: 100%">Red</span>
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 8px; text-align: center;" id="t-t3-dir">
+                                Negative = Approaching | Positive = Receding
                             </div>
                         </div>
                     </div>
@@ -736,8 +700,7 @@
             currentTab: 1,
             pointer: { x: window.innerWidth/2, y: window.innerHeight/2 },
             t1LastHitTime: -999,
-            t1LastWaveHitTime: -999, // Tracks the time of the previous wave hit for delta-T calculation
-            t1DisplayFobs: 0,
+            t1AnalyticalFobs: 400, // True theoretical value updated continuously
             t1HitRipple: 0,
             t1SoundEnabled: false,
             t2SoundEnabled: false,
@@ -826,25 +789,25 @@
                 "t-t1-vo": "Observer Velocity (v_o)",
                 "t-t1-freq": "Source Frequency (f)",
                 "t-t1-fobs": "Observed Freq (f')",
-                "t-t1-wave": "Wave Speed (v)",
-                "t-t1-sound": "Enable Sound",
+                "t-t1-wave": "Wave Speed",
+                "t-t1-sound": "Sound",
                 
                 // Tab 2
                 "t-t2-vs": "Supersonic Velocity (v_s)",
                 "t-t2-mach": "Mach Number (M)",
                 "t-t2-angle": "Mach Angle (θ)",
-                "t-t2-show": "Show Mach Cone Envelope",
-                "t-t2-pressure": "Real-time Pressure",
+                "t-t2-show": "Envelope",
+                "t-t2-pressure": "Sensor Pressure",
                 "t-t2-max-pressure": "Max Pressure",
-                "t-t2-sound": "Enable Sonic Boom Sound",
+                "t-t2-sound": "Boom",
                 "btn-t2-reset": "Reset Sensor",
                 
                 // Tab 3
                 "t-t3-vs": "Radial Velocity (β = v/c)",
-                "t-t3-dir": "Positive = Receding | Negative = Approaching",
+                "t-t3-dir": "Negative = Approaching | Positive = Receding",
                 "t-t3-z": "Shift factor (z)",
                 "t-t3-shift": "Δλ (H-α Shift)",
-                "t-t3-h-exp": "<strong>Why Hydrogen?</strong> Hydrogen is the most abundant element in the universe. Its distinctive spectral lines (Balmer series) serve as a universal standard to measure how much a galaxy's light has shifted.",
+                "t-t3-h-exp": "<strong>Why Hydrogen?</strong> Its distinctive spectral lines (Balmer series) serve as a universal, recognizable standard to measure how much a galaxy's light has shifted.",
                 "t-spec-ref": "Reference",
                 "t-spec-obs": "Observed"
             },
@@ -869,25 +832,25 @@
                 "t-t1-vo": "Vitesse de l'Observateur (v_o)",
                 "t-t1-freq": "Fréquence Source (f)",
                 "t-t1-fobs": "Fréq. Observée (f')",
-                "t-t1-wave": "Célérité (v)",
-                "t-t1-sound": "Activer le Son",
+                "t-t1-wave": "Célérité",
+                "t-t1-sound": "Son",
                 
                 // Tab 2
                 "t-t2-vs": "Vitesse Supersonique (v_s)",
                 "t-t2-mach": "Nombre de Mach (M)",
                 "t-t2-angle": "Angle de Mach (θ)",
-                "t-t2-show": "Afficher le Cône de Mach",
-                "t-t2-pressure": "Pression en temps réel",
+                "t-t2-show": "Enveloppe",
+                "t-t2-pressure": "Pression Capteur",
                 "t-t2-max-pressure": "Pression Max",
-                "t-t2-sound": "Activer le Bang Supersonique",
+                "t-t2-sound": "Bang",
                 "btn-t2-reset": "Réinitialiser Capteur",
                 
                 // Tab 3
                 "t-t3-vs": "Vitesse Radiale (β = v/c)",
-                "t-t3-dir": "Positif = Éloignement | Négatif = Rapprochement",
+                "t-t3-dir": "Négatif = Rapprochement | Positif = Éloignement",
                 "t-t3-z": "Facteur de décalage (z)",
                 "t-t3-shift": "Δλ (Décalage H-α)",
-                "t-t3-h-exp": "<strong>Pourquoi l'Hydrogène?</strong> L'hydrogène est l'élément le plus abondant de l'univers. Ses raies spectrales (série de Balmer) servent de standard universel pour mesurer le décalage de la lumière des galaxies.",
+                "t-t3-h-exp": "<strong>Pourquoi l'Hydrogène?</strong> Ses raies spectrales (série de Balmer) servent de standard universel pour mesurer le décalage de la lumière des galaxies.",
                 "t-spec-ref": "Référence",
                 "t-spec-obs": "Observé"
             }
@@ -1098,7 +1061,6 @@
                 source.x = canvas.width * 0.3;
                 observer.x = canvas.width * 0.7;
                 state.t1LastHitTime = -999;
-                state.t1LastWaveHitTime = -999;
                 state.t1HitRipple = 0;
                 document.getElementById('out-t1-fobs').innerText = `--- Hz`;
                 document.getElementById('out-t1-fobs').style.color = 'rgba(255,255,255,0.2)';
@@ -1142,8 +1104,6 @@
             document.getElementById('val-t1-vs').innerText = `${vs > 0 ? '+':''}${vs} m/s`;
             document.getElementById('val-t1-vo').innerText = `${vo > 0 ? '+':''}${vo} m/s`;
             document.getElementById('val-t1-freq').innerText = `${f} Hz`;
-            
-            state.t1LastWaveHitTime = -999; // Reset to avoid bad interval measurements on parameter changes
         }
 
         // --- Tab 2 ---
@@ -1301,11 +1261,11 @@
                 source.x += vs * PIXELS_PER_METER * dt * simSpeedMultiplier;
                 observer.x += vo * PIXELS_PER_METER * dt * simSpeedMultiplier;
 
-                // Reset hit tracker if objects wrap around screen edges to avoid teleportation anomalies
-                if(source.x > canvas.width + 50) { source.x = -50; state.t1LastWaveHitTime = -999; }
-                if(source.x < -50) { source.x = canvas.width + 50; state.t1LastWaveHitTime = -999; }
-                if(observer.x > canvas.width + 50) { observer.x = -50; state.t1LastWaveHitTime = -999; }
-                if(observer.x < -50) { observer.x = canvas.width + 50; state.t1LastWaveHitTime = -999; }
+                // Reset positions to wrap around
+                if(source.x > canvas.width + 50) { source.x = -50; }
+                if(source.x < -50) { source.x = canvas.width + 50; }
+                if(observer.x > canvas.width + 50) { observer.x = -50; }
+                if(observer.x < -50) { observer.x = canvas.width + 50; }
 
                 const visualPeriod = 1 / (freq * 0.004); 
                 if (simTime - source.lastEmit > visualPeriod) {
@@ -1338,23 +1298,16 @@
                 if (w.radius > canvas.width * 1.5) waves.splice(i, 1);
             }
 
-            // Empirical Real-time Doppler Calculation (measured directly from wave collisions)
-            if (hit) {
-                if (state.t1LastWaveHitTime !== -999) {
-                    let deltaT = simTime - state.t1LastWaveHitTime;
-                    
-                    if (deltaT > 0.01) { // Filter instant double-hits
-                        let measuredVisualFreq = 1 / deltaT;
-                        let measuredRealFreq = measuredVisualFreq / 0.004; // Convert back using scaling factor
-                        
-                        // Protect against extreme anomalies caused by slider snapping
-                        if (measuredRealFreq > 0 && measuredRealFreq < 3000) {
-                            state.t1DisplayFobs = measuredRealFreq;
-                        }
-                    }
-                }
+            // Analytical Doppler Calculation (eliminates jitter and provides rock-steady pitch)
+            let dir = Math.sign(observer.x - source.x);
+            if (dir === 0) dir = 1; // Fallback to prevent NaN
+            
+            let denom = V_SOUND - (vs * dir);
+            if (denom < 1) denom = 1; // Prevent division by zero or negative frequency anomalies
+            
+            state.t1AnalyticalFobs = freq * (V_SOUND - (vo * dir)) / denom;
 
-                state.t1LastWaveHitTime = simTime;
+            if (hit) {
                 state.t1LastHitTime = simTime;
                 state.t1HitRipple = 25; // Trigger visual ripple
             }
@@ -1364,17 +1317,18 @@
             let displayEl = document.getElementById('out-t1-fobs');
             
             if (timeSinceHit < 0.8) {
-                displayEl.innerText = `${state.t1DisplayFobs.toFixed(1)} Hz`;
+                // Show the rock-steady analytical frequency
+                displayEl.innerText = `${state.t1AnalyticalFobs.toFixed(1)} Hz`;
                 
                 // Calculate dynamic color intensity based on shift magnitude
-                let intensity = Math.min(1, Math.abs(state.t1DisplayFobs - freq) / (freq * 0.8));
+                let intensity = Math.min(1, Math.abs(state.t1AnalyticalFobs - freq) / (freq * 0.8));
                 let r=255, g=255, b=255;
                 
-                if (state.t1DisplayFobs > freq + 0.1) { // Blueshift
+                if (state.t1AnalyticalFobs > freq + 0.1) { // Blueshift
                     r = Math.round(255 - intensity * 255);
                     g = Math.round(255 - intensity * 43);
                     b = 255;
-                } else if (state.t1DisplayFobs < freq - 0.1) { // Redshift
+                } else if (state.t1AnalyticalFobs < freq - 0.1) { // Redshift
                     r = 255;
                     g = Math.round(255 - intensity * 204);
                     b = Math.round(255 - intensity * 153);
@@ -1395,7 +1349,8 @@
             // --- AUDIO SYNC ---
             if (state.t1SoundEnabled && audioCtx && t1Gain) {
                 if (timeSinceHit < 0.8 && state.isPlaying) {
-                    t1Osc.frequency.setTargetAtTime(state.t1DisplayFobs, audioCtx.currentTime, 0.05);
+                    // Update to the perfectly smooth analytical frequency
+                    t1Osc.frequency.setTargetAtTime(state.t1AnalyticalFobs, audioCtx.currentTime, 0.05);
                     t1Gain.gain.setTargetAtTime(0.15, audioCtx.currentTime, 0.05);
                 } else {
                     t1Gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
