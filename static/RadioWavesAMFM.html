@@ -439,6 +439,7 @@
             background: transparent;
             border: none;
             padding: 0;
+            min-height: 0; /* Important for flex child squishing */
         }
 
         .analogy-bay {
@@ -547,6 +548,44 @@
             animation: fog-drift 16s ease-in-out infinite;
             pointer-events: none;
             mix-blend-mode: overlay;
+        }
+
+        /* INQUIRY BOX CSS */
+        .inquiry-box {
+            background: linear-gradient(145deg, rgba(6, 182, 212, 0.12), rgba(59, 130, 246, 0.05));
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-main);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .inquiry-box strong {
+            color: var(--accent-cyan);
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+        }
+
+        .inquiry-box ul {
+            margin-left: 1.5rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        
+        .inquiry-box ul li::marker {
+            color: var(--accent-cyan);
         }
 
         /* === MAIN SIMULATION SCREEN (TAB 2) === */
@@ -778,6 +817,16 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Inquiry Questions Box -->
+            <div class="inquiry-box">
+                <strong data-i18n="inquiry_title">🔍 Questions d'Enquête & Instructions</strong>
+                <ul>
+                    <li data-i18n="inquiry_q1">Observez : Comment l'augmentation du brouillard affecte-t-elle l'intensité de la lumière en mode AM ?</li>
+                    <li data-i18n="inquiry_q2">Basculez en mode FM : Le brouillard altère-t-il la couleur (la fréquence) perçue par l'observateur ?</li>
+                    <li data-i18n="inquiry_q3">Conclusion : Quel type de modulation semble le plus résistant aux conditions environnementales ?</li>
+                </ul>
+            </div>
         </div>
 
         <!-- TAB 2: MATH SIMULATION -->
@@ -902,7 +951,11 @@
                 lbl_source_emitted: "Émetteur (Source)",
                 lbl_perceived_obs: "Observateur (Perception)",
                 panel_noise: "Interférence (Bruit)",
-                lbl_noise_level: "Niveau de Bruit"
+                lbl_noise_level: "Niveau de Bruit",
+                inquiry_title: "🔍 Questions d'Enquête & Instructions",
+                inquiry_q1: "Observez : Comment l'augmentation du brouillard affecte-t-elle l'intensité de la lumière en mode AM ?",
+                inquiry_q2: "Basculez en mode FM : Le brouillard altère-t-il la couleur (la fréquence) perçue par l'observateur ?",
+                inquiry_q3: "Conclusion : Quel type de modulation semble le plus résistant aux conditions environnementales (bruit) ?"
             },
             en: {
                 splash_title: "Hertzian Symphony:<br>Coding the Unseen",
@@ -938,7 +991,11 @@
                 lbl_source_emitted: "Transmitter (Source)",
                 lbl_perceived_obs: "Observer (Perception)",
                 panel_noise: "Interference (Noise)",
-                lbl_noise_level: "Noise Level"
+                lbl_noise_level: "Noise Level",
+                inquiry_title: "🔍 Inquiry & Observation Instructions",
+                inquiry_q1: "Observe: How does increasing the fog thickness affect the light's intensity in AM mode?",
+                inquiry_q2: "Switch to FM mode: Does the fog alter the perceived color (frequency) reaching the observer?",
+                inquiry_q3: "Conclusion: Which modulation type appears more resistant to environmental noise and interference?"
             }
         };
 
