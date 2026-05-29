@@ -283,49 +283,46 @@
             font-size: 0.95rem;
         }
 
-        /* Magnetic Slider Styling */
+        /* Simplified, clean slider styling */
         input[type=range] {
             width: 100%;
             -webkit-appearance: none;
-            background: rgba(255,255,255,0.15);
-            height: 6px;
-            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            height: 4px;
+            border-radius: 2px;
             outline: none;
-            position: relative;
-            transition: background 0.3s ease;
+            margin: 8px 0;
+            transition: background 0.3s;
         }
 
         input[type=range]:hover {
-            background: rgba(255,255,255,0.25);
+            background: rgba(255, 255, 255, 0.2);
         }
         
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            background: var(--bg-dark);
-            border: 3px solid var(--accent-blue);
+            background: var(--accent-blue);
             cursor: pointer;
-            box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Smooth bouncy effect */
+            transition: background 0.2s, transform 0.2s;
         }
 
         input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.25);
-            background: var(--accent-blue);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+            background: #fff;
+            transform: scale(1.1);
         }
 
         datalist {
             display: flex;
             justify-content: space-between;
-            margin-top: 8px;
-            color: rgba(255,255,255,0.7);
-            font-size: 0.85rem;
+            margin-top: 4px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
             font-family: var(--font-mono);
-            font-weight: 500;
-            padding: 0 8px; /* Aligns the text better with the edges of the slider thumb */
+            font-weight: 400;
+            padding: 0 4px;
         }
 
         .data-readout {
@@ -621,7 +618,6 @@
                             <datalist id="ticks-mach">
                                 <option value="0" label="0"></option>
                                 <option value="343" label="v"></option>
-                                <option value="353" label="353"></option>
                                 <option value="686" label="2v"></option>
                                 <option value="1000" label="Max"></option>
                             </datalist>
@@ -745,7 +741,8 @@
             t1HitRipple: 0,
             t1SoundEnabled: false,
             t2SoundEnabled: false,
-            lastFramePressure: 1.0
+            lastFramePressure: 1.0,
+            t2LastBoomTime: 0
         };
 
         // --- Audio Engine ---
@@ -771,21 +768,26 @@
         function playSonicBoom() {
             if (!audioCtx) return;
             const boomTime = audioCtx.currentTime;
+            
+            // Debounce to prevent overlapping phase cancellation or chorusing
+            if (boomTime - state.t2LastBoomTime < 0.4) return;
+            state.t2LastBoomTime = boomTime;
+
             const boomOsc = audioCtx.createOscillator();
             const boomGain = audioCtx.createGain();
             
-            // Square wave creates a harsh, loud thump mimicking a boom
-            boomOsc.type = 'square'; 
-            boomOsc.frequency.setValueAtTime(150, boomTime);
-            boomOsc.frequency.exponentialRampToValueAtTime(10, boomTime + 0.4);
+            // 'triangle' gives a nice consistent physical "thump" without harsh overtones
+            boomOsc.type = 'triangle'; 
+            boomOsc.frequency.setValueAtTime(100, boomTime);
+            boomOsc.frequency.exponentialRampToValueAtTime(10, boomTime + 0.3);
             
-            boomGain.gain.setValueAtTime(0.3, boomTime);
-            boomGain.gain.exponentialRampToValueAtTime(0.01, boomTime + 0.4);
+            boomGain.gain.setValueAtTime(0.5, boomTime);
+            boomGain.gain.exponentialRampToValueAtTime(0.01, boomTime + 0.3);
             
             boomOsc.connect(boomGain);
             boomGain.connect(audioCtx.destination);
             boomOsc.start(boomTime);
-            boomOsc.stop(boomTime + 0.5);
+            boomOsc.stop(boomTime + 0.4);
         }
 
         const inT1Sound = document.getElementById('in-t1-sound');
