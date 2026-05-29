@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Echoes of the Cosmos: Doppler Effect</title>
+    <!-- Google Fonts for Modern, Elegant Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* CSS Variables & Theming */
+        :root {
+            --bg-dark: #0a0a0f;
+            --panel-bg: #14141e;
+            --panel-border: #2a2a3e;
+            --accent-blue: #00d4ff;
+            --accent-red: #ff3366;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-main: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- Splash Screen --- */
+        #splash {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            background-color: #030407;
+        }
+
+        #splash-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        .splash-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+            pointer-events: none; /* Let clicks pass to buttons */
+        }
+
+        .splash-content h1 {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 4.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-red) 0%, #a855f7 50%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.5));
+            pointer-events: auto;
+        }
+
+        .splash-content p {
+            font-size: 1.2rem;
+            color: #e2e8f0;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            pointer-events: auto;
+        }
+
+        .lang-selection {
+            pointer-events: auto;
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .btn-splash {
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: var(--font-main);
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-splash:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        #copyright {
+            position: absolute;
+            bottom: 1rem;
+            width: 100%;
+            text-align: center;
+            z-index: 2;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+            pointer-events: none;
+            letter-spacing: 1px;
+        }
+
+        /* --- Main App UI --- */
+        #app {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.5rem;
+            background: rgba(20, 20, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--panel-border);
+            height: 60px;
+            z-index: 10;
+        }
+
+        .top-nav { display: flex; gap: 1rem; align-items: center; }
+        
+        .nav-btn {
+            background: none;
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            font-family: var(--font-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--text-muted); }
+        .nav-btn.primary { background: rgba(0, 212, 255, 0.1); border-color: var(--accent-blue); color: var(--accent-blue); }
+        .nav-btn.primary:hover { background: rgba(0, 212, 255, 0.2); }
+
+        .tabs {
+            display: flex;
+            gap: 2rem;
+            height: 100%;
+        }
+
+        .tab-link {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0 0.5rem;
+            height: 100%;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-family: var(--font-main);
+        }
+
+        .tab-link:hover { color: var(--text-main); }
+        .tab-link.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .workspace {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(circle at center, #11141d 0%, #050608 100%);
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .sim-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        /* --- Bottom Control Panel --- */
+        .bottom-panel {
+            height: 240px;
+            background: var(--panel-bg);
+            border-top: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .tab-content { display: none; width: 100%; height: 100%; padding: 1.5rem; }
+        .tab-content.active { display: grid; grid-template-columns: 1.2fr 1.5fr 1fr; gap: 2rem; }
+
+        .panel-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .explanation {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .equation-box {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-blue);
+            font-family: var(--font-main);
+        }
+
+        math {
+            display: math;
+            font-size: 1.4rem;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-header .val {
+            font-family: var(--font-mono);
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        /* Magnetic Slider Styling */
+        input[type=range] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: rgba(255,255,255,0.1);
+            height: 4px;
+            border-radius: 2px;
+            outline: none;
+            position: relative;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid var(--accent-blue);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        datalist {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.6rem;
+            font-family: var(--font-mono);
+        }
+
+        .data-readout {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .data-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .data-row .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-row .val {
+            font-family: var(--font-mono);
+            font-size: 1.6rem;
+            color: var(--accent-blue);
+            font-weight: 700;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            margin-top: 0.5rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px; left: 2px;
+            width: 16px; height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        input[type="checkbox"]:checked + .toggle-switch {
+            background: var(--accent-blue);
+        }
+        input[type="checkbox"]:checked + .toggle-switch::after {
+            transform: translateX(20px);
+        }
+
+        /* Screen specifically for Gr 12 Tab */
+        .spectra-wrapper {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            display: none; 
+            overflow: visible;
+        }
+
+        .spectrum-bar {
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(to right, 
+                #1a0033 0%, #0000ff 15%, #00ffff 33%, 
+                #00ff00 50%, #ffff00 66%, #ff8000 83%, #330000 100%);
+            border-radius: 8px;
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        
+        .spectrum-label-text {
+            position: absolute;
+            left: -90px;
+            top: 10px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 80px;
+            text-align: right;
+        }
+
+        .spectral-line {
+            position: absolute;
+            top: -2px;
+            width: 3px;
+            height: calc(100% + 4px);
+            background: #000;
+            border-radius: 1px;
+            transition: left 0.1s linear;
+        }
+
+        .spectral-label {
+            position: absolute;
+            top: -20px;
+            transform: translateX(-50%);
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-shadow: 0 2px 4px #000;
+        }
+
+        @media (max-width: 900px) {
+            .tab-content.active { grid-template-columns: 1fr; }
+            .bottom-panel { height: 45vh; overflow-y: auto; }
+            .workspace { height: 55vh; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash">
+        <canvas id="splash-canvas"></canvas>
+        <div class="splash-content">
+            <h1 id="t-splash-title">Echoes of the Cosmos</h1>
+            <p id="t-splash-desc">A High-Fidelity Simulation of the Doppler Effect</p>
+            
+            <div class="lang-selection">
+                <button class="btn-splash" onclick="initApp('en')">English</button>
+                <button class="btn-splash" onclick="initApp('fr')">Français</button>
+            </div>
+        </div>
+        <div id="copyright">(c) T. Keller</div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app">
+        <header>
+            <div class="top-nav">
+                <a href="#" class="nav-btn" onclick="location.reload()" id="t-exit"><i class="fa-solid fa-arrow-right-from-bracket"></i> Exit</a>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-link active" onclick="switchTab(1)" id="t-tab1">1D Acoustic Waves</button>
+                <button class="tab-link" onclick="switchTab(2)" id="t-tab2">2D Mach Cones</button>
+                <button class="tab-link" onclick="switchTab(3)" id="t-tab3">Astrophysical Redshift</button>
+            </div>
+
+            <div class="top-nav">
+                <button class="nav-btn primary" onclick="togglePlay()" id="btn-play">
+                    <i class="fa-solid fa-pause" id="play-icon"></i> <span id="t-pause">Pause</span>
+                </button>
+                <button class="nav-btn" onclick="toggleLang()" id="btn-lang-toggle">FR</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="workspace">
+                <canvas id="sim-canvas" class="sim-canvas"></canvas>
+                
+                <!-- Spectrum overlay for Tab 3 -->
+                <div id="spectrum-view" class="spectra-wrapper">
+                    <div class="spectrum-bar" id="spectrum-ref">
+                        <div class="spectrum-label-text" id="t-spec-ref">Reference</div>
+                    </div>
+                    <div class="spectrum-bar" id="spectrum-obs">
+                        <div class="spectrum-label-text" id="t-spec-obs">Observed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-panel">
+                
+                <!-- Tab 1 Controls -->
+                <div id="controls-tab1" class="tab-content active">
+                    <div class="panel-section">
+                        <p class="explanation" id="t-t1-exp">
+                            Observe how the frequency of sound changes as the source and observer move relative to each other along a single axis.
+                        </p>
+                        <div class="equation-box">
+                            <math style="display: math;">
+                                <msup><mi>f</mi><mo>'</mo></msup>
+                                <mo>=</mo>
+                                <mi>f</mi>
+                                <mfenced>
+                                    <mfrac>
+                                        <mrow><mi>v</mi><mo>&#x00B1;</mo><msub><mi>v</mi><mi>o</mi></msub></mrow>
+                                        <mrow><mi>v</mi><mo>&#x2213;</mo><msub><mi>v</mi><mi>s</mi></msub></mrow>
+                                    </mfrac>
+                                </mfenced>
+                            </math>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-section controls-grid">
+                        <div class="control-item">
+                            <div class="control-header">
+                                <span id="t-t1-vs">Source Velocity (vs)</span>
+                                <span class="val" id="val-t1-vs">0 m/s</span>
+                            </div>
+                            <input type="range" id="in-t1-vs" min="-300" max="300" value="0" step="10" list="ticks-v">
+                            <datalist id="ticks-v">
+                                <option value="-300" label="-300"></option>
+                                <option value="0" label="0"></option>
+                                <option value="300" label="300"></option>
+                            </datalist>
+                        </div>
+                        <div class="control-item">
+                            <div class="control-header">
+                                <span id="t-t1-vo">Observer Velocity (vo)</span>
+                                <span class="val" id="val-t1-vo">0 m/s</span>
+                            </div>
+                            <input type="range" id="in-t1-vo" min="-300" max="300" value="0" step="10" list="ticks-v">
+                        </div>
+                        <div class="control-item">
+                            <div class="control-header">
+                                <span id="t-t1-freq">Source Frequency (f)</span>
+                                <span class="val" id="val-t1-freq">400 Hz</span>
+                            </div>
+                            <input type="range" id="in-t1-freq" min="100" max="1000" value="400" step="50" list="ticks-f">
+                            <datalist id="ticks-f">
+                                <option value="100" label="100"></option>
+                                <option value="550" label="550"></option>
+                                <option value="1000" label="1000"></option>
+                            </datalist>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <div class="data-readout">
+                            <div class="data-row">
+                                <span class="label" id="t-t1-fobs">Observed Freq (f')</span>
+                                <span class="val" id="out-t1-fobs" style="color: var(--accent-red)">400.0 Hz</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="label" id="t-t1-wave">Wave Speed (v)</span>
+                                <span class="val" style="color: #fff">343 m/s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2 Controls -->
+                <div id="controls-tab2" class="tab-content">
+                    <div class="panel-section">
+                        <p class="explanation" id="t-t2-exp">
+                            When a source exceeds the wave speed, the wavefronts constructively interfere to form a shock wave known as a Mach cone.
+                        </p>
+                        <div class="equation-box">
+                            <math style="display: math;">
+                                <mi>sin</mi><mo>(</mo><mi>&#x03B8;</mi><mo>)</mo>
+                                <mo>=</mo>
+                                <mfrac><mi>v</mi><msub><mi>v</mi><mi>s</mi></msub></mfrac>
+                                <mo>=</mo>
+                                <mfrac><mn>1</mn><mi>M</mi></mfrac>
+                            </math>
+                        </div>
+                    </div>
+
+                    <div class="panel-section controls-grid">
+                        <div class="control-item" style="margin-top: 1rem;">
+                            <div class="control-header">
+                                <span id="t-t2-vs">Supersonic Velocity (vs)</span>
+                                <span class="val" id="val-t2-vs">0 m/s</span>
+                            </div>
+                            <input type="range" id="in-t2-vs" min="0" max="1000" value="0" step="1" list="ticks-mach">
+                            <datalist id="ticks-mach">
+                                <option value="0" label="0"></option>
+                                <option value="343" label="v"></option>
+                                <option value="353" label="353"></option>
+                                <option value="686" label="2v"></option>
+                                <option value="1000" label="Max"></option>
+                            </datalist>
+                        </div>
+                        
+                        <label class="toggle-container">
+                            <input type="checkbox" id="in-t2-cone" style="display:none;" checked>
+                            <div class="toggle-switch"></div>
+                            <span id="t-t2-show">Show Mach Cone Envelope</span>
+                        </label>
+                        
+                        <div class="control-item" style="margin-top: 1rem;">
+                            <button class="btn-splash" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="resetT2Sensor()" id="btn-t2-reset">Reset Sensor</button>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <div class="data-readout">
+                            <div class="data-row" style="flex-direction: row; justify-content: space-between;">
+                                <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                    <span class="label" id="t-t2-mach">Mach Number (M)</span>
+                                    <span class="val" id="out-t2-mach">1.02</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                    <span class="label" id="t-t2-angle">Mach Angle (θ)</span>
+                                    <span class="val" id="out-t2-angle" style="color: var(--accent-red)">78.5°</span>
+                                </div>
+                            </div>
+                            <hr style="border-color: rgba(255,255,255,0.1); border-style: dashed; margin: 0.5rem 0;">
+                            <div class="data-row" style="flex-direction: row; justify-content: space-between;">
+                                <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                    <span class="label" id="t-t2-pressure">Real-time Pressure</span>
+                                    <span class="val" id="out-t2-pressure" style="font-size: 1.2rem;">1.00 atm</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                    <span class="label" id="t-t2-max-pressure">Max Pressure</span>
+                                    <span class="val" id="out-t2-max-pressure" style="font-size: 1.2rem; color: var(--accent-red)">1.00 atm</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3 Controls -->
+                <div id="controls-tab3" class="tab-content">
+                    <div class="panel-section">
+                        <p class="explanation" id="t-t3-exp">
+                            Light from receding stars stretches to longer wavelengths (Redshift), while approaching light compresses to shorter wavelengths (Blueshift).
+                        </p>
+                        <p class="explanation" id="t-t3-h-exp" style="font-size: 0.85rem; border-left: 2px solid var(--accent-blue); padding-left: 10px;">
+                            <strong>Why Hydrogen?</strong> Hydrogen is the most abundant element in the universe. Its distinctive spectral lines (Balmer series) serve as a universal, recognizable standard to measure how much a galaxy's light has shifted.
+                        </p>
+                        <div class="equation-box">
+                            <math style="display: math;">
+                                <mi>z</mi>
+                                <mo>=</mo>
+                                <msqrt>
+                                    <mfrac><mrow><mn>1</mn><mo>+</mo><mi>&#x03B2;</mi></mrow><mrow><mn>1</mn><mo>-</mo><mi>&#x03B2;</mi></mrow></mfrac>
+                                </msqrt>
+                                <mo>-</mo>
+                                <mn>1</mn>
+                            </math>
+                        </div>
+                    </div>
+
+                    <div class="panel-section controls-grid">
+                        <div class="control-item" style="margin-top: 1rem;">
+                            <div class="control-header">
+                                <span id="t-t3-vs">Radial Velocity (β = v/c)</span>
+                                <span class="val" id="val-t3-vs">0.00 c</span>
+                            </div>
+                            <input type="range" id="in-t3-vs" min="-0.60" max="0.60" value="0" step="0.05" list="ticks-beta">
+                            <datalist id="ticks-beta">
+                                <option value="-0.6" label="Blue"></option>
+                                <option value="0" label="0"></option>
+                                <option value="0.6" label="Red"></option>
+                            </datalist>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;" id="t-t3-dir">
+                                Positive = Receding | Negative = Approaching
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <div class="data-readout" style="flex-direction: row; align-items: center; justify-content: space-around;">
+                            <div class="data-row">
+                                <span class="label" id="t-t3-z">Redshift (z)</span>
+                                <span class="val" id="out-t3-z">0.000</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="label" id="t-t3-shift">Δλ (H-α Shift)</span>
+                                <span class="val" id="out-t3-shift" style="color: var(--accent-red)">0.0 nm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- State Management ---
+        const state = {
+            lang: 'en',
+            appActive: false,
+            isPlaying: true,
+            currentTab: 1,
+            pointer: { x: window.innerWidth/2, y: window.innerHeight/2 }
+        };
+
+        // --- Dictionaries ---
+        const dict = {
+            en: {
+                "t-splash-title": "Echoes of the Cosmos",
+                "t-splash-desc": "A High-Fidelity Simulation of the Doppler Effect",
+                "t-exit": "<i class='fa-solid fa-arrow-right-from-bracket'></i> Exit",
+                "t-play": "Play",
+                "t-pause": "Pause",
+                "t-tab1": "1D Acoustic Waves",
+                "t-tab2": "2D Mach Cones",
+                "t-tab3": "Astrophysical Redshift",
+                "btn-lang-toggle": "FR",
+                
+                // Explanations
+                "t-t1-exp": "Observe how the frequency of sound changes as the source and observer move relative to each other along a single axis.",
+                "t-t2-exp": "When a source exceeds the wave speed, the wavefronts constructively interfere to form a shock wave known as a Mach cone.",
+                "t-t3-exp": "Light from receding stars stretches to longer wavelengths (Redshift), while approaching light compresses to shorter wavelengths (Blueshift).",
+
+                // Tab 1
+                "t-t1-vs": "Source Velocity (v_s)",
+                "t-t1-vo": "Observer Velocity (v_o)",
+                "t-t1-freq": "Source Frequency (f)",
+                "t-t1-fobs": "Observed Freq (f')",
+                "t-t1-wave": "Wave Speed (v)",
+                
+                // Tab 2
+                "t-t2-vs": "Supersonic Velocity (v_s)",
+                "t-t2-mach": "Mach Number (M)",
+                "t-t2-angle": "Mach Angle (θ)",
+                "t-t2-show": "Show Mach Cone Envelope",
+                "t-t2-pressure": "Real-time Pressure",
+                "t-t2-max-pressure": "Max Pressure",
+                "btn-t2-reset": "Reset Sensor",
+                
+                // Tab 3
+                "t-t3-vs": "Radial Velocity (β = v/c)",
+                "t-t3-dir": "Positive = Receding | Negative = Approaching",
+                "t-t3-z": "Shift factor (z)",
+                "t-t3-shift": "Δλ (H-α Shift)",
+                "t-t3-h-exp": "<strong>Why Hydrogen?</strong> Hydrogen is the most abundant element in the universe. Its distinctive spectral lines (Balmer series) serve as a universal standard to measure how much a galaxy's light has shifted.",
+                "t-spec-ref": "Reference",
+                "t-spec-obs": "Observed"
+            },
+            fr: {
+                "t-splash-title": "Échos du Cosmos",
+                "t-splash-desc": "Une Simulation Haute-Fidélité de l'Effet Doppler",
+                "t-exit": "<i class='fa-solid fa-arrow-right-from-bracket'></i> Quitter",
+                "t-play": "Lecture",
+                "t-pause": "Pause",
+                "t-tab1": "Ondes Acoustiques 1D",
+                "t-tab2": "Cônes de Mach 2D",
+                "t-tab3": "Décalage Spectral",
+                "btn-lang-toggle": "EN",
+                
+                "t-t1-exp": "Observez comment la fréquence du son change lorsque la source et l'observateur se déplacent l'un par rapport à l'autre le long d'un axe.",
+                "t-t2-exp": "Lorsqu'une source dépasse la vitesse de l'onde, les fronts d'onde interfèrent pour former une onde de choc appelée cône de Mach.",
+                "t-t3-exp": "La lumière des étoiles s'éloignant s'étire vers de plus grandes longueurs d'onde (Redshift), tandis que celle qui s'approche se comprime (Blueshift).",
+
+                // Tab 1
+                "t-t1-vs": "Vitesse de la Source (v_s)",
+                "t-t1-vo": "Vitesse de l'Observateur (v_o)",
+                "t-t1-freq": "Fréquence Source (f)",
+                "t-t1-fobs": "Fréq. Observée (f')",
+                "t-t1-wave": "Célérité (v)",
+                
+                // Tab 2
+                "t-t2-vs": "Vitesse Supersonique (v_s)",
+                "t-t2-mach": "Nombre de Mach (M)",
+                "t-t2-angle": "Angle de Mach (θ)",
+                "t-t2-show": "Afficher le Cône de Mach",
+                "t-t2-pressure": "Pression en temps réel",
+                "t-t2-max-pressure": "Pression Max",
+                "btn-t2-reset": "Réinitialiser Capteur",
+                
+                // Tab 3
+                "t-t3-vs": "Vitesse Radiale (β = v/c)",
+                "t-t3-dir": "Positif = Éloignement | Négatif = Rapprochement",
+                "t-t3-z": "Facteur de décalage (z)",
+                "t-t3-shift": "Δλ (Décalage H-α)",
+                "t-t3-h-exp": "<strong>Pourquoi l'Hydrogène?</strong> L'hydrogène est l'élément le plus abondant de l'univers. Ses raies spectrales (série de Balmer) servent de standard universel pour mesurer le décalage de la lumière des galaxies.",
+                "t-spec-ref": "Référence",
+                "t-spec-obs": "Observé"
+            }
+        };
+
+        // --- Splash Screen & Pointer Animation ---
+        const splashCanvas = document.getElementById('splash-canvas');
+        const sctx = splashCanvas.getContext('2d');
+        let splashWaves = [];
+        let splashSimTime = 0;
+
+        function resizeSplash() {
+            splashCanvas.width = window.innerWidth;
+            splashCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeSplash);
+        resizeSplash();
+
+        window.addEventListener('mousemove', e => {
+            state.pointer.x = e.clientX;
+            state.pointer.y = e.clientY;
+        });
+        window.addEventListener('touchmove', e => {
+            state.pointer.x = e.touches[0].clientX;
+            state.pointer.y = e.touches[0].clientY;
+        });
+
+        function renderSplash() {
+            if (state.appActive) return;
+            
+            // Lower alpha for longer, ethereal trails
+            sctx.fillStyle = 'rgba(3, 4, 7, 0.08)';
+            sctx.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
+
+            splashSimTime += 0.016;
+
+            const cx = splashCanvas.width / 2;
+            let globalShift = (state.pointer.x - cx) * 0.05; 
+            
+            if(globalShift > 20) globalShift = 20;
+            if(globalShift < -20) globalShift = -20;
+
+            // Emit wave from random position
+            if (Math.random() < 0.08) { 
+                splashWaves.push({ 
+                    x: Math.random() * splashCanvas.width, 
+                    y: Math.random() * splashCanvas.height, 
+                    radius: 0, 
+                    baseAlpha: Math.random() * 0.5 + 0.1
+                });
+            }
+
+            // Move source context colors (Redshift / Blueshift visual based on cursor)
+            let tintR = 120 + (globalShift * 15);
+            let tintB = 255 - (globalShift * 15);
+            if(tintR > 255) tintR = 255; if(tintR < 50) tintR = 50;
+            if(tintB > 255) tintB = 255; if(tintB < 50) tintB = 50;
+
+            for(let i=splashWaves.length-1; i>=0; i--) {
+                let w = splashWaves[i];
+                w.radius += 1.5; // Much slower expansion
+
+                const maxRadius = 350;
+                const progress = w.radius / maxRadius;
+                const alpha = Math.max(0, (1 - progress) * w.baseAlpha);
+
+                const colorStr = `rgba(${tintR}, 80, ${tintB}, ${alpha})`;
+                
+                sctx.strokeStyle = colorStr;
+                sctx.lineWidth = 1 + (progress * 5); // Gets thicker as it expands
+                sctx.shadowBlur = 25; // Adds the glow
+                sctx.shadowColor = colorStr;
+                
+                sctx.beginPath();
+                sctx.arc(w.x, w.y, w.radius, 0, Math.PI*2);
+                sctx.stroke();
+
+                if (progress > 1) {
+                    splashWaves.splice(i, 1);
+                }
+            }
+            
+            sctx.shadowBlur = 0; // Reset shadow so it doesn't affect the clearing rect
+
+            requestAnimationFrame(renderSplash);
+        }
+        renderSplash();
+
+        function toggleLang() {
+            state.lang = state.lang === 'en' ? 'fr' : 'en';
+            updateUI();
+        }
+
+        function togglePlay() {
+            state.isPlaying = !state.isPlaying;
+            updatePlayBtnUI();
+        }
+
+        function updatePlayBtnUI() {
+            const icon = document.getElementById('play-icon');
+            const text = document.getElementById('t-pause');
+            if(state.isPlaying) {
+                icon.className = 'fa-solid fa-pause';
+                text.innerText = dict[state.lang]["t-pause"];
+            } else {
+                icon.className = 'fa-solid fa-play';
+                text.innerText = dict[state.lang]["t-play"];
+            }
+        }
+
+        function updateUI() {
+            const textData = dict[state.lang];
+            for (let key in textData) {
+                const el = document.getElementById(key);
+                if (el) el.innerHTML = textData[key];
+            }
+            updatePlayBtnUI();
+            if(state.currentTab === 3) drawSpectrum();
+        }
+
+        function initApp(lang) {
+            state.lang = lang;
+            updateUI();
+            
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+            state.appActive = true;
+
+            resizeSim();
+            resetSimPhysics();
+            requestAnimationFrame(renderSim);
+        }
+
+        function switchTab(tabIndex) {
+            state.currentTab = tabIndex;
+            
+            document.querySelectorAll('.tab-link').forEach((el, idx) => {
+                el.classList.toggle('active', idx === (tabIndex - 1));
+            });
+
+            document.querySelectorAll('.tab-content').forEach((el, idx) => {
+                el.classList.toggle('active', idx === (tabIndex - 1));
+            });
+
+            document.getElementById('spectrum-view').style.display = (tabIndex === 3) ? 'flex' : 'none';
+            resetSimPhysics();
+        }
+
+        // --- Physics Engine ---
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let simTime = 0;
+        let lastTime = performance.now();
+        let waves = [];
+        let source = { x: 0, y: 0, lastEmit: 0 };
+        let observer = { x: 0, y: 0 };
+        
+        let t2Observer = { x: 0, y: 0 };
+        let t2MaxPressure = 1.0;
+
+        const V_SOUND = 343; 
+        const PIXELS_PER_METER = 0.5;
+
+        function resizeSim() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            resetSimPhysics();
+        }
+        window.addEventListener('resize', () => { if(state.appActive) resizeSim(); });
+
+        function resetSimPhysics() {
+            waves = [];
+            simTime = 0;
+            source.y = canvas.height / 2;
+            observer.y = canvas.height / 2;
+            source.lastEmit = 0;
+            
+            if (state.currentTab === 1) {
+                source.x = canvas.width * 0.3;
+                observer.x = canvas.width * 0.7;
+            } else if(state.currentTab === 2) {
+                source.x = 100;
+                t2Observer.x = canvas.width / 2;
+                t2Observer.y = canvas.height - 40;
+                t2MaxPressure = 1.0;
+                if (document.getElementById('out-t2-max-pressure')) {
+                    document.getElementById('out-t2-max-pressure').innerText = '1.00 atm';
+                }
+            } else if (state.currentTab === 3) {
+                source.x = canvas.width / 2;
+                createSpectrumLines();
+                drawSpectrum();
+            }
+        }
+
+        function resetT2Sensor() {
+            t2MaxPressure = 1.0;
+            document.getElementById('out-t2-max-pressure').innerText = t2MaxPressure.toFixed(2) + ' atm';
+        }
+
+        // --- Tab 1 ---
+        const inT1Vs = document.getElementById('in-t1-vs');
+        const inT1Vo = document.getElementById('in-t1-vo');
+        const inT1Freq = document.getElementById('in-t1-freq');
+        
+        [inT1Vs, inT1Vo, inT1Freq].forEach(el => el.addEventListener('input', updateTab1Data));
+
+        function updateTab1Data() {
+            const vs = parseFloat(inT1Vs.value);
+            const vo = parseFloat(inT1Vo.value);
+            const f = parseFloat(inT1Freq.value);
+
+            document.getElementById('val-t1-vs').innerText = `${vs > 0 ? '+':''}${vs} m/s`;
+            document.getElementById('val-t1-vo').innerText = `${vo > 0 ? '+':''}${vo} m/s`;
+            document.getElementById('val-t1-freq').innerText = `${f} Hz`;
+
+            let denom = (V_SOUND - vs);
+            if (Math.abs(denom) < 0.1) denom = 0.1 * Math.sign(denom);
+            
+            let f_obs = f * ((V_SOUND - vo) / denom);
+            if (f_obs < 0) f_obs = Math.abs(f_obs); 
+            
+            document.getElementById('out-t1-fobs').innerText = `${f_obs.toFixed(1)} Hz`;
+        }
+
+        // --- Tab 2 ---
+        const inT2Vs = document.getElementById('in-t2-vs');
+        const inT2Cone = document.getElementById('in-t2-cone');
+        inT2Vs.addEventListener('input', updateTab2Data);
+        inT2Cone.addEventListener('change', () => { /* triggers render update */ });
+
+        function updateTab2Data() {
+            const vs = parseFloat(inT2Vs.value);
+            document.getElementById('val-t2-vs').innerText = `${vs} m/s`;
+            
+            const mach = vs / V_SOUND;
+            document.getElementById('out-t2-mach').innerText = mach.toFixed(2);
+            
+            if(vs > V_SOUND) {
+                const angleRad = Math.asin(V_SOUND / vs);
+                const angleDeg = (angleRad * 180 / Math.PI).toFixed(1);
+                document.getElementById('out-t2-angle').innerText = `${angleDeg}°`;
+            } else {
+                document.getElementById('out-t2-angle').innerText = `N/A`;
+            }
+        }
+
+        // --- Tab 3 ---
+        const inT3Vs = document.getElementById('in-t3-vs');
+        inT3Vs.addEventListener('input', updateTab3Data);
+        
+        const HALPHA_REST = 656.28; 
+        const spectralLinesData = [
+            { rest: 410, name: "H-δ", color: "#a855f7" },
+            { rest: 434, name: "H-γ", color: "#3b82f6" },
+            { rest: 486, name: "H-β", color: "#06b6d4" },
+            { rest: 656.28, name: "H-α", color: "#ef4444" }
+        ];
+
+        function createSpectrumLines() {
+            const refContainer = document.getElementById('spectrum-ref');
+            const obsContainer = document.getElementById('spectrum-obs');
+            
+            // Clear previous lines, keep the label text
+            Array.from(refContainer.children).forEach(c => { if(!c.classList.contains('spectrum-label-text')) c.remove() });
+            Array.from(obsContainer.children).forEach(c => { if(!c.classList.contains('spectrum-label-text')) c.remove() });
+            
+            const minW = 380, maxW = 750, range = maxW - minW;
+
+            spectralLinesData.forEach((line, i) => {
+                // Static Reference Line
+                const ref = document.createElement('div');
+                ref.className = 'spectral-line';
+                const refPercent = ((line.rest - minW) / range) * 100;
+                ref.style.left = `${refPercent}%`;
+                
+                const refLabel = document.createElement('div');
+                refLabel.className = 'spectral-label';
+                refLabel.innerText = line.name;
+                ref.appendChild(refLabel);
+                refContainer.appendChild(ref);
+
+                // Moving Spectral Line (Observed)
+                const el = document.createElement('div');
+                el.className = 'spectral-line';
+                el.id = 'line-' + i;
+                obsContainer.appendChild(el);
+            });
+        }
+
+        function drawSpectrum() {
+            const beta = parseFloat(inT3Vs.value); 
+            const z = Math.sqrt((1 + beta) / (1 - beta)) - 1;
+            
+            const minW = 380, maxW = 750, range = maxW - minW;
+
+            spectralLinesData.forEach((line, i) => {
+                const el = document.getElementById('line-' + i);
+                if (!el) return;
+                
+                const observed = line.rest * (1 + z);
+                
+                if (observed >= minW && observed <= maxW) {
+                    el.style.display = 'block';
+                    const percent = ((observed - minW) / range) * 100;
+                    el.style.left = `${percent}%`;
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+        }
+
+        function updateTab3Data() {
+            const beta = parseFloat(inT3Vs.value);
+            document.getElementById('val-t3-vs').innerText = `${beta.toFixed(2)} c`;
+            
+            const z = Math.sqrt((1 + beta) / (1 - beta)) - 1;
+            document.getElementById('out-t3-z').innerText = z.toFixed(3);
+            
+            const hAlphaObs = HALPHA_REST * (1 + z);
+            const shift = hAlphaObs - HALPHA_REST;
+            
+            const shiftStr = shift > 0 ? `+${shift.toFixed(1)}` : shift.toFixed(1);
+            document.getElementById('out-t3-shift').innerText = `${shiftStr} nm`;
+            
+            drawSpectrum();
+        }
+
+        // --- Main Rendering Loop ---
+        function renderSim(timestamp) {
+            if (!state.appActive) return;
+            
+            let dt = (timestamp - lastTime) / 1000;
+            if (dt > 0.1) dt = 0.1; // Cap dt to prevent huge jumps if tab was hidden
+            lastTime = timestamp;
+            
+            if(state.isPlaying) {
+                simTime += dt;
+            } else {
+                dt = 0; // Freeze motion
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for(let i=0; i<canvas.width; i+=40) { ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); }
+            for(let j=0; j<canvas.height; j+=40) { ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); }
+            ctx.stroke();
+
+            if (state.currentTab === 1) renderTab1(dt);
+            else if (state.currentTab === 2) renderTab2(dt);
+            else if (state.currentTab === 3) renderTab3(dt);
+
+            requestAnimationFrame(renderSim);
+        }
+
+        function renderTab1(dt) {
+            const vs = parseFloat(inT1Vs.value);
+            const vo = parseFloat(inT1Vo.value);
+            const freq = parseFloat(inT1Freq.value);
+            
+            const simSpeedMultiplier = 0.5; 
+            
+            if(state.isPlaying) {
+                source.x += vs * PIXELS_PER_METER * dt * simSpeedMultiplier;
+                observer.x += vo * PIXELS_PER_METER * dt * simSpeedMultiplier;
+
+                if(source.x > canvas.width + 50) source.x = -50;
+                if(source.x < -50) source.x = canvas.width + 50;
+                if(observer.x > canvas.width + 50) observer.x = -50;
+                if(observer.x < -50) observer.x = canvas.width + 50;
+
+                const visualPeriod = 1 / (freq * 0.004); 
+                if (simTime - source.lastEmit > visualPeriod) {
+                    waves.push({ x: source.x, y: source.y, radius: 0 });
+                    source.lastEmit = simTime;
+                }
+            }
+
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.4)';
+            ctx.lineWidth = 1.5;
+            for (let i = waves.length - 1; i >= 0; i--) {
+                let w = waves[i];
+                if(state.isPlaying) w.radius += V_SOUND * PIXELS_PER_METER * dt * simSpeedMultiplier;
+                
+                ctx.beginPath();
+                ctx.arc(w.x, w.y, w.radius, 0, Math.PI * 2);
+                ctx.stroke();
+
+                if (w.radius > canvas.width * 1.5) waves.splice(i, 1);
+            }
+
+            // Draw Obs
+            ctx.fillStyle = '#00d4ff';
+            ctx.beginPath();
+            ctx.arc(observer.x, observer.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 12px var(--font-mono)';
+            ctx.fillText('O', observer.x - 4, observer.y - 15);
+
+            // Draw Src
+            ctx.fillStyle = '#ff3366';
+            ctx.beginPath();
+            ctx.arc(source.x, source.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.fillText('S', source.x - 4, source.y - 15);
+        }
+
+        function renderTab2(dt) {
+            const vs = parseFloat(inT2Vs.value);
+            const simSpeedMultiplier = 0.5;
+            let currentPressure = 1.0; // Base atm
+
+            if(state.isPlaying) {
+                source.x += vs * PIXELS_PER_METER * dt * simSpeedMultiplier;
+                if (source.x > canvas.width + 200) {
+                    source.x = -50;
+                    waves = [];
+                }
+                const visualPeriod = 0.03; // slightly faster emission to build pressure
+                if (simTime - source.lastEmit > visualPeriod) {
+                    waves.push({ x: source.x, y: source.y, radius: 0 });
+                    source.lastEmit = simTime;
+                }
+            }
+
+            ctx.strokeStyle = 'rgba(255, 51, 102, 0.3)';
+            ctx.lineWidth = 1;
+            for (let i = waves.length - 1; i >= 0; i--) {
+                let w = waves[i];
+                if(state.isPlaying) w.radius += V_SOUND * PIXELS_PER_METER * dt * simSpeedMultiplier;
+                
+                ctx.beginPath();
+                ctx.arc(w.x, w.y, w.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Pressure Check
+                let dist = Math.hypot(w.x - t2Observer.x, w.y - t2Observer.y);
+                if (Math.abs(dist - w.radius) < 6) {
+                    currentPressure += 0.6; // Increment pressure if wave hits observer
+                }
+
+                if (w.radius > canvas.width) waves.splice(i, 1);
+            }
+
+            if (inT2Cone.checked && vs > V_SOUND) {
+                const angleRad = Math.asin(V_SOUND / vs);
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                ctx.moveTo(source.x, source.y);
+                ctx.lineTo(source.x - Math.cos(angleRad)*canvas.width, source.y - Math.sin(angleRad)*canvas.width);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(source.x, source.y);
+                ctx.lineTo(source.x - Math.cos(angleRad)*canvas.width, source.y + Math.sin(angleRad)*canvas.width);
+                ctx.stroke();
+            }
+
+            // Draw Ground Observer (Sensor)
+            ctx.fillStyle = '#00d4ff';
+            ctx.beginPath();
+            ctx.arc(t2Observer.x, t2Observer.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px var(--font-mono)';
+            ctx.fillText('SENSOR', t2Observer.x - 18, t2Observer.y + 20);
+
+            // Update Pressure UI
+            if (currentPressure > t2MaxPressure) t2MaxPressure = currentPressure;
+            document.getElementById('out-t2-pressure').innerText = currentPressure.toFixed(2) + ' atm';
+            document.getElementById('out-t2-max-pressure').innerText = t2MaxPressure.toFixed(2) + ' atm';
+
+            // Draw Source Jet
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(source.x, source.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function renderTab3(dt) {
+            const beta = parseFloat(inT3Vs.value);
+            const obsX = canvas.width / 2;
+            const obsY = canvas.height / 2;
+            
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(obsX, obsY, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = '12px var(--font-mono)';
+            ctx.fillText('Observer', obsX - 25, obsY - 15);
+
+            const starColor = beta > 0 ? `rgba(255, 50, 50, 0.9)` : (beta < 0 ? `rgba(50, 150, 255, 0.9)` : `#fff`);
+            const waveColor = beta > 0 ? `rgba(255, 50, 50, 0.4)` : (beta < 0 ? `rgba(50, 150, 255, 0.4)` : `rgba(255,255,255,0.4)`);
+            
+            const f_rest = 1.5; // Decreased for larger gaps
+            const z = Math.sqrt((1 + beta) / (1 - beta)) - 1;
+            const f_obs = f_rest / (1 + z); 
+            
+            const visualPeriod = 1 / f_obs;
+            
+            if (state.isPlaying && simTime - source.lastEmit > visualPeriod) {
+                waves.push({ radius: canvas.width/1.5 }); // Start far away
+                source.lastEmit = simTime;
+            }
+
+            ctx.strokeStyle = waveColor;
+            ctx.lineWidth = 2;
+            for (let i = waves.length - 1; i >= 0; i--) {
+                let w = waves[i];
+                // Slower animation multiplier (40 instead of 100)
+                if(state.isPlaying) w.radius -= 40 * dt; 
+                
+                if (w.radius > 0) {
+                    ctx.beginPath();
+                    ctx.arc(obsX, obsY, w.radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                } else {
+                    waves.splice(i, 1);
+                }
+            }
+
+            const starRadius = 12;
+            const sX = obsX + 180;
+            const sY = obsY - 100;
+            
+            ctx.fillStyle = starColor;
+            ctx.beginPath();
+            ctx.arc(sX, sY, starRadius, 0, Math.PI * 2);
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = starColor;
+            ctx.fill();
+            ctx.shadowBlur = 0; 
+
+            // Velocity Vector arrow
+            if (beta !== 0) {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(sX, sY);
+                const vecLength = beta * 80;
+                const angle = Math.atan2(sY - obsY, sX - obsX);
+                const endX = sX + Math.cos(angle) * vecLength;
+                const endY = sY + Math.sin(angle) * vecLength;
+                
+                // Arrow line
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+                
+                // Arrowhead
+                ctx.beginPath();
+                ctx.moveTo(endX, endY);
+                ctx.lineTo(endX - 8 * Math.cos(angle - Math.PI/6), endY - 8 * Math.sin(angle - Math.PI/6));
+                ctx.lineTo(endX - 8 * Math.cos(angle + Math.PI/6), endY - 8 * Math.sin(angle + Math.PI/6));
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+            }
+        }
+
+        // Initialize values on load
+        createSpectrumLines();
+        updateTab1Data();
+        updateTab2Data();
+        updateTab3Data();
+
+    </script>
+</body>
+</html>
+```
