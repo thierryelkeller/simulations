@@ -96,10 +96,14 @@
 
         .splash-subtitle-modern {
             color: var(--text-muted);
-            font-size: 1.4rem;
+            font-size: 1.25rem;
             margin-bottom: 3.5rem;
             font-weight: 300;
             letter-spacing: 0.5px;
+            line-height: 1.6;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .lang-toggle-modern {
@@ -295,20 +299,27 @@
         }
 
         .top-toolbar .radio-group,
-        .top-toolbar .slider-wrapper {
+        .top-toolbar .sliders-group {
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            padding: 0.6rem 1.2rem;
+            padding: 0.6rem 1.5rem;
             border-radius: 50px;
             backdrop-filter: blur(16px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
             display: flex;
             align-items: center;
-            gap: 1.2rem;
+            gap: 1.5rem;
         }
 
-        .top-toolbar .slider-wrapper {
-            width: 350px;
+        .top-toolbar .sliders-group {
+            gap: 2rem;
+        }
+
+        .top-toolbar .slider-wrapper-nested {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 280px;
         }
 
         /* Custom Radio Buttons */
@@ -439,7 +450,7 @@
             background: transparent;
             border: none;
             padding: 0;
-            min-height: 0; /* Important for flex child squishing */
+            min-height: 0; /* Important pour flex child squishing */
         }
 
         .analogy-bay {
@@ -451,7 +462,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 1rem;
+            padding: 1.2rem;
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(16px);
@@ -476,59 +487,64 @@
         .lightbulb-container {
             flex: 1;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
             width: 100%;
-            gap: 1rem;
+            min-height: 0;
         }
 
-        /* Improved Lightbulb with 3D gloss overlay */
+        /* Modernized Elegant Simple Lightbulb (No Filament) */
         .lightbulb {
-            width: 90px;
-            height: 110px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
             background: #cbd5e1;
-            border-radius: 50% 50% 30% 30%;
             position: relative;
             transition: background-color 0.08s ease-out, box-shadow 0.08s ease-out;
             z-index: 5;
+            box-shadow: inset 0 -6px 15px rgba(0,0,0,0.15);
         }
 
+        /* Glossy Highlight Reflection */
         .lightbulb::before {
             content: '';
             position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.3) 100%);
+            top: 8px;
+            left: 15px;
+            width: 30px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: rotate(-15deg);
+            filter: blur(1px);
             z-index: 10;
             pointer-events: none;
         }
 
+        /* Metal Base / Socket */
         .lightbulb::after {
             content: '';
             position: absolute;
-            bottom: -18px;
+            bottom: -20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 40px;
-            height: 18px;
-            background: linear-gradient(90deg, #475569 0%, #94a3b8 50%, #475569 100%);
-            border-radius: 0 0 8px 8px;
-            box-shadow: inset 0 -2px 5px rgba(0,0,0,0.5);
+            width: 36px;
+            height: 20px;
+            background: linear-gradient(90deg, #334155 0%, #64748b 50%, #334155 100%);
+            border-radius: 0 0 10px 10px;
+            box-shadow: inset 0 -2px 5px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.3);
             z-index: 4;
         }
 
-        /* Digital Intensity Display Under Source Bulb */
+        /* Digital Intensity Display Under Bulb - Decoupled to guarantee center alignment */
         .bulb-telemetry {
+            position: absolute;
+            bottom: 5px;
             font-family: var(--font-mono);
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--accent-cyan);
-            background: rgba(0, 229, 255, 0.1);
-            border: 1px solid rgba(0, 229, 255, 0.2);
-            padding: 0.3rem 1rem;
-            border-radius: 8px;
             text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
             transition: opacity 0.3s, transform 0.3s;
             z-index: 10;
@@ -748,7 +764,8 @@
             .controls-panel { width: 100%; }
             .analogy-visual-split { flex-direction: column; height: 350px; }
             .top-toolbar { flex-direction: column; gap: 1rem; }
-            .top-toolbar .slider-wrapper { width: 100%; max-width: 400px; }
+            .top-toolbar .sliders-group { flex-direction: column; gap: 1rem; width: 100%; max-width: 400px; border-radius: 24px; }
+            .top-toolbar .slider-wrapper-nested { width: 100%; }
         }
     </style>
 </head>
@@ -759,7 +776,7 @@
         <canvas id="splash-canvas"></canvas>
         <div class="splash-content-modern">
             <h1 class="splash-title-gradient" data-i18n="splash_title">Symphonie Hertzienne :<br>Le Code de l'Invisible</h1>
-            <p class="splash-subtitle-modern" data-i18n="splash_subtitle">Laboratoire virtuel de physique - 11e et 12e année</p>
+            <p class="splash-subtitle-modern" id="splash-subtitle" data-i18n="splash_subtitle">Explorez la modulation d'amplitude (AM) et de fréquence (FM) à travers des représentations physiques, analogiques et mathématiques en temps réel.</p>
             
             <div class="lang-toggle-modern">
                 <button class="lang-btn-modern active" onclick="setLanguage('fr')">Français</button>
@@ -802,16 +819,18 @@
                     </label>
                 </div>
                 
-                <div class="slider-wrapper">
-                    <span data-i18n="lbl_fog" style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; white-space: nowrap;">Épaisseur Brouillard</span>
-                    <input type="range" id="fog_level" min="0" max="100" step="1" value="20">
-                    <span id="val_fog" class="slider-value">20%</span>
-                </div>
+                <div class="sliders-group">
+                    <div class="slider-wrapper-nested">
+                        <span data-i18n="lbl_fog" style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; white-space: nowrap;">Épaisseur Brouillard</span>
+                        <input type="range" id="fog_level" min="0" max="100" step="1" value="20">
+                        <span id="val_fog" class="slider-value">20%</span>
+                    </div>
 
-                <div class="slider-wrapper">
-                    <span data-i18n="lbl_distance" style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; white-space: nowrap;">Distance</span>
-                    <input type="range" id="distance_level" min="1" max="100" step="1" value="1">
-                    <span id="val_distance" class="slider-value">1</span>
+                    <div class="slider-wrapper-nested">
+                        <span data-i18n="lbl_distance" style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; white-space: nowrap;">Distance</span>
+                        <input type="range" id="distance_level" min="1" max="100" step="1" value="1">
+                        <span id="val_distance" class="slider-value">1</span>
+                    </div>
                 </div>
             </div>
 
@@ -937,7 +956,7 @@
         const i18n = {
             fr: {
                 splash_title: "Symphonie Hertzienne :<br>Le Code de l'Invisible",
-                splash_subtitle: "Laboratoire virtuel de physique - 11e et 12e année",
+                splash_subtitle: "Explorez la modulation d'amplitude (AM) et de fréquence (FM) à travers des représentations physiques, analogiques et mathématiques en temps réel.",
                 btn_start: "Démarrer l'Analyse",
                 app_title: "Laboratoire Modélisation Électromagnétique",
                 btn_back: "Retour",
@@ -978,7 +997,7 @@
             },
             en: {
                 splash_title: "Hertzian Symphony:<br>Coding the Unseen",
-                splash_subtitle: "Virtual Physics Lab - Grades 11 & 12",
+                splash_subtitle: "Explore Amplitude (AM) and Frequency (FM) modulation through real-time physical, analog, and mathematical representations.",
                 btn_start: "Start Analysis",
                 app_title: "Electromagnetic Modeling Lab",
                 btn_back: "Back",
@@ -1097,7 +1116,7 @@
         document.getElementById('splash-screen').addEventListener('touchmove', (e) => {
             if (e.touches.length > 0) {
                 pointerX = e.touches[0].clientX / window.innerWidth;
-                pointerY = e.touches[0].clientY / window.innerHeight;
+                pointerY = e.touches[0].innerHeight / window.innerHeight;
             }
         });
 
