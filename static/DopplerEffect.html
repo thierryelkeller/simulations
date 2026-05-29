@@ -482,7 +482,8 @@
     <div id="app">
         <header>
             <div class="top-nav">
-                <a href="#" class="nav-btn" onclick="location.reload()" id="t-exit"><i class="fa-solid fa-arrow-right-from-bracket"></i> Exit</a>
+                <button class="nav-btn" onclick="returnToSplash()" id="t-back"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                <a href="index.html" class="nav-btn" id="t-exit"><i class="fa-solid fa-arrow-right-from-bracket"></i> Exit</a>
             </div>
             
             <div class="tabs">
@@ -723,6 +724,7 @@
             currentTab: 1,
             pointer: { x: window.innerWidth/2, y: window.innerHeight/2 },
             t1LastHitTime: -999,
+            t1LastWaveHitTime: -999, // Tracks the time of the previous wave hit for delta-T calculation
             t1DisplayFobs: 0,
             t1HitRipple: 0
         };
@@ -733,6 +735,7 @@
                 "t-splash-title": "Echoes of the Cosmos",
                 "t-splash-desc": "A High-Fidelity Simulation of the Doppler Effect",
                 "t-exit": "<i class='fa-solid fa-arrow-right-from-bracket'></i> Exit",
+                "t-back": "<i class='fa-solid fa-arrow-left'></i> Back",
                 "t-play": "Play",
                 "t-pause": "Pause",
                 "t-tab1": "1D Acoustic Waves",
@@ -774,6 +777,7 @@
                 "t-splash-title": "Échos du Cosmos",
                 "t-splash-desc": "Une Simulation Haute-Fidélité de l'Effet Doppler",
                 "t-exit": "<i class='fa-solid fa-arrow-right-from-bracket'></i> Quitter",
+                "t-back": "<i class='fa-solid fa-arrow-left'></i> Retour",
                 "t-play": "Lecture",
                 "t-pause": "Pause",
                 "t-tab1": "Ondes Acoustiques 1D",
@@ -961,6 +965,13 @@
             requestAnimationFrame(renderSim);
         }
 
+        function returnToSplash() {
+            state.appActive = false;
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('splash').style.display = 'flex';
+            renderSplash();
+        }
+
         function switchTab(tabIndex) {
             state.currentTab = tabIndex;
             
@@ -1010,6 +1021,7 @@
                 source.x = canvas.width * 0.3;
                 observer.x = canvas.width * 0.7;
                 state.t1LastHitTime = -999;
+                state.t1LastWaveHitTime = -999;
                 state.t1HitRipple = 0;
                 document.getElementById('out-t1-fobs').innerText = `--- Hz`;
                 document.getElementById('out-t1-fobs').style.color = 'rgba(255,255,255,0.2)';
@@ -1050,7 +1062,7 @@
             document.getElementById('val-t1-vo').innerText = `${vo > 0 ? '+':''}${vo} m/s`;
             document.getElementById('val-t1-freq').innerText = `${f} Hz`;
             
-            // Freq display is now handled dynamically on wave hits in renderTab1
+            state.t1LastWaveHitTime = -999; // Reset to avoid bad interval measurements on parameter changes
         }
 
         // --- Tab 2 ---
@@ -1198,14 +1210,15 @@
                 source.x += vs * PIXELS_PER_METER * dt * simSpeedMultiplier;
                 observer.x += vo * PIXELS_PER_METER * dt * simSpeedMultiplier;
 
-                if(source.x > canvas.width + 50) source.x = -50;
-                if(source.x < -50) source.x = canvas.width + 50;
-                if(observer.x > canvas.width + 50) observer.x = -50;
-                if(observer.x < -50) observer.x = canvas.width + 50;
+                // Reset hit tracker if objects wrap around screen edges to avoid teleportation anomalies
+                if(source.x > canvas.width + 50) { source.x = -50; state.t1LastWaveHitTime = -999; }
+                if(source.x < -50) { source.x = canvas.width + 50; state.t1LastWaveHitTime = -999; }
+                if(observer.x > canvas.width + 50) { observer.x = -50; state.t1LastWaveHitTime = -999; }
+                if(observer.x < -50) { observer.x = canvas.width + 50; state.t1LastWaveHitTime = -999; }
 
                 const visualPeriod = 1 / (freq * 0.004); 
                 if (simTime - source.lastEmit > visualPeriod) {
-                    waves.push({ x: source.x, y: source.y, radius: 0 });
+                    waves.push({ x: source.x, y: source.y, radius: 0, hasHit: false });
                     source.lastEmit = simTime;
                 }
             }
@@ -1221,7 +1234,8 @@
                     
                     // Intersection detection for Observer
                     let distToObs = Math.hypot(w.x - observer.x, w.y - observer.y);
-                    if (distToObs <= w.radius && distToObs > w.radius - dr) {
+                    if (!w.hasHit && w.radius >= distToObs) {
+                        w.hasHit = true;
                         hit = true;
                     }
                 }
@@ -1233,22 +1247,24 @@
                 if (w.radius > canvas.width * 1.5) waves.splice(i, 1);
             }
 
-            // Real-time Dynamic Doppler Calculation (only triggered on hit)
+            // Empirical Real-time Doppler Calculation (measured directly from wave collisions)
             if (hit) {
-                let dir = Math.sign(observer.x - source.x);
-                if (dir === 0) dir = 1;
+                if (state.t1LastWaveHitTime !== -999) {
+                    let deltaT = simTime - state.t1LastWaveHitTime;
+                    
+                    if (deltaT > 0.01) { // Filter instant double-hits
+                        let measuredVisualFreq = 1 / deltaT;
+                        let measuredRealFreq = measuredVisualFreq / 0.004; // Convert back using scaling factor
+                        
+                        // Protect against extreme anomalies caused by slider snapping
+                        if (measuredRealFreq > 0 && measuredRealFreq < 3000) {
+                            state.t1DisplayFobs = measuredRealFreq;
+                        }
+                    }
+                }
 
-                const vs_eff = vs * dir;
-                const vo_eff = vo * -dir;
-
-                let denom = (V_SOUND - vs_eff);
-                if (Math.abs(denom) < 0.1) denom = 0.1 * Math.sign(denom);
-
-                let f_obs = freq * ((V_SOUND + vo_eff) / denom);
-                if (f_obs < 0) f_obs = Math.abs(f_obs);
-
+                state.t1LastWaveHitTime = simTime;
                 state.t1LastHitTime = simTime;
-                state.t1DisplayFobs = f_obs;
                 state.t1HitRipple = 25; // Trigger visual ripple
             }
 
