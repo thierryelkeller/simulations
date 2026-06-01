@@ -1,0 +1,2030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flux & Flow: A Magnetic Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Core Variables & Reset */
+        :root {
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-title: 'Rajdhani', sans-serif;
+            --splash-bg: #0f172a;
+            --splash-text: #f8fafc;
+            --accent-primary: #3b82f6;
+            --accent-hover: #60a5fa;
+            
+            /* Dynamic Mode Variables - Default (Explorer) */
+            --bg-main: #f0f4f8;
+            --bg-panel: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --ui-radius: 16px;
+            --font-base: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .scientist-mode {
+            --bg-main: #090f1a;
+            --bg-panel: #111827;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --ui-radius: 4px;
+            --font-base: 14px;
+            --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+            --accent-primary: #0ea5e9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            overflow: hidden;
+            transition: background-color 0.5s, color 0.5s;
+            font-size: var(--font-base);
+        }
+
+        /* Typography */
+        h1, h2, h3 { font-family: var(--font-title); font-weight: 700; margin-bottom: 0.5rem; }
+        p { line-height: 1.6; margin-bottom: 1rem; }
+        
+        .scientist-mode p { font-family: 'Courier New', Courier, monospace; letter-spacing: -0.5px; }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--splash-bg);
+            color: var(--splash-text);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #splash-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+        }
+        .splash-content {
+            padding: 3rem;
+            text-align: center;
+            max-width: 90%;
+            z-index: 10;
+        }
+        .splash-title {
+            font-family: var(--font-title);
+            font-size: 5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 10px 30px rgba(96, 165, 250, 0.3);
+        }
+        
+        .selection-group {
+            margin: 2rem 0;
+        }
+        .selection-title {
+            font-family: var(--font-title);
+            font-size: 1.3rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        
+        button {
+            background: transparent;
+            color: inherit;
+            border: 2px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--ui-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        button:hover { background: rgba(255,255,255,0.05); }
+        button.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        
+        .launch-btn {
+            background: #f8fafc;
+            color: #0f172a;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            margin-top: 2rem;
+        }
+        .launch-btn:hover { background: #e2e8f0; transform: scale(1.05); }
+        .launch-btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .copyright {
+            position: absolute;
+            bottom: 1rem;
+            font-size: 0.8rem;
+            color: #64748b;
+            letter-spacing: 1px;
+        }
+
+        /* App Container */
+        #app-container {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Header / Nav */
+        header {
+            background-color: var(--bg-panel);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+        .nav-controls { display: flex; gap: 1rem; align-items: center; }
+        .nav-controls button { padding: 0.5rem 1rem; border-radius: var(--ui-radius); }
+        .tab-controls { display: flex; gap: 0.5rem; flex: 1; justify-content: center; }
+        .tab-btn {
+            border: none;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+            padding: 0.5rem 1rem;
+        }
+        .tab-btn.active {
+            border-bottom: 3px solid var(--accent-primary);
+            background: transparent;
+            color: var(--accent-primary);
+            box-shadow: none;
+        }
+
+        /* Main Lab Area */
+        main {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 380px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            z-index: 5;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background-color: var(--bg-main);
+            overflow: hidden;
+        }
+        
+        canvas.lab-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        canvas.lab-canvas:active { cursor: grabbing; }
+
+        /* UI Elements within Sidebar */
+        .panel-section { margin-bottom: 2rem; }
+        .panel-title { 
+            font-size: 1.2rem; 
+            color: var(--accent-primary); 
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .slider-container { margin-top: 1.5rem; }
+        .slider-label { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-weight: 600; font-family: var(--font-title); font-size: 1.1rem; }
+        
+        .slider-wrapper { position: relative; width: 100%; margin-bottom: 1.5rem; }
+        input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; z-index: 2; position: relative;}
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%;
+            background: var(--accent-primary); cursor: pointer; margin-top: -7px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3); border: 2px solid var(--bg-panel);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: var(--border-color); border-radius: 2px;
+        }
+        
+        .ticks { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; padding: 0 8px;}
+        .ticks span { position: relative; display: flex; justify-content: center; }
+        .ticks span::before { content: ''; position: absolute; top: -8px; width: 2px; height: 4px; background: var(--text-muted); }
+
+        /* Indigenous Knowledge Box */
+        .tek-box {
+            background: rgba(167, 139, 250, 0.1);
+            border-left: 4px solid #a78bfa;
+            padding: 1rem;
+            border-radius: 0 var(--ui-radius) var(--ui-radius) 0;
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+        }
+        .scientist-mode .tek-box {
+            background: rgba(167, 139, 250, 0.05);
+            border: 1px solid #a78bfa;
+            border-left: 4px solid #a78bfa;
+            font-family: inherit; /* Override monospace for readability */
+        }
+
+        /* Math Equations (Scientist Mode) */
+        .math-eq {
+            display: none;
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            border: 1px solid var(--border-color);
+        }
+        .scientist-mode .math-eq { display: block; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header { flex-wrap: wrap; gap: 1rem; padding: 1rem; }
+            .tab-controls { order: 3; width: 100%; }
+            main { flex-direction: column; }
+            .sidebar { width: 100%; height: 40%; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .canvas-container { height: 60%; }
+            .splash-title { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <canvas id="splash-canvas"></canvas>
+        <div class="splash-content">
+            <h1 class="splash-title" data-i18n="appTitle">Flux & Flow: A Magnetic Journey</h1>
+            
+            <div class="selection-group">
+                <div class="selection-title" data-i18n="selectLanguage">1. Select Language / Choisir la langue</div>
+                <div class="btn-group">
+                    <button class="lang-btn" data-val="en">English</button>
+                    <button class="lang-btn" data-val="fr">Français</button>
+                </div>
+            </div>
+
+            <div class="selection-group">
+                <div class="selection-title" data-i18n="selectMode">2. Select Mode</div>
+                <div class="btn-group">
+                    <button class="mode-btn" data-val="explorer" data-i18n="modeExplorerBtn">Explorer (Middle School)</button>
+                    <button class="mode-btn" data-val="scientist" data-i18n="modeScientistBtn">Scientist (High School)</button>
+                </div>
+            </div>
+
+            <button id="btn-launch" class="launch-btn" disabled data-i18n="launchBtn">Initialize Lab</button>
+        </div>
+        <div class="copyright">&copy; T. Keller - Educational Architecture</div>
+    </div>
+
+    <!-- App Container -->
+    <div id="app-container">
+        <header>
+            <div class="nav-controls">
+                <button id="btn-exit" data-i18n="btnExit">Exit</button>
+                <button id="btn-back" data-i18n="btnBack">Back</button>
+            </div>
+            
+            <div class="tab-controls">
+                <button class="tab-btn active" data-tab="1" id="tab-btn-1">Tab 1</button>
+                <button class="tab-btn" data-tab="2" id="tab-btn-2">Tab 2</button>
+                <button class="tab-btn" data-tab="3" id="tab-btn-3">Tab 3</button>
+            </div>
+
+            <div class="nav-controls">
+                <button id="btn-toggle-lang">EN / FR</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Sidebar / Control Panel -->
+            <div class="sidebar">
+                
+                <!-- === EXPLORER PANELS === -->
+                <!-- EXP 1 Controls -->
+                <div id="panel-exp-1" class="panel-section">
+                    <h2 class="panel-title" data-i18n="exp1Title">Dipoles & Compasses</h2>
+                    <p data-i18n="exp1Desc">Observe how magnets interact. Add a second magnet or rotate them to see the magnetic fields combine.</p>
+                    
+                    <button id="btn-toggle-mag2" style="width: 100%; margin: 0.5rem 0; border-radius: 8px; padding: 0.75rem;" data-i18n="btnToggleMag2">Add Second Magnet</button>
+                    
+                    <div class="slider-container" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="chk-fieldlines-t1" style="width: 20px; height: 20px;">
+                            <strong data-i18n="lblShowFieldLines">Show Magnetic Field Lines</strong>
+                        </label>
+                    </div>
+
+                    <div class="slider-container" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="chk-compass" style="width: 20px; height: 20px;">
+                            <strong data-i18n="lblShowCompass">Show Movable Compass Tool</strong>
+                        </label>
+                    </div>
+                    <small style="color: var(--text-muted); display:block; margin-top:1rem;" data-i18n="lblDragHint">Hint: Drag the magnets to move them, and drag the circular handles at their ends to rotate them.</small>
+                </div>
+
+                <!-- EXP 2 Controls -->
+                <div id="panel-exp-2" class="panel-section" style="display:none;">
+                    <h2 class="panel-title" data-i18n="exp2Title">Earth & Auroras</h2>
+                    <p data-i18n="exp2Desc">Earth's magnetic field forms the Van Allen radiation belts. Charged particles deflect or follow field lines to create auroras.</p>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span data-i18n="lblSolarWind">Solar Wind Intensity</span>
+                            <span id="val-solarwind">Medium</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" id="slider-solarwind" min="0" max="100" step="1" value="50">
+                            <div class="ticks"><span>0%</span><span>50%</span><span>100%</span></div>
+                        </div>
+                    </div>
+
+                    <button id="btn-reset-aurora" style="width: 100%; margin: 1rem 0; border-radius: 8px; padding: 0.75rem;" data-i18n="btnResetAurora">Reset Atmosphere</button>
+
+                    <div class="tek-box">
+                        <strong data-i18n="tekTitle">Indigenous Perspectives:</strong><br>
+                        <span data-i18n="tekContent">Many Northern Indigenous communities understand Auroras as the dancing spirits of ancestors. This profound connection physically manifests as charged particles dancing along the magnetic field lines.</span>
+                    </div>
+                </div>
+
+                <!-- EXP 3 Controls -->
+                <div id="panel-exp-3" class="panel-section" style="display:none;">
+                    <h2 class="panel-title" data-i18n="exp3Title">Intro to Electromagnets</h2>
+                    <p data-i18n="exp3Desc">Wrapping a wire around an iron core and passing an electric current through it creates an electromagnet.</p>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span data-i18n="lblCoils">Number of Wire Coils</span>
+                            <span id="val-coils">5</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" id="slider-coils" min="1" max="10" step="1" value="5">
+                            <div class="ticks"><span>1</span><span>5</span><span>10</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span data-i18n="lblVoltage">Battery Voltage</span>
+                            <span id="val-voltage">5 V</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" id="slider-voltage" min="-10" max="10" step="1" value="5">
+                            <div class="ticks"><span>-10V</span><span>0V</span><span>+10V</span></div>
+                        </div>
+                        <small style="color: var(--text-muted); display:block; margin-top:0.5rem;" data-i18n="lblVoltDir">Negative voltage reverses current.</small>
+                    </div>
+
+                    <div class="slider-container" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="chk-fieldlines-t3" style="width: 20px; height: 20px;">
+                            <strong data-i18n="lblShowFieldLines">Show Magnetic Field Lines</strong>
+                        </label>
+                    </div>
+                    
+                    <div class="slider-container" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="chk-poles-t3" style="width: 20px; height: 20px;">
+                            <strong data-i18n="lblShowPoles">Show N/S Poles Indicator</strong>
+                        </label>
+                    </div>
+
+                    <div class="slider-container" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="chk-circuit" style="width: 20px; height: 20px;">
+                            <strong data-i18n="lblCloseCircuit">Close Circuit Switch</strong>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- === SCIENTIST PANELS === -->
+                <!-- SCI 1 Controls -->
+                <div id="panel-sci-1" class="panel-section" style="display:none;">
+                    <h2 class="panel-title" data-i18n="sci1Title">Conductor Magnetic Field</h2>
+                    <p data-i18n="sci1Desc">A straight wire carrying an electrical current generates a circular magnetic field around it, determined by the Right-Hand Rule. Field intensity is mapped to color (Blue=Weak, Red=Strong).</p>
+                    <div class="math-eq">B = (&mu;<sub>0</sub>I) / (2&pi;r)</div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span data-i18n="lblCurrent">Current (I) Magnitude</span>
+                            <span id="val-sci-current">5 A</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" id="slider-sci-current" min="-10" max="10" step="1" value="5">
+                            <div class="ticks"><span>-10A</span><span>0A</span><span>+10A</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="chk-gauss-t1" style="width: 20px; height: 20px;">
+                            <strong data-i18n="lblGauss">Show Gaussmeter Probe</strong>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- SCI 2 Controls -->
+                <div id="panel-sci-2" class="panel-section" style="display:none;">
+                    <h2 class="panel-title" data-i18n="sci2Title">Fields & Solenoids</h2>
+                    <p data-i18n="sci2Desc">A solenoid produces a nearly uniform magnetic field inside its coils. The field is the superposition of the fields from each individual wire loop.</p>
+                    <div class="math-eq">B<sub>inside</sub> &asymp; &mu;<sub>0</sub>nI</div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span data-i18n="lblSolTurns">Turn Density (N loops)</span>
+                            <span id="val-sol-turns">8</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" id="slider-sol-turns" min="4" max="16" step="2" value="8">
+                            <div class="ticks"><span>4</span><span>10</span><span>16</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span data-i18n="lblSolCurrent">Current (I)</span>
+                            <span id="val-sol-current">5 A</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" id="slider-sol-current" min="-10" max="10" step="1" value="5">
+                            <div class="ticks"><span>-10A</span><span>0A</span><span>+10A</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="chk-poles-sol" style="width: 20px; height: 20px;">
+                            <strong data-i18n="lblShowPoles">Show N/S Poles Indicator</strong>
+                        </label>
+                    </div>
+
+                    <div class="slider-container" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="chk-gauss-t2" style="width: 20px; height: 20px;">
+                            <strong data-i18n="lblGauss">Show Gaussmeter Probe</strong>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- SCI 3 Controls -->
+                <div id="panel-sci-3" class="panel-section" style="display:none;">
+                    <h2 class="panel-title" data-i18n="sci3Title">Lorentz Force (F_B)</h2>
+                    <p data-i18n="sci3Desc">A charged particle moving through an external magnetic field experiences a force perpendicular to both its velocity and the field.</p>
+                    <div class="math-eq">F<sub>B</sub> = q(v &times; B)</div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span data-i18n="lblFbCharge">Particle Charge (q)</span>
+                            <span id="val-fb-charge">+1 C</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" id="slider-fb-charge" min="-3" max="3" step="1" value="1">
+                            <div class="ticks"><span>-3</span><span>0</span><span>+3</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span data-i18n="lblFbVel">Initial Velocity (v)</span>
+                            <span id="val-fb-vel">5 m/s</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" id="slider-fb-vel" min="2" max="10" step="1" value="5">
+                            <div class="ticks"><span>2</span><span>6</span><span>10</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span data-i18n="lblFbB">External B-Field</span>
+                            <span id="val-fb-b">5 T (Out)</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" id="slider-fb-b" min="-10" max="10" step="1" value="5">
+                            <div class="ticks"><span>-10 (In)</span><span>0</span><span>+10 (Out)</span></div>
+                        </div>
+                    </div>
+                    
+                    <button id="btn-fire-particle" style="width: 100%; margin-top: 1rem; border-radius: 8px;" data-i18n="btnFire">Emit Particle</button>
+                </div>
+
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="canvas-container">
+                <canvas id="lab-canvas" class="lab-canvas"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- I18N DICTIONARY ---
+        const dict = {
+            en: {
+                appTitle: "Flux & Flow: A Magnetic Journey",
+                selectLanguage: "1. Select Language",
+                selectMode: "2. Select Mode",
+                modeExplorerBtn: "Explorer (Middle School)",
+                modeScientistBtn: "Scientist (High School)",
+                launchBtn: "Initialize Lab",
+                btnExit: "Exit",
+                btnBack: "Back",
+                
+                tabExp1: "Dipoles", tabExp2: "Earth & Auroras", tabExp3: "Electromagnets",
+                tabSci1: "Conductor", tabSci2: "Solenoids", tabSci3: "Lorentz Force",
+                
+                exp1Title: "Dipoles & Compasses",
+                exp1Desc: "Observe how magnets interact. Add a second magnet or rotate them to see the magnetic fields combine.",
+                lblNumMagnets: "Number of Magnets",
+                btnToggleMag2: "Toggle Second Magnet",
+                lblShowCompass: "Show Movable Compass Tool",
+                lblShowFieldLines: "Show Magnetic Field Lines",
+                lblDragHint: "Hint: Drag the magnets to move them, and drag the circular handles to rotate.",
+                
+                exp2Title: "Earth & Auroras",
+                exp2Desc: "Earth's magnetic field forms the Van Allen radiation belts. The solar wind creates a bow shock, and high intensity charged particles follow field lines to create auroras.",
+                lblSolarWind: "Solar Wind Intensity",
+                btnResetAurora: "Reset Atmosphere",
+                tekTitle: "Indigenous Perspectives & TEK:",
+                tekContent: "Many Northern Indigenous communities understand Auroras as the dancing spirits of ancestors. This profound cosmological connection physically manifests as charged particles dancing along the magnetic field lines.",
+                windLow: "Low", windMed: "Medium", windHigh: "High",
+                
+                exp3Title: "Intro to Electromagnets",
+                exp3Desc: "Wrapping a wire around an iron core and passing an electric current through it creates a controllable electromagnet. Test it on different materials!",
+                lblCoils: "Number of Wire Coils",
+                lblVoltage: "Battery Voltage",
+                lblVoltDir: "Negative voltage reverses the current direction.",
+                lblCloseCircuit: "Close Circuit Switch",
+                lblShowPoles: "Show N/S Poles Indicator",
+                
+                sci1Title: "Conductor Magnetic Field",
+                sci1Desc: "A straight wire carrying an electrical current generates a circular magnetic field around it, determined by the Right-Hand Rule. Field intensity is mapped to color (Blue=Weak, Red=Strong).",
+                lblCurrent: "Current (I) Magnitude",
+                lblGauss: "Show Gaussmeter Probe",
+                
+                sci2Title: "Fields & Solenoids",
+                sci2Desc: "A solenoid produces a nearly uniform magnetic field inside its coils. The field is the superposition of the fields from each individual wire loop.",
+                lblSolTurns: "Turn Density (N loops)",
+                lblSolCurrent: "Current (I)",
+                
+                sci3Title: "Lorentz Force (F_B)",
+                sci3Desc: "A charged particle moving through an external magnetic field experiences a force perpendicular to both its velocity and the field.",
+                lblFbCharge: "Particle Charge (q)",
+                lblFbVel: "Initial Velocity (v)",
+                lblFbB: "External B-Field",
+                lblFbDir: "Positive = Out of page. Negative = Into page.",
+                btnFire: "Emit Particle"
+            },
+            fr: {
+                appTitle: "Flux & Flow : Voyage Magnétique",
+                selectLanguage: "1. Choisir la langue",
+                selectMode: "2. Choisir le mode",
+                modeExplorerBtn: "Explorateur (Collège)",
+                modeScientistBtn: "Scientifique (Lycée)",
+                launchBtn: "Initialiser le Labo",
+                btnExit: "Quitter",
+                btnBack: "Retour",
+                
+                tabExp1: "Dipôles", tabExp2: "Terre et Aurores", tabExp3: "Électroaimants",
+                tabSci1: "Conducteur", tabSci2: "Solénoïdes", tabSci3: "Force de Lorentz",
+                
+                exp1Title: "Dipôles et Boussoles",
+                exp1Desc: "Observez comment les aimants interagissent. Ajoutez un deuxième aimant ou faites-les pivoter.",
+                lblNumMagnets: "Nombre d'aimants",
+                btnToggleMag2: "Basculer le 2ème aimant",
+                lblShowCompass: "Afficher la boussole mobile",
+                lblShowFieldLines: "Afficher les lignes de champ",
+                lblDragHint: "Astuce: Faites glisser les aimants pour les déplacer, et les poignées circulaires pour faire pivoter.",
+                
+                exp2Title: "Terre et Aurores",
+                exp2Desc: "Le champ de la Terre forme les ceintures de Van Allen. Le vent solaire crée une onde de choc, et les fortes intensités créent des aurores.",
+                lblSolarWind: "Intensité du vent solaire",
+                btnResetAurora: "Réinitialiser l'atmosphère",
+                tekTitle: "Perspectives Autochtones:",
+                tekContent: "De nombreuses communautés autochtones du Nord considèrent les aurores comme les esprits dansants des ancêtres.",
+                windLow: "Faible", windMed: "Moyen", windHigh: "Fort",
+                
+                exp3Title: "Intro aux Électroaimants",
+                exp3Desc: "Enrouler un fil autour d'un noyau de fer et y faire passer un courant crée un électroaimant. Testez-le sur différents matériaux !",
+                lblCoils: "Nombre de bobines",
+                lblVoltage: "Tension de la batterie",
+                lblVoltDir: "Une tension négative inverse le courant.",
+                lblCloseCircuit: "Fermer l'interrupteur",
+                lblShowPoles: "Afficher les pôles N/S",
+                
+                sci1Title: "Champ d'un Conducteur",
+                sci1Desc: "Un fil droit génère un champ circulaire (Règle de la main droite). L'intensité est cartographiée par couleur (Bleu=Faible, Rouge=Fort).",
+                lblCurrent: "Intensité du courant (I)",
+                lblGauss: "Afficher la sonde Gaussmètre",
+                
+                sci2Title: "Champs et Solénoïdes",
+                sci2Desc: "Un solénoïde produit un champ presque uniforme à l'intérieur. C'est la superposition des champs de chaque boucle.",
+                lblSolTurns: "Densité (N boucles)",
+                lblSolCurrent: "Courant (I)",
+                
+                sci3Title: "Force de Lorentz (F_B)",
+                sci3Desc: "Une particule chargée en mouvement dans un champ magnétique subit une force perpendiculaire à sa vitesse et au champ.",
+                lblFbCharge: "Charge (q)",
+                lblFbVel: "Vitesse initiale (v)",
+                lblFbB: "Champ Externe (B)",
+                lblFbDir: "Positif = Vers vous. Négatif = Vers l'écran.",
+                btnFire: "Émettre une particule"
+            }
+        };
+
+        // --- STATE MANAGEMENT ---
+        const State = {
+            lang: null, mode: null, tab: 1,
+            canvasWidth: 0, canvasHeight: 0, animationFrame: null,
+            dragItem: null, 
+            stars: [],
+            
+            // Explorer 1
+            mag2Active: false,
+            magnets: [
+                {x: 300, y: 300, angle: 0},
+                {x: 600, y: 300, angle: 0}
+            ],
+            showCompass: false,
+            showFieldLinesTab1: false,
+            compassPos: {x: 200, y: 150},
+            
+            // Explorer 2
+            solarWind: 50, 
+            aurorasParticles: [],
+            impactTraces: [], 
+            
+            // Explorer 3
+            emCoils: 5, emVoltage: 5, circuitClosed: false, showFieldLinesTab3: false, showPolesTab3: false,
+            exp3Objects: [
+                { id: 'clip', emoji: '📎', offset: -140, type: 'Paperclip', mag: true, weight: 0.1, threshold: 3, y: 0, vy: 0 },
+                { id: 'screw', emoji: '🔩', offset: -100, type: 'Screw', mag: true, weight: 0.4, threshold: 12, y: 0, vy: 0 },
+                { id: 'wood', emoji: '🪵', offset: -60, type: 'Wood', mag: false, weight: 0.8, threshold: Infinity, y: 0, vy: 0 },
+                { id: 'key', emoji: '🔑', offset: -20, type: 'Key', mag: true, weight: 0.6, threshold: 20, y: 0, vy: 0 },
+                { id: 'coin', emoji: '🪙', offset: 20, type: 'Coin', mag: false, weight: 0.25, threshold: Infinity, y: 0, vy: 0 },
+                { id: 'scissors', emoji: '✂️', offset: 60, type: 'Scissors', mag: true, weight: 1.5, threshold: 45, y: 0, vy: 0 },
+                { id: 'paper', emoji: '📄', offset: 100, type: 'Paper Scrap', mag: false, weight: 0.02, threshold: Infinity, y: 0, vy: 0 },
+                { id: 'spoon', emoji: '🥄', offset: 140, type: 'Metal Spoon', mag: true, weight: 0.7, threshold: 25, y: 0, vy: 0 }
+            ],
+            
+            // Scientist Tools
+            showGauss: false, gaussPos: {x: 300, y: 200},
+            sciCurrent: 5,
+            solTurns: 8, solCurrent: 5, showSolenoidPoles: false,
+            
+            // Scientist 3
+            fbCharge: 1, fbVel: 5, fbB: 5, fbParticles: []
+        };
+
+        // --- DOM ELEMENTS ---
+        const DOM = {
+            splash: document.getElementById('splash-screen'),
+            app: document.getElementById('app-container'),
+            launchBtn: document.getElementById('btn-launch'),
+            langBtns: document.querySelectorAll('.lang-btn'),
+            modeBtns: document.querySelectorAll('.mode-btn'),
+            tabBtns: document.querySelectorAll('.tab-btn'),
+            labCanvas: document.getElementById('lab-canvas'),
+            ctx: document.getElementById('lab-canvas').getContext('2d'),
+            splashCanvas: document.getElementById('splash-canvas'),
+            splashCtx: document.getElementById('splash-canvas').getContext('2d')
+        };
+
+        // --- INITIALIZATION ---
+        function init() {
+            setupSplashListeners();
+            setupAppListeners();
+            initSplashAnimation();
+            generateStars();
+        }
+
+        function generateStars() {
+            State.stars = [];
+            for(let i=0; i<150; i++) {
+                State.stars.push({
+                    x: Math.random(), 
+                    y: Math.random(),
+                    size: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random() * 0.8 + 0.2
+                });
+            }
+        }
+
+        function setupSplashListeners() {
+            DOM.langBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    DOM.langBtns.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    State.lang = e.target.getAttribute('data-val');
+                    applyTranslations();
+                    checkLaunchReady();
+                });
+            });
+
+            DOM.modeBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    DOM.modeBtns.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    State.mode = e.target.getAttribute('data-val');
+                    checkLaunchReady();
+                });
+            });
+
+            DOM.launchBtn.addEventListener('click', launchApp);
+        }
+
+        function checkLaunchReady() {
+            if (State.lang && State.mode) DOM.launchBtn.disabled = false;
+        }
+
+        function switchTab(tabNum) {
+            State.tab = tabNum;
+            DOM.tabBtns.forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-btn-${tabNum}`).classList.add('active');
+            
+            document.querySelectorAll('.panel-section').forEach(p => p.style.display = 'none');
+            
+            const prefix = State.mode === 'explorer' ? 'exp' : 'sci';
+            document.getElementById(`panel-${prefix}-${tabNum}`).style.display = 'block';
+            
+            // Reset tools
+            State.showGauss = false;
+            if(document.getElementById('chk-gauss-t1')) document.getElementById('chk-gauss-t1').checked = false;
+            if(document.getElementById('chk-gauss-t2')) document.getElementById('chk-gauss-t2').checked = false;
+
+            if(State.mode === 'explorer' && State.tab === 2) initAuroras();
+        }
+
+        function launchApp() {
+            DOM.splash.style.display = 'none';
+            DOM.app.style.display = 'flex';
+            
+            if (State.mode === 'scientist') document.body.classList.add('scientist-mode');
+            else document.body.classList.remove('scientist-mode');
+
+            const tPrefix = State.mode === 'explorer' ? 'tabExp' : 'tabSci';
+            document.getElementById('tab-btn-1').setAttribute('data-i18n', tPrefix+'1');
+            document.getElementById('tab-btn-2').setAttribute('data-i18n', tPrefix+'2');
+            document.getElementById('tab-btn-3').setAttribute('data-i18n', tPrefix+'3');
+            applyTranslations();
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            State.magnets[0].x = State.canvasWidth / 2 - 120;
+            State.magnets[1].x = State.canvasWidth / 2 + 120;
+            State.magnets[0].y = State.canvasHeight / 2;
+            State.magnets[1].y = State.canvasHeight / 2;
+            
+            switchTab(1);
+            startLabEngine();
+        }
+
+        function setupAppListeners() {
+            document.getElementById('btn-exit').addEventListener('click', () => window.location.href = 'index.html');
+            document.getElementById('btn-back').addEventListener('click', () => {
+                cancelAnimationFrame(State.animationFrame);
+                DOM.app.style.display = 'none';
+                DOM.splash.style.display = 'flex';
+                initSplashAnimation();
+            });
+
+            document.getElementById('btn-toggle-lang').addEventListener('click', () => {
+                State.lang = State.lang === 'en' ? 'fr' : 'en';
+                DOM.langBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-val') === State.lang));
+                applyTranslations();
+            });
+
+            DOM.tabBtns.forEach(btn => btn.addEventListener('click', (e) => switchTab(parseInt(e.target.getAttribute('data-tab')))));
+
+            // Explorer
+            document.getElementById('btn-toggle-mag2').addEventListener('click', () => {
+                State.mag2Active = !State.mag2Active;
+            });
+            document.getElementById('chk-compass').addEventListener('change', (e) => State.showCompass = e.target.checked);
+            document.getElementById('chk-fieldlines-t1').addEventListener('change', (e) => State.showFieldLinesTab1 = e.target.checked);
+            document.getElementById('chk-fieldlines-t3').addEventListener('change', (e) => State.showFieldLinesTab3 = e.target.checked);
+            
+            document.getElementById('slider-solarwind').addEventListener('input', (e) => {
+                State.solarWind = parseInt(e.target.value);
+                let txt = State.solarWind < 35 ? dict[State.lang].windLow : (State.solarWind < 80 ? dict[State.lang].windMed : dict[State.lang].windHigh);
+                document.getElementById('val-solarwind').innerText = txt;
+            });
+            document.getElementById('btn-reset-aurora').addEventListener('click', () => {
+                State.impactTraces = [];
+                initAuroras();
+            });
+            
+            document.getElementById('slider-coils').addEventListener('input', (e) => {
+                State.emCoils = parseInt(e.target.value);
+                document.getElementById('val-coils').innerText = State.emCoils;
+            });
+            document.getElementById('slider-voltage').addEventListener('input', (e) => {
+                State.emVoltage = parseInt(e.target.value);
+                document.getElementById('val-voltage').innerText = Math.abs(State.emVoltage) + " V";
+            });
+            document.getElementById('chk-circuit').addEventListener('change', (e) => State.circuitClosed = e.target.checked);
+            document.getElementById('chk-poles-t3').addEventListener('change', (e) => State.showPolesTab3 = e.target.checked);
+
+            // Scientist
+            document.getElementById('slider-sci-current').addEventListener('input', (e) => {
+                State.sciCurrent = parseInt(e.target.value);
+                document.getElementById('val-sci-current').innerText = State.sciCurrent + " A";
+            });
+            document.getElementById('chk-gauss-t1').addEventListener('change', (e) => State.showGauss = e.target.checked);
+            document.getElementById('chk-gauss-t2').addEventListener('change', (e) => State.showGauss = e.target.checked);
+            document.getElementById('chk-poles-sol').addEventListener('change', (e) => State.showSolenoidPoles = e.target.checked);
+            
+            document.getElementById('slider-sol-turns').addEventListener('input', (e) => {
+                State.solTurns = parseInt(e.target.value);
+                document.getElementById('val-sol-turns').innerText = State.solTurns;
+            });
+            document.getElementById('slider-sol-current').addEventListener('input', (e) => {
+                State.solCurrent = parseInt(e.target.value);
+                document.getElementById('val-sol-current').innerText = State.solCurrent + " A";
+            });
+            document.getElementById('slider-fb-charge').addEventListener('input', (e) => {
+                State.fbCharge = parseInt(e.target.value);
+                let txt = State.fbCharge > 0 ? "+" + State.fbCharge : State.fbCharge + " C";
+                if(State.fbCharge === 0) txt = "0 C";
+                document.getElementById('val-fb-charge').innerText = txt;
+            });
+            document.getElementById('slider-fb-vel').addEventListener('input', (e) => {
+                State.fbVel = parseInt(e.target.value);
+                document.getElementById('val-fb-vel').innerText = State.fbVel + " m/s";
+            });
+            document.getElementById('slider-fb-b').addEventListener('input', (e) => {
+                State.fbB = parseInt(e.target.value);
+                let dir = State.fbB >= 0 ? "(Out)" : "(In)";
+                if (State.fbB === 0) dir = "";
+                document.getElementById('val-fb-b').innerText = Math.abs(State.fbB) + " T " + dir;
+            });
+            document.getElementById('btn-fire-particle').addEventListener('click', emitFbParticle);
+
+            // Canvas Interaction
+            DOM.labCanvas.addEventListener('mousedown', handlePointerDown);
+            DOM.labCanvas.addEventListener('mousemove', handlePointerMove);
+            window.addEventListener('mouseup', handlePointerUp);
+            DOM.labCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); handlePointerDown(e.touches[0]); }, {passive: false});
+            DOM.labCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); handlePointerMove(e.touches[0]); }, {passive: false});
+            window.addEventListener('touchend', handlePointerUp);
+        }
+
+        function applyTranslations() {
+            const currentDict = dict[State.lang || 'en'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (currentDict[key]) {
+                    if (el.tagName === 'INPUT' && el.type === 'button') el.value = currentDict[key];
+                    else el.innerHTML = currentDict[key];
+                }
+            });
+            if(State.lang) {
+                let txt = State.solarWind < 35 ? dict[State.lang].windLow : (State.solarWind < 80 ? dict[State.lang].windMed : dict[State.lang].windHigh);
+                if(document.getElementById('val-solarwind')) document.getElementById('val-solarwind').innerText = txt;
+            }
+        }
+
+        // --- SPLASH ANIMATION ---
+        let splashOrbs = [];
+        let mouseX = 0, mouseY = 0;
+        function initSplashAnimation() {
+            const canvas = DOM.splashCanvas;
+            const ctx = DOM.splashCtx;
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            splashOrbs = [
+                { x: canvas.width * 0.3, y: canvas.height * 0.5, vx: 2.0, vy: 1.5, r: 600, color: '#3b82f6' },
+                { x: canvas.width * 0.7, y: canvas.height * 0.4, vx: -1.5, vy: 2.0, r: 700, color: '#8b5cf6' },
+                { x: canvas.width * 0.5, y: canvas.height * 0.7, vx: 1.0, vy: -2.0, r: 500, color: '#10b981' }
+            ];
+            
+            window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+            
+            function animate() {
+                if(DOM.splash.style.display === 'none') return;
+                ctx.fillStyle = '#020617';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.globalCompositeOperation = 'screen';
+                splashOrbs.forEach(orb => {
+                    orb.x += orb.vx; orb.y += orb.vy;
+                    
+                    let dx = mouseX - orb.x;
+                    let dy = mouseY - orb.y;
+                    if (Math.hypot(dx, dy) < 700) {
+                        orb.vx += dx * 0.0004;
+                        orb.vy += dy * 0.0004;
+                    }
+                    
+                    if (Math.hypot(orb.vx, orb.vy) > 4) { orb.vx *= 0.95; orb.vy *= 0.95; }
+                    
+                    if(orb.x < -200) { orb.x = -200; orb.vx *= -1; }
+                    if(orb.x > canvas.width+200) { orb.x = canvas.width+200; orb.vx *= -1; }
+                    if(orb.y < -200) { orb.y = -200; orb.vy *= -1; }
+                    if(orb.y > canvas.height+200) { orb.y = canvas.height+200; orb.vy *= -1; }
+                    
+                    let grd = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.r);
+                    grd.addColorStop(0, orb.color + 'AA');
+                    grd.addColorStop(0.5, orb.color + '44');
+                    grd.addColorStop(1, orb.color + '00');
+                    ctx.fillStyle = grd;
+                    ctx.beginPath(); ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2); ctx.fill();
+                });
+                ctx.globalCompositeOperation = 'source-over';
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // --- PHYSICS & DRAGGING ENGINE ---
+        function resizeCanvas() {
+            const rect = DOM.labCanvas.parentElement.getBoundingClientRect();
+            DOM.labCanvas.width = rect.width; DOM.labCanvas.height = rect.height;
+            State.canvasWidth = rect.width; State.canvasHeight = rect.height;
+            if(State.mode === 'explorer' && State.tab === 2) initAuroras();
+        }
+
+        function getCanvasPos(e) {
+            const rect = DOM.labCanvas.getBoundingClientRect();
+            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+
+        function handlePointerDown(e) {
+            const pos = getCanvasPos(e);
+            State.dragItem = null;
+
+            if (State.showGauss) {
+                if (Math.hypot(pos.x - State.gaussPos.x, pos.y - State.gaussPos.y) < 30) {
+                    State.dragItem = 'gauss'; return;
+                }
+            }
+
+            if (State.mode === 'explorer' && State.tab === 1) {
+                if (State.showCompass) {
+                    let dx = pos.x - State.compassPos.x, dy = pos.y - State.compassPos.y;
+                    if (dx*dx + dy*dy < 4000) { State.dragItem = 'compass'; return; }
+                }
+                const numMags = State.mag2Active ? 2 : 1;
+                for (let i = 0; i < numMags; i++) {
+                    let mag = State.magnets[i];
+                    
+                    let hN_x = mag.x + Math.cos(mag.angle)*90;
+                    let hN_y = mag.y + Math.sin(mag.angle)*90;
+                    let hS_x = mag.x - Math.cos(mag.angle)*90;
+                    let hS_y = mag.y - Math.sin(mag.angle)*90;
+                    
+                    if (Math.hypot(pos.x - hN_x, pos.y - hN_y) < 25 || Math.hypot(pos.x - hS_x, pos.y - hS_y) < 25) {
+                        State.dragItem = `mag${i}_rot`; return;
+                    }
+
+                    let dx = pos.x - mag.x, dy = pos.y - mag.y;
+                    let locX = dx * Math.cos(-mag.angle) - dy * Math.sin(-mag.angle);
+                    let locY = dx * Math.sin(-mag.angle) + dy * Math.cos(-mag.angle);
+                    if (Math.abs(locX) < 80 && Math.abs(locY) < 25) {
+                        State.dragItem = `mag${i}_pos`; return;
+                    }
+                }
+            }
+        }
+
+        function handlePointerMove(e) {
+            if (!State.dragItem) return;
+            const pos = getCanvasPos(e);
+            if (State.dragItem === 'gauss') State.gaussPos = pos;
+            else if (State.dragItem === 'compass') State.compassPos = pos;
+            else if (State.dragItem === 'mag0_pos') State.magnets[0] = { ...State.magnets[0], x: pos.x, y: pos.y };
+            else if (State.dragItem === 'mag1_pos') State.magnets[1] = { ...State.magnets[1], x: pos.x, y: pos.y };
+            else if (State.dragItem === 'mag0_rot') State.magnets[0].angle = Math.atan2(pos.y - State.magnets[0].y, pos.x - State.magnets[0].x);
+            else if (State.dragItem === 'mag1_rot') State.magnets[1].angle = Math.atan2(pos.y - State.magnets[1].y, pos.x - State.magnets[1].x);
+        }
+
+        function handlePointerUp() { State.dragItem = null; }
+
+        // Field Math (Two-Monopole model ensures perfect physical loop geometry for bar magnets)
+        function calcDipoleFieldRotated(x, y, cx, cy, m, angle) {
+            const L = 70; 
+            const nX = cx + L * Math.cos(angle);
+            const nY = cy + L * Math.sin(angle);
+            const sX = cx - L * Math.cos(angle);
+            const sY = cy - L * Math.sin(angle);
+
+            const rN2 = Math.max(200, (x - nX)**2 + (y - nY)**2);
+            const rS2 = Math.max(200, (x - sX)**2 + (y - sY)**2);
+            const rN = Math.sqrt(rN2);
+            const rS = Math.sqrt(rS2);
+
+            const k = 15000000 * m; 
+            
+            let Bx = k * ((x - nX)/(rN2*rN) - (x - sX)/(rS2*rS));
+            let By = k * ((y - nY)/(rN2*rN) - (y - sY)/(rS2*rS));
+            return {Bx, By};
+        }
+
+        function calcWireField(x, y, cx, cy, current) {
+            let dx = x - cx, dy = y - cy;
+            let r2 = dx*dx + dy*dy + 50;
+            // Right Hand Rule applied correctly to screen coordinates
+            return { Bx: current * dy / r2 * 100, By: -current * dx / r2 * 100 };
+        }
+
+        function calcSolenoidField(x, y, cx, cy, N, I) {
+            let Bx = 0, By = 0;
+            let spacing = 20;
+            let startX = cx - ((N-1)*spacing)/2;
+            let R = 40; 
+            for(let i=0; i<N; i++) {
+                let wx = startX + i*spacing;
+                let bTop = calcWireField(x, y, wx, cy - R, I);
+                let bBot = calcWireField(x, y, wx, cy + R, -I);
+                Bx += bTop.Bx + bBot.Bx; By += bTop.By + bBot.By;
+            }
+            return {Bx, By};
+        }
+
+        // --- TRUE SYMMETRIC DUAL-POLE FIELD LINE TRACER ---
+        function drawFieldLines(ctx, totalFieldFn, magnetOrigins) {
+            ctx.save();
+            ctx.strokeStyle = State.mode === 'scientist' ? 'rgba(14, 165, 233, 0.45)' : 'rgba(59, 130, 246, 0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+
+            const stepSize = 4;
+            const maxSteps = 1500; // Increased to ensure complete loop closures
+            const L = 72; // Physical offset to poles
+
+            magnetOrigins.forEach(origin => {
+                // Triple density: 24 lines forward, 24 lines backwards.
+                const numLines = 24;
+                const angles = [];
+                for(let i = 0; i < numLines; i++) {
+                    angles.push(-Math.PI * 0.9 + (i / (numLines - 1)) * Math.PI * 1.8);
+                }
+                
+                // Trace FORWARD starting from North Pole
+                angles.forEach(ang => {
+                    let px = origin.x + L * Math.cos(origin.angle) + Math.cos(origin.angle + ang) * 5;
+                    let py = origin.y + L * Math.sin(origin.angle) + Math.sin(origin.angle + ang) * 5;
+
+                    ctx.beginPath();
+                    ctx.moveTo(px, py);
+
+                    for (let step = 0; step < maxSteps; step++) {
+                        let B = totalFieldFn(px, py);
+                        let B_mag = Math.hypot(B.Bx, B.By);
+                        
+                        if (B_mag < 0.001 || B_mag > 5000000) break;
+
+                        // Follow field direction (FORWARD)
+                        px += (B.Bx / B_mag) * stepSize;
+                        py += (B.By / B_mag) * stepSize;
+
+                        ctx.lineTo(px, py);
+
+                        if (px < -200 || px > State.canvasWidth + 200 || py < -200 || py > State.canvasHeight + 200) break;
+
+                        // Halt seamlessly if it connects inside ANY target South Pole
+                        let hitSouth = false;
+                        for (let m of magnetOrigins) {
+                            let sX = m.x - L * Math.cos(m.angle);
+                            let sY = m.y - L * Math.sin(m.angle);
+                            if (Math.hypot(px - sX, py - sY) < 14) {
+                                ctx.lineTo(sX, sY); 
+                                hitSouth = true; break;
+                            }
+                        }
+                        if (hitSouth) break;
+                    }
+                    ctx.stroke();
+                });
+
+                // Trace BACKWARD starting from South Pole (Guarantees South pole has complete perfect coverage)
+                angles.forEach(ang => {
+                    let px = origin.x - L * Math.cos(origin.angle) + Math.cos(origin.angle + Math.PI + ang) * 5;
+                    let py = origin.y - L * Math.sin(origin.angle) + Math.sin(origin.angle + Math.PI + ang) * 5;
+
+                    ctx.beginPath();
+                    ctx.moveTo(px, py);
+
+                    for (let step = 0; step < maxSteps; step++) {
+                        let B = totalFieldFn(px, py);
+                        let B_mag = Math.hypot(B.Bx, B.By);
+                        
+                        if (B_mag < 0.001 || B_mag > 5000000) break;
+
+                        // Follow field direction (BACKWARDS)
+                        px -= (B.Bx / B_mag) * stepSize;
+                        py -= (B.By / B_mag) * stepSize;
+
+                        ctx.lineTo(px, py);
+
+                        if (px < -200 || px > State.canvasWidth + 200 || py < -200 || py > State.canvasHeight + 200) break;
+
+                        // Halt seamlessly if it connects inside ANY North pole
+                        let hitNorth = false;
+                        for (let m of magnetOrigins) {
+                            let nX = m.x + L * Math.cos(m.angle);
+                            let nY = m.y + L * Math.sin(m.angle);
+                            if (Math.hypot(px - nX, py - nY) < 12) {
+                                ctx.lineTo(nX, nY); 
+                                hitNorth = true; break;
+                            }
+                        }
+                        if (hitNorth) break;
+                    }
+                    ctx.stroke();
+                });
+            });
+            ctx.restore();
+        }
+
+        // --- RENDERERS ---
+        function drawGaussmeter(calcFieldFn, args) {
+            const ctx = DOM.ctx;
+            const p = State.gaussPos;
+            const B = calcFieldFn(p.x, p.y, ...args);
+            const mag = Math.hypot(B.Bx, B.By);
+            const angle = Math.atan2(B.By, B.Bx);
+            
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            
+            ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI*2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(-20, 0); ctx.lineTo(20, 0); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(0, 20); ctx.stroke();
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.2)'; ctx.fill();
+            
+            // Magnetic Vector Arrow 
+            ctx.rotate(angle);
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(40, 0); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(40, 0); ctx.lineTo(30, -6); ctx.lineTo(30, 6); ctx.fillStyle='#ef4444'; ctx.fill();
+            ctx.rotate(-angle);
+            
+            ctx.beginPath(); ctx.moveTo(10, 10); ctx.lineTo(40, 40); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2; ctx.stroke();
+            
+            ctx.translate(40, 40);
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, 160, 60);
+            ctx.strokeStyle = '#334155'; ctx.strokeRect(0, 0, 160, 60);
+            ctx.fillStyle = '#34d399'; ctx.font = 'bold 14px monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            ctx.fillText('Gaussmeter', 10, 8);
+            
+            let valStr = (mag / 1000).toFixed(2);
+            ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 18px monospace';
+            ctx.fillText(valStr + ' mT', 10, 30);
+            
+            ctx.restore();
+        }
+
+        function drawCompassGrid(calcFieldFn, args, bounds = null) {
+            const ctx = DOM.ctx;
+            const spacing = State.mode === 'scientist' ? 30 : 40;
+            const xStart = bounds ? bounds.x0 : spacing/2;
+            const xEnd = bounds ? bounds.x1 : State.canvasWidth;
+            const yStart = bounds ? bounds.y0 : spacing/2;
+            const yEnd = bounds ? bounds.y1 : State.canvasHeight;
+            
+            for(let y = yStart; y < yEnd; y += spacing) {
+                for(let x = xStart; x < xEnd; x += spacing) {
+                    const B = calcFieldFn(x, y, ...args);
+                    const mag = Math.sqrt(B.Bx*B.Bx + B.By*B.By);
+                    if (mag > 40000) continue; // Inner core limit
+
+                    const angle = Math.atan2(B.By, B.Bx);
+                    const len = State.mode === 'scientist' ? 10 : 14;
+
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(angle);
+
+                    if(State.mode === 'scientist') {
+                        // Heatmap Intensity Visibility
+                        let normMag = Math.min(1, Math.pow(mag / 3000, 0.4));
+                        let hue = (1 - normMag) * 240; // Blue=Weak, Red=Strong
+                        ctx.strokeStyle = `hsla(${hue}, 100%, 60%, ${0.3 + normMag*0.7})`;
+                        ctx.lineWidth = 1.5 + normMag * 1.5;
+                        ctx.beginPath();
+                        ctx.moveTo(-len, 0); ctx.lineTo(len, 0);
+                        ctx.lineTo(len - 4, -3); ctx.moveTo(len, 0); ctx.lineTo(len - 4, 3);
+                        ctx.stroke();
+                    } else {
+                        let alpha = Math.min(1, Math.max(0.15, mag / 2000));
+                        ctx.globalAlpha = alpha;
+                        ctx.beginPath(); ctx.moveTo(0, -3); ctx.lineTo(len, 0); ctx.lineTo(0, 3);
+                        ctx.fillStyle = '#ef4444'; ctx.fill();
+                        ctx.beginPath(); ctx.moveTo(0, -3); ctx.lineTo(-len, 0); ctx.lineTo(0, 3);
+                        ctx.fillStyle = '#f8fafc'; ctx.fill();
+                    }
+                    ctx.restore();
+                }
+            }
+        }
+
+        function renderExp1() {
+            const ctx = DOM.ctx;
+            
+            const totalField = (x, y) => {
+                let Bx = 0, By = 0;
+                const numMags = State.mag2Active ? 2 : 1;
+                for(let i=0; i<numMags; i++) {
+                    let m = State.magnets[i];
+                    let b = calcDipoleFieldRotated(x, y, m.x, m.y, 1.0, m.angle);
+                    Bx += b.Bx; By += b.By;
+                }
+                return {Bx, By};
+            };
+            
+            // True vector loops perfectly matching compass grid
+            if (State.showFieldLinesTab1) {
+                const activeMags = State.mag2Active ? State.magnets : [State.magnets[0]];
+                drawFieldLines(ctx, totalField, activeMags);
+            }
+
+            drawCompassGrid(totalField, []);
+
+            // Draw Magnets
+            const w = 160, h = 40;
+            const numMags = State.mag2Active ? 2 : 1;
+            for(let i=0; i<numMags; i++) {
+                let mag = State.magnets[i];
+                ctx.save();
+                ctx.translate(mag.x, mag.y);
+                ctx.rotate(mag.angle);
+                
+                ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 10;
+                
+                // South
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(-w/2, -h/2, w/2, h);
+                ctx.fillStyle = 'white'; ctx.font = 'bold 20px sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('S', -w/4, 0);
+
+                // North
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(0, -h/2, w/2, h);
+                ctx.fillStyle = 'white';
+                ctx.fillText('N', w/4, 0);
+                
+                // Rotation Handles
+                ctx.shadowBlur = 0;
+                ctx.beginPath(); ctx.arc(w/2 + 10, 0, 8, 0, Math.PI*2); 
+                ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fill(); 
+                ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.stroke();
+                
+                ctx.beginPath(); ctx.arc(-w/2 - 10, 0, 8, 0, Math.PI*2); 
+                ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fill(); 
+                ctx.strokeStyle = '#3b82f6'; ctx.stroke();
+
+                ctx.restore();
+            }
+
+            if (State.showCompass) {
+                let cPos = State.compassPos;
+                let B = totalField(cPos.x, cPos.y);
+                let angle = Math.atan2(B.By, B.Bx);
+                
+                ctx.save();
+                ctx.translate(cPos.x, cPos.y);
+                ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 15;
+                ctx.beginPath(); ctx.arc(0, 0, 46, 0, Math.PI*2);
+                ctx.fillStyle = '#f8fafc'; ctx.fill();
+                ctx.lineWidth = 4; ctx.strokeStyle = '#cbd5e1'; ctx.stroke();
+                
+                ctx.shadowBlur = 0; 
+                ctx.rotate(angle);
+                
+                ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(52, 0); ctx.lineTo(0, 12);
+                ctx.fillStyle = '#ef4444'; ctx.fill();
+                ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(-52, 0); ctx.lineTo(0, 12);
+                ctx.fillStyle = '#94a3b8'; ctx.fill();
+                ctx.beginPath(); ctx.arc(0,0,5,0,Math.PI*2); ctx.fillStyle='#1e293b'; ctx.fill();
+                
+                ctx.fillStyle = 'white'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+                ctx.fillText('N', 30, 0); 
+                ctx.fillText('S', -30, 0);
+                
+                ctx.restore();
+            }
+        }
+
+        function initAuroras() {
+            State.aurorasParticles = Array.from({length: 160}, () => {
+                return {
+                    x: -Math.random() * 200, 
+                    y: (Math.random() * State.canvasHeight),
+                    vx: 3.5 + Math.random() * 2,
+                    vy: 0,
+                    life: 0,
+                    trapped: false,
+                    trappedShell: null,
+                    trappedPole: 1, 
+                    trappedTheta: 0,
+                    cyclotronPhase: Math.random() * Math.PI * 2
+                };
+            });
+            State.auroraGlowNorth = 0;
+            State.auroraGlowSouth = 0;
+            State.impactTraces = [];
+        }
+
+        function renderExp2() {
+            const ctx = DOM.ctx;
+            const cx = State.canvasWidth / 2, cy = State.canvasHeight / 2;
+
+            // Deep Space Background
+            ctx.fillStyle = '#020617'; ctx.fillRect(0, 0, State.canvasWidth, State.canvasHeight);
+            
+            // Stars
+            ctx.fillStyle = 'white';
+            State.stars.forEach(s => {
+                ctx.globalAlpha = s.alpha;
+                ctx.beginPath(); ctx.arc(s.x * State.canvasWidth, s.y * State.canvasHeight, s.size, 0, Math.PI*2); ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+
+            const Re = 85; 
+            const tilt = -23.5 * Math.PI / 180; // Adjusted tilt to 23.5 degrees
+
+            // Draw Magnetospheric Field Lines (Denser where stronger)
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(tilt);
+            
+            // Highly packed inner lines for visibly strong Van Allen belts
+            const shells = [1.15, 1.25, 1.4, 1.6, 1.9, 2.3, 2.9, 3.7, 4.8];
+            for(let L of shells) {
+                // Brighter/Stronger inside, scaling with solar wind
+                let baseOpacity = Math.max(0.05, 0.65 - L*0.1);
+                ctx.lineWidth = L < 2.0 ? 2.0 : 1.0; 
+                ctx.strokeStyle = `rgba(148, 163, 184, ${baseOpacity * (1.0 + State.solarWind / 150)})`;
+                
+                ctx.beginPath();
+                for(let sign of [1, -1]) {
+                    for(let t = -Math.PI/2; t <= Math.PI/2; t += 0.05) {
+                        let r = L * Re * Math.pow(Math.cos(t), 2);
+                        let x = sign * r * Math.cos(t);
+                        let y = r * Math.sin(t);
+                        if (x < 0) x *= 0.55; 
+                        else x += Math.pow(x / Re, 2) * 1.2; 
+                        if (t === -Math.PI/2) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // Solar Wind Deflection Mathematics & Capture Progression
+            const windSpeed = State.solarWind / 50;
+            ctx.fillStyle = 'rgba(250, 204, 21, 0.9)';
+
+            // Aurora Capture rate - none at weak wind (<40), high at strong wind (>80)
+            let captureChance = 0;
+            if (State.solarWind > 40) {
+                captureChance = Math.min(0.25, (State.solarWind - 40) * 0.005);
+            }
+
+            State.aurorasParticles.forEach(p => {
+                if (!p.trapped) {
+                    let dx = p.x - cx;
+                    let dy = p.y - cy;
+                    let dist = Math.hypot(dx, dy);
+
+                    // Flow AROUND the Van Allen Belts (Magnetosheath Deflection)
+                    if (dx < 0 && dist < 320 && dist > 150) {
+                        // Much stronger deflection force at low solar wind, bouncing particles easily
+                        let deflectBase = State.solarWind < 40 ? 6.0 : 1.5;
+                        let push = (320 - dist) * 0.004 * deflectBase;
+                        p.vy += (dy > 0 ? push : -push) * windSpeed;
+                        p.vx *= State.solarWind < 40 ? 0.85 : 0.98;
+                    }
+
+                    p.x += p.vx * windSpeed;
+                    p.y += p.vy * windSpeed;
+                    
+                    let mx = dx * Math.cos(-tilt) - dy * Math.sin(-tilt);
+                    let my = dx * Math.sin(-tilt) + dy * Math.cos(-tilt);
+                    let mDist = Math.hypot(mx, my);
+
+                    // Capture trigger dependent on Solar Wind threshold
+                    if (mDist < 260 && dx < 0 && Math.random() < captureChance) {
+                        p.trapped = true;
+                        p.trappedShell = shells[Math.floor(Math.random() * shells.length)];
+                        p.trappedPole = my > 0 ? 1 : -1;
+                        p.trappedTheta = Math.atan2(my, mx);
+                    }
+                } else {
+                    // Helical Cyclotron spiraling toward the poles
+                    p.trappedTheta += p.trappedPole * 0.015 * windSpeed;
+                    p.cyclotronPhase += 0.3 * windSpeed;
+                    
+                    let r = p.trappedShell * Re * Math.pow(Math.cos(p.trappedTheta), 2);
+                    let mx_base = r * Math.cos(p.trappedTheta);
+                    let my_base = r * Math.sin(p.trappedTheta);
+                    if (mx_base < 0) mx_base *= 0.55;
+
+                    let normX = -Math.sin(p.trappedTheta);
+                    let normY = Math.cos(p.trappedTheta);
+                    let larmorRadius = (15 * (r / Re)) * (1.0 / p.trappedShell); 
+                    
+                    let mx = mx_base + normX * Math.cos(p.cyclotronPhase) * larmorRadius;
+                    let my = my_base + normY * Math.sin(p.cyclotronPhase) * larmorRadius;
+
+                    p.x = cx + (mx * Math.cos(tilt) - my * Math.sin(tilt));
+                    p.y = cy + (mx * Math.sin(tilt) + my * Math.cos(tilt));
+
+                    if (Math.hypot(mx_base, my_base) < Re + 4) {
+                        State.impactTraces.push({
+                            x: p.x, y: p.y, alpha: 1.0, size: Math.random() * 3 + 2,
+                            color: my_base < 0 ? '#34d399' : '#a855f7'
+                        });
+                        if (my_base < 0) State.auroraGlowNorth += 0.2 * (State.solarWind / 50);
+                        else State.auroraGlowSouth += 0.2 * (State.solarWind / 50);
+                        
+                        p.life = 400; // Force reset
+                    }
+                }
+
+                p.life++;
+                if (p.x > State.canvasWidth || p.life > 320 || p.y < -120 || p.y > State.canvasHeight + 120) {
+                    p.x = -Math.random() * 150;
+                    p.y = Math.random() * State.canvasHeight;
+                    p.vx = 4.5 + Math.random() * 2.5;
+                    p.vy = 0;
+                    p.life = 0;
+                    p.trapped = false;
+                }
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.trapped ? 1.5 : 2, 0, Math.PI * 2); ctx.fill();
+            });
+
+            // Constant ambient auroras only triggered at very high solar wind
+            if (State.solarWind >= 80) {
+                if (Math.random() < (State.solarWind - 70) / 30) {
+                    let isNorth = Math.random() > 0.5;
+                    let angleOffset = (Math.random() - 0.5) * Math.PI / 2.5;
+                    let px = cx + Math.cos(tilt - Math.PI/2 + angleOffset) * Re;
+                    let py = cy + Math.sin(tilt - Math.PI/2 + angleOffset) * Re;
+                    if (!isNorth) {
+                        px = cx + Math.cos(tilt + Math.PI/2 + angleOffset) * Re;
+                        py = cy + Math.sin(tilt + Math.PI/2 + angleOffset) * Re;
+                    }
+                    State.impactTraces.push({
+                        x: px, y: py, alpha: 1.0, size: Math.random() * 4 + 2,
+                        color: isNorth ? '#34d399' : '#a855f7'
+                    });
+                }
+            }
+
+            // Decay Aurora
+            State.auroraGlowNorth = Math.min(2.5, State.auroraGlowNorth * 0.95);
+            State.auroraGlowSouth = Math.min(2.5, State.auroraGlowSouth * 0.95);
+
+            State.impactTraces.forEach((trace, idx) => {
+                ctx.save(); ctx.globalAlpha = trace.alpha; ctx.fillStyle = trace.color;
+                ctx.beginPath(); ctx.arc(trace.x, trace.y, trace.size, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+                trace.alpha -= 0.015;
+                if (trace.alpha <= 0) State.impactTraces.splice(idx, 1);
+            });
+
+            // Draw Elegant Earth Sphere (Kurzgesagt Style with soft gradients)
+            ctx.save();
+            ctx.translate(cx, cy);
+            
+            // Base Clip path for Earth sphere
+            ctx.beginPath();
+            ctx.arc(0, 0, Re, 0, Math.PI * 2);
+            ctx.clip(); 
+            
+            // Deep Indigo Ocean Gradient
+            let oceanGrad = ctx.createLinearGradient(-Re, -Re, Re, Re);
+            oceanGrad.addColorStop(0, '#1d4ed8');
+            oceanGrad.addColorStop(1, '#1e3a8a');
+            ctx.fillStyle = oceanGrad;
+            ctx.fill();
+            
+            // Organic, Elegant Bubbly Continents 
+            ctx.fillStyle = '#34d399'; 
+            
+            // Americas cluster
+            ctx.beginPath();
+            ctx.arc(-22, -35, 20, 0, Math.PI * 2);
+            ctx.arc(-40, -15, 15, 0, Math.PI * 2);
+            ctx.arc(-20, -10, 24, 0, Math.PI * 2);
+            ctx.arc(-18, 22, 22, 0, Math.PI * 2);
+            ctx.arc(-15, 45, 14, 0, Math.PI * 2);
+            ctx.arc(-25, 30, 16, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Euro/Afro/Asia cluster
+            ctx.beginPath();
+            ctx.arc(25, -25, 26, 0, Math.PI * 2);
+            ctx.arc(45, -10, 20, 0, Math.PI * 2);
+            ctx.arc(20, 10, 28, 0, Math.PI * 2);
+            ctx.arc(35, 30, 18, 0, Math.PI * 2);
+            ctx.arc(15, -45, 16, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Overlays
+            ctx.fillStyle = '#059669'; 
+            ctx.beginPath(); ctx.arc(-24, -30, 12, 0, Math.PI * 2); ctx.arc(-16, -16, 14, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(22, -22, 16, 0, Math.PI * 2); ctx.arc(42, -12, 12, 0, Math.PI * 2); ctx.fill();
+
+            ctx.fillStyle = '#f59e0b'; // Warm ochre
+            ctx.beginPath(); ctx.arc(-16, 26, 13, 0, Math.PI * 2); ctx.arc(22, 12, 16, 0, Math.PI * 2); ctx.fill();
+
+            // Inclined, Subtle Ice Caps wrapping perfectly to Earth curve
+            ctx.save();
+            ctx.rotate(tilt);
+            
+            // North Ice Cap
+            let iceGradN = ctx.createLinearGradient(0, -Re, 0, -Re + 20);
+            iceGradN.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+            iceGradN.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = iceGradN;
+            ctx.beginPath();
+            ctx.arc(0, 0, Re, -Math.PI/2 - 0.5, -Math.PI/2 + 0.5, false);
+            ctx.quadraticCurveTo(0, -Re + 18, -Re * Math.sin(0.5), -Re * Math.cos(0.5));
+            ctx.fill();
+
+            // South Ice Cap
+            let iceGradS = ctx.createLinearGradient(0, Re, 0, Re - 20);
+            iceGradS.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+            iceGradS.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = iceGradS;
+            ctx.beginPath();
+            ctx.arc(0, 0, Re, Math.PI/2 - 0.5, Math.PI/2 + 0.5, false);
+            ctx.quadraticCurveTo(0, Re - 18, Re * Math.sin(0.5), Re * Math.cos(0.5));
+            ctx.fill();
+            ctx.restore();
+
+            // Progressive, Soft Sunset Terminator (No vertical lines)
+            let nightGrad = ctx.createLinearGradient(-Re*0.3, 0, Re*0.8, 0);
+            nightGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            nightGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.6)');
+            nightGrad.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
+            ctx.fillStyle = nightGrad;
+            ctx.beginPath(); ctx.arc(0, 0, Re + 0.5, 0, Math.PI * 2); ctx.fill();
+
+            ctx.restore(); // Exit clip mask
+            ctx.save();
+            ctx.translate(cx, cy);
+
+            // Muted Atmosphere outer halo
+            let atmosphere = ctx.createRadialGradient(0,0,Re - 5, 0,0,Re + 15);
+            atmosphere.addColorStop(0, 'rgba(59, 130, 246, 0)');
+            atmosphere.addColorStop(0.65, 'rgba(59, 130, 246, 0.4)');
+            atmosphere.addColorStop(1, 'rgba(59, 130, 246, 0)');
+            ctx.fillStyle = atmosphere;
+            ctx.beginPath(); ctx.arc(0,0,Re+15, 0, Math.PI * 2); ctx.fill();
+
+            // Rotational Axis Indicator (Vertical, Twice longer)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.setLineDash([5, 5]); 
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); 
+            ctx.moveTo(0, -Re - 120); ctx.lineTo(0, Re + 120); 
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; ctx.font = '12px sans-serif';
+            ctx.fillText('Rotational Axis', 5, -Re - 100);
+
+            // Magnetic Tilted Axis Visualizer
+            ctx.save();
+            ctx.rotate(tilt);
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, -Re - 120); ctx.lineTo(0, Re + 120); ctx.stroke();
+            
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.8)'; ctx.font = 'bold 12px sans-serif';
+            ctx.fillText('Magnetic Axis', 5, -Re - 100);
+            ctx.fillText('S (Mag)', 5, -Re - 15);
+            ctx.fillText('N (Mag)', 5, Re + 20);
+            ctx.restore();
+
+            // --- PROGRESSIVE POLAR AURORAL CROWNS ---
+            ctx.globalCompositeOperation = 'screen';
+            ctx.save();
+            ctx.rotate(tilt);
+            
+            let windIntMult = (State.solarWind / 50); 
+
+            // North Aurora
+            const nGlow = Math.max(0.1, State.auroraGlowNorth) * windIntMult;
+            ctx.shadowColor = '#10b981'; ctx.shadowBlur = 20 * nGlow;
+            
+            let nGrad = ctx.createRadialGradient(0, -Re + 5, 2, 0, -Re + 5, 55);
+            nGrad.addColorStop(0, `rgba(52, 211, 153, ${Math.min(0.95, nGlow)})`); 
+            nGrad.addColorStop(0.5, `rgba(168, 85, 247, ${Math.min(0.7, nGlow * 0.75)})`); 
+            nGrad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = nGrad;
+            ctx.beginPath(); ctx.arc(0, -Re + 5, 55, 0, Math.PI * 2); ctx.fill();
+
+            // South Aurora
+            const sGlow = Math.max(0.1, State.auroraGlowSouth) * windIntMult;
+            ctx.shadowColor = '#a855f7'; ctx.shadowBlur = 20 * sGlow;
+
+            let sGrad = ctx.createRadialGradient(0, Re - 5, 2, 0, Re - 5, 55);
+            sGrad.addColorStop(0, `rgba(52, 211, 153, ${Math.min(0.95, sGlow)})`);
+            sGrad.addColorStop(0.5, `rgba(168, 85, 247, ${Math.min(0.7, sGlow * 0.75)})`);
+            sGrad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = sGrad;
+            ctx.beginPath(); ctx.arc(0, Re - 5, 55, 0, Math.PI * 2); ctx.fill();
+
+            ctx.restore();
+            ctx.shadowBlur = 0;
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.restore();
+        }
+
+        function renderExp3() {
+            const ctx = DOM.ctx;
+            const cx = State.canvasWidth / 2;
+            const cy = State.canvasHeight / 2 - 40; 
+            
+            const effStrength = (State.circuitClosed && State.emVoltage !== 0) ? (State.emCoils * State.emVoltage) * 0.08 : 0;
+            
+            if (State.showFieldLinesTab3 && Math.abs(effStrength) > 0.01) {
+                drawFieldLines(ctx, (x, y) => calcDipoleFieldRotated(x, y, cx, cy, effStrength, 0), [{x: cx, y: cy, angle: State.emVoltage > 0 ? 0 : Math.PI}]);
+            }
+
+            drawCompassGrid(calcDipoleFieldRotated, [cx, cy, effStrength, 0]);
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#475569';
+            
+            ctx.beginPath();
+            ctx.moveTo(-90, 0); ctx.lineTo(-180, 0); ctx.lineTo(-180, -140); ctx.lineTo(-60, -140); 
+            ctx.moveTo(90, 0); ctx.lineTo(180, 0); ctx.lineTo(180, -140); ctx.lineTo(60, -140); 
+            ctx.stroke();
+
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(-60, -165, 50, 45); 
+            ctx.fillStyle = '#f59e0b'; ctx.fillRect(-10, -165, 10, 45); 
+            ctx.fillStyle = 'white'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign='center'; 
+            ctx.fillText(State.emVoltage + 'V', -35, -138);
+
+            ctx.fillStyle = 'white'; ctx.font = 'bold 16px sans-serif'; ctx.fillText('-', -50, -137);
+            ctx.fillStyle = '#1e293b'; ctx.fillText('+', -5, -137);
+
+            ctx.beginPath();
+            ctx.arc(15, -140, 5, 0, Math.PI * 2); ctx.fillStyle = '#64748b'; ctx.fill(); 
+            ctx.beginPath();
+            ctx.arc(55, -140, 5, 0, Math.PI * 2); ctx.fill(); 
+            
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.moveTo(15, -140);
+            if (State.circuitClosed) {
+                ctx.lineTo(55, -140); 
+            } else {
+                ctx.lineTo(45, -165); 
+            }
+            ctx.stroke();
+
+            const nw = 180, nh = 24;
+            ctx.fillStyle = '#94a3b8'; ctx.fillRect(-nw/2, -nh/2, nw, nh);
+            ctx.fillStyle = '#64748b'; ctx.beginPath(); ctx.moveTo(nw/2, -nh/2); ctx.lineTo(nw/2 + 20, 0); ctx.lineTo(nw/2, nh/2); ctx.fill(); 
+            ctx.fillRect(-nw/2 - 10, -nh/2 - 5, 10, nh + 10); 
+            
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#b45309'; 
+            let spacing = (nw - 40) / State.emCoils;
+            let startX = -nw/2 + 20;
+            
+            for(let i=0; i<State.emCoils; i++) {
+                ctx.beginPath();
+                ctx.moveTo(startX + i*spacing - 5, -nh/2 - 2);
+                ctx.lineTo(startX + i*spacing + 5, nh/2 + 2);
+                ctx.stroke();
+            }
+
+            if (State.showPolesTab3 && Math.abs(effStrength) > 0.01) {
+                ctx.fillStyle = 'white'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+                let isRightPos = State.emVoltage > 0;
+                ctx.fillText(isRightPos ? 'N' : 'S', nw/2 - 15, 0);
+                ctx.fillText(isRightPos ? 'S' : 'N', -nw/2 + 15, 0);
+            }
+
+            ctx.restore();
+
+            let floorY = State.canvasHeight - 65;
+            let pMetric = State.emCoils * Math.abs(State.emVoltage); 
+            
+            State.exp3Objects.forEach((obj, index) => {
+                if (obj.y === 0 || obj.y === undefined) {
+                    obj.y = floorY;
+                    obj.vy = 0;
+                    obj.visualX = obj.offset;
+                }
+
+                let nailY = cy + 12;
+                let dx = obj.visualX;
+                let dy = nailY - obj.y;
+                let dist = Math.hypot(dx, dy);
+
+                if (State.circuitClosed && State.emVoltage !== 0 && obj.mag && pMetric >= obj.threshold) {
+                    let force = (pMetric * 45) / (Math.max(15, dist) * obj.weight * 0.15);
+                    
+                    if (force > 9.8) {
+                        obj.vy -= (force - 9.8) * 0.045; 
+                    } else {
+                        obj.vy += 0.5; 
+                    }
+                } else {
+                    obj.vy += 0.5; 
+                }
+
+                obj.vy *= 0.94; 
+                obj.y += obj.vy;
+
+                if (obj.y > floorY) {
+                    obj.y = floorY;
+                    obj.vy = 0;
+                }
+
+                if (obj.y < nailY + 22) {
+                    obj.y = nailY + 22;
+                    obj.vy = 0;
+                    let targetX = (index - 3.5) * 8; 
+                    obj.visualX += (targetX - obj.visualX) * 0.2;
+                } else if (obj.y >= floorY - 2) {
+                    obj.visualX += (obj.offset - obj.visualX) * 0.1;
+                }
+
+                ctx.save();
+                ctx.translate(cx + obj.visualX, obj.y);
+                ctx.font = '36px sans-serif'; 
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(obj.emoji, 0, 0);
+                ctx.restore();
+            });
+            
+            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(cx - 220, floorY + 22); ctx.lineTo(cx + 220, floorY + 22); ctx.stroke();
+        }
+
+        function renderSci1() {
+            const ctx = DOM.ctx;
+            const w = State.canvasWidth, h = State.canvasHeight;
+            const I = State.sciCurrent;
+
+            drawCompassGrid(calcWireField, [w*0.25, h/2, I], {x0: 0, y0: 0, x1: w/2, y1: h});
+
+            ctx.save();
+            ctx.translate(w*0.25, h/2);
+            ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2);
+            ctx.fillStyle = '#1e293b'; ctx.fill();
+            ctx.lineWidth = 3; ctx.strokeStyle = '#94a3b8'; ctx.stroke();
+
+            ctx.fillStyle = '#e2e8f0';
+            if (I > 0) { ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill(); } 
+            else if (I < 0) {
+                ctx.beginPath(); ctx.moveTo(-6, -6); ctx.lineTo(6, 6); ctx.moveTo(6, -6); ctx.lineTo(-6, 6);
+                ctx.lineWidth = 2; ctx.strokeStyle = ctx.fillStyle; ctx.stroke();
+            }
+
+            if (I !== 0) {
+                ctx.strokeStyle = 'rgba(14, 165, 233, 0.2)'; ctx.lineWidth = 1;
+                for(let r=40; r<=200; r+=40) { ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke(); }
+            }
+            
+            ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '14px monospace'; ctx.fillText('Cross-Section (Top View)', -80, h/2 - 20);
+            ctx.restore();
+
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
+
+            ctx.save();
+            ctx.translate(w*0.75, h/2);
+            
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(-20, -h/2, 40, h);
+            ctx.strokeStyle = '#94a3b8'; ctx.strokeRect(-20, -h/2, 40, h);
+            
+            if (I !== 0) {
+                ctx.fillStyle = 'rgba(226, 232, 240, 0.5)';
+                ctx.beginPath();
+                if (I > 0) { // Up
+                    ctx.moveTo(0, -60); ctx.lineTo(-10, -40); ctx.lineTo(10, -40);
+                    ctx.fillRect(-4, -40, 8, 80);
+                } else { // Down
+                    ctx.moveTo(0, 60); ctx.lineTo(-10, 40); ctx.lineTo(10, 40);
+                    ctx.fillRect(-4, -40, 8, 80);
+                }
+                ctx.fill();
+            }
+
+            if (I !== 0) {
+                ctx.lineWidth = 2;
+                for(let dist = 40; dist < w/4; dist += 40 + dist*0.2) {
+                    for(let y = -h/2 + 20; y < h/2; y += 40) {
+                        let B = calcWireField(w*0.75 + dist, h/2+y, w*0.75, h/2, I);
+                        let mag = Math.min(1, Math.pow(Math.abs(B.By) / 100, 0.4));
+                        let hue = (1 - mag) * 240; 
+                        ctx.fillStyle = `hsla(${hue}, 100%, 60%, ${0.4 + mag*0.6})`;
+                        ctx.strokeStyle = ctx.fillStyle;
+                        ctx.lineWidth = 1.5 + mag * 2.5;
+                        
+                        let drawDot = (I > 0); 
+                        
+                        ctx.beginPath();
+                        if (drawDot) { ctx.arc(-dist, y, 3, 0, Math.PI * 2); ctx.fill(); }
+                        else { ctx.moveTo(-dist-4, y-4); ctx.lineTo(-dist+4, y+4); ctx.moveTo(-dist+4, y-4); ctx.lineTo(-dist-4, y+4); ctx.stroke(); }
+                        
+                        ctx.beginPath();
+                        if (!drawDot) { ctx.arc(dist, y, 3, 0, Math.PI * 2); ctx.fill(); }
+                        else { ctx.moveTo(dist-4, y-4); ctx.lineTo(dist+4, y+4); ctx.moveTo(dist+4, y-4); ctx.lineTo(dist-4, y+4); ctx.stroke(); }
+                    }
+                }
+            }
+
+            ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '14px monospace'; ctx.fillText('Side View', -40, h/2 - 20);
+            ctx.restore();
+
+            if (State.showGauss) drawGaussmeter(calcWireField, [w*0.25, h/2, I]);
+        }
+
+        function renderSci2() {
+            const ctx = DOM.ctx;
+            const cx = State.canvasWidth / 2, cy = State.canvasHeight / 2;
+            
+            drawCompassGrid(calcSolenoidField, [cx, cy, State.solTurns, State.solCurrent]);
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            
+            let spacing = 20;
+            let startX = -((State.solTurns-1)*spacing)/2;
+            let R = 40;
+
+            for(let i=0; i<State.solTurns; i++) {
+                let wx = startX + i*spacing;
+                
+                ctx.beginPath(); ctx.arc(wx, -R, 6, 0, Math.PI * 2);
+                ctx.fillStyle = '#1e293b'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#94a3b8'; ctx.stroke();
+                if(State.solCurrent > 0) { ctx.fillStyle='#e2e8f0'; ctx.beginPath(); ctx.arc(wx, -R, 2, 0, Math.PI * 2); ctx.fill(); }
+                else if(State.solCurrent < 0) { ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(wx-2,-R-2); ctx.lineTo(wx+2,-R+2); ctx.moveTo(wx+2,-R-2); ctx.lineTo(wx-2,-R+2); ctx.stroke(); }
+
+                ctx.beginPath(); ctx.arc(wx, R, 6, 0, Math.PI * 2);
+                ctx.fillStyle = '#1e293b'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#94a3b8'; ctx.stroke();
+                if(State.solCurrent > 0) { ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(wx-2,R-2); ctx.lineTo(wx+2,R+2); ctx.moveTo(wx+2,R-2); ctx.lineTo(wx-2,R+2); ctx.stroke(); }
+                else if(State.solCurrent < 0) { ctx.fillStyle='#e2e8f0'; ctx.beginPath(); ctx.arc(wx, R, 2, 0, Math.PI * 2); ctx.fill(); }
+            }
+
+            if (State.showSolenoidPoles && State.solCurrent !== 0) {
+                ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+                let isRightPos = State.solCurrent > 0;
+                ctx.fillText(isRightPos ? 'N' : 'S', startX + (State.solTurns-1)*spacing + 35, 0);
+                ctx.fillText(isRightPos ? 'S' : 'N', startX - 35, 0);
+            }
+
+            ctx.restore();
+
+            if (State.showGauss) drawGaussmeter(calcSolenoidField, [cx, cy, State.solTurns, State.solCurrent]);
+        }
+
+        function emitFbParticle() {
+            State.fbParticles.push({
+                x: 55, y: State.canvasHeight/2, // Originates exactly at tip
+                vx: State.fbVel * 1.5, vy: 0,
+                q: State.fbCharge,
+                trace: [], life: 0
+            });
+            if(State.fbParticles.length > 5) State.fbParticles.shift();
+        }
+
+        function renderSci3() {
+            const ctx = DOM.ctx;
+            const w = State.canvasWidth, h = State.canvasHeight;
+            const bRegionStart = w * 0.3;
+
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.05)';
+            ctx.fillRect(bRegionStart, 0, w - bRegionStart, h);
+            ctx.strokeStyle = 'rgba(14, 165, 233, 0.3)';
+            ctx.beginPath(); ctx.moveTo(bRegionStart, 0); ctx.lineTo(bRegionStart, h); ctx.stroke();
+
+            if (State.fbB !== 0) {
+                let normMag = Math.min(1, Math.abs(State.fbB) / 10);
+                let hue = (1 - normMag) * 240; 
+                ctx.fillStyle = `hsla(${hue}, 100%, 60%, 0.8)`;
+                ctx.strokeStyle = `hsla(${hue}, 100%, 60%, 0.8)`;
+                ctx.lineWidth = 2 + normMag * 2;
+                
+                for(let x = bRegionStart + 30; x < w; x+=40) {
+                    for(let y = 30; y < h; y+=40) {
+                        if (State.fbB > 0) {
+                            ctx.beginPath(); ctx.arc(x, y, 3 + normMag*2, 0, Math.PI * 2); ctx.fill();
+                        } else {
+                            let s = 4 + normMag*2;
+                            ctx.beginPath(); ctx.moveTo(x-s, y-s); ctx.lineTo(x+s, y+s);
+                            ctx.moveTo(x+s, y-s); ctx.lineTo(x-s, y+s); ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            ctx.fillStyle = '#334155'; ctx.fillRect(0, h/2 - 30, 40, 60);
+            ctx.fillStyle = '#94a3b8'; ctx.beginPath(); ctx.moveTo(40, h/2 - 10); ctx.lineTo(55, h/2); ctx.lineTo(40, h/2 + 10); ctx.fill();
+
+            State.fbParticles.forEach((p, idx) => {
+                if (p.life % 2 === 0) p.trace.push({x: p.x, y: p.y});
+
+                if (p.x > bRegionStart && p.q !== 0) {
+                    let ax = p.q * p.vy * State.fbB * 0.005;
+                    let ay = -p.q * p.vx * State.fbB * 0.005;
+                    p.vx += ax;
+                    p.vy += ay;
+                }
+
+                p.x += p.vx; p.y += p.vy; p.life++;
+
+                ctx.strokeStyle = p.q === 0 ? 'rgba(148, 163, 184, 0.5)' : (p.q > 0 ? 'rgba(239, 68, 68, 0.5)' : 'rgba(59, 130, 246, 0.5)');
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                if(p.trace.length > 0) ctx.moveTo(p.trace[0].x, p.trace[0].y);
+                p.trace.forEach(pt => ctx.lineTo(pt.x, pt.y));
+                ctx.stroke();
+
+                ctx.fillStyle = p.q === 0 ? '#94a3b8' : (p.q > 0 ? '#ef4444' : '#3b82f6');
+                ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'white'; ctx.font = '10px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+                let sym = p.q === 0 ? '0' : (p.q > 0 ? '+' + p.q : p.q);
+                ctx.fillText(sym, p.x, p.y);
+                
+                // HUD telemetry
+                ctx.textAlign='left'; ctx.font = '12px monospace';
+                let vMag = Math.hypot(p.vx, p.vy).toFixed(1);
+                ctx.fillText(`v=${vMag} m/s`, p.x + 10, p.y - 10);
+            });
+        }
+
+        function startLabEngine() {
+            function loop() {
+                DOM.ctx.clearRect(0, 0, State.canvasWidth, State.canvasHeight);
+
+                if (State.mode === 'explorer') {
+                    if (State.tab === 1) renderExp1();
+                    else if (State.tab === 2) renderExp2();
+                    else if (State.tab === 3) renderExp3();
+                } else {
+                    if (State.tab === 1) renderSci1();
+                    else if (State.tab === 2) renderSci2();
+                    else if (State.tab === 3) renderSci3();
+                }
+
+                State.animationFrame = requestAnimationFrame(loop);
+            }
+            loop();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
