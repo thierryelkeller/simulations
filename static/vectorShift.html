@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VECTORSHIFT: Net Force & Vectors</title>
+    
+    <!-- Inject MathJax for robust LaTeX Rendering -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+    <style>
+        /* --- CORE CSS VARIABLES --- */
+        :root {
+            /* Default/High School (Scientist Mode) Variables */
+            --bg-base: #0b0f19;
+            --bg-panel: rgba(17, 24, 39, 0.95);
+            --bg-pattern: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            --panel-radius: 6px; /* Sharper corners */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8; /* Sharp Cyan */
+            --accent-hover: #7dd3fc;
+            --force-1: #60a5fa; /* Blue */
+            --force-2: #fbbf24; /* Gold */
+            --force-net: #34d399; /* Emerald */
+            --border: #334155;
+            --glow-accent: 0 4px 15px rgba(0, 0, 0, 0.3);
+            --font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: 'Segoe UI Mono', Consolas, monospace;
+        }
+
+        .mode-ms {
+            /* Middle School (Explorer Mode) Variables */
+            --bg-base: #1e293b;
+            --bg-panel: #27354c;
+            --bg-pattern: none; /* Clean solid background */
+            --panel-radius: 16px; /* Softer, friendlier corners */
+            --text-main: #f1f5f9;
+            --text-muted: #cbd5e1;
+            --accent: #818cf8; /* Soft Indigo */
+            --accent-hover: #a5b4fc;
+            --force-1: #818cf8;
+            --force-2: #fcd34d;
+            --force-net: #6ee7b7;
+            --border: #475569;
+            --glow-accent: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- RESET & LAYOUT --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: var(--font-family); }
+        body {
+            background-color: var(--bg-base); color: var(--text-main);
+            background-image: var(--bg-pattern); background-size: 40px 40px;
+            overflow: hidden; height: 100vh; width: 100vw;
+            display: flex; flex-direction: column; transition: background-color 0.5s, color 0.5s;
+        }
+
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; color: white;
+        }
+        #splash-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .splash-content { position: relative; z-index: 1; text-align: center; padding: 3rem; width: 100%; max-width: 800px; }
+        
+        .splash-title { 
+            font-size: 4.5rem; margin-bottom: 0.5rem; letter-spacing: 12px; font-weight: 300; text-transform: uppercase; 
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+        }
+        .splash-subtitle { font-size: 1.2rem; margin-bottom: 3rem; color: #94a3b8; letter-spacing: 3px; font-weight: 300; text-transform: uppercase; }
+        
+        .toggle-group { margin-bottom: 3rem; }
+        .toggle-btn {
+            background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+            padding: 0.6rem 2rem; margin: 0 0.5rem; border-radius: 30px; cursor: pointer;
+            font-size: 0.85rem; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .toggle-btn:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .toggle-btn.active { background: var(--bg-panel); color: var(--accent); border-color: var(--accent); font-weight: 600; box-shadow: var(--glow-accent); }
+        
+        .mode-cards { display: flex; gap: 2rem; justify-content: center; }
+        .mode-card {
+            background: var(--bg-panel); border: 1px solid var(--border);
+            padding: 2.5rem 2rem; border-radius: var(--panel-radius); cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 280px; position: relative; overflow: hidden; box-shadow: var(--glow-accent);
+        }
+        .mode-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: var(--accent); transform: scaleX(0); transition: transform 0.4s ease; transform-origin: left;
+        }
+        .mode-card:hover::before { transform: scaleX(1); }
+        .mode-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+        .mode-card h3 { font-size: 1.2rem; margin-bottom: 0.8rem; color: var(--text-main); text-transform: uppercase; letter-spacing: 2px; font-weight: 400; }
+        .mode-card p { font-size: 0.9rem; color: #94a3b8; line-height: 1.6; font-weight: 300; }
+        
+        .copyright { position: absolute; bottom: 1.5rem; font-size: 0.7rem; color: #475569; z-index: 1; letter-spacing: 2px; text-transform: uppercase; }
+
+        /* --- MAIN UI --- */
+        #main-app { display: none; height: 100%; flex-direction: column; }
+        
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 2rem; background-color: var(--bg-base); border-bottom: 1px solid var(--border);
+            height: 70px; flex-shrink: 0; z-index: 10;
+        }
+        .header-title { font-size: 1.2rem; font-weight: 300; text-transform: uppercase; letter-spacing: 4px; color: var(--text-main); }
+        
+        .mode-badge {
+            padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1px; border: 1px solid var(--accent);
+            color: var(--accent); background: rgba(129, 140, 248, 0.15); display: none;
+        }
+        #main-app .mode-badge { display: block; }
+        .mode-hs .mode-badge { border-color: var(--force-2); color: var(--force-2); background: rgba(251, 191, 36, 0.15); }
+
+        .header-controls { display: flex; gap: 1rem; align-items: center; }
+        .btn {
+            background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+            padding: 0.5rem 1.2rem; border-radius: var(--panel-radius); cursor: pointer; transition: all 0.2s; 
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; font-family: inherit; font-weight: 600;
+        }
+        .btn:hover { border-color: var(--text-main); color: var(--text-main); background: rgba(255, 255, 255, 0.05); }
+        .btn-exit { border-color: transparent; color: #ef4444; text-decoration: none; display: flex; align-items: center; justify-content: center;}
+        .btn-exit:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+
+        .tab-nav {
+            display: flex; background: var(--bg-base); border-bottom: 1px solid var(--border);
+            flex-shrink: 0; padding: 0 2rem; gap: 2rem;
+        }
+        .tab-btn {
+            background: none; border: none; color: var(--text-muted); padding: 1.2rem 0;
+            text-align: center; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; 
+            border-bottom: 2px solid transparent; text-transform: uppercase; letter-spacing: 2px; font-family: inherit; font-weight: 600;
+        }
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .workspace { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: transparent; }
+        .tab-content { display: none; flex: 1; flex-direction: row; padding: 1.5rem; gap: 1.5rem; overflow: hidden; }
+        .tab-content.active { display: flex; }
+        
+        .left-panel {
+            width: 360px; background-color: var(--bg-panel); border-radius: var(--panel-radius); border: 1px solid var(--border);
+            padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; flex-shrink: 0;
+            box-shadow: var(--glow-accent);
+        }
+        
+        .right-panel { flex: 1; display: flex; flex-direction: column; gap: 1.5rem; overflow: hidden; }
+
+        .canvas-container {
+            flex: 1; border: 1px solid var(--border); border-radius: var(--panel-radius); background-color: var(--bg-panel);
+            position: relative; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+        }
+        canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+
+        .bottom-panel {
+            background-color: var(--bg-panel); padding: 1.5rem 2rem; border-radius: var(--panel-radius);
+            border: 1px solid var(--border); display: flex; gap: 3rem; align-items: center; 
+            justify-content: center; box-shadow: var(--glow-accent); flex-shrink: 0;
+        }
+
+        /* Controls */
+        .control-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .control-group label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+        .label-row { display: flex; justify-content: space-between; width: 100%; align-items: center; }
+        .slider-value { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 400; }
+        
+        .slider-container { display: flex; flex-direction: column; width: 100%; margin-top: 4px; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; position: relative; z-index: 2;}
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            cursor: pointer; margin-top: -6px; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px; }
+        
+        .slider-cyan::-webkit-slider-thumb { background: var(--accent); }
+        .slider-f1::-webkit-slider-thumb { background: var(--force-1); }
+        .slider-f2::-webkit-slider-thumb { background: var(--force-2); }
+        
+        /* Custom Slider Marks (Ticks + Labels) */
+        .slider-marks { 
+            display: flex; justify-content: space-between; padding: 0 6px; 
+            margin-top: 6px; font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono); 
+            position: relative; z-index: 1;
+        }
+        .slider-marks span { display: flex; flex-direction: column; align-items: center; position: relative; }
+        .slider-marks span::before { 
+            content: ''; width: 1px; height: 6px; background: var(--border); 
+            position: absolute; top: -10px; 
+        }
+        
+        /* Toggles */
+        .toggle-row { display: flex; gap: 1.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+        .toggle-row label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; font-weight: 400; color: var(--text-main); }
+        .toggle-row input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-base); appearance: none; position: relative; }
+        .toggle-row input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
+        .toggle-row input[type="checkbox"]:checked::after { content: '✓'; position: absolute; color: var(--bg-base); font-size: 12px; left: 2px; top: -1px; font-weight: bold; }
+
+        /* Explanations */
+        .explanation-box {
+            font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;
+            background: rgba(255, 255, 255, 0.03); padding: 1.2rem; border-radius: 8px; 
+            border: 1px solid var(--border); border-left: 4px solid var(--accent);
+        }
+
+        /* Gamification Mission Panel (Explorer Mode - Now in Right Panel below canvas) */
+        .mission-panel {
+            background-color: var(--bg-panel); padding: 1.5rem 2rem; border-radius: var(--panel-radius);
+            border: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.8rem; 
+            box-shadow: var(--glow-accent); flex-shrink: 0;
+        }
+        .mission-header { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+        .mission-level { background: rgba(107, 142, 216, 0.15); color: var(--accent); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; border: 1px solid rgba(107, 142, 216, 0.3); }
+        .mission-title { font-size: 1.1rem; color: var(--text-main); font-weight: 600; }
+        .mission-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.4; }
+        .mission-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
+        
+        .challenge-status { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 600; color: var(--text-muted); padding: 0.6rem 1rem; border-radius: 4px; background: rgba(0,0,0,0.3); text-align: center; transition: all 0.3s ease; border: 1px solid transparent;}
+        .challenge-status.success { color: var(--force-net); background: rgba(52, 211, 153, 0.1); border-color: var(--force-net); }
+        .challenge-status.fail { color: #f87171; background: rgba(248, 113, 113, 0.1); border-color: #f87171; }
+
+        .btn-next { background: var(--accent); color: var(--bg-base); border: none; font-weight: bold; border-radius: 30px; padding: 0.8rem 1.5rem; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        .btn-next:hover { background: var(--accent-hover); color: var(--bg-base); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+        .data-overlay {
+            position: absolute; top: 1.5rem; left: 1.5rem; background: rgba(17, 24, 39, 0.85);
+            padding: 1.5rem; border-radius: var(--panel-radius); border: 1px solid var(--border);
+            pointer-events: none; backdrop-filter: blur(12px); font-family: var(--font-mono);
+            box-shadow: var(--glow-accent); min-width: 240px;
+        }
+        .data-row { display: flex; justify-content: space-between; gap: 2rem; margin-bottom: 0.6rem; font-size: 1rem; color: var(--text-muted); }
+        .data-row span:last-child { color: var(--text-main); }
+        
+        .c-f1 { color: var(--force-1) !important; }
+        .c-f2 { color: var(--force-2) !important; }
+        .c-net { color: var(--force-net) !important; font-weight: 600; }
+
+        /* MS HIDING UTILITIES - Cleanly remove complex data overlaps */
+        .hs-only { display: none; }
+        .mode-hs .hs-only { display: flex; } 
+        .mode-hs span.hs-only, .mode-hs div.hs-only { display: block; }
+        .mode-hs .label-row.hs-only { display: flex; }
+        
+        .ms-only { display: flex; flex-direction: column; }
+        .mode-hs .ms-only { display: none; }
+        
+        /* Hide text values on sliders and HUD in MS mode */
+        .mode-ms .slider-value { display: none; }
+        .mode-ms .data-overlay { display: none; }
+
+        @media (max-width: 900px) {
+            .tab-content { flex-direction: column; padding: 1rem; }
+            .left-panel { width: 100%; max-height: 400px; padding: 1.5rem; }
+            .tab-nav { padding: 0 1rem; overflow-x: auto; gap: 1rem; }
+            .tab-btn { padding: 1rem; }
+            .bottom-panel, .mission-panel { padding: 1rem; flex-direction: column; gap: 1.5rem; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen">
+        <canvas id="splash-canvas"></canvas>
+        <div class="splash-content">
+            <h1 class="splash-title" data-i18n="app_title">VECTORSHIFT</h1>
+            <p class="splash-subtitle" data-i18n="app_subtitle">Interactive Physics Simulation</p>
+            
+            <div class="toggle-group">
+                <button class="toggle-btn active" onclick="setLang('en')">English</button>
+                <button class="toggle-btn" onclick="setLang('fr')">Français</button>
+            </div>
+
+            <div class="mode-cards">
+                <div class="mode-card" onclick="initApp('ms')">
+                    <h3 data-i18n="mode_ms_title">Explorer Mode</h3>
+                    <p data-i18n="mode_ms_desc">Middle School: Focus on pushes, pulls, and balancing forces without the math.</p>
+                </div>
+                <div class="mode-card" onclick="initApp('hs')">
+                    <h3 data-i18n="mode_hs_title">Scientist Mode</h3>
+                    <p data-i18n="mode_hs_desc">High School: Advanced vectors, angles, and quantitative analysis.</p>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">&copy; 2026 T. Keller | OECD Standards Aligned</div>
+    </div>
+
+    <!-- MAIN APPLICATION -->
+    <div id="main-app">
+        <header>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div class="header-title" data-i18n="app_title">VECTORSHIFT</div>
+                <div class="mode-badge" id="current-mode-badge">Explorer Mode</div>
+            </div>
+            <div class="header-controls">
+                <button class="btn" onclick="toggleLangUI()" id="lang-toggle-btn">FR</button>
+                <button class="btn" onclick="returnToSplash()" data-i18n="btn_back">Back</button>
+                <a href="index.html" class="btn btn-exit" data-i18n="btn_exit">Exit</a>
+            </div>
+        </header>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab(1)" data-i18n="tab_1">1D Tug-of-War</button>
+            <button class="tab-btn" onclick="switchTab(2)" data-i18n="tab_2">2D Vectors</button>
+            <button class="tab-btn" onclick="switchTab(3)" data-i18n="tab_3">The River Crossing</button>
+        </div>
+
+        <div class="workspace">
+            
+            <!-- TAB 1: 1D Forces -->
+            <div class="tab-content active" id="tab1">
+                <div class="left-panel">
+                    <div class="control-group">
+                        <div class="label-row">
+                            <label data-i18n="pull_left" class="c-f1">Pull Left</label>
+                            <span class="slider-value c-f1 hs-only" id="val-t1-l">$\mathsf{0 \text{ N}}$</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider-f1" id="t1-slider-l" min="0" max="100" value="0" step="25" oninput="updateT1()">
+                            <div class="slider-marks"><span>0</span><span>50</span><span>100</span></div>
+                        </div>
+                    </div>
+                    <div class="control-group hs-only">
+                        <div class="label-row">
+                            <label data-i18n="mass" style="color: var(--accent);">Object Mass</label>
+                            <span class="slider-value hs-only" id="val-t1-m" style="color: var(--accent);">$\mathsf{50 \text{ kg}}$</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider-cyan" id="t1-slider-m" min="10" max="100" value="50" step="10" oninput="updateT1()">
+                            <div class="slider-marks"><span>10</span><span>55</span><span>100</span></div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="label-row">
+                            <label data-i18n="pull_right" class="c-f2">Pull Right</label>
+                            <span class="slider-value c-f2 hs-only" id="val-t1-r">$\mathsf{0 \text{ N}}$</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider-f2" id="t1-slider-r" min="0" max="100" value="0" step="25" oninput="updateT1()">
+                            <div class="slider-marks"><span>0</span><span>50</span><span>100</span></div>
+                        </div>
+                    </div>
+
+                    <hr class="hs-only" style="border-color: var(--border); margin: 0;">
+                    
+                    <!-- MS Concept Box safely in left panel -->
+                    <div class="explanation-box ms-only" data-i18n="exp_t1">
+                        <strong>Concept:</strong> When forces pull in opposite directions, the stronger force wins. If they are balanced, the object stays still or keeps moving at a steady speed.
+                    </div>
+                </div>
+                
+                <div class="right-panel">
+                    <div class="canvas-container">
+                        <canvas id="canvas1"></canvas>
+                        <div class="data-overlay hs-only">
+                            <div class="data-row"><span data-i18n="f_left" class="c-f1">Force Left:</span> <span class="c-f1" id="t1-hs-fl-val">$\mathsf{0 \text{ N}}$</span></div>
+                            <div class="data-row"><span data-i18n="f_right" class="c-f2">Force Right:</span> <span class="c-f2" id="t1-hs-fr-val">$\mathsf{0 \text{ N}}$</span></div>
+                            <hr style="border-color: rgba(255,255,255,0.1); margin: 6px 0;">
+                            <div class="data-row"><span data-i18n="f_net">Net Force:</span> <span class="c-net" id="t1-hs-net-val">$\mathsf{0 \text{ N}}$</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- MS Mission Panel (Sits below Canvas) -->
+                    <div class="mission-panel ms-only">
+                        <div class="mission-header">
+                            <span class="mission-level" id="m1-level">Level 1</span>
+                            <span class="mission-title" data-i18n="mission1_title">Dock the Crate</span>
+                        </div>
+                        <div class="mission-desc" data-i18n="mission1_desc">Experiment with the sliders to push the crate into the green zone, then exactly balance the forces to stop it.</div>
+                        <div class="mission-footer">
+                            <span class="challenge-status" id="t1-status" data-i18n="status_progress">In Progress...</span>
+                            <button class="btn btn-next" id="btn-next-1" style="display:none;" onclick="advanceLevel(1)" data-i18n="next_level">Next Level</button>
+                        </div>
+                    </div>
+
+                    <!-- HS Math Panel (Sits below Canvas) -->
+                    <div class="bottom-panel hs-only">
+                        <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                            <div><span style="color:var(--text-muted);">Force Left ($\mathsf{\vec{F}_{\,1}}$):</span> <span class="c-f1" id="t1-fl-val-btm" style="float:right;">$\mathsf{0 \text{ N}}$</span></div>
+                            <div><span style="color:var(--text-muted);">Force Right ($\mathsf{\vec{F}_{\,2}}$):</span> <span class="c-f2" id="t1-fr-val-btm" style="float:right;">$\mathsf{0 \text{ N}}$</span></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                            <div><span style="color:var(--text-muted);">Mass ($\mathsf{m}$):</span> <span style="color: var(--accent); float:right;" id="t1-m-val-btm">$\mathsf{50 \text{ kg}}$</span></div>
+                            <div><span style="color:var(--text-muted);">Velocity ($\mathsf{v}$):</span> <span style="float:right;" id="t1-vel-val-btm">$\mathsf{0 \text{ m/s}}$</span></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.4rem; justify-content: center; border-left: 1px solid var(--border); padding-left: 2rem;">
+                            <div style="color:var(--text-muted); font-size: 0.9rem;">$\mathsf{\Sigma \vec{F}}$ (Net)</div>
+                            <div class="c-net" id="t1-net-val-btm" style="font-size: 1.6rem; font-weight: 400;">$\mathsf{0 \text{ N}}$</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: 2D Vectors -->
+            <div class="tab-content" id="tab2">
+                <div class="left-panel">
+                    <div class="control-group hs-only">
+                        <label>Visibility Toggles</label>
+                        <div class="toggle-row">
+                            <label><input type="checkbox" id="t2-show-f1" checked onchange="updateT2()"> F1</label>
+                            <label><input type="checkbox" id="t2-show-f2" checked onchange="updateT2()"> F2</label>
+                            <label><input type="checkbox" id="t2-show-net" checked onchange="updateT2()"> $\Sigma$F</label>
+                        </div>
+                    </div>
+                    
+                    <hr class="hs-only" style="border-color: var(--border); margin: 0;">
+
+                    <div class="control-group">
+                        <div class="label-row">
+                            <label class="c-f1" id="lbl-t2-f1" data-i18n="f1_mag">Force 1 (Blue)</label>
+                            <span class="slider-value c-f1 hs-only" id="val-t2-mag1">$\mathsf{50 \text{ N}}$</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider-f1" id="t2-mag1" min="0" max="100" value="50" step="10" oninput="updateT2()">
+                            <div class="slider-marks" id="marks-t2-mag1"><span>0</span><span>50</span><span>100</span></div>
+                        </div>
+                    </div>
+                    <div class="control-group hs-only">
+                        <div class="label-row">
+                            <label class="c-f1" data-i18n="f1_angle">Angle ($\mathsf{\theta_{\,1}}$)</label>
+                            <span class="slider-value c-f1" id="val-t2-ang1">$\mathsf{0^\circ}$</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider-f1" id="t2-ang1" min="0" max="360" value="0" step="10" oninput="updateT2()">
+                            <div class="slider-marks"><span>0°</span><span>180°</span><span>360°</span></div>
+                        </div>
+                    </div>
+                    
+                    <hr style="border-color: var(--border); margin: 0;">
+
+                    <div class="control-group">
+                        <div class="label-row">
+                            <label class="c-f2" id="lbl-t2-f2" data-i18n="f2_mag">Force 2 (Gold)</label>
+                            <span class="slider-value c-f2 hs-only" id="val-t2-mag2">$\mathsf{50 \text{ N}}$</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider-f2" id="t2-mag2" min="0" max="100" value="50" step="10" oninput="updateT2()">
+                            <div class="slider-marks" id="marks-t2-mag2"><span>0</span><span>50</span><span>100</span></div>
+                        </div>
+                    </div>
+                    <div class="control-group hs-only">
+                        <div class="label-row">
+                            <label class="c-f2" data-i18n="f2_angle">Angle ($\mathsf{\theta_{\,2}}$)</label>
+                            <span class="slider-value c-f2" id="val-t2-ang2">$\mathsf{90^\circ}$</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider-f2" id="t2-ang2" min="0" max="360" value="90" step="10" oninput="updateT2()">
+                            <div class="slider-marks"><span>0°</span><span>180°</span><span>360°</span></div>
+                        </div>
+                    </div>
+
+                    <hr class="hs-only" style="border-color: var(--border); margin: 0;">
+                    
+                    <!-- MS Concept Box -->
+                    <div class="explanation-box ms-only" data-i18n="exp_t2">
+                        <strong>Concept:</strong> The Net Force (Green) is the combination of Force 1 and Force 2. Think of it as walking the distance of Force 1, then turning and walking Force 2.
+                    </div>
+
+                    <!-- HS Math Formulas -->
+                    <div class="explanation-box hs-only" style="border-left-color: var(--force-net);">
+                        <strong style="color:var(--text-main); margin-bottom:0.5rem; display:block;">Vector Formulas:</strong>
+                        $\mathsf{F_x = F \cos(\theta)}$<br>
+                        $\mathsf{F_y = F \sin(\theta)}$<br>
+                        $\mathsf{F_{net} = \sqrt{F_x^2 + F_y^2}}$<br>
+                        $\mathsf{\phi = \arctan(F_y / F_x)}$
+                    </div>
+                </div>
+
+                <div class="right-panel">
+                    <div class="canvas-container">
+                        <canvas id="canvas2"></canvas>
+                        <div class="data-overlay hs-only">
+                            <div class="data-row"><span class="c-f1">Force 1:</span> <span class="c-f1" id="t2-hs-f1-val">$\mathsf{50 \text{ N}}$</span></div>
+                            <div class="data-row"><span class="c-f2">Force 2:</span> <span class="c-f2" id="t2-hs-f2-val">$\mathsf{50 \text{ N}}$</span></div>
+                            <hr style="border-color: rgba(255,255,255,0.1); margin: 6px 0;">
+                            <div class="data-row"><span data-i18n="f_net">Net Force:</span> <span class="c-net" id="t2-hs-net-val">$\mathsf{71 \text{ N}}$</span></div>
+                        </div>
+                    </div>
+
+                    <!-- MS Mission Panel (Sits below Canvas) -->
+                    <div class="mission-panel ms-only">
+                        <div class="mission-header">
+                            <span class="mission-level" id="m2-level">Level 1</span>
+                            <span class="mission-title" data-i18n="mission2_title">Target Practice</span>
+                        </div>
+                        <div class="mission-desc" data-i18n="mission2_desc">Adjust the two forces so the tip of the Net Force (Green Arrow) perfectly hits the target ring on the canvas.</div>
+                        <div class="mission-footer">
+                            <span class="challenge-status" id="t2-status" data-i18n="status_progress">In Progress...</span>
+                            <button class="btn btn-next" id="btn-next-2" style="display:none;" onclick="advanceLevel(2)" data-i18n="next_level">Next Level</button>
+                        </div>
+                    </div>
+                    
+                    <!-- HS Math Panel (Sits below Canvas) -->
+                    <div class="bottom-panel hs-only" style="align-items: flex-start; justify-content: flex-start;">
+                        <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:280px;">
+                            <div><span style="color:var(--text-muted);">$\mathsf{\vec{F}_{\,1}}$:</span> <span class="c-f1" id="t2-f1-val" style="float:right;">$\mathsf{0 \text{ N}, 0^\circ}$</span></div>
+                            <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">├ $\mathsf{F_{\,1x} = F_{\,1} \cos(\theta_{\,1})}$: <span style="color:var(--text-main); float:right;" id="t2-f1x"></span></div>
+                            <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">└ $\mathsf{F_{\,1y} = F_{\,1} \sin(\theta_{\,1})}$: <span style="color:var(--text-main); float:right;" id="t2-f1y"></span></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:280px;">
+                            <div><span style="color:var(--text-muted);">$\mathsf{\vec{F}_{\,2}}$:</span> <span class="c-f2" id="t2-f2-val" style="float:right;">$\mathsf{0 \text{ N}, 0^\circ}$</span></div>
+                            <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">├ $\mathsf{F_{\,2x} = F_{\,2} \cos(\theta_{\,2})}$: <span style="color:var(--text-main); float:right;" id="t2-f2x"></span></div>
+                            <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">└ $\mathsf{F_{\,2y} = F_{\,2} \sin(\theta_{\,2})}$: <span style="color:var(--text-main); float:right;" id="t2-f2y"></span></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.4rem; justify-content: center; border-left: 1px solid var(--border); padding-left: 2rem; width:100%;">
+                            <div style="color:var(--text-muted); font-size: 0.9rem;">$\mathsf{\Sigma \vec{F}}$ (Net, $\mathsf{\phi}$)</div>
+                            <div class="c-net" id="t2-net-val" style="font-size: 1.6rem; font-weight: 400;">$\mathsf{0 \text{ N}, 0^\circ}$</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: River Crossing -->
+            <div class="tab-content" id="tab3">
+                <div class="left-panel">
+                    <div class="control-group">
+                        <div class="label-row">
+                            <label data-i18n="river_speed" class="c-f1">River Flow (Blue)</label>
+                            <span class="slider-value c-f1 hs-only" id="val-t3-river">$\mathsf{30 \text{ N}}$</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider-f1" id="t3-river" min="-100" max="100" value="30" step="10" oninput="updateT3()">
+                            <div class="slider-marks" id="marks-t3-river"><span>-100</span><span>0</span><span>100</span></div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="label-row">
+                            <label data-i18n="paddle_effort" class="c-f2">Paddling Effort (Gold)</label>
+                            <span class="slider-value c-f2 hs-only" id="val-t3-paddle">$\mathsf{50 \text{ N}}$</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider-f2" id="t3-paddle" min="0" max="100" value="50" step="10" oninput="updateT3()">
+                            <div class="slider-marks"><span>0</span><span>50</span><span>100</span></div>
+                        </div>
+                    </div>
+                    <div class="control-group hs-only">
+                        <div class="label-row">
+                            <label data-i18n="paddle_angle" class="c-f2">Angle ($\mathsf{\theta}$)</label>
+                            <span class="slider-value c-f2" id="val-t3-angle">$\mathsf{90^\circ}$</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="slider-f2" id="t3-angle" min="0" max="180" value="90" step="10" oninput="updateT3()">
+                            <div class="slider-marks"><span>0°</span><span>90°</span><span>180°</span></div>
+                        </div>
+                    </div>
+                    
+                    <hr class="hs-only" style="border-color: var(--border); margin: 0;">
+                    
+                    <!-- MS Concept Box -->
+                    <div class="explanation-box ms-only" data-i18n="exp_t3">
+                        <strong>Concept:</strong> Your canoe is pushed by both your paddling (Gold) and the river's current (Blue). To hit a specific spot on the other side, you must visually balance your effort against the water's speed.
+                    </div>
+
+                    <!-- HS Math Formulas -->
+                    <div class="explanation-box hs-only" style="border-left-color: var(--force-net);">
+                        <strong style="color:var(--text-main); margin-bottom:0.5rem; display:block;">Velocity Formulas:</strong>
+                        $\mathsf{v_{net,x} = v_{river} + v_{paddle} \cos(\theta)}$<br>
+                        $\mathsf{v_{net,y} = v_{paddle} \sin(\theta)}$<br>
+                        $\mathsf{\phi = \arctan(v_{net,y} / v_{net,x})}$
+                    </div>
+                </div>
+
+                <div class="right-panel">
+                    <div class="canvas-container">
+                        <canvas id="canvas3"></canvas>
+                        <button class="btn" style="position:absolute; bottom: 1.5rem; right: 1.5rem; z-index: 10; background: var(--bg-panel);" onclick="toggleRiverSimulation()" id="t3-btn-sim" data-i18n="start_sim">Start Simulation</button>
+                    </div>
+
+                    <!-- MS Mission Panel (Sits below Canvas) -->
+                    <div class="mission-panel ms-only">
+                        <div class="mission-header">
+                            <span class="mission-level" id="m3-level">Level 1</span>
+                            <span class="mission-title" data-i18n="mission3_title">The Docking</span>
+                        </div>
+                        <div class="mission-desc" data-i18n="mission3_desc">Observe the dock on the top shore. Adjust the sliders to find the right ratio of current-to-effort to land perfectly inside the dock.</div>
+                        <div class="mission-footer">
+                            <span class="challenge-status" id="t3-status" data-i18n="status_progress">In Progress...</span>
+                            <button class="btn btn-next" id="btn-next-3" style="display:none;" onclick="advanceLevel(3)" data-i18n="next_level">Next Level</button>
+                        </div>
+                    </div>
+                    
+                    <!-- HS Math Panel (Sits below Canvas) -->
+                    <div class="bottom-panel hs-only" style="align-items: flex-start; justify-content: flex-start;">
+                        <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:280px;">
+                            <div><span style="color:var(--text-muted);">River Flow ($\mathsf{\vec{v}_{\,river}}$):</span> <span class="c-f1" id="t3-riv-val-btm" style="float:right;">$\mathsf{30 \text{ N}}$</span></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:300px;">
+                            <div><span style="color:var(--text-muted);">Paddle Effort ($\mathsf{\vec{v}_{\,paddle}}$):</span> <span class="c-f2" id="t3-pad-val-btm" style="float:right;">$\mathsf{50 \text{ N}, 90^\circ}$</span></div>
+                            <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">├ $\mathsf{v_{\,px} = v_{\,p} \cos(\theta)}$: <span style="color:var(--text-main); float:right;" id="t3-px-val"></span></div>
+                            <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">└ $\mathsf{v_{\,py} = v_{\,p} \sin(\theta)}$: <span style="color:var(--text-main); float:right;" id="t3-py-val"></span></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.4rem; justify-content: center; border-left: 1px solid var(--border); padding-left: 2rem; width:100%;">
+                            <div style="color:var(--text-muted); font-size: 0.9rem;">Net Path ($\mathsf{\phi}$)</div>
+                            <div class="c-net" id="t3-net-val-btm" style="font-size: 1.6rem; font-weight: 400;">$\mathsf{0^\circ}$</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        /* --- MULTILINGUAL DICTIONARY --- */
+        const dict = {
+            en: {
+                app_title: "VECTORSHIFT", app_subtitle: "Interactive Physics Simulation",
+                mode_ms_title: "Explorer Mode", mode_ms_desc: "Middle School: Focus on pushes, pulls, and balancing forces without math.",
+                mode_hs_title: "Scientist Mode", mode_hs_desc: "High School: Advanced vectors, angles, and quantitative analysis.",
+                btn_back: "Back", btn_exit: "Exit",
+                tab_1: "1D Tug-of-War", tab_2: "2D Vectors", tab_3: "The River Crossing",
+                f_left: "Force Left:", f_right: "Force Right:", f_net: "Net Force:", velocity: "Velocity:",
+                pull_left: "Pull Left (Blue)", pull_right: "Pull Right (Gold)", mass: "Object Mass",
+                river_f: "River Force:", paddle_f: "Paddle Force:", net_path: "Actual Path ($\\phi$):",
+                start_sim: "Start Simulation", reset_sim: "Reset Simulation",
+                river_speed: "River Flow (Blue)", paddle_effort: "Paddling Effort (Gold)", paddle_angle: "Angle ($\\theta$)",
+                f1_mag: "Force 1 (Blue)", f1_angle: "Angle ($\\theta_{\,1}$)", f2_mag: "Force 2 (Gold)", f2_angle: "Angle ($\\theta_{\,2}$)",
+                paddle_dir: "Direction", dir_diag_up: "Diagonal Up-Right", dir_straight: "Straight Across", dir_diag_left: "Diagonal Up-Left",
+                
+                exp_t1: "<strong>Concept:</strong> When forces pull in opposite directions, the stronger force wins. If they are balanced, the object stays still or keeps moving at a steady speed.",
+                exp_t2: "<strong>Concept:</strong> The Net Force (Green) is the combination of Force 1 and Force 2. Think of it as walking the distance of Force 1, then turning and walking Force 2.",
+                exp_t3: "<strong>Concept:</strong> Your canoe is pushed by both your paddling (Gold) and the river's current (Blue). To hit a specific spot on the other side, you must visually balance your effort against the water's speed.",
+                
+                mission1_title: "Dock the Crate", mission1_desc: "Experiment with the sliders to push the crate into the green zone, then exactly balance the forces to stop it.",
+                mission2_title: "Target Practice", mission2_desc: "Adjust the two forces so the tip of the Net Force (Green Arrow) perfectly hits the target ring on the canvas.",
+                mission3_title: "The Docking", mission3_desc: "Observe the dock on the top shore. Adjust the sliders to find the right ratio of current-to-effort to land perfectly inside the dock.",
+                
+                status_progress: "In Progress...", status_success: "Mission Accomplished!", status_fail: "Missed! Reset and try again.", status_nav: "Navigating...",
+                level: "Level", next_level: "Next Level", completed: "Completed!"
+            },
+            fr: {
+                app_title: "VECTORSHIFT", app_subtitle: "Simulation Interactive de Physique",
+                mode_ms_title: "Mode Explorateur", mode_ms_desc: "Collège : Poussées, tractions et équilibre des forces sans calculs.",
+                mode_hs_title: "Mode Scientifique", mode_hs_desc: "Lycée : Vecteurs avancés, angles et analyse quantitative.",
+                btn_back: "Retour", btn_exit: "Quitter",
+                tab_1: "Tir à la corde 1D", tab_2: "Vecteurs 2D", tab_3: "Traversée de la rivière",
+                f_left: "Force Gauche :", f_right: "Force Droite :", f_net: "Force Résultante :", velocity: "Vitesse :",
+                pull_left: "Tirer Gauche (Bleu)", pull_right: "Tirer Droite (Or)", mass: "Masse de l'objet",
+                river_f: "Force Rivière :", paddle_f: "Force Pagaie :", net_path: "Trajectoire ($\\phi$) :",
+                start_sim: "Démarrer", reset_sim: "Réinitialiser",
+                river_speed: "Courant (Bleu)", paddle_effort: "Effort de pagayage (Or)", paddle_angle: "Angle ($\\theta$)",
+                f1_mag: "Force 1 (Bleu)", f1_angle: "Angle ($\\theta_{\,1}$)", f2_mag: "Force 2 (Or)", f2_angle: "Angle ($\\theta_{\,2}$)",
+                paddle_dir: "Direction", dir_diag_up: "Diagonale Haut-Droite", dir_straight: "Tout Droit", dir_diag_left: "Diagonale Haut-Gauche",
+                
+                exp_t1: "<strong>Concept :</strong> Lorsque les forces tirent dans des directions opposées, la plus forte l'emporte. Si elles sont équilibrées, l'objet reste immobile ou conserve une vitesse constante.",
+                exp_t2: "<strong>Concept :</strong> La Force Résultante (Vert) est la combinaison des Forces 1 et 2. Imaginez marcher la distance de la Force 1, puis tourner pour marcher la Force 2.",
+                exp_t3: "<strong>Concept :</strong> Votre canoë est poussé par votre pagaie (Or) et le courant (Bleu). Pour atteindre un point précis, équilibrez visuellement votre effort avec la vitesse de l'eau.",
+
+                mission1_title: "Garer la caisse", mission1_desc: "Expérimentez avec les curseurs pour pousser la caisse dans la zone verte, puis équilibrez exactement les forces pour l'arrêter.",
+                mission2_title: "Tir sur cible", mission2_desc: "Ajustez les deux forces pour que la pointe de la Force Résultante (flèche verte) atteigne parfaitement l'anneau cible sur la toile.",
+                mission3_title: "L'amarrage", mission3_desc: "Observez le quai sur la rive supérieure. Ajustez les curseurs pour trouver le bon rapport courant/effort pour atterrir parfaitement à l'intérieur du quai.",
+                
+                status_progress: "En cours...", status_success: "Mission accomplie !", status_fail: "Raté ! Réinitialisez.", status_nav: "Navigation...",
+                level: "Niveau", next_level: "Niveau Suivant", completed: "Terminé !"
+            }
+        };
+
+        let currentLang = 'en';
+        let currentMode = 'hs'; // 'ms' or 'hs'
+        let currentTab = 1;
+        let animationFrameId;
+        
+        /* --- MS GAMIFICATION STATE --- */
+        const msLevels = {
+            1: { current: 1, max: 3, targets: [{x: 80, w: 100}, {x: -120, w: 70}, {x: 140, w: 40}] },
+            2: { current: 1, max: 3, targets: [{x: 50, y: 50}, {x: -80, y: 40}, {x: -40, y: -70}] },
+            3: { current: 1, max: 3, targets: [{ratio: 0.4}, {ratio: 0.6}, {ratio: 0.8}] } // Ratio = River / Paddle
+        };
+
+        const ctxVars = { f1: '#6b8ed8', f2: '#dca855', net: '#5ca984', grid: '#2a3140' };
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            applyTranslations();
+        }
+
+        function toggleLangUI() {
+            currentLang = currentLang === 'en' ? 'fr' : 'en';
+            document.getElementById('lang-toggle-btn').innerText = currentLang === 'en' ? 'FR' : 'EN';
+            applyTranslations();
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[currentLang][key]) {
+                    el.innerHTML = dict[currentLang][key];
+                }
+            });
+
+            const badge = document.getElementById('current-mode-badge');
+            if (badge) {
+                badge.innerText = dict[currentLang][currentMode === 'ms' ? 'mode_ms_title' : 'mode_hs_title'];
+            }
+
+            updateT1(); updateT2(); updateT3();
+            updateMissionHUDs();
+            
+            if(window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function updateMissionHUDs() {
+            [1, 2, 3].forEach(t => {
+                const lvlSpan = document.getElementById(`m${t}-level`);
+                if(lvlSpan) {
+                    if (msLevels[t].current > msLevels[t].max) {
+                        lvlSpan.innerText = dict[currentLang]['completed'];
+                        lvlSpan.style.background = 'rgba(52, 211, 153, 0.15)';
+                        lvlSpan.style.color = 'var(--force-net)';
+                    } else {
+                        lvlSpan.innerText = `${dict[currentLang]['level']} ${msLevels[t].current}`;
+                    }
+                }
+            });
+        }
+
+        function advanceLevel(tab) {
+            if (msLevels[tab].current <= msLevels[tab].max) {
+                msLevels[tab].current++;
+            }
+            document.getElementById(`btn-next-${tab}`).style.display = 'none';
+            document.getElementById(`t${tab}-status`).innerText = dict[currentLang]['status_progress'];
+            document.getElementById(`t${tab}-status`).className = 'challenge-status';
+            updateMissionHUDs();
+            
+            if (tab === 1) { t1_state.x = 0; t1_state.v = 0; updateT1(); }
+            if (tab === 2) { 
+                if (currentMode === 'ms') {
+                    // Inject random target values aligned with the 10-step grid
+                    document.getElementById('t2-mag1').value = (Math.floor(Math.random() * 11) - 5) * 10;
+                    document.getElementById('t2-mag2').value = (Math.floor(Math.random() * 11) - 5) * 10;
+                }
+                updateT2(); 
+            }
+            if (tab === 3) { 
+                t3_state.running = false; t3_state.x = 0; t3_state.y = 0;
+                document.getElementById('t3-btn-sim').innerText = dict[currentLang]['start_sim'];
+                document.getElementById('t3-btn-sim').style.color = "inherit";
+                updateT3();
+            }
+        }
+
+        function initApp(mode) {
+            currentMode = mode;
+            document.body.className = mode === 'ms' ? 'mode-ms' : 'mode-hs';
+            ctxVars.grid = mode === 'ms' ? '#475569' : '#334155';
+            
+            document.getElementById('splash-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
+            
+            document.getElementById('current-mode-badge').innerText = dict[currentLang][mode === 'ms' ? 'mode_ms_title' : 'mode_hs_title'];
+            document.getElementById('lang-toggle-btn').innerText = currentLang === 'en' ? 'FR' : 'EN';
+            
+            [1, 2, 3].forEach(t => msLevels[t].current = 1);
+            
+            document.getElementById('t1-slider-l').value = 0;
+            document.getElementById('t1-slider-r').value = 0;
+            document.getElementById('t3-river').value = 0;
+            document.getElementById('t3-paddle').value = 0;
+
+            if (mode === 'ms') {
+                document.getElementById('lbl-t2-f1').innerText = "Force 1 (X-Axis)";
+                document.getElementById('lbl-t2-f2').innerText = "Force 2 (Y-Axis)";
+                document.getElementById('t2-mag1').min = -100;
+                document.getElementById('t2-mag2').min = -100;
+                
+                // Switch dynamic tick markers
+                document.getElementById('marks-t2-mag1').innerHTML = `<span>-100</span><span>0</span><span>100</span>`;
+                document.getElementById('marks-t2-mag2').innerHTML = `<span>-100</span><span>0</span><span>100</span>`;
+                
+                // Random seeding for the first challenge
+                document.getElementById('t2-mag1').value = (Math.floor(Math.random() * 11) - 5) * 10;
+                document.getElementById('t2-mag2').value = (Math.floor(Math.random() * 11) - 5) * 10;
+            } else {
+                document.getElementById('lbl-t2-f1').innerText = dict[currentLang]['f1_mag'];
+                document.getElementById('lbl-t2-f2').innerText = dict[currentLang]['f2_mag'];
+                document.getElementById('t2-mag1').min = 0;
+                document.getElementById('t2-mag2').min = 0;
+                
+                // Switch dynamic tick markers back
+                document.getElementById('marks-t2-mag1').innerHTML = `<span>0</span><span>50</span><span>100</span>`;
+                document.getElementById('marks-t2-mag2').innerHTML = `<span>0</span><span>50</span><span>100</span>`;
+                
+                document.getElementById('t2-mag1').value = 50;
+                document.getElementById('t2-mag2').value = 50;
+            }
+
+            updateMissionHUDs();
+            applyTranslations();
+            
+            if(window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise();
+            }
+            
+            switchTab(1);
+            
+            if(mode === 'ms'){
+                document.getElementById('t3-angle').value = 90; // Fixed angle for Explorer mode crossing
+                updateT1(); updateT2(); updateT3();
+            }
+        }
+
+        function returnToSplash() {
+            cancelAnimationFrame(animationFrameId);
+            document.getElementById('splash-screen').style.display = 'flex';
+            document.getElementById('main-app').style.display = 'none';
+            loopSplash(); 
+        }
+
+        function switchTab(tabNum) {
+            currentTab = tabNum;
+            document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx + 1 === tabNum);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, idx) => {
+                content.classList.toggle('active', idx + 1 === tabNum);
+            });
+            resizeCanvases();
+            cancelAnimationFrame(animationFrameId);
+            
+            if (tabNum === 1) { t1_state.x = 0; t1_state.v = 0; loopT1(); }
+            if (tabNum === 2) { updateT2(); loopT2(); }
+            if (tabNum === 3) { initWaves(); loopT3(); }
+        }
+
+        function resizeCanvases() {
+            [1, 2, 3].forEach(i => {
+                const canvas = document.getElementById('canvas' + i);
+                if (canvas && canvas.parentElement) {
+                    canvas.width = canvas.parentElement.clientWidth;
+                    canvas.height = canvas.parentElement.clientHeight;
+                }
+            });
+        }
+        window.addEventListener('resize', resizeCanvases);
+
+        /* --- DRAWING UTILS --- */
+        function drawArrow(ctx, fromX, fromY, toX, toY, color, width=3) {
+            const headlen = 10 + width * 2;
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, toY);
+            ctx.strokeStyle = color; ctx.lineWidth = width; ctx.stroke();
+            
+            ctx.beginPath(); ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 7), toY - headlen * Math.sin(angle - Math.PI / 7));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 7), toY - headlen * Math.sin(angle + Math.PI / 7));
+            ctx.lineTo(toX, toY); ctx.fillStyle = color; ctx.fill();
+        }
+        
+        function drawAngleArc(ctx, cx, cy, angleRad, color, label, radius = 30) {
+            if (angleRad > 0.05 && angleRad < Math.PI*2 - 0.05) {
+                ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+                ctx.arc(cx, cy, radius, 0, -angleRad, true); ctx.stroke();
+                
+                let textR = radius + 15;
+                let tx = cx + textR * Math.cos(-angleRad / 2);
+                let ty = cy + textR * Math.sin(-angleRad / 2);
+                ctx.fillStyle = color; ctx.font = "italic bold 16px 'Times New Roman', serif";
+                ctx.fillText(label, tx - 6, ty + 6);
+            }
+        }
+
+        function drawGrid(ctx, w, h, size) {
+            ctx.strokeStyle = ctxVars.grid; ctx.lineWidth = 1; ctx.beginPath();
+            for (let x = w/2; x < w; x += size) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
+            for (let x = w/2; x > 0; x -= size) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
+            for (let y = h/2; y < h; y += size) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
+            for (let y = h/2; y > 0; y -= size) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
+            ctx.stroke();
+            
+            ctx.strokeStyle = currentMode === 'ms' ? '#64748b' : '#475569'; 
+            ctx.lineWidth = 1.5; ctx.beginPath();
+            ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
+        }
+
+        /* --- TAB 1: 1D KINEMATICS --- */
+        const t1_state = { x: 0, v: 0, fL: 0, fR: 0, mass: 50 };
+        function updateT1() {
+            t1_state.fL = parseInt(document.getElementById('t1-slider-l').value);
+            t1_state.fR = parseInt(document.getElementById('t1-slider-r').value);
+            t1_state.mass = parseInt(document.getElementById('t1-slider-m').value);
+            
+            document.getElementById('val-t1-l').innerText = `$\\mathsf{${t1_state.fL} \\text{ N}}$`;
+            document.getElementById('val-t1-m').innerText = `$\\mathsf{${t1_state.mass} \\text{ kg}}$`;
+            document.getElementById('val-t1-r').innerText = `$\\mathsf{${t1_state.fR} \\text{ N}}$`;
+
+            document.getElementById('t1-fl-val-btm').innerText = `$\\mathsf{${t1_state.fL} \\text{ N}}$`;
+            document.getElementById('t1-fr-val-btm').innerText = `$\\mathsf{${t1_state.fR} \\text{ N}}$`;
+            document.getElementById('t1-m-val-btm').innerText = `$\\mathsf{${t1_state.mass} \\text{ kg}}$`;
+            
+            document.getElementById('t1-hs-fl-val').innerText = `$\\mathsf{${t1_state.fL} \\text{ N}}$`;
+            document.getElementById('t1-hs-fr-val').innerText = `$\\mathsf{${t1_state.fR} \\text{ N}}$`;
+
+            let net = t1_state.fR - t1_state.fL;
+            document.getElementById('t1-net-val-btm').innerText = `$\\mathsf{${net} \\text{ N}}$`;
+            document.getElementById('t1-hs-net-val').innerText = `$\\mathsf{${net} \\text{ N}}$`;
+            
+            if (currentMode === 'ms' && document.getElementById('btn-next-1').style.display !== 'none' && net !== 0) {
+                 document.getElementById('btn-next-1').style.display = 'none';
+                 document.getElementById('t1-status').innerText = dict[currentLang]['status_progress'];
+                 document.getElementById('t1-status').className = 'challenge-status';
+            }
+            
+            if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+        }
+
+        function loopT1() {
+            if (currentTab !== 1) return;
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width; const h = canvas.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            let netF = t1_state.fR - t1_state.fL;
+            let a = netF / t1_state.mass;
+            t1_state.v += a * 0.05; 
+            t1_state.v *= currentMode === 'ms' ? 0.85 : 0.99; 
+            t1_state.x += t1_state.v;
+            
+            if(t1_state.x > w/2) { t1_state.x = -w/2; }
+            if(t1_state.x < -w/2) { t1_state.x = w/2; }
+
+            document.getElementById('t1-vel-val-btm').innerText = `$\\mathsf{${t1_state.v.toFixed(1)} \\text{ m/s}}$`;
+
+            ctx.fillStyle = ctxVars.grid;
+            ctx.fillRect(0, h/2 + 30, w, 5);
+
+            let cx = w/2 + t1_state.x;
+            let cy = h/2;
+            
+            // Smaller crate in Explorer mode specifically requested
+            let size = currentMode === 'ms' ? 24 : 40 + (t1_state.mass - 10) * 0.5;
+
+            // MS Mode Gamification: Draw Target Zone & Check Success
+            if (currentMode === 'ms') {
+                let lvl = Math.min(msLevels[1].current, msLevels[1].max);
+                let targetX = msLevels[1].targets[lvl-1].x; 
+                let zoneWidth = msLevels[1].targets[lvl-1].w;
+                
+                ctx.fillStyle = 'rgba(110, 231, 183, 0.15)';
+                ctx.strokeStyle = ctxVars.net;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(w/2 + targetX - zoneWidth/2, h/2 - size/2 - 5, zoneWidth, size + 10, 8);
+                ctx.fill(); ctx.stroke();
+                
+                let statusEl = document.getElementById('t1-status');
+                let inZone = Math.abs(t1_state.x - targetX) <= (zoneWidth/2 - size/2); 
+                let stopped = Math.abs(t1_state.v) < 0.1;
+                
+                if (inZone && stopped && netF === 0) {
+                    if (statusEl.innerText !== dict[currentLang]['status_success']) {
+                        statusEl.innerText = dict[currentLang]['status_success'];
+                        statusEl.className = 'challenge-status success c-net';
+                        if (msLevels[1].current < msLevels[1].max) {
+                            document.getElementById('btn-next-1').style.display = 'inline-block';
+                        }
+                    }
+                }
+            }
+
+            ctx.fillStyle = currentMode === 'ms' ? '#818cf8' : '#38bdf8';
+            ctx.fillRect(cx - size/2, cy - size/2, size, size);
+
+            let scale = 2; 
+            if(t1_state.fR > 0) drawArrow(ctx, cx + size/2, cy, cx + size/2 + t1_state.fR*scale, cy, ctxVars.f2, 4);
+            if(t1_state.fL > 0) drawArrow(ctx, cx - size/2, cy, cx - size/2 - t1_state.fL*scale, cy, ctxVars.f1, 4);
+            
+            if(Math.abs(netF) > 0) {
+                let dir = netF > 0 ? 1 : -1;
+                drawArrow(ctx, cx, cy - size/2 - 20, cx + (Math.abs(netF)*scale*dir), cy - size/2 - 20, ctxVars.net, 5);
+            }
+
+            animationFrameId = requestAnimationFrame(loopT1);
+        }
+
+        /* --- TAB 2: 2D VECTORS --- */
+        function updateT2() {
+            let rawF1 = parseInt(document.getElementById('t2-mag1').value);
+            let rawF2 = parseInt(document.getElementById('t2-mag2').value);
+
+            // In Explorer Mode, F1 is fixed to X-axis, F2 is fixed to Y-axis
+            let mag1 = currentMode === 'ms' ? Math.abs(rawF1) : rawF1;
+            let ang1 = currentMode === 'ms' ? (rawF1 >= 0 ? 0 : 180) : parseInt(document.getElementById('t2-ang1').value);
+            
+            let mag2 = currentMode === 'ms' ? Math.abs(rawF2) : rawF2;
+            let ang2 = currentMode === 'ms' ? (rawF2 >= 0 ? 90 : 270) : parseInt(document.getElementById('t2-ang2').value);
+
+            document.getElementById('val-t2-mag1').innerText = `$\\mathsf{${rawF1} \\text{ N}}$`;
+            document.getElementById('val-t2-ang1').innerText = `$\\mathsf{${ang1}^\\circ}$`;
+            document.getElementById('val-t2-mag2').innerText = `$\\mathsf{${rawF2} \\text{ N}}$`;
+            document.getElementById('val-t2-ang2').innerText = `$\\mathsf{${ang2}^\\circ}$`;
+
+            let r1 = ang1 * Math.PI / 180;
+            let r2 = ang2 * Math.PI / 180;
+
+            let f1x = mag1 * Math.cos(r1); let f1y = mag1 * Math.sin(r1);
+            let f2x = mag2 * Math.cos(r2); let f2y = mag2 * Math.sin(r2);
+
+            let netX = f1x + f2x; let netY = f1y + f2y;
+            let netMag = Math.sqrt(netX*netX + netY*netY);
+            let netAng = Math.atan2(netY, netX) * 180 / Math.PI;
+            if(netAng < 0) netAng += 360;
+
+            document.getElementById('t2-f1-val').innerText = `$\\mathsf{${mag1} \\text{ N}, ${ang1}^\\circ}$`;
+            document.getElementById('t2-f1x').innerText = `$\\mathsf{${mag1} \\times \\cos(${ang1}^\\circ) = ${f1x.toFixed(1)} \\text{ N}}$`;
+            document.getElementById('t2-f1y').innerText = `$\\mathsf{${mag1} \\times \\sin(${ang1}^\\circ) = ${f1y.toFixed(1)} \\text{ N}}$`;
+            
+            document.getElementById('t2-f2-val').innerText = `$\\mathsf{${mag2} \\text{ N}, ${ang2}^\\circ}$`;
+            document.getElementById('t2-f2x').innerText = `$\\mathsf{${mag2} \\times \\cos(${ang2}^\\circ) = ${f2x.toFixed(1)} \\text{ N}}$`;
+            document.getElementById('t2-f2y').innerText = `$\\mathsf{${mag2} \\times \\sin(${ang2}^\\circ) = ${f2y.toFixed(1)} \\text{ N}}$`;
+
+            document.getElementById('t2-net-val').innerText = `$\\mathsf{${netMag.toFixed(1)} \\text{ N}, ${netAng.toFixed(1)}^\\circ}$`;
+            
+            document.getElementById('t2-hs-f1-val').innerText = `$\\mathsf{${rawF1} \\text{ N}}$`;
+            document.getElementById('t2-hs-f2-val').innerText = `$\\mathsf{${rawF2} \\text{ N}}$`;
+            document.getElementById('t2-hs-net-val').innerText = `$\\mathsf{${netMag.toFixed(0)} \\text{ N}}$`; 
+            
+            if (currentMode === 'ms') {
+                let lvl = Math.min(msLevels[2].current, msLevels[2].max);
+                let targetX = msLevels[2].targets[lvl-1].x; 
+                let targetY = msLevels[2].targets[lvl-1].y; 
+                let statusEl = document.getElementById('t2-status');
+                
+                // Comparing raw X and Y components to the target
+                if (rawF1 === targetX && rawF2 === targetY) {
+                    if (statusEl.innerText !== dict[currentLang]['status_success']) {
+                        statusEl.innerText = dict[currentLang]['status_success'];
+                        statusEl.className = 'challenge-status success c-net';
+                        if (msLevels[2].current < msLevels[2].max) {
+                            document.getElementById('btn-next-2').style.display = 'inline-block';
+                        }
+                    }
+                } else {
+                    document.getElementById('btn-next-2').style.display = 'none';
+                    statusEl.innerText = dict[currentLang]['status_progress'];
+                    statusEl.className = 'challenge-status';
+                }
+            }
+            
+            if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+        }
+
+        function loopT2() {
+            if (currentTab !== 2) return;
+            const canvas = document.getElementById('canvas2');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width; const h = canvas.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            drawGrid(ctx, w, h, 50);
+
+            let cx = w/2; let cy = h/2;
+            let scale = 2.5; 
+
+            let rawF1 = parseInt(document.getElementById('t2-mag1').value);
+            let rawF2 = parseInt(document.getElementById('t2-mag2').value);
+
+            let mag1 = currentMode === 'ms' ? Math.abs(rawF1) : rawF1;
+            let ang1 = currentMode === 'ms' ? (rawF1 >= 0 ? 0 : 180) : parseInt(document.getElementById('t2-ang1').value);
+            
+            let mag2 = currentMode === 'ms' ? Math.abs(rawF2) : rawF2;
+            let ang2 = currentMode === 'ms' ? (rawF2 >= 0 ? 90 : 270) : parseInt(document.getElementById('t2-ang2').value);
+
+            let r1 = ang1 * Math.PI / 180;
+            let r2 = ang2 * Math.PI / 180;
+
+            let f1x = mag1 * Math.cos(r1); let f1y = mag1 * Math.sin(r1);
+            let f2x = mag2 * Math.cos(r2); let f2y = mag2 * Math.sin(r2);
+            let netX = f1x + f2x; let netY = f1y + f2y;
+            let netMag = Math.sqrt(netX*netX + netY*netY);
+            let netR = Math.atan2(netY, netX);
+            if(netR < 0) netR += Math.PI*2;
+
+            let showF1 = document.getElementById('t2-show-f1') ? document.getElementById('t2-show-f1').checked : true;
+            let showF2 = document.getElementById('t2-show-f2') ? document.getElementById('t2-show-f2').checked : true;
+            let showNet = document.getElementById('t2-show-net') ? document.getElementById('t2-show-net').checked : true;
+
+            // 1. Render Gamification Targets (Background)
+            if (currentMode === 'ms') {
+                let lvl = Math.min(msLevels[2].current, msLevels[2].max);
+                let targetX = msLevels[2].targets[lvl-1].x; 
+                let targetY = msLevels[2].targets[lvl-1].y; 
+                let tx = targetX * scale;
+                let ty = targetY * scale; // Inverted visually during plotting
+                
+                ctx.beginPath();
+                ctx.arc(cx + tx, cy - ty, 18, 0, Math.PI*2);
+                ctx.strokeStyle = ctxVars.net; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+                ctx.stroke(); ctx.setLineDash([]);
+                
+                ctx.beginPath(); ctx.arc(cx + tx, cy - ty, 5, 0, Math.PI*2);
+                ctx.fillStyle = ctxVars.net; ctx.fill();
+            }
+
+            // (Removed parallelogram box rendering per user request in HS mode)
+
+            // 2. Render Angles (HS Mode Only - Math Hidden in MS Mode)
+            if(showF1 && mag1 > 0 && currentMode === 'hs') drawAngleArc(ctx, cx, cy, r1, ctxVars.f1, "θ ₁", 35);
+            if(showF2 && mag2 > 0 && currentMode === 'hs') drawAngleArc(ctx, cx, cy, r2, ctxVars.f2, "θ ₂", 55);
+            if(showNet && netMag > 0 && currentMode === 'hs') drawAngleArc(ctx, cx, cy, netR, ctxVars.net, "φ", 75);
+
+            // 3. Render Net Force (Background relative to F1/F2)
+            if(showNet && netMag > 0) {
+                drawArrow(ctx, cx, cy, cx + netX*scale, cy - netY*scale, ctxVars.net, 5);
+                ctx.fillStyle = ctxVars.net; ctx.font = "italic bold 20px 'Times New Roman', serif";
+                ctx.fillText("Σ F", cx + netX*scale + 10, cy - netY*scale - 10);
+            }
+
+            // 4. Render F1 and F2 (Strictly Foreground rendering logic)
+            if(showF1 && mag1 > 0) {
+                drawArrow(ctx, cx, cy, cx + f1x*scale, cy - f1y*scale, ctxVars.f1, 4);
+                ctx.fillStyle = ctxVars.f1; ctx.font = "italic bold 20px 'Times New Roman', serif";
+                ctx.fillText("F ₁", cx + f1x*scale + 10, cy - f1y*scale - 10);
+            }
+            if(showF2 && mag2 > 0) {
+                drawArrow(ctx, cx, cy, cx + f2x*scale, cy - f2y*scale, ctxVars.f2, 4);
+                ctx.fillStyle = ctxVars.f2; ctx.font = "italic bold 20px 'Times New Roman', serif";
+                ctx.fillText("F ₂", cx + f2x*scale + 10, cy - f2y*scale - 10);
+            }
+
+            ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI*2); 
+            ctx.fillStyle = currentMode === 'ms' ? '#818cf8' : '#f1f5f9'; ctx.fill();
+
+            animationFrameId = requestAnimationFrame(loopT2);
+        }
+
+        /* --- TAB 3: RIVER CROSSING --- */
+        let t3_state = { running: false, x: 0, y: 0 };
+        let flowLines = [];
+        
+        function initWaves() {
+            flowLines = [];
+            let w = window.innerWidth; let h = window.innerHeight;
+            for(let i=0; i<60; i++) {
+                flowLines.push({
+                    x: Math.random() * (w + 400),
+                    y: 90 + Math.random() * Math.max(100, h - 180),
+                    len: 80 + Math.random() * 150,
+                    speedBase: 0.2 + Math.random() * 0.5,
+                    dir: Math.random() > 0.5 ? 1 : -1, // To support random drifting if river flow is 0
+                    amp: 2 + Math.random() * 3,
+                    freq: 0.02 + Math.random() * 0.05
+                });
+            }
+        }
+
+        function updateT3MSDir() {
+            let val = document.getElementById('t3-dir-ms').value;
+            document.getElementById('t3-angle').value = val;
+            updateT3();
+        }
+
+        function updateT3() {
+            let riv = document.getElementById('t3-river').value;
+            let pad = document.getElementById('t3-paddle').value;
+            let ang = document.getElementById('t3-angle').value;
+            
+            document.getElementById('val-t3-river').innerText = `$\\mathsf{${riv} \\text{ N}}$`;
+            document.getElementById('val-t3-paddle').innerText = `$\\mathsf{${pad} \\text{ N}}$`;
+            document.getElementById('val-t3-angle').innerText = `$\\mathsf{${ang}^\\circ}$`;
+
+            let rA = ang * Math.PI / 180;
+            let pX = pad * Math.cos(rA); let pY = pad * Math.sin(rA); 
+            let netX = parseInt(riv) + pX; let netY = pY; 
+            let netAng = Math.atan2(netY, netX) * 180 / Math.PI;
+
+            document.getElementById('t3-riv-val-btm').innerText = `$\\mathsf{${riv} \\text{ N}}$`;
+            document.getElementById('t3-pad-val-btm').innerText = `$\\mathsf{${pad} \\text{ N}, ${ang}^\\circ}$`;
+            document.getElementById('t3-px-val').innerText = `$\\mathsf{${pad} \\times \\cos(${ang}^\\circ) = ${pX.toFixed(1)} \\text{ N}}$`;
+            document.getElementById('t3-py-val').innerText = `$\\mathsf{${pad} \\times \\sin(${ang}^\\circ) = ${pY.toFixed(1)} \\text{ N}}$`;
+            document.getElementById('t3-net-val-btm').innerText = `$\\mathsf{${netAng.toFixed(1)}^\\circ}$`;
+            
+            if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+        }
+
+        function toggleRiverSimulation() {
+            t3_state.running = !t3_state.running;
+            let btn = document.getElementById('t3-btn-sim');
+            if(t3_state.running) {
+                t3_state.x = 0; t3_state.y = 0; 
+                btn.innerText = dict[currentLang]['reset_sim'];
+                btn.style.color = ctxVars.f1;
+            } else {
+                t3_state.x = 0; t3_state.y = 0;
+                btn.innerText = dict[currentLang]['start_sim'];
+                btn.style.color = "inherit";
+            }
+        }
+
+        function loopT3() {
+            if (currentTab !== 3) return;
+            const canvas = document.getElementById('canvas3');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width; const h = canvas.height;
+            
+            let waterGrad = ctx.createLinearGradient(0, 0, 0, h);
+            if (currentMode === 'ms') {
+                waterGrad.addColorStop(0, '#1e293b'); waterGrad.addColorStop(0.5, '#334155'); waterGrad.addColorStop(1, '#1e293b');
+            } else {
+                waterGrad.addColorStop(0, '#0b0f19'); waterGrad.addColorStop(0.5, '#111827'); waterGrad.addColorStop(1, '#0b0f19');
+            }
+            ctx.fillStyle = waterGrad; ctx.fillRect(0, 0, w, h);
+            
+            ctx.fillStyle = varColor = currentMode === 'ms' ? '#27354c' : 'rgba(17, 24, 39, 0.95)';
+            ctx.fillRect(0, h-80, w, 80); ctx.fillRect(0, 0, w, 80);   
+
+            let riv = parseInt(document.getElementById('t3-river').value);
+            let pad = parseInt(document.getElementById('t3-paddle').value);
+            let ang = parseInt(document.getElementById('t3-angle').value);
+            let rA = ang * Math.PI / 180;
+
+            ctx.lineWidth = 1.5;
+            let timeShift = Date.now() / 1000;
+            
+            flowLines.forEach(line => {
+                ctx.beginPath();
+                
+                // Allow left & right flow, and multi-directional drift if river flow == 0
+                let currentSpeed;
+                if (Math.abs(riv) < 1) {
+                    currentSpeed = 2 * line.dir * line.speedBase; // Drift in random assigned directions
+                } else {
+                    currentSpeed = riv * 1.5 * line.speedBase; // Normal flow
+                }
+                
+                // Handle modulo for negative coordinates cleanly
+                let startX = ((line.x + timeShift * currentSpeed) % (w + 400) + (w + 400)) % (w + 400) - 200; 
+                let currentLen = line.len + (Math.abs(riv) * 4);
+                let currentAmp = line.amp + (Math.abs(riv) * 0.05);
+
+                ctx.moveTo(startX, line.y);
+                for (let x = 0; x <= currentLen; x += 5) {
+                    let waveY = Math.sin((x - timeShift * (100 + Math.abs(riv) * 2)) * line.freq) * currentAmp;
+                    ctx.lineTo(startX + x, line.y + waveY);
+                }
+                
+                let gradColor = currentMode === 'ms' ? '129, 140, 248' : '56, 189, 248';
+                let grad = ctx.createLinearGradient(startX, 0, startX + currentLen, 0);
+                grad.addColorStop(0, `rgba(${gradColor}, 0)`); grad.addColorStop(0.5, `rgba(${gradColor}, 0.4)`); grad.addColorStop(1, `rgba(${gradColor}, 0)`);
+                ctx.strokeStyle = grad; ctx.stroke();
+            });
+
+            let startX = Math.max(100, w * 0.25);
+            let startY = h - 80;
+
+            let dockOffset = 0;
+            // Target shrinking dynamically per level
+            let lvl = Math.min(msLevels[3].current, msLevels[3].max);
+            let dockW = currentMode === 'ms' ? 100 - (lvl - 1) * 30 : 100; // Level 1: 100, Level 2: 70, Level 3: 40
+            
+            if (currentMode === 'ms') {
+                let targetRatio = msLevels[3].targets[lvl-1].ratio; 
+                let riverWidth = h - 160; 
+                dockOffset = targetRatio * riverWidth; 
+                
+                ctx.fillStyle = '#b45309'; 
+                ctx.fillRect(startX + dockOffset - dockW/2, 60, dockW, 20); 
+                
+                ctx.beginPath(); ctx.arc(startX + dockOffset, 70, 6, 0, Math.PI*2);
+                ctx.fillStyle = ctxVars.net; ctx.fill();
+            }
+
+            if (t3_state.running) {
+                let netX = riv + (pad * Math.cos(rA));
+                let netY = pad * Math.sin(rA); 
+                t3_state.x += netX * 0.02;
+                t3_state.y -= netY * 0.02; 
+                if (startY + t3_state.y <= 80) t3_state.running = false;
+            }
+
+            let cx = startX + t3_state.x; let cy = startY + t3_state.y;
+
+            if(t3_state.running || t3_state.y < 0) {
+                ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(cx, cy);
+                ctx.strokeStyle = ctxVars.net; ctx.setLineDash([5,5]); ctx.lineWidth = 2;
+                ctx.stroke(); ctx.setLineDash([]);
+            }
+
+            ctx.save(); ctx.translate(cx, cy);
+            let netX = riv + (pad * Math.cos(rA)); let netY = pad * Math.sin(rA);
+            let visualAngle = Math.atan2(-netY, netX); ctx.rotate(visualAngle);
+            ctx.fillStyle = '#fbbf24'; 
+            ctx.beginPath(); ctx.ellipse(0, 0, 20, 8, 0, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+
+            if(!t3_state.running || currentMode === 'hs') {
+                let vScale = 1.5;
+                drawArrow(ctx, cx, cy, cx + riv*vScale, cy, ctxVars.f1, 3);
+                drawArrow(ctx, cx, cy, cx + (pad*Math.cos(rA))*vScale, cy - (pad*Math.sin(rA))*vScale, ctxVars.f2, 3);
+            }
+
+            if (currentMode === 'ms') {
+                let statusEl = document.getElementById('t3-status');
+                
+                if (startY + t3_state.y <= 80 && !t3_state.running) {
+                    let boatX = startX + t3_state.x;
+                    if (Math.abs(boatX - (startX + dockOffset)) < (dockW/2)) {
+                        if (statusEl.innerText !== dict[currentLang]['status_success']) {
+                            statusEl.innerText = dict[currentLang]['status_success'];
+                            statusEl.className = 'challenge-status success c-net';
+                            if (msLevels[3].current < msLevels[3].max) {
+                                document.getElementById('btn-next-3').style.display = 'inline-block';
+                            }
+                        }
+                    } else {
+                        statusEl.innerText = dict[currentLang]['status_fail'];
+                        statusEl.className = 'challenge-status fail c-f2';
+                        document.getElementById('btn-next-3').style.display = 'none';
+                    }
+                } else if (!t3_state.running && t3_state.y === 0) {
+                    statusEl.innerText = dict[currentLang]['status_progress'];
+                    statusEl.className = 'challenge-status';
+                    document.getElementById('btn-next-3').style.display = 'none';
+                } else if (t3_state.running) {
+                    statusEl.innerText = dict[currentLang]['status_nav'];
+                    statusEl.className = 'challenge-status';
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(loopT3);
+        }
+
+        /* --- SPLASH ANIMATION (DYNAMIC GRADIENT VECTOR FIELD) --- */
+        const splashCanvas = document.getElementById('splash-canvas');
+        const sCtx = splashCanvas.getContext('2d');
+        let vGrid = [];
+        const spacing = 45;
+        let mouseX = -1000, mouseY = -1000;
+        
+        function initSplashCanvas() {
+            splashCanvas.width = window.innerWidth; splashCanvas.height = window.innerHeight;
+            vGrid = [];
+            for(let x = spacing/2; x < splashCanvas.width; x += spacing) {
+                for(let y = spacing/2; y < splashCanvas.height; y += spacing) { vGrid.push({x: x, y: y}); }
+            }
+        }
+        window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+        window.addEventListener('touchmove', e => { mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; });
+        
+        function loopSplash() {
+            if (document.getElementById('splash-screen').style.display === 'none') return;
+            sCtx.clearRect(0, 0, splashCanvas.width, splashCanvas.height);
+            let timeFactor = Date.now() / 2500;
+
+            vGrid.forEach(pt => {
+                let dx = mouseX - pt.x; let dy = mouseY - pt.y; 
+                let dist = Math.hypot(dx, dy);
+                let angle, intensity;
+                
+                if (dist < 350) {
+                    angle = Math.atan2(dy, dx); 
+                    intensity = Math.max(0.1, 1 - (dist / 350));
+                } else {
+                    angle = Math.sin(pt.x * 0.005 + timeFactor) * Math.cos(pt.y * 0.005 + timeFactor) * Math.PI * 2;
+                    intensity = 0.15;
+                }
+                
+                let len = 8 + (intensity * 18); 
+                let opacity = 0.1 + (intensity * 0.7);
+                
+                let endX = pt.x + Math.cos(angle)*len;
+                let endY = pt.y + Math.sin(angle)*len;
+                let grad = sCtx.createLinearGradient(pt.x, pt.y, endX, endY);
+                
+                let hueStart = (180 + (dist * 0.3) + timeFactor * 100) % 360;
+                let hueEnd = (hueStart + 40) % 360;
+                
+                grad.addColorStop(0, `hsla(${hueStart}, 80%, 60%, ${opacity})`);
+                grad.addColorStop(1, `hsla(${hueEnd}, 100%, 70%, ${opacity})`);
+                
+                drawArrow(sCtx, pt.x, pt.y, endX, endY, grad, 1.5 + (intensity * 1.5));
+                
+                sCtx.beginPath(); sCtx.arc(pt.x, pt.y, 1.5, 0, Math.PI*2);
+                sCtx.fillStyle = `rgba(255, 255, 255, ${opacity * 0.4})`; sCtx.fill();
+            });
+            requestAnimationFrame(loopSplash);
+        }
+
+        initSplashCanvas(); window.addEventListener('resize', initSplashCanvas); loopSplash();
+        
+    </script>
+</body>
+</html>
