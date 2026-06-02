@@ -804,14 +804,14 @@
             // Explorer 3
             emCoils: 5, emVoltage: 5, circuitClosed: false, showFieldLinesTab3: false, showPolesTab3: false,
             exp3Objects: [
-                { id: 'clip', emoji: '📎', offset: -140, type: 'Paperclip', mag: true, weight: 0.1, threshold: 3, y: 0, vy: 0 },
-                { id: 'screw', emoji: '🔩', offset: -100, type: 'Screw', mag: true, weight: 0.4, threshold: 12, y: 0, vy: 0 },
-                { id: 'wood', emoji: '🪵', offset: -60, type: 'Wood', mag: false, weight: 0.8, threshold: Infinity, y: 0, vy: 0 },
-                { id: 'key', emoji: '🔑', offset: -20, type: 'Key', mag: true, weight: 0.6, threshold: 20, y: 0, vy: 0 },
-                { id: 'coin', emoji: '🪙', offset: 20, type: 'Coin', mag: false, weight: 0.25, threshold: Infinity, y: 0, vy: 0 },
-                { id: 'scissors', emoji: '✂️', offset: 60, type: 'Scissors', mag: true, weight: 1.5, threshold: 45, y: 0, vy: 0 },
-                { id: 'paper', emoji: '📄', offset: 100, type: 'Paper Scrap', mag: false, weight: 0.02, threshold: Infinity, y: 0, vy: 0 },
-                { id: 'spoon', emoji: '🥄', offset: 140, type: 'Metal Spoon', mag: true, weight: 0.7, threshold: 25, y: 0, vy: 0 }
+                { id: 'clip', emoji: '📎', offset: -280, type: 'Paperclip', mag: true, weight: 0.1, threshold: 3, y: 0, vy: 0 },
+                { id: 'screw', emoji: '🔩', offset: -200, type: 'Screw', mag: true, weight: 0.4, threshold: 12, y: 0, vy: 0 },
+                { id: 'wood', emoji: '🪵', offset: -120, type: 'Wood', mag: false, weight: 0.8, threshold: Infinity, y: 0, vy: 0 },
+                { id: 'key', emoji: '🔑', offset: -40, type: 'Key', mag: true, weight: 0.6, threshold: 20, y: 0, vy: 0 },
+                { id: 'coin', emoji: '🪙', offset: 40, type: 'Coin', mag: false, weight: 0.25, threshold: Infinity, y: 0, vy: 0 },
+                { id: 'scissors', emoji: '✂️', offset: 120, type: 'Scissors', mag: true, weight: 1.5, threshold: 45, y: 0, vy: 0 },
+                { id: 'paper', emoji: '📄', offset: 200, type: 'Paper Scrap', mag: false, weight: 0.02, threshold: Infinity, y: 0, vy: 0 },
+                { id: 'spoon', emoji: '🥄', offset: 280, type: 'Metal Spoon', mag: true, weight: 0.7, threshold: 25, y: 0, vy: 0 }
             ],
             
             // Scientist Tools
@@ -1152,9 +1152,10 @@
                 // 2. Beautiful Reverted Bright Convection Layer against dark viewport
                 ctx.globalCompositeOperation = 'source-in';
                 let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                grd.addColorStop(0, 'rgba(56, 189, 248, 0.3)');    
-                grd.addColorStop(0.5, 'rgba(52, 211, 153, 0.25)');  
-                grd.addColorStop(1, 'rgba(5, 150, 105, 0.15)');       
+                // Made 10% brighter overall
+                grd.addColorStop(0, 'rgba(56, 189, 248, 0.33)');    
+                grd.addColorStop(0.5, 'rgba(52, 211, 153, 0.28)');  
+                grd.addColorStop(1, 'rgba(5, 150, 105, 0.17)');       
                 
                 ctx.fillStyle = grd;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1748,7 +1749,7 @@
             ctx.bezierCurveTo(Re*0.3, Re - 15, -Re*0.3, Re - 15, Re * Math.sin(0.6), Re * Math.cos(0.6)); ctx.fill();
             ctx.restore();
 
-            // Soft Sunset Terminator (No vertical lines)
+            // Soft Sunset Terminator
             let nightGrad = ctx.createLinearGradient(-Re*0.1, 0, Re*0.8, 0);
             nightGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
             nightGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.6)');
@@ -1771,7 +1772,8 @@
             ctx.rotate(rotTilt);
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.moveTo(0, -Re - 120); ctx.lineTo(0, Re + 120); ctx.stroke();
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; ctx.font = '12px var(--font-title)'; ctx.textAlign='left'; ctx.fillText('Rotational Axis', 5, -Re - 100);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; ctx.font = '24px var(--font-title)'; ctx.textAlign='left'; 
+            ctx.fillText('Rotational Axis', 8, Re + 110); 
             ctx.restore();
 
             // Magnetic Tilted Axis Visualizer
@@ -1780,9 +1782,10 @@
             ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)'; ctx.lineWidth = 2; ctx.setLineDash([5,5]);
             ctx.beginPath(); ctx.moveTo(0, -Re - 120); ctx.lineTo(0, Re + 120); ctx.stroke();
             
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.8)'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign='left';
-            ctx.fillText('Magnetic Axis', 5, -Re - 100);
-            ctx.fillText('S', 5, -Re - 15); ctx.fillText('N', 5, Re + 20);
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.8)'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign='left';
+            ctx.fillText('Magnetic Axis', 8, -Re - 110);
+            ctx.fillText('S', 12, -Re - 25); 
+            ctx.fillText('N', 12, Re + 35);
             ctx.restore();
 
             ctx.restore();
@@ -1821,7 +1824,7 @@
             ctx.save();
             ctx.translate(cx, cy);
             
-            // Draw circuit wire - ALWAYS A SOLID BLACK LINE (not dashed, not red!)
+            // Draw circuit wire - ALWAYS A SOLID BLACK LINE
             ctx.lineWidth = 3;
             ctx.strokeStyle = '#000000'; 
             ctx.setLineDash([]); 
@@ -1870,7 +1873,7 @@
 
             ctx.restore();
 
-            let floorY = State.canvasHeight - 65;
+            let floorY = State.canvasHeight - 90;
             let pMetric = State.emCoils * Math.abs(State.emVoltage); 
             
             State.exp3Objects.forEach((obj, index) => {
@@ -1898,7 +1901,7 @@
                 if (obj.y < nailY + 12) {
                     obj.y = nailY + 12; 
                     obj.vy = 0;
-                    let targetX = (index - 3.5) * 12; 
+                    let targetX = (index - 3.5) * 25; 
                     obj.visualX += (targetX - obj.visualX) * 0.2;
                 } else if (obj.y >= floorY - 2) {
                     obj.visualX += (obj.offset - obj.visualX) * 0.1;
@@ -1907,23 +1910,24 @@
                 ctx.save();
                 ctx.translate(cx + obj.visualX, obj.y);
                 
-                // Render Emojis - 50% larger (from 36px to 54px)
+                // Render Emojis - 54px
                 ctx.font = '54px sans-serif'; 
                 ctx.textAlign = 'center'; 
                 ctx.textBaseline = 'middle'; 
                 ctx.fillText(obj.emoji, 0, 0);
                 
-                // Render Dynamic, Translated Object Label below each emoji
-                ctx.font = '11px sans-serif';
+                // Render Dynamic, Translated Object Label - Staggered Y to avoid overlap
+                ctx.font = '22px sans-serif';
                 ctx.fillStyle = State.mode === 'scientist' ? '#94a3b8' : '#475569';
                 const labelText = dict[State.lang][`obj_${obj.id}`] || obj.type;
-                ctx.fillText(labelText, 0, 36); 
+                let textY = index % 2 === 0 ? 45 : 70; 
+                ctx.fillText(labelText, 0, textY); 
 
                 ctx.restore();
             });
             
             ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(cx - 220, floorY + 22); ctx.lineTo(cx + 220, floorY + 22); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx - 340, floorY + 85); ctx.lineTo(cx + 340, floorY + 85); ctx.stroke();
         }
 
         function renderSci1() {
