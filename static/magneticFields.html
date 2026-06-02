@@ -15,14 +15,14 @@
             --accent-hover: #60a5fa;
             
             /* Dynamic Mode Variables - Default (Explorer) */
-            --bg-main: #f0f4f8;
-            --bg-panel: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #cbd5e1;
+            --bg-main: #222b36;
+            --bg-panel: #161c24;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: #343d4a;
             --ui-radius: 16px;
             --font-base: 16px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .scientist-mode {
@@ -34,7 +34,7 @@
             --ui-radius: 4px;
             --font-base: 14px;
             --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
-            --accent-primary: #0ea5e9;
+            --accent-primary: #10b981;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -95,25 +95,55 @@
         button:hover { background: rgba(255,255,255,0.05); }
         button.active { background: var(--accent-primary); border-color: var(--accent-primary); color: white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
         
-        /* Interactive Mode Description Card */
-        .mode-desc-box {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+        /* Side-by-Side Mode Descriptions & Active States */
+        .desc-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            max-width: 850px;
+            margin: 1.5rem auto 1rem auto;
+            text-align: left;
+            pointer-events: auto;
+        }
+        .desc-card {
+            background: rgba(15, 23, 42, 0.55);
+            border: 2px solid rgba(255, 255, 255, 0.08);
             padding: 1.25rem;
-            max-width: 500px;
-            margin: 1.5rem auto 0 auto;
-            font-size: 0.95rem;
-            color: #cbd5e1;
+            border-radius: 12px;
             line-height: 1.5;
-            min-height: 85px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .desc-card:hover {
+            transform: translateY(-2px);
+            background: rgba(15, 23, 42, 0.7);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .desc-card.active-explorer {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.12);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+            transform: translateY(-2px);
+        }
+        .desc-card.active-scientist {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.12);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+            transform: translateY(-2px);
+        }
+        .desc-card h4 {
+            font-family: var(--font-title);
+            font-size: 1.25rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        .desc-card p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 0;
         }
 
-        .launch-btn { background: #f8fafc; color: #0f172a; border: none; padding: 1rem 3rem; font-size: 1.2rem; border-radius: 50px; margin-top: 1.5rem; pointer-events: auto;}
+        .launch-btn { background: #f8fafc; color: #0f172a; border: none; padding: 1rem 3rem; font-size: 1.2rem; border-radius: 50px; margin-top: 1rem; pointer-events: auto;}
         .launch-btn:hover { background: #e2e8f0; transform: scale(1.05); }
         .launch-btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
 
@@ -128,7 +158,7 @@
         .nav-controls { display: flex; gap: 1rem; align-items: center; }
         .nav-controls button { padding: 0.5rem 1rem; border-radius: var(--ui-radius); }
         .tab-controls { display: flex; gap: 0.5rem; flex: 1; justify-content: center; }
-        .tab-btn { border: none; border-bottom: 3px solid transparent; border-radius: 0; padding: 0.5rem 1rem; }
+        .tab-btn { border: none; border-bottom: 3px solid transparent; border-radius: 0; padding: 0.5rem 1rem; font-family: var(--font-title); font-size: 1.15rem; letter-spacing: 0.5px;}
         .tab-btn.active { border-bottom: 3px solid var(--accent-primary); background: transparent; color: var(--accent-primary); box-shadow: none; }
 
         main { flex: 1; display: flex; position: relative; overflow: hidden; }
@@ -150,8 +180,8 @@
             margin-top: 1.5rem;
         }
         .scientist-mode .inquiry-section {
-            background: rgba(14, 165, 233, 0.03);
-            border: 1px solid rgba(14, 165, 233, 0.15);
+            background: rgba(16, 185, 129, 0.03);
+            border: 1px solid rgba(16, 185, 129, 0.15);
             border-radius: 4px;
         }
         .inquiry-header {
@@ -226,6 +256,7 @@
             .canvas-container { height: 60%; }
             .splash-title { font-size: 2.5rem; }
             .splash-subtitle { font-size: 1.1rem; }
+            .desc-columns { grid-template-columns: 1fr; gap: 1rem; }
         }
     </style>
 </head>
@@ -248,6 +279,7 @@
         <div class="splash-content">
             <h1 class="splash-title" data-i18n="appTitle">Flux and Flow</h1>
             <p class="splash-subtitle" data-i18n="appSubtitle">field trip to magnets</p>
+            
             <div class="selection-group">
                 <div class="selection-title" data-i18n="selectLanguage">1. Select Language / Choisir la langue</div>
                 <div class="btn-group">
@@ -255,16 +287,19 @@
                     <button class="lang-btn" data-val="fr">Français</button>
                 </div>
             </div>
-            <div class="selection-group">
-                <div class="selection-title" data-i18n="selectMode">2. Select Mode</div>
-                <div class="btn-group">
-                    <button class="mode-btn" data-val="explorer" data-i18n="modeExplorerBtn">Explorer</button>
-                    <button class="mode-btn" data-val="scientist" data-i18n="modeScientistBtn">Scientist</button>
+
+            <!-- Side-by-side informational cards serving directly as selecting buttons -->
+            <div class="desc-columns">
+                <div class="desc-card" id="card-explorer">
+                    <h4 style="color: #60a5fa;">Explorer</h4>
+                    <p data-i18n="descExplorer">Discover magnetic dipoles and interactions. Drag compasses, observe the formation of beautiful auroras, and assemble custom battery electromagnets with physics objects.</p>
+                </div>
+                <div class="desc-card" id="card-scientist">
+                    <h4 style="color: #34d399;">Scientist</h4>
+                    <p data-i18n="descScientist">Analyze quantitative magnetic models. Measure straight conductor fields with a mobile Gaussmeter sensor, superimpose uniform solenoids, and calculate Lorentz force trajectories.</p>
                 </div>
             </div>
-            <div id="mode-description-box" class="mode-desc-box">
-                <!-- Will automatically show descriptive detail of active mode directly -->
-            </div>
+
             <button id="btn-launch" class="launch-btn" disabled data-i18n="launchBtn">Initialize Lab</button>
         </div>
         <div class="copyright">&copy; T. Keller - Educational Architecture</div>
@@ -563,6 +598,10 @@
     </div>
 
     <script>
+        // --- NO-LATENCY GLOBAL COORDINATES ---
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+
         // --- I18N DICTIONARY ---
         const dict = {
             en: {
@@ -573,7 +612,7 @@
                 modeExplorerBtn: "Explorer",
                 modeScientistBtn: "Scientist",
                 selectModePrompt: "Choose one of the specialized experimental modes above.",
-                descExplorer: "Discover magnetic dipoles and interactions. Drag compasses, change Earth's magnetic tilt to deflect particles into colorful auroras, and assemble custom battery electromagnets with physics objects.",
+                descExplorer: "Discover magnetic dipoles and interactions. Drag compasses, observe the formation of beautiful auroras, and assemble custom battery electromagnets with physics objects.",
                 descScientist: "Analyze quantitative magnetic models. Measure straight conductor fields with a mobile Gaussmeter sensor, superimpose uniform solenoids, and calculate Lorentz force trajectories.",
                 launchBtn: "Initialize Lab",
                 btnExit: "Exit",
@@ -595,7 +634,7 @@
                 lblSolarWind: "Solar Wind Intensity",
                 btnResetAurora: "Reset Atmosphere",
                 tekTitle: "Indigenous Perspectives & TEK:",
-                tekContent: "Many Northern Indigenous communities understand Auroras as the dancing spirits of ancestors. This profound cosmological connection physically manifests as charged particles dancing along the magnetic field lines.",
+                tekContent: "Many Northern Indigenous communities understand Auroras as the dancing spirits of ancestors. This cosmological connection physically manifests as charged particles dancing along the magnetic field lines.",
                 windLow: "Low", windMed: "Medium", windHigh: "High",
                 
                 exp3Title: "Intro to Electromagnets",
@@ -678,7 +717,7 @@
                 modeExplorerBtn: "Explorateur",
                 modeScientistBtn: "Scientifique",
                 selectModePrompt: "Choisissez l'un des modes d'expérimentation spécialisés ci-dessus.",
-                descExplorer: "Découvrez les dipôles et les interactions magnétiques. Déplacez des boussoles, modifiez l'inclinaison magnétique de la Terre pour guider les aurores boréales et créez un électroaimant interactif.",
+                descExplorer: "Découvrez les dipôles et les interactions magnétiques. Déplacez des boussoles, observez la formation de magnifiques aurores boréales et créez un électroaimant interactif.",
                 descScientist: "Analysez des modèles magnétiques quantitatifs rigoureux. Mesurez les conducteurs linéaires avec un gaussmètre mobile, testez des solénoïdes et étudiez la force de Lorentz.",
                 launchBtn: "Initialiser le Labo",
                 btnExit: "Quitter",
@@ -757,11 +796,11 @@
                 q_sci2_1: "Pourquoi le champ au centre du solénoïde est-il presque uniforme par rapport à l'extérieur ?",
                 q_sci2_2: "Comment le doublement du nombre de spires (N) affecte-t-il le champ magnétique calculé (B) ?",
                 q_sci2_3: "Qu'arrive-t-il à la direction du champ dans les bobines lorsque le courant (I) est inversé ?",
-                q_sci2_4: "Comment l'espacement des spires influence-t-il la fuite de flux magnétique entre les boucles ?",
+                q_sci2_4: "Comment l'espacement des spires info-t-il la fuite de flux magnétique entre les boucles ?",
                 q_sci2_5: "Pourquoi les champs des spires individuelles se superposent-ils pour créer un dipôle global plus fort ?",
 
                 q_sci3_1: "Pourquoi une particule neutre (q=0) se déplace-t-elle en ligne droite dans un champ magnétique ?",
-                q_sci3_2: "Comment le signe de la charge (+q vs -q) détermine-t-il le sens de la déflexion magnétique ?",
+                q_sci3_2: "Comment le signe de la charge (+q vs -q) determine-t-il le sens de la déflexion magnétique ?",
                 q_sci3_3: "Pourquoi la trajectoire d'une particule chargée dans un champ magnétique uniforme est-elle circulaire ?",
                 q_sci3_4: "Qu'arrive-t-il au rayon de courbure de la trajectoire si vous doublez la vitesse (v) ?",
                 q_sci3_5: "Comment le renforcement du champ B affecte-t-il la force de Lorentz et la courbure de la trajectoire ?",
@@ -800,6 +839,8 @@
             solarWind: 50, 
             aurorasParticles: [],
             impactTraces: [], 
+            auroraGlowNorth: 0,
+            auroraGlowSouth: 0,
             
             // Explorer 3
             emCoils: 5, emVoltage: 5, circuitClosed: false, showFieldLinesTab3: false, showPolesTab3: false,
@@ -818,7 +859,17 @@
             showGauss: false, gaussPos: {x: 300, y: 200},
             sciCurrent: 5,
             solTurns: 8, solCurrent: 5, showSolenoidPoles: false,
-            fbCharge: 1, fbVel: 5, fbB: 5, fbParticles: []
+            fbCharge: 1, fbVel: 5, fbB: 5, fbParticles: [],
+            
+            // Draggable Measuring Tools across Tabs (Rulers)
+            rulerStart: {x: 320, y: 160},
+            rulerEnd: {x: 440, y: 280},
+            
+            rulerStartTab1: {x: 100, y: 100},
+            rulerEndTab1: {x: 200, y: 200},
+            
+            rulerStartTab2: {x: 320, y: 120},
+            rulerEndTab2: {x: 420, y: 220}
         };
 
         // --- DOM ELEMENTS ---
@@ -833,6 +884,8 @@
             ctx: document.getElementById('lab-canvas').getContext('2d'),
             splashCanvas: document.getElementById('splash-canvas'),
             splashCtx: document.getElementById('splash-canvas').getContext('2d'),
+            cardExplorer: document.getElementById('card-explorer'),
+            cardScientist: document.getElementById('card-scientist'),
             modeDescBox: document.getElementById('mode-description-box')
         };
 
@@ -844,7 +897,8 @@
             generateStars();
 
             document.querySelector('.lang-btn[data-val="en"]').classList.add('active');
-            document.querySelector('.mode-btn[data-val="explorer"]').classList.add('active');
+            document.getElementById('card-explorer').classList.add('active-explorer');
+            
             applyTranslations();
             updateSplashModeDescription();
             checkLaunchReady();
@@ -874,14 +928,17 @@
                 });
             });
 
-            DOM.modeBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    DOM.modeBtns.forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    State.mode = e.target.getAttribute('data-val');
-                    updateSplashModeDescription();
-                    checkLaunchReady();
-                });
+            // Make the description cards acts as selecting buttons directly
+            DOM.cardExplorer.addEventListener('click', () => {
+                State.mode = 'explorer';
+                updateSplashModeDescription();
+                checkLaunchReady();
+            });
+
+            DOM.cardScientist.addEventListener('click', () => {
+                State.mode = 'scientist';
+                updateSplashModeDescription();
+                checkLaunchReady();
             });
 
             DOM.launchBtn.addEventListener('click', launchApp);
@@ -891,17 +948,33 @@
             if (State.lang && State.mode) DOM.launchBtn.disabled = false;
         }
 
-        function updateSplashModeDescription() {
-            if (!State.lang) return;
+        function applyTranslations() {
             const currentDict = dict[State.lang];
-            if (!State.mode) {
-                DOM.modeDescBox.innerHTML = `<span>${currentDict.selectModePrompt}</span>`;
-                return;
+            if (!currentDict) return;
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (currentDict[key]) {
+                    el.textContent = currentDict[key];
+                }
+            });
+
+            // Update dynamically generated status displays
+            if (document.getElementById('val-solarwind')) {
+                let txt = State.solarWind < 35 ? currentDict.windLow : (State.solarWind < 80 ? currentDict.windMed : currentDict.windHigh);
+                document.getElementById('val-solarwind').innerText = txt;
             }
+        }
+
+        function updateSplashModeDescription() {
+            if (!DOM.cardExplorer || !DOM.cardScientist) return;
+            DOM.cardExplorer.classList.remove('active-explorer');
+            DOM.cardScientist.classList.remove('active-scientist');
+            
             if (State.mode === 'explorer') {
-                DOM.modeDescBox.innerHTML = `<span style="font-size: 0.95rem; color: #cbd5e1; line-height: 1.5; font-weight: normal;">${currentDict.descExplorer}</span>`;
+                DOM.cardExplorer.classList.add('active-explorer');
             } else if (State.mode === 'scientist') {
-                DOM.modeDescBox.innerHTML = `<span style="font-size: 0.95rem; color: #cbd5e1; line-height: 1.5; font-weight: normal;">${currentDict.descScientist}</span>`;
+                DOM.cardScientist.classList.add('active-scientist');
             }
         }
 
@@ -994,7 +1067,7 @@
             document.getElementById('chk-circuit').addEventListener('change', (e) => State.circuitClosed = e.target.checked);
             document.getElementById('chk-poles-t3').addEventListener('change', (e) => State.showPolesTab3 = e.target.checked);
 
-            // Scientist Setup
+            // Setup Scientist
             document.getElementById('slider-sci-current').addEventListener('input', (e) => {
                 State.sciCurrent = parseInt(e.target.value);
                 document.getElementById('val-sci-current').innerText = State.sciCurrent + " A";
@@ -1038,24 +1111,8 @@
             window.addEventListener('touchend', handlePointerUp);
         }
 
-        function applyTranslations() {
-            const currentDict = dict[State.lang || 'en'];
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (currentDict[key]) {
-                    if (el.tagName === 'INPUT' && el.type === 'button') el.value = currentDict[key];
-                    else el.innerHTML = currentDict[key];
-                }
-            });
-            if(State.lang) {
-                let txt = State.solarWind < 35 ? dict[State.lang].windLow : (State.solarWind < 80 ? dict[State.lang].windMed : dict[State.lang].windHigh);
-                if(document.getElementById('val-solarwind')) document.getElementById('val-solarwind').innerText = txt;
-            }
-        }
-
-        // --- SPLASH ANIMATION (Ferromagnetic Lava Lamp Physics) ---
-        let lavaBlobs = [];
-        let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+        // --- SPLASH ANIMATION (Thermodynamic Convective Spawning Lava Lamp - 1404 Viscous Blobs) ---
+        let lastSpawnTime = 0;
         
         function initSplashAnimation() {
             const canvas = DOM.splashCanvas;
@@ -1064,115 +1121,191 @@
             canvas.height = window.innerHeight;
             
             lavaBlobs = [];
-            const numBlobs = 90; // Doubled the amount of blobs for a very dense fluid
+            const currentTime = Date.now();
             
-            for (let i = 0; i < numBlobs; i++) {
-                // Keep some massive anchor pools at the edges, make the rest highly varied floaters
-                let isPool = i < 16; 
-                let r = isPool ? Math.random() * 80 + 80 : Math.random() * 70 + 10; 
-                
-                // Spread evenly across the width, and random heights for floaters
-                let x = isPool ? (canvas.width / 16) * i + (Math.random() - 0.5) * 50 : Math.random() * canvas.width;
-                let y = isPool ? (i % 2 === 0 ? canvas.height + 20 : -20) : Math.random() * canvas.height;
+            // Pre-populate with 300 active, convective blobs at random starting lifecycle offsets
+            for (let i = 0; i < 300; i++) {
+                let startAge = Math.random() * 10000; 
+                let rx = Math.random() * 15 + 4; 
+                let ry = Math.random() * 15 + 4;
+                if (Math.random() < 0.08) { rx *= 2; ry *= 2; }
                 
                 lavaBlobs.push({
-                    x: x, y: y,
+                    x: Math.random() * canvas.width,
+                    y: canvas.height * 0.05 + Math.random() * (canvas.height * 0.9), 
                     vx: 0, vy: 0,
-                    r: r,
-                    baseR: r, 
-                    isPool: isPool,
-                    targetX: Math.random() * canvas.width,
-                    targetY: Math.random() * canvas.height,
-                    phaseX: Math.random() * Math.PI * 2,
-                    speed: Math.random() * 0.006 + 0.002
+                    rx: rx,
+                    ry: ry,
+                    r: (rx + ry) / 2,
+                    rotation: Math.random() * Math.PI * 2,
+                    temp: Math.random(),
+                    spawnTime: currentTime - startAge
                 });
             }
             
-            window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+            window.addEventListener('mousemove', (e) => { 
+                mouseX = e.clientX; mouseY = e.clientY; 
+            });
+            
+            lastSpawnTime = currentTime;
             
             function animate() {
                 if(DOM.splash.style.display === 'none') return;
+                
                 ctx.clearRect(0, 0, canvas.width, canvas.height); 
+                let now = Date.now();
                 
-                // 1. Render Shapes (Solid White for perfect alpha-threshold merging)
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
+                // Constant spawn cycle: Spawn 15 blobs per second constantly (one blob every ~66.6 milliseconds)
+                while (now - lastSpawnTime >= 66.6) {
+                    let rx = Math.random() * 15 + 4;
+                    let ry = Math.random() * 15 + 4;
+                    if (Math.random() < 0.08) { rx *= 2; ry *= 2; }
+                    
+                    lavaBlobs.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: 0, vy: 0,
+                        rx: rx,
+                        ry: ry,
+                        r: (rx + ry) / 2,
+                        rotation: Math.random() * Math.PI * 2,
+                        temp: Math.random(),
+                        spawnTime: now
+                    });
+                    lastSpawnTime += 66.6;
+                }
                 
-                lavaBlobs.forEach(b => {
-                    if (b.isPool) {
-                        // Pools gently slosh back and forth at the borders
-                        b.phaseX += 0.002;
-                        b.x += Math.sin(b.phaseX) * 0.3;
+                // Clean up expired blobs to prevent memory leaks (maximum lifetime is 10 seconds)
+                lavaBlobs = lavaBlobs.filter(b => (now - b.spawnTime) < 10000);
+                
+                let safeCanvasWidth = Math.max(1, canvas.width);
+                let cx = canvas.width / 2;
+                let halfWidth = Math.max(1, cx);
+                
+                // Convective Heat Underglow at the base
+                let heatGlow = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - 400);
+                heatGlow.addColorStop(0, 'rgba(16, 185, 129, 0.22)'); 
+                heatGlow.addColorStop(1, 'rgba(2, 6, 23, 0)');
+                ctx.fillStyle = heatGlow;
+                ctx.fillRect(0, canvas.height - 400, canvas.width, 400);
+
+                // Fluid Physics Engine (Convection current + Viscous stretching)
+                for(let i=0; i<lavaBlobs.length; i++) {
+                    let b1 = lavaBlobs[i];
+                    let age = now - b1.spawnTime;
+                    
+                    // Lifecycle scaling: Grow for 5 seconds (0-5s), Shrink for 5 seconds (5-10s)
+                    let lifeScale = 1.0;
+                    if (age < 5000) {
+                        lifeScale = age / 5000;
                     } else {
-                        // Roaming 2D Thermodynamics
-                        let dxTarget = b.targetX - b.x;
-                        let dyTarget = b.targetY - b.y;
-                        let distToTarget = Math.hypot(dxTarget, dyTarget);
-                        
-                        if (distToTarget < 100) {
-                            b.targetX = Math.random() * canvas.width;
-                            b.targetY = Math.random() * canvas.height;
-                        }
-                        
-                        b.vx += (dxTarget / Math.max(distToTarget, 1)) * b.speed;
-                        b.vy += (dyTarget / Math.max(distToTarget, 1)) * b.speed;
-                        
-                        b.phaseX += 0.01;
-                        b.vx += Math.sin(b.phaseX) * 0.02;
-                        b.vy += Math.cos(b.phaseX) * 0.02;
+                        lifeScale = 1.0 - ((age - 5000) / 5000);
+                    }
+                    lifeScale = Math.max(0.001, Math.min(1.0, lifeScale));
+                    
+                    if (!isFinite(b1.x) || !isFinite(b1.y)) {
+                        b1.x = canvas.width / 2;
+                        b1.y = canvas.height / 2;
+                        b1.vx = 0; b1.vy = 0;
                     }
                     
-                    // Gentle Repulsive Mouse Interaction & Deformation
-                    let dx = b.x - mouseX; 
-                    let dy = b.y - mouseY;
+                    // 1. Closed-Loop Convection current: Up in middle, Down on sides
+                    let distToCenter = b1.x - cx;
+                    let normDist = distToCenter / halfWidth; 
+                    
+                    // Buoyancy convection profile: fluid rises in center column, sinks down the sides
+                    let convectionFactorY = (1.0 - Math.abs(normDist)) * 2.0 - 1.0; 
+                    b1.vy -= convectionFactorY * 0.12; 
+                    
+                    // Circulation horizontally at the thermal floors and ceilings
+                    if (b1.y < canvas.height * 0.25) {
+                        b1.vx += Math.sign(distToCenter) * 0.07; 
+                    } else if (b1.y > canvas.height * 0.75) {
+                        b1.vx -= Math.sign(distToCenter) * 0.07; 
+                    }
+                    
+                    // Thermal energy exchange on boundary contact
+                    if (b1.y > canvas.height - 200) b1.temp += 0.015;
+                    if (b1.y < 200) b1.temp -= 0.015;
+                    b1.temp = Math.max(0, Math.min(1, b1.temp));
+                    b1.vy -= (b1.temp - 0.5) * 0.05;
+                    
+                    // 2. Thick Fluid Viscous Damping (Syrupy friction)
+                    b1.vx *= 0.83; 
+                    b1.vy *= 0.83;
+                    
+                    if (!isFinite(b1.vx)) b1.vx = 0;
+                    if (!isFinite(b1.vy)) b1.vy = 0;
+                    
+                    b1.x += b1.vx; 
+                    b1.y += b1.vy;
+                    
+                    // Soft container limits
+                    let margin = 50;
+                    if (b1.x < margin) { b1.x = margin; b1.vx *= -0.2; }
+                    if (b1.x > canvas.width - margin) { b1.x = canvas.width - margin; b1.vx *= -0.2; }
+                    if (b1.y < margin) { b1.y = margin; b1.vy *= -0.2; b1.temp = 0.1; } 
+                    if (b1.y > canvas.height - margin) { b1.y = canvas.height - margin; b1.vy *= -0.2; b1.temp = 0.9; } 
+                    
+                    // 3. Pointer Interaction: Drastic Directional Repulsive Stretching (Radius reduced by 3x to 106px)
+                    let dx = b1.x - mouseX;
+                    let dy = b1.y - mouseY;
                     let mDist = Math.hypot(dx, dy);
+                    let safeMDist = Math.max(0.001, mDist);
                     
-                    // Smoothly recover normal shape from deformation
-                    b.r += (b.baseR - b.r) * 0.05;
-
-                    let interactionRadius = 120; // Drastically reduced interaction range
-                    if (mDist < interactionRadius && mDist > 0) {
-                        // Very subtle shift away
-                        let push = (interactionRadius - mDist) * 0.00003; 
-                        b.vx += dx * push;
-                        b.vy += dy * push;
+                    let stretchDist = 0;
+                    let stretchRadiusScale = 1.0;
+                    
+                    const triggerDist = 106; // EXACTLY 3x smaller interaction boundary
+                    if (mDist < triggerDist && mDist > 0) {
+                        // High separation shear stress
+                        stretchDist = (triggerDist - mDist) * 0.55; 
+                        stretchRadiusScale = Math.max(0.3, 1.0 - (stretchDist / 120));
                         
-                        // Subtle deformation: squish very slightly
-                        b.r = Math.max(b.baseR * 0.8, b.r - push * 15);
+                        // Push away from the pointer (pure aversion, no attraction)
+                        let push = (triggerDist - mDist) * 0.00045;
+                        b1.vx += dx * push;
+                        b1.vy += dy * push;
                     }
-                    
-                    // Thick fluid damping
-                    b.vx *= 0.94; 
-                    b.vy *= 0.94;
-                    b.x += b.vx;
-                    b.y += b.vy;
-                    
-                    // Hard boundaries to prevent blobs from leaving the screen limit
-                    if (!b.isPool) {
-                        if (b.x < 0) { b.x = 0; b.vx *= -0.5; }
-                        if (b.x > canvas.width) { b.x = canvas.width; b.vx *= -0.5; }
-                        if (b.y < 0) { b.y = 0; b.vy *= -0.5; }
-                        if (b.y > canvas.height) { b.y = canvas.height; b.vy *= -0.5; }
-                    }
-                    
-                    ctx.moveTo(b.x, b.y);
-                    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-                });
-                ctx.fill();
 
-                // 2. Global Color Gradient mapped exactly over the merged shapes
-                ctx.globalCompositeOperation = 'source-in';
-                let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                // Made 10% brighter overall
-                grd.addColorStop(0, 'rgba(56, 189, 248, 0.33)');    
-                grd.addColorStop(0.5, 'rgba(52, 211, 153, 0.28)');  
-                grd.addColorStop(1, 'rgba(5, 150, 105, 0.17)');       
-                
-                ctx.fillStyle = grd;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Reset composite
-                ctx.globalCompositeOperation = 'source-over';
+                    // Render: Draw beautiful non-uniform convective metaball ellipses scaled by lifecycle phases
+                    let scaleX = Math.max(0.1, b1.rx * stretchRadiusScale * lifeScale);
+                    let scaleY = Math.max(0.1, b1.ry * stretchRadiusScale * lifeScale);
+                    let gradientRadius = Math.max(0.1, b1.r * 1.5 * lifeScale);
+                    
+                    let safeX = isFinite(b1.x) ? b1.x : 0;
+                    let safeY = isFinite(b1.y) ? b1.y : 0;
+                    
+                    // Convective thermal color translation (cool cyan to hot emerald)
+                    let rG = Math.round(185 * b1.temp + 165 * (1.0 - b1.temp));
+                    let rB = Math.round(129 * b1.temp + 233 * (1.0 - b1.temp));
+                    let coreColor = `rgba(16, ${rG}, ${rB}, 0.55)`;
+                    let edgeColor = `rgba(14, ${rG - 20}, ${rB + 20}, 0.45)`;
+                    
+                    let grd = ctx.createRadialGradient(safeX, safeY, 0, safeX, safeY, Math.max(1, gradientRadius));
+                    grd.addColorStop(0, coreColor); 
+                    grd.addColorStop(0.7, edgeColor); 
+                    grd.addColorStop(1, 'rgba(2, 6, 23, 0)'); 
+                    ctx.fillStyle = grd;
+
+                    if (stretchDist > 1) {
+                        let ux = dx / safeMDist;
+                        let uy = dy / safeMDist;
+                        
+                        // Visual necking: render split ellipse lobes to simulate physical division
+                        ctx.beginPath();
+                        ctx.ellipse(safeX + ux * stretchDist * 0.4, safeY + uy * stretchDist * 0.4, Math.max(0.1, scaleX * 0.95), Math.max(0.1, scaleY * 0.85), b1.rotation, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        ctx.beginPath();
+                        ctx.ellipse(safeX - ux * stretchDist * 0.4, safeY - uy * stretchDist * 0.4, Math.max(0.1, scaleX * 0.8), Math.max(0.1, scaleY * 0.75), b1.rotation, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        ctx.beginPath(); 
+                        ctx.ellipse(safeX, safeY, Math.max(0.1, scaleX), Math.max(0.1, scaleY), b1.rotation, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
                 
                 requestAnimationFrame(animate);
             }
@@ -1199,6 +1332,31 @@
             if (State.showGauss) {
                 if (Math.hypot(pos.x - State.gaussPos.x, pos.y - State.gaussPos.y) < 30) {
                     State.dragItem = 'gauss'; return;
+                }
+            }
+
+            if (State.mode === 'scientist') {
+                if (State.tab === 1) {
+                    if (Math.hypot(pos.x - State.rulerStartTab1.x, pos.y - State.rulerStartTab1.y) < 20) {
+                        State.dragItem = 'rulerStartTab1'; return;
+                    }
+                    if (Math.hypot(pos.x - State.rulerEndTab1.x, pos.y - State.rulerEndTab1.y) < 20) {
+                        State.dragItem = 'rulerEndTab1'; return;
+                    }
+                } else if (State.tab === 2) {
+                    if (Math.hypot(pos.x - State.rulerStartTab2.x, pos.y - State.rulerStartTab2.y) < 20) {
+                        State.dragItem = 'rulerStartTab2'; return;
+                    }
+                    if (Math.hypot(pos.x - State.rulerEndTab2.x, pos.y - State.rulerEndTab2.y) < 20) {
+                        State.dragItem = 'rulerEndTab2'; return;
+                    }
+                } else if (State.tab === 3) {
+                    if (Math.hypot(pos.x - State.rulerStart.x, pos.y - State.rulerStart.y) < 20) {
+                        State.dragItem = 'rulerStart'; return;
+                    }
+                    if (Math.hypot(pos.x - State.rulerEnd.x, pos.y - State.rulerEnd.y) < 20) {
+                        State.dragItem = 'rulerEnd'; return;
+                    }
                 }
             }
 
@@ -1235,6 +1393,12 @@
             const pos = getCanvasPos(e);
             if (State.dragItem === 'gauss') State.gaussPos = pos;
             else if (State.dragItem === 'compass') State.compassPos = pos;
+            else if (State.dragItem === 'rulerStart') State.rulerStart = pos;
+            else if (State.dragItem === 'rulerEnd') State.rulerEnd = pos;
+            else if (State.dragItem === 'rulerStartTab1') State.rulerStartTab1 = pos;
+            else if (State.dragItem === 'rulerEndTab1') State.rulerEndTab1 = pos;
+            else if (State.dragItem === 'rulerStartTab2') State.rulerStartTab2 = pos;
+            else if (State.dragItem === 'rulerEndTab2') State.rulerEndTab2 = pos;
             else if (State.dragItem === 'mag0_pos') State.magnets[0] = { ...State.magnets[0], x: pos.x, y: pos.y };
             else if (State.dragItem === 'mag1_pos') State.magnets[1] = { ...State.magnets[1], x: pos.x, y: pos.y };
             else if (State.dragItem === 'mag0_rot') State.magnets[0].angle = Math.atan2(pos.y - State.magnets[0].y, pos.x - State.magnets[0].x);
@@ -1262,17 +1426,19 @@
             return {Bx, By};
         }
 
+        // Calibrated straight wire field with CCW orientation corrector
         function calcWireField(x, y, cx, cy, current) {
             let dx = x - cx, dy = y - cy;
             let r2 = dx*dx + dy*dy + 50;
-            return { Bx: -current * dy / r2 * 100, By: current * dx / r2 * 100 };
+            // CCW orientation: Bx positive with positive dy, By negative with positive dx in Canvas Space
+            return { Bx: current * dy / r2 * 100, By: -current * dx / r2 * 100 };
         }
 
         function calcSolenoidField(x, y, cx, cy, N, I) {
             let Bx = 0, By = 0;
             let spacing = 20;
             let startX = cx - ((N-1)*spacing)/2;
-            let R = 40; 
+            let R = 50; // Visual Diameter scaled to 1 cm (100px diameter)
             for(let i=0; i<N; i++) {
                 let wx = startX + i*spacing;
                 let bTop = calcWireField(x, y, wx, cy - R, I);
@@ -1345,7 +1511,6 @@
                         let B_mag = Math.hypot(B.Bx, B.By);
                         if (B_mag < 0.001 || B_mag > 5000000) break;
 
-                        // Stepping backwards against the B-field vector
                         px -= (B.Bx / B_mag) * stepSize;
                         py -= (B.By / B_mag) * stepSize;
                         ctx.lineTo(px, py);
@@ -1373,20 +1538,29 @@
             const ctx = DOM.ctx;
             const p = State.gaussPos;
             const w = State.canvasWidth;
+            const h = State.canvasHeight;
             let isSideView = isSci1 && p.x >= w / 2;
             
-            const B = calcFieldFn(p.x, p.y, ...args);
-            
+            let current = args[2];
             let mag;
-            if (isSideView) {
-                let current = args[2];
-                let dist = p.x - w*0.75;
-                mag = Math.abs((current / (Math.max(10, Math.abs(dist)))) * 1000); 
+            
+            if (isSci1) {
+                // Unified, precise physical scaling at matched 1D distances
+                let refX = isSideView ? w * 0.75 : w * 0.25;
+                let distPx = isSideView ? Math.abs(p.x - refX) : Math.hypot(p.x - refX, p.y - h/2);
+                
+                // Conductor Scale: 100px = 1mm -> 100000px = 1m
+                let r_m = Math.max(10, distPx) / 100000;
+                
+                // Pure Biot-Savart wire B calculation (in mT)
+                mag = ((2e-7 * Math.abs(current)) / r_m) * 1000; 
             } else {
+                const B = calcFieldFn(p.x, p.y, ...args);
                 mag = Math.hypot(B.Bx, B.By);
             }
 
-            const angle = Math.atan2(B.By, B.Bx);
+            const B_vector = calcFieldFn(p.x, p.y, ...args);
+            const angle = Math.atan2(B_vector.By, B_vector.Bx);
             
             ctx.save();
             ctx.translate(p.x, p.y);
@@ -1398,7 +1572,6 @@
             ctx.fillStyle = 'rgba(14, 165, 233, 0.2)'; ctx.fill();
             
             if (isSideView) {
-                let current = args[2];
                 let dist = p.x - w*0.75;
                 let drawDot = (current > 0 && dist < 0) || (current < 0 && dist > 0);
                 if (current === 0) drawDot = true; 
@@ -1427,7 +1600,7 @@
             ctx.textAlign = 'left'; ctx.textBaseline = 'top';
             ctx.fillText('|B| Field:', 10, 8);
             
-            let valStr = (mag / 1000).toFixed(2);
+            let valStr = mag.toFixed(2);
             ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 18px monospace';
             ctx.fillText(valStr + ' mT', 10, 30);
             
@@ -1442,6 +1615,12 @@
             const yStart = bounds ? bounds.y0 : spacing/2;
             const yEnd = bounds ? bounds.y1 : State.canvasHeight;
             
+            let cx = args[0];
+            let cy = args[1];
+            let current = 0;
+            if (State.tab === 1) current = args[2];
+            else if (State.tab === 2) current = args[3];
+
             for(let y = yStart; y < yEnd; y += spacing) {
                 for(let x = xStart; x < xEnd; x += spacing) {
                     const B = calcFieldFn(x, y, ...args);
@@ -1456,19 +1635,33 @@
                     ctx.rotate(angle);
 
                     if(State.mode === 'scientist') {
-                        let normMag = Math.min(1, Math.pow(mag / 1500, 0.45));
-                        let hue = 240 - normMag * 100; 
-                        let alpha = args[2] === 0 && bounds ? 0 : (0.4 + normMag*0.6); 
-                        if (args[2] === 0 && !bounds && args.length === 2 && args[1]===0) alpha=0; 
-                        
-                        ctx.strokeStyle = `hsla(${hue}, 100%, 55%, ${alpha})`;
-                        ctx.lineWidth = 1.5 + normMag * 2.0;
-                        if (alpha > 0) {
-                            ctx.beginPath();
-                            ctx.moveTo(-len, 0); ctx.lineTo(len, 0);
-                            ctx.lineTo(len - 4, -3); ctx.moveTo(len, 0); ctx.lineTo(len - 4, 3);
-                            ctx.stroke();
+                        if (current === 0) {
+                            ctx.restore();
+                            continue;
                         }
+
+                        // Calibrated progressive scaling for field arrows
+                        let intensity = 0;
+                        if (State.tab === 1) {
+                            let normMag = Math.min(1, mag / 25);
+                            intensity = Math.pow(normMag, 0.5);
+                        } else if (State.tab === 2) {
+                            let normMag = Math.min(1, mag / 120);
+                            intensity = Math.pow(normMag, 0.5);
+                        }
+
+                        let opacity = 0.15 + 0.85 * intensity;
+                        let arrowWidth = 1.0 + intensity * 3.0;
+                        let arrowLength = 4 + intensity * 10;
+
+                        let hue = 240 - intensity * 100; 
+                        ctx.strokeStyle = `hsla(${hue}, 100%, 50%, ${opacity})`;
+                        ctx.lineWidth = arrowWidth;
+
+                        ctx.beginPath();
+                        ctx.moveTo(-arrowLength, 0); ctx.lineTo(arrowLength, 0);
+                        ctx.lineTo(arrowLength - 4, -3); ctx.moveTo(arrowLength, 0); ctx.lineTo(arrowLength - 4, 3);
+                        ctx.stroke();
                     } else {
                         let alpha = Math.min(1, Math.max(0.15, mag / 2000));
                         ctx.globalAlpha = alpha;
@@ -1570,7 +1763,7 @@
                     vy: 0, life: 0,
                     trapped: false, trappedShell: null, trappedPole: 1, 
                     trappedTheta: 0, cyclotronPhase: Math.random() * Math.PI * 2,
-                    highEnergy: Math.random() < 0.08 // 8% chance to bypass magnetic shield
+                    highEnergy: Math.random() < 0.08 
                 };
             });
             State.auroraGlowNorth = 0;
@@ -1586,7 +1779,7 @@
             ctx.fillStyle = 'white';
             State.stars.forEach(s => {
                 ctx.globalAlpha = s.alpha;
-                ctx.beginPath(); ctx.arc(s.x * State.canvasWidth, s.y * State.canvasHeight, s.size, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(s.x * State.canvasWidth, s.y * State.canvasHeight, s.size, 0, Math.PI * 2); ctx.fill();
             });
             ctx.globalAlpha = 1.0;
 
@@ -1595,7 +1788,7 @@
             const magTilt = -11.5 * Math.PI / 180; 
             const totalTilt = rotTilt + magTilt; 
 
-            // Draw Magnetospheric Field Lines (Aligned to Magnetic Axis)
+            // Draw Magnetospheric Field Lines
             ctx.save();
             ctx.translate(cx, cy);
             ctx.rotate(totalTilt);
@@ -1630,9 +1823,6 @@
             const windSpeed = State.solarWind / 50;
             ctx.fillStyle = 'rgba(250, 204, 21, 0.9)';
 
-            let captureChance = 0;
-            if (State.solarWind > 40) captureChance = Math.min(0.25, (State.solarWind - 40) * 0.005);
-
             State.aurorasParticles.forEach(p => {
                 if (!p.trapped) {
                     let dx = p.x - cx, dy = p.y - cy;
@@ -1640,7 +1830,7 @@
 
                     if (dx < 0 && dist < 320 && dist > 150) {
                         let deflectBase = State.solarWind < 40 ? 7.0 : 1.5;
-                        if (p.highEnergy) deflectBase *= 0.15; // High energy particles penetrate shield easily
+                        if (p.highEnergy) deflectBase *= 0.15; 
                         let push = (320 - dist) * 0.005 * deflectBase;
                         p.vy += (dy > 0 ? push : -push) * windSpeed;
                         p.vx *= State.solarWind < 40 ? 0.8 : 0.98;
@@ -1650,20 +1840,20 @@
                     
                     let currentDist = Math.hypot(p.x - cx, p.y - cy);
                     
-                    // Collision check for untrapped particles (High energy bypass impacts)
                     if (currentDist < Re) {
                         State.impactTraces.push({
                             x: p.x, y: p.y, alpha: 1.0, size: Math.random() * 3 + 2,
-                            color: '#f59e0b' // Solar radiation impact flash
+                            color: '#f59e0b' 
                         });
-                        p.life = 400; // Force respawn
+                        p.life = 400; 
                     } else {
-                        // Aurora capture logic
                         let mx = dx * Math.cos(-totalTilt) - dy * Math.sin(-totalTilt);
                         let my = dx * Math.sin(-totalTilt) + dy * Math.cos(-totalTilt);
                         let mDist = Math.hypot(mx, my);
 
-                        // High energy particles cannot be trapped gracefully
+                        let captureChance = 0;
+                        if (State.solarWind > 40) captureChance = Math.min(0.25, (State.solarWind - 40) * 0.005);
+
                         if (mDist < 260 && dx < 0 && Math.random() < captureChance && !p.highEnergy) {
                             p.trapped = true;
                             p.trappedShell = shells[Math.floor(Math.random() * shells.length)];
@@ -1727,7 +1917,7 @@
             State.auroraGlowNorth = Math.min(2.5, State.auroraGlowNorth * 0.95);
             State.auroraGlowSouth = Math.min(2.5, State.auroraGlowSouth * 0.95);
 
-            // Draw Elegant Earth Sphere (Aligned to Rotational Axis)
+            // Draw Elegant Earth Sphere (Aligned strictly with Rotational Axis)
             ctx.save();
             ctx.translate(cx, cy);
             ctx.rotate(rotTilt);
@@ -1755,7 +1945,7 @@
             ctx.bezierCurveTo(5, 20, 20, 60, 40, 50); ctx.bezierCurveTo(60, 40, 45, 15, 60, 0);
             ctx.bezierCurveTo(80, -20, 65, -55, 35, -65); ctx.fill();
 
-            // Inclined Ice Caps perfectly centered on Rotational Axis
+            // Inclined Ice Caps aligned to rotational axis visually
             let iceGradN = ctx.createLinearGradient(0, -Re, 0, -Re + 25);
             iceGradN.addColorStop(0, 'rgba(255, 255, 255, 0.95)'); iceGradN.addColorStop(1, 'rgba(255, 255, 255, 0)');
             ctx.fillStyle = iceGradN;
@@ -1767,6 +1957,7 @@
             ctx.fillStyle = iceGradS;
             ctx.beginPath(); ctx.arc(0, 0, Re, Math.PI/2 - 0.6, Math.PI/2 + 0.6, false);
             ctx.bezierCurveTo(Re*0.3, Re - 15, -Re*0.3, Re - 15, Re * Math.sin(0.6), Re * Math.cos(0.6)); ctx.fill();
+            ctx.restore();
 
             // Soft Sunset Terminator
             let nightGrad = ctx.createLinearGradient(-Re*0.1, 0, Re*0.8, 0);
@@ -1776,9 +1967,6 @@
             ctx.fillStyle = nightGrad;
             ctx.beginPath(); ctx.arc(0, 0, Re + 0.5, 0, Math.PI * 2); ctx.fill();
 
-            ctx.restore(); // Exit clip mask
-            
-            // Overlay atmospheric glow
             ctx.save();
             ctx.translate(cx, cy);
 
@@ -1788,30 +1976,53 @@
             atmosphere.addColorStop(1, 'rgba(56, 189, 248, 0)');
             ctx.fillStyle = atmosphere; ctx.beginPath(); ctx.arc(0,0,Re+20, 0, Math.PI * 2); ctx.fill();
 
+            // Render Electromagnetic Aurora Glow Rings near Earth Poles
+            ctx.save();
+            ctx.rotate(totalTilt);
+            if (State.auroraGlowNorth > 0.05) {
+                ctx.save();
+                ctx.translate(0, -Re + 8);
+                ctx.scale(1.5, 0.4);
+                ctx.strokeStyle = `rgba(52, 211, 153, ${State.auroraGlowNorth * 0.25})`;
+                ctx.lineWidth = 8;
+                ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2); ctx.stroke();
+                ctx.restore();
+            }
+            if (State.auroraGlowSouth > 0.05) {
+                ctx.save();
+                ctx.translate(0, Re - 8);
+                ctx.scale(1.5, 0.4);
+                ctx.strokeStyle = `rgba(168, 85, 247, ${State.auroraGlowSouth * 0.25})`;
+                ctx.lineWidth = 8;
+                ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2); ctx.stroke();
+                ctx.restore();
+            }
+            ctx.restore();
+
             // Rotational Axis Indicator 
             ctx.save();
             ctx.rotate(rotTilt);
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.moveTo(0, -Re - 120); ctx.lineTo(0, Re + 120); ctx.stroke();
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign='left'; 
-            ctx.fillText('Rotational Axis', 8, Re + 110); 
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; ctx.font = 'bold 28px var(--font-title)'; ctx.textAlign='left'; 
+            ctx.fillText('Rotational Axis', 15, Re + 90); 
             ctx.restore();
 
-            // Magnetic Tilted Axis Visualizer
+            // Magnetic Tilted Axis Indicator
             ctx.save();
             ctx.rotate(totalTilt);
             ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)'; ctx.lineWidth = 2; ctx.setLineDash([5,5]);
             ctx.beginPath(); ctx.moveTo(0, -Re - 120); ctx.lineTo(0, Re + 120); ctx.stroke();
             
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.8)'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign='left';
-            ctx.fillText('Magnetic Axis', 8, -Re - 110);
-            ctx.fillText('S', 12, -Re - 25); 
-            ctx.fillText('N', 12, Re + 35);
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.9)'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign='left';
+            ctx.fillText('Magnetic Axis', 15, -Re - 95);
+            ctx.fillText('S', 15, -Re - 25); 
+            ctx.fillText('N', 15, Re + 35);
             ctx.restore();
 
             ctx.restore();
 
-            // Render Impact Glowing Traces (Auroras and Direct Impacts bloom exactly over Earth)
+            // Render Impact Glowing Traces
             ctx.globalCompositeOperation = 'screen';
             State.impactTraces.forEach((trace, idx) => {
                 ctx.save();
@@ -1847,9 +2058,9 @@
             ctx.save();
             ctx.translate(cx, cy);
             
-            // Draw circuit wire - ALWAYS A SOLID BLACK LINE
+            // Draw circuit wire - adapted to dark explorer theme
             ctx.lineWidth = 3;
-            ctx.strokeStyle = '#000000'; 
+            ctx.strokeStyle = '#e2e8f0'; 
             ctx.setLineDash([]); 
 
             ctx.beginPath();
@@ -1868,9 +2079,9 @@
             ctx.beginPath(); ctx.arc(15, -140, 5, 0, Math.PI * 2); ctx.fillStyle = '#64748b'; ctx.fill(); 
             ctx.beginPath(); ctx.arc(55, -140, 5, 0, Math.PI * 2); ctx.fill(); 
             
-            // Switch Lever style
+            // Switch Lever style - adapted to dark explorer theme
             ctx.lineWidth = 4;
-            ctx.strokeStyle = '#334155';
+            ctx.strokeStyle = '#e2e8f0';
             ctx.beginPath();
             ctx.moveTo(15, -140);
             if (State.circuitClosed) ctx.lineTo(55, -140); else ctx.lineTo(45, -165); 
@@ -1878,7 +2089,7 @@
 
             const nw = 180, nh = 24;
             ctx.fillStyle = '#94a3b8'; ctx.fillRect(-nw/2, -nh/2, nw, nh);
-            ctx.fillStyle = '#64748b'; ctx.beginPath(); ctx.moveTo(nw/2, -nh/2); ctx.lineTo(nw/2 + 20, 0); ctx.lineTo(nw/2, nh/2); ctx.fill(); 
+            ctx.fillStyle = '#64748b'; ctx.beginPath(); ctx.moveTo(nw/2, -nw/2); ctx.lineTo(nw/2 + 20, 0); ctx.lineTo(nw/2, nh/2); ctx.fill(); 
             ctx.fillRect(-nw/2 - 10, -nh/2 - 5, 10, nh + 10); 
             
             ctx.lineWidth = 4; ctx.strokeStyle = '#b45309'; 
@@ -1899,7 +2110,12 @@
             let floorY = State.canvasHeight - 90;
             let pMetric = State.emCoils * Math.abs(State.emVoltage); 
             
+            // Dynamically calculate widely spread offsets based on canvas container width
+            let colWidth = State.canvasWidth / 9;
+
             State.exp3Objects.forEach((obj, index) => {
+                obj.offset = (index - 3.5) * colWidth;
+
                 if (obj.y === 0 || obj.y === undefined) {
                     obj.y = floorY; obj.vy = 0; obj.visualX = obj.offset;
                 }
@@ -1939,18 +2155,18 @@
                 ctx.textBaseline = 'middle'; 
                 ctx.fillText(obj.emoji, 0, 0);
                 
-                // Render Dynamic, Translated Object Label - Staggered Y to avoid overlap
-                ctx.font = '22px sans-serif';
-                ctx.fillStyle = State.mode === 'scientist' ? '#94a3b8' : '#475569';
+                // Staggered Y labels twice bigger (22px) to guarantee zero overlap
+                ctx.font = 'bold 22px sans-serif';
+                ctx.fillStyle = State.mode === 'scientist' ? '#94a3b8' : '#e2e8f0';
                 const labelText = dict[State.lang][`obj_${obj.id}`] || obj.type;
-                let textY = index % 2 === 0 ? 45 : 70; 
+                let textY = index % 2 === 0 ? 55 : 85; 
                 ctx.fillText(labelText, 0, textY); 
 
                 ctx.restore();
             });
             
             ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(cx - 340, floorY + 85); ctx.lineTo(cx + 340, floorY + 85); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx - (State.canvasWidth/2 - 40), floorY + 115); ctx.lineTo(cx + (State.canvasWidth/2 - 40), floorY + 115); ctx.stroke();
         }
 
         function renderSci1() {
@@ -1958,75 +2174,114 @@
             const w = State.canvasWidth, h = State.canvasHeight;
             const I = State.sciCurrent;
 
+            // Render continuous circular compass grids
             drawCompassGrid(calcWireField, [w*0.25, h/2, I], {x0: 0, y0: 0, x1: w/2, y1: h});
 
-            // Math Updates
+            // Calibrated Straight Conductor Scale: 100px = 1mm (0.001 m). Diameter of wire is 100px (1mm).
             let r_text = "r"; let b_text = "B";
             if (State.showGauss) {
                 let r_px = State.gaussPos.x < w/2 ? Math.hypot(State.gaussPos.x - w*0.25, State.gaussPos.y - h/2) : Math.abs(State.gaussPos.x - w*0.75);
-                let r_m = Math.max(0.01, r_px / 1000);
-                r_text = r_m.toFixed(3) + " m";
-                let B_val = (4 * Math.PI * 1e-7 * Math.abs(I)) / (2 * Math.PI * r_m);
-                b_text = (B_val * 1e6).toFixed(1) + " µT";
+                // Conductor Scale: 100px = 1mm -> 100000px = 1m
+                let r_m = Math.max(10, r_px) / 100000;
+                r_text = (r_m * 1000).toFixed(3) + " mm";
+                
+                // Calibrated Biot-Savart formula
+                let B_val = (2e-7 * Math.abs(I)) / r_m; // in Tesla
+                b_text = (B_val * 1000).toFixed(2) + " mT";
             }
-            document.getElementById('calc-sci-1').innerHTML = `I = ${I} A, r = ${r_text}<br><strong>B = ${b_text}</strong>`;
+            document.getElementById('calc-sci-1').innerHTML = `I = ${I} A, r = ${r_text}, wire d = 1.0 mm<br><strong>B = ${b_text}</strong>`;
 
+            // Draw Top-View Conductor Wire (1 mm diameter = 100px)
             ctx.save();
             ctx.translate(w*0.25, h/2);
-            ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2);
-            ctx.fillStyle = '#1e293b'; ctx.fill();
+            ctx.beginPath(); ctx.arc(0, 0, 50, 0, Math.PI * 2);
+            ctx.fillStyle = '#334155'; ctx.fill();
             ctx.lineWidth = 3; ctx.strokeStyle = '#94a3b8'; ctx.stroke();
 
+            // Center Current Indicator
             ctx.fillStyle = '#e2e8f0';
-            if (I > 0) { ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill(); } 
-            else if (I < 0) {
-                ctx.beginPath(); ctx.moveTo(-6, -6); ctx.lineTo(6, 6); ctx.moveTo(6, -6); ctx.lineTo(-6, 6);
-                ctx.lineWidth = 2; ctx.strokeStyle = ctx.fillStyle; ctx.stroke();
-            }
-
-            if (I !== 0) {
-                ctx.strokeStyle = 'rgba(14, 165, 233, 0.2)'; ctx.lineWidth = 1;
-                for(let r=40; r<=200; r+=40) { ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke(); }
+            if (I > 0) { 
+                ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill(); 
+            } else if (I < 0) {
+                ctx.beginPath(); ctx.moveTo(-10, -10); ctx.lineTo(10, 10); ctx.moveTo(10, -10); ctx.lineTo(-10, 10);
+                ctx.lineWidth = 3; ctx.strokeStyle = ctx.fillStyle; ctx.stroke();
             }
             
+            // Core distance reference loops
+            if (I !== 0) {
+                ctx.strokeStyle = 'rgba(14, 165, 233, 0.15)'; ctx.lineWidth = 1;
+                for(let r=80; r<=200; r+=40) { ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke(); }
+            }
             ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '14px monospace'; ctx.fillText('Cross-Section (Top View)', -80, h/2 - 20);
             ctx.restore();
 
+            // Mid separator line
             ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
 
+            // Draw Side View Conductor Wire (1 mm diameter = 100px)
             ctx.save();
             ctx.translate(w*0.75, h/2);
-            ctx.fillStyle = '#1e293b'; ctx.fillRect(-20, -h/2, 40, h);
-            ctx.strokeStyle = '#94a3b8'; ctx.strokeRect(-20, -h/2, 40, h);
+            ctx.fillStyle = '#334155'; ctx.fillRect(-50, -h/2, 100, h);
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(-50, -h/2); ctx.lineTo(-50, h/2); ctx.moveTo(50, -h/2); ctx.lineTo(50, h/2); ctx.stroke();
             
+            // Flow direction arrows on the side-view conductor
             if (I !== 0) {
-                ctx.fillStyle = 'rgba(226, 232, 240, 0.5)'; ctx.beginPath();
-                if (I > 0) { ctx.moveTo(0, -60); ctx.lineTo(-10, -40); ctx.lineTo(10, -40); ctx.fillRect(-4, -40, 8, 80); } 
-                else { ctx.moveTo(0, 60); ctx.lineTo(-10, 40); ctx.lineTo(10, 40); ctx.fillRect(-4, -40, 8, 80); }
+                ctx.fillStyle = 'rgba(226, 232, 240, 0.4)'; ctx.beginPath();
+                if (I > 0) { ctx.moveTo(0, -60); ctx.lineTo(-15, -35); ctx.lineTo(15, -35); ctx.fillRect(-6, -35, 12, 80); } 
+                else { ctx.moveTo(0, 60); ctx.lineTo(-15, 40); ctx.lineTo(15, 40); ctx.fillRect(-6, 40, 12, -80); }
                 ctx.fill();
             }
 
+            // Symmetrical, progressive side-view field mapping dependent strictly on horizontal distance
             if (I !== 0) {
                 ctx.lineWidth = 2;
-                for(let dist = 40; dist < w/4; dist += 40 + dist*0.2) {
+                for(let dist = 80; dist < w/4; dist += 40) {
                     for(let y = -h/2 + 20; y < h/2; y += 40) {
-                        let B = calcWireField(w*0.75 + dist, h/2+y, w*0.75, h/2, I);
-                        let mag = Math.min(1, Math.pow(Math.abs(B.By) / 100, 0.45));
-                        let hue = 240 - mag * 100; 
-                        ctx.fillStyle = `hsla(${hue}, 100%, 55%, ${0.4 + mag*0.6})`;
-                        ctx.strokeStyle = ctx.fillStyle;
-                        ctx.lineWidth = 1.5 + mag * 2.5;
+                        // Perpendicular B-field calculation (dy evaluated at 0 to avoid vertical middle bright spots)
+                        let B = calcWireField(w*0.75 + dist, h/2, w*0.75, h/2, I);
+                        let mag = Math.hypot(B.Bx, B.By);
                         
+                        let normMag = Math.min(1, mag / 25);
+                        let intensity = Math.pow(normMag, 0.5);
+
+                        let opacity = 0.15 + 0.85 * intensity;
+                        let arrowWidth = 1.0 + intensity * 3.0;
+                        let s = Math.max(1, 3 + intensity * 4);
+                        let hue = 240 - intensity * 100;
+
                         let drawDot = (I > 0); 
                         
-                        ctx.beginPath();
-                        if (drawDot) { ctx.arc(-dist, y, 3, 0, Math.PI * 2); ctx.fill(); }
-                        else { ctx.moveTo(-dist-4, y-4); ctx.lineTo(-dist+4, y+4); ctx.moveTo(-dist+4, y-4); ctx.lineTo(-dist-4, y+4); ctx.stroke(); }
+                        ctx.save();
+                        ctx.translate(-dist, y);
+                        ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${opacity})`;
+                        ctx.strokeStyle = ctx.fillStyle;
+                        ctx.lineWidth = arrowWidth;
                         
                         ctx.beginPath();
-                        if (!drawDot) { ctx.arc(dist, y, 3, 0, Math.PI * 2); ctx.fill(); }
-                        else { ctx.moveTo(dist-4, y-4); ctx.lineTo(dist+4, y+4); ctx.moveTo(dist+4, y-4); ctx.lineTo(dist-4, y+4); ctx.stroke(); }
+                        if (drawDot) { 
+                            ctx.arc(0, 0, s, 0, Math.PI * 2); ctx.fill(); 
+                            ctx.beginPath(); ctx.arc(0, 0, 1, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.fill();
+                        } else { 
+                            ctx.beginPath(); ctx.moveTo(-s, -s); ctx.lineTo(s, s); ctx.moveTo(s, -s); ctx.lineTo(-s, s); ctx.stroke();
+                        }
+                        ctx.restore();
+
+                        ctx.save();
+                        ctx.translate(dist, y);
+                        ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${opacity})`;
+                        ctx.strokeStyle = ctx.fillStyle;
+                        ctx.lineWidth = arrowWidth;
+                        
+                        ctx.beginPath();
+                        if (!drawDot) { 
+                            ctx.arc(0, 0, s, 0, Math.PI * 2); ctx.fill(); 
+                            ctx.beginPath(); ctx.arc(0, 0, 1, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.fill();
+                        } else { 
+                            ctx.beginPath(); ctx.moveTo(-s, -s); ctx.lineTo(s, s); ctx.moveTo(s, -s); ctx.lineTo(-s, s); ctx.stroke();
+                        }
+                        ctx.restore();
                     }
                 }
             }
@@ -2035,43 +2290,67 @@
             ctx.restore();
 
             if (State.showGauss) drawGaussmeter(calcWireField, [w*0.25, h/2, I], true);
+
+            // Draw Ruler measurement tool for Tab 1
+            renderDraggableRuler(ctx, State.rulerStartTab1, State.rulerEndTab1, 100, "mm", "#10b981");
+
+            // Draw Metric Scale reference indicator in corner
+            renderMetricScaleRef(ctx, 100, "1.0 mm", w - 120, h - 40, "#10b981");
         }
 
         function renderSci2() {
             const ctx = DOM.ctx;
             const cx = State.canvasWidth / 2, cy = State.canvasHeight / 2;
-            
-            drawCompassGrid(calcSolenoidField, [cx, cy, State.solTurns, State.solCurrent]);
+            const w = State.canvasWidth, h = State.canvasHeight;
+            const I = State.solCurrent;
+            const N = State.solTurns;
 
-            let n_density = State.solTurns / 0.2;
-            let B_val = (4 * Math.PI * 1e-7 * n_density * Math.abs(State.solCurrent));
-            document.getElementById('calc-sci-2').innerHTML = `L = 0.2 m, n = ${n_density.toFixed(1)} m<sup>-1</sup><br><strong>B &asymp; ${(B_val * 1e3).toFixed(2)} mT</strong>`;
+            drawCompassGrid(calcSolenoidField, [cx, cy, N, I]);
+
+            // Calibrated Solenoid Scale: 100px = 1 cm (0.01 m). Diameter of solenoid coils is 100px (1 cm). Length L = 2 cm (200px)
+            let n_density = N / 0.02; // loops per meter
+            let B_val = 0;
+            if (I !== 0) {
+                // Ampere's Solenoid Law B = mu0 * n * I (in Tesla)
+                B_val = (4 * Math.PI * 1e-7 * n_density * Math.abs(I)); 
+            }
+            let B_mT = B_val * 1000;
+            document.getElementById('calc-sci-2').innerHTML = `L = 2.0 cm, n = ${n_density.toFixed(1)} m<sup>-1</sup>, d = 1.0 cm<br><strong>B<sub>inside</sub> &asymp; ${B_mT.toFixed(2)} mT</strong>`;
 
             ctx.save();
             ctx.translate(cx, cy);
             
-            let spacing = 20; let startX = -((State.solTurns-1)*spacing)/2; let R = 40;
+            let spacing = 20; let startX = -((N-1)*spacing)/2; let R = 50; // Visual solenoid radius is 50px (diameter = 100px = 1cm)
 
-            for(let i=0; i<State.solTurns; i++) {
+            // Draw Top loops (Current Flows OUT of the page)
+            for(let i=0; i<N; i++) {
                 let wx = startX + i*spacing;
                 ctx.beginPath(); ctx.arc(wx, -R, 6, 0, Math.PI * 2); ctx.fillStyle = '#1e293b'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#94a3b8'; ctx.stroke();
-                if(State.solCurrent > 0) { ctx.fillStyle='#e2e8f0'; ctx.beginPath(); ctx.arc(wx, -R, 2, 0, Math.PI * 2); ctx.fill(); }
-                else if(State.solCurrent < 0) { ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(wx-2,-R-2); ctx.lineTo(wx+2,-R+2); ctx.moveTo(wx+2,-R-2); ctx.lineTo(wx-2,-R+2); ctx.stroke(); }
+                if(I > 0) { ctx.fillStyle='#e2e8f0'; ctx.beginPath(); ctx.arc(wx, -R, 2, 0, Math.PI * 2); ctx.fill(); }
+                else if(I < 0) { ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(wx-2,-R-2); ctx.lineTo(wx+2,-R+2); ctx.moveTo(wx+2,-R-2); ctx.lineTo(wx-2,-R+2); ctx.stroke(); }
 
+                // Draw Bottom loops (Current Flows INTO the page)
                 ctx.beginPath(); ctx.arc(wx, R, 6, 0, Math.PI * 2); ctx.fillStyle = '#1e293b'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#94a3b8'; ctx.stroke();
-                if(State.solCurrent > 0) { ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(wx-2,R-2); ctx.lineTo(wx+2,R+2); ctx.moveTo(wx+2,R-2); ctx.lineTo(wx-2,R+2); ctx.stroke(); }
-                else if(State.solCurrent < 0) { ctx.fillStyle='#e2e8f0'; ctx.beginPath(); ctx.arc(wx, R, 2, 0, Math.PI * 2); ctx.fill(); }
+                if(I > 0) { ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(wx-2,R-2); ctx.lineTo(wx+2,R+2); ctx.moveTo(wx+2,R-2); ctx.lineTo(wx-2,R+2); ctx.stroke(); }
+                else if(I < 0) { ctx.fillStyle='#e2e8f0'; ctx.beginPath(); ctx.arc(wx, R, 2, 0, Math.PI * 2); ctx.fill(); }
             }
 
-            if (State.showSolenoidPoles && State.solCurrent !== 0) {
+            // Correct polar placement based on Right-Hand Rule (CCW flows emerge out right end)
+            if (State.showSolenoidPoles && I !== 0) {
                 ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-                let isRightPos = State.solCurrent > 0;
-                ctx.fillText(isRightPos ? 'N' : 'S', startX + (State.solTurns-1)*spacing + 35, 0);
+                let isRightPos = I > 0;
+                ctx.fillText(isRightPos ? 'N' : 'S', startX + (N-1)*spacing + 35, 0);
                 ctx.fillText(isRightPos ? 'S' : 'N', startX - 35, 0);
             }
             ctx.restore();
 
-            if (State.showGauss) drawGaussmeter(calcSolenoidField, [cx, cy, State.solTurns, State.solCurrent]);
+            if (State.showGauss) drawGaussmeter(calcSolenoidField, [cx, cy, N, I]);
+
+            // Draw Ruler measurement tool for Tab 2
+            renderDraggableRuler(ctx, State.rulerStartTab2, State.rulerEndTab2, 100, "cm", "#10b981");
+
+            // Draw Metric Scale reference indicator in corner
+            renderMetricScaleRef(ctx, 100, "1.0 cm", w - 120, h - 40, "#10b981");
         }
 
         function emitFbParticle() {
@@ -2088,7 +2367,29 @@
             const bRegionStart = w * 0.3;
 
             let F_val = Math.abs(State.fbCharge * State.fbVel * State.fbB);
-            document.getElementById('calc-sci-3').innerHTML = `q = ${State.fbCharge}C, v = ${State.fbVel}m/s, B = ${Math.abs(State.fbB)}T<br><strong>F = ${F_val} N</strong>`;
+            
+            // Exact calculation of cyclotron circular radius
+            let r_m = "∞"; 
+            if (State.fbCharge !== 0 && State.fbB !== 0) {
+                let vReal = State.fbVel * 1.5;
+                let scaleAccel = 0.005;
+                let r_pixels = vReal / (Math.abs(State.fbCharge) * Math.abs(State.fbB) * scaleAccel);
+                r_m = (r_pixels / 100).toFixed(2) + " m";
+            }
+            
+            document.getElementById('calc-sci-3').innerHTML = `q = ${State.fbCharge}C, v = ${State.fbVel}m/s, B = ${Math.abs(State.fbB)}T<br><strong>F_B = ${F_val} N, Radius = ${r_m}</strong>`;
+
+            // Draw coordinate scale grid for calibration / radius alignment
+            ctx.save();
+            ctx.strokeStyle = 'rgba(14, 165, 233, 0.08)';
+            ctx.lineWidth = 1;
+            for(let x = bRegionStart; x < w; x += 50) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for(let y = 0; y < h; y += 50) {
+                ctx.beginPath(); ctx.moveTo(bRegionStart, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+            ctx.restore();
 
             ctx.fillStyle = 'rgba(14, 165, 233, 0.05)'; ctx.fillRect(bRegionStart, 0, w - bRegionStart, h);
             ctx.strokeStyle = 'rgba(14, 165, 233, 0.3)'; ctx.beginPath(); ctx.moveTo(bRegionStart, 0); ctx.lineTo(bRegionStart, h); ctx.stroke();
@@ -2133,6 +2434,66 @@
                 let vMag = Math.hypot(p.vx, p.vy).toFixed(1);
                 ctx.fillText(`v=${vMag} m/s`, p.x + 10, p.y - 10);
             });
+
+            // Draw interactive measuring Tape/Ruler Tool for Tab 3
+            renderDraggableRuler(ctx, State.rulerStart, State.rulerEnd, 100, "m", "#38bdf8");
+        }
+
+        // --- DYNAMIC MEASUREMENT RULER RENDERING ---
+        function renderDraggableRuler(ctx, start, end, ratio, unit, themeColor) {
+            ctx.save();
+            ctx.strokeStyle = themeColor;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(start.x, start.y);
+            ctx.lineTo(end.x, end.y);
+            ctx.stroke();
+
+            // Draw ruler caps
+            ctx.setLineDash([]);
+            ctx.fillStyle = themeColor;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(start.x, start.y, 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.arc(end.x, end.y, 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+            // Calculate distance
+            let distPx = Math.hypot(end.x - start.x, end.y - start.y);
+            let distMetric = distPx / ratio;
+
+            let midX = (start.x + end.x) / 2;
+            let midY = (start.y + end.y) / 2;
+
+            ctx.fillStyle = '#111827';
+            ctx.fillRect(midX - 75, midY - 20, 150, 32);
+            ctx.strokeStyle = themeColor;
+            ctx.strokeRect(midX - 75, midY - 20, 150, 32);
+
+            ctx.fillStyle = themeColor;
+            ctx.font = 'bold 13px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${distMetric.toFixed(2)} ${unit} (${Math.round(distPx)} px)`, midX, midY);
+            ctx.restore();
+        }
+
+        // --- REFERENCE SCALE ELEMENT ---
+        function renderMetricScaleRef(ctx, widthPx, label, x, y, themeColor) {
+            ctx.save();
+            ctx.strokeStyle = themeColor;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x, y); ctx.lineTo(x + widthPx, y);
+            ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5);
+            ctx.moveTo(x + widthPx, y - 5); ctx.lineTo(x + widthPx, y + 5);
+            ctx.stroke();
+
+            ctx.fillStyle = '#f1f5f9';
+            ctx.font = '12px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x + widthPx/2, y - 10);
+            ctx.restore();
         }
 
         function startLabEngine() {
