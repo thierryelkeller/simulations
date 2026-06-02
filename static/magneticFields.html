@@ -673,7 +673,7 @@
             fr: {
                 appTitle: "Flux et Mouvement",
                 appSubtitle: "excursion au cœur des aimants",
-                selectLanguage: "1. Select Language / Choisir la langue",
+                selectLanguage: "1. Choisir la langue",
                 selectMode: "2. Choisir le mode",
                 modeExplorerBtn: "Explorateur",
                 modeScientistBtn: "Scientifique",
@@ -1064,12 +1064,14 @@
             canvas.height = window.innerHeight;
             
             lavaBlobs = [];
-            const numBlobs = 90; 
+            const numBlobs = 90; // Doubled the amount of blobs for a very dense fluid
             
             for (let i = 0; i < numBlobs; i++) {
+                // Keep some massive anchor pools at the edges, make the rest highly varied floaters
                 let isPool = i < 16; 
                 let r = isPool ? Math.random() * 80 + 80 : Math.random() * 70 + 10; 
                 
+                // Spread evenly across the width, and random heights for floaters
                 let x = isPool ? (canvas.width / 16) * i + (Math.random() - 0.5) * 50 : Math.random() * canvas.width;
                 let y = isPool ? (i % 2 === 0 ? canvas.height + 20 : -20) : Math.random() * canvas.height;
                 
@@ -1098,9 +1100,11 @@
                 
                 lavaBlobs.forEach(b => {
                     if (b.isPool) {
+                        // Pools gently slosh back and forth at the borders
                         b.phaseX += 0.002;
                         b.x += Math.sin(b.phaseX) * 0.3;
                     } else {
+                        // Roaming 2D Thermodynamics
                         let dxTarget = b.targetX - b.x;
                         let dyTarget = b.targetY - b.y;
                         let distToTarget = Math.hypot(dxTarget, dyTarget);
@@ -1118,25 +1122,32 @@
                         b.vy += Math.cos(b.phaseX) * 0.02;
                     }
                     
+                    // Gentle Repulsive Mouse Interaction & Deformation
                     let dx = b.x - mouseX; 
                     let dy = b.y - mouseY;
                     let mDist = Math.hypot(dx, dy);
                     
+                    // Smoothly recover normal shape from deformation
                     b.r += (b.baseR - b.r) * 0.05;
 
-                    let interactionRadius = 120; 
+                    let interactionRadius = 120; // Drastically reduced interaction range
                     if (mDist < interactionRadius && mDist > 0) {
+                        // Very subtle shift away
                         let push = (interactionRadius - mDist) * 0.00003; 
                         b.vx += dx * push;
                         b.vy += dy * push;
+                        
+                        // Subtle deformation: squish very slightly
                         b.r = Math.max(b.baseR * 0.8, b.r - push * 15);
                     }
                     
+                    // Thick fluid damping
                     b.vx *= 0.94; 
                     b.vy *= 0.94;
                     b.x += b.vx;
                     b.y += b.vy;
                     
+                    // Hard boundaries to prevent blobs from leaving the screen limit
                     if (!b.isPool) {
                         if (b.x < 0) { b.x = 0; b.vx *= -0.5; }
                         if (b.x > canvas.width) { b.x = canvas.width; b.vx *= -0.5; }
@@ -1149,7 +1160,7 @@
                 });
                 ctx.fill();
 
-                // 2. Beautiful Reverted Bright Convection Layer against dark viewport
+                // 2. Global Color Gradient mapped exactly over the merged shapes
                 ctx.globalCompositeOperation = 'source-in';
                 let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
                 // Made 10% brighter overall
@@ -1160,7 +1171,9 @@
                 ctx.fillStyle = grd;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
+                // Reset composite
                 ctx.globalCompositeOperation = 'source-over';
+                
                 requestAnimationFrame(animate);
             }
             animate();
@@ -1332,6 +1345,7 @@
                         let B_mag = Math.hypot(B.Bx, B.By);
                         if (B_mag < 0.001 || B_mag > 5000000) break;
 
+                        // Stepping backwards against the B-field vector
                         px -= (B.Bx / B_mag) * stepSize;
                         py -= (B.By / B_mag) * stepSize;
                         ctx.lineTo(px, py);
@@ -1555,7 +1569,8 @@
                     vx: 3.5 + Math.random() * 2,
                     vy: 0, life: 0,
                     trapped: false, trappedShell: null, trappedPole: 1, 
-                    trappedTheta: 0, cyclotronPhase: Math.random() * Math.PI * 2
+                    trappedTheta: 0, cyclotronPhase: Math.random() * Math.PI * 2,
+                    highEnergy: Math.random() < 0.08 // 8% chance to bypass magnetic shield
                 };
             });
             State.auroraGlowNorth = 0;
@@ -1580,7 +1595,7 @@
             const magTilt = -11.5 * Math.PI / 180; 
             const totalTilt = rotTilt + magTilt; 
 
-            // Draw Magnetospheric Field Lines
+            // Draw Magnetospheric Field Lines (Aligned to Magnetic Axis)
             ctx.save();
             ctx.translate(cx, cy);
             ctx.rotate(totalTilt);
@@ -1625,6 +1640,7 @@
 
                     if (dx < 0 && dist < 320 && dist > 150) {
                         let deflectBase = State.solarWind < 40 ? 7.0 : 1.5;
+                        if (p.highEnergy) deflectBase *= 0.15; // High energy particles penetrate shield easily
                         let push = (320 - dist) * 0.005 * deflectBase;
                         p.vy += (dy > 0 ? push : -push) * windSpeed;
                         p.vx *= State.solarWind < 40 ? 0.8 : 0.98;
@@ -1632,15 +1648,28 @@
 
                     p.x += p.vx * windSpeed; p.y += p.vy * windSpeed;
                     
-                    let mx = dx * Math.cos(-totalTilt) - dy * Math.sin(-totalTilt);
-                    let my = dx * Math.sin(-totalTilt) + dy * Math.cos(-totalTilt);
-                    let mDist = Math.hypot(mx, my);
+                    let currentDist = Math.hypot(p.x - cx, p.y - cy);
+                    
+                    // Collision check for untrapped particles (High energy bypass impacts)
+                    if (currentDist < Re) {
+                        State.impactTraces.push({
+                            x: p.x, y: p.y, alpha: 1.0, size: Math.random() * 3 + 2,
+                            color: '#f59e0b' // Solar radiation impact flash
+                        });
+                        p.life = 400; // Force respawn
+                    } else {
+                        // Aurora capture logic
+                        let mx = dx * Math.cos(-totalTilt) - dy * Math.sin(-totalTilt);
+                        let my = dx * Math.sin(-totalTilt) + dy * Math.cos(-totalTilt);
+                        let mDist = Math.hypot(mx, my);
 
-                    if (mDist < 260 && dx < 0 && Math.random() < captureChance) {
-                        p.trapped = true;
-                        p.trappedShell = shells[Math.floor(Math.random() * shells.length)];
-                        p.trappedPole = my > 0 ? 1 : -1;
-                        p.trappedTheta = Math.atan2(my, mx);
+                        // High energy particles cannot be trapped gracefully
+                        if (mDist < 260 && dx < 0 && Math.random() < captureChance && !p.highEnergy) {
+                            p.trapped = true;
+                            p.trappedShell = shells[Math.floor(Math.random() * shells.length)];
+                            p.trappedPole = my > 0 ? 1 : -1;
+                            p.trappedTheta = Math.atan2(my, mx);
+                        }
                     }
                 } else {
                     p.trappedTheta += p.trappedPole * 0.015 * windSpeed;
@@ -1676,6 +1705,7 @@
                 if (p.x > State.canvasWidth || p.life > 320 || p.y < -120 || p.y > State.canvasHeight + 120) {
                     p.x = -Math.random() * 150; p.y = Math.random() * State.canvasHeight;
                     p.vx = 4.5 + Math.random() * 2.5; p.vy = 0; p.life = 0; p.trapped = false;
+                    p.highEnergy = Math.random() < 0.08;
                 }
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.trapped ? 1.5 : 2, 0, Math.PI * 2); ctx.fill();
             });
@@ -1697,15 +1727,7 @@
             State.auroraGlowNorth = Math.min(2.5, State.auroraGlowNorth * 0.95);
             State.auroraGlowSouth = Math.min(2.5, State.auroraGlowSouth * 0.95);
 
-            State.impactTraces.forEach((trace, idx) => {
-                ctx.save(); ctx.globalAlpha = trace.alpha; ctx.fillStyle = trace.color;
-                ctx.beginPath(); ctx.arc(trace.x, trace.y, trace.size, 0, Math.PI * 2); ctx.fill();
-                ctx.restore();
-                trace.alpha -= 0.015;
-                if (trace.alpha <= 0) State.impactTraces.splice(idx, 1);
-            });
-
-            // Draw Elegant Earth Sphere
+            // Draw Elegant Earth Sphere (Aligned to Rotational Axis)
             ctx.save();
             ctx.translate(cx, cy);
             ctx.rotate(rotTilt);
@@ -1733,9 +1755,7 @@
             ctx.bezierCurveTo(5, 20, 20, 60, 40, 50); ctx.bezierCurveTo(60, 40, 45, 15, 60, 0);
             ctx.bezierCurveTo(80, -20, 65, -55, 35, -65); ctx.fill();
 
-            // Inclined Ice Caps aligned to magnetic tilt visually
-            ctx.save();
-            ctx.rotate(magTilt);
+            // Inclined Ice Caps perfectly centered on Rotational Axis
             let iceGradN = ctx.createLinearGradient(0, -Re, 0, -Re + 25);
             iceGradN.addColorStop(0, 'rgba(255, 255, 255, 0.95)'); iceGradN.addColorStop(1, 'rgba(255, 255, 255, 0)');
             ctx.fillStyle = iceGradN;
@@ -1747,7 +1767,6 @@
             ctx.fillStyle = iceGradS;
             ctx.beginPath(); ctx.arc(0, 0, Re, Math.PI/2 - 0.6, Math.PI/2 + 0.6, false);
             ctx.bezierCurveTo(Re*0.3, Re - 15, -Re*0.3, Re - 15, Re * Math.sin(0.6), Re * Math.cos(0.6)); ctx.fill();
-            ctx.restore();
 
             // Soft Sunset Terminator
             let nightGrad = ctx.createLinearGradient(-Re*0.1, 0, Re*0.8, 0);
@@ -1758,6 +1777,8 @@
             ctx.beginPath(); ctx.arc(0, 0, Re + 0.5, 0, Math.PI * 2); ctx.fill();
 
             ctx.restore(); // Exit clip mask
+            
+            // Overlay atmospheric glow
             ctx.save();
             ctx.translate(cx, cy);
 
@@ -1772,7 +1793,7 @@
             ctx.rotate(rotTilt);
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.moveTo(0, -Re - 120); ctx.lineTo(0, Re + 120); ctx.stroke();
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; ctx.font = '24px var(--font-title)'; ctx.textAlign='left'; 
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign='left'; 
             ctx.fillText('Rotational Axis', 8, Re + 110); 
             ctx.restore();
 
@@ -1789,6 +1810,8 @@
             ctx.restore();
 
             ctx.restore();
+
+            // Render Impact Glowing Traces (Auroras and Direct Impacts bloom exactly over Earth)
             ctx.globalCompositeOperation = 'screen';
             State.impactTraces.forEach((trace, idx) => {
                 ctx.save();
