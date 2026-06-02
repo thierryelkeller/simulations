@@ -70,17 +70,22 @@
         }
 
         .splash-content { padding: 3rem; text-align: center; max-width: 90%; z-index: 10; pointer-events: none; }
-        .selection-group, .splash-title { pointer-events: auto; }
+        .selection-group, .splash-title, .splash-subtitle { pointer-events: auto; }
         
         .splash-title {
             font-family: var(--font-title); font-size: 5.5rem; font-weight: 700; letter-spacing: 2px;
-            margin-bottom: 0.5rem; background: linear-gradient(135deg, #ffffff, #60a5fa, #34d399);
+            margin-bottom: 0px; background: linear-gradient(135deg, #ffffff, #60a5fa, #34d399);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0px 5px 25px rgba(96, 165, 250, 0.2);
+            text-shadow: 0px 5px 25px rgba(96, 165, 250, 0.15);
+        }
+
+        .splash-subtitle {
+            font-family: var(--font-title); font-size: 1.8rem; font-weight: 600; letter-spacing: 4px;
+            color: #94a3b8; text-transform: uppercase; margin-bottom: 2.5rem; opacity: 0.9;
         }
         
-        .selection-group { margin: 2rem 0; }
-        .selection-title { font-family: var(--font-title); font-size: 1.3rem; color: #94a3b8; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .selection-group { margin: 1.5rem 0; }
+        .selection-title { font-family: var(--font-title); font-size: 1.1rem; color: #64748b; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; }
         .btn-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
         
         button {
@@ -91,7 +96,25 @@
         button:hover { background: rgba(255,255,255,0.05); }
         button.active { background: var(--accent-primary); border-color: var(--accent-primary); color: white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
         
-        .launch-btn { background: #f8fafc; color: #0f172a; border: none; padding: 1rem 3rem; font-size: 1.2rem; border-radius: 50px; margin-top: 2rem; pointer-events: auto;}
+        /* Interactive Mode Description Card */
+        .mode-desc-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.25rem;
+            max-width: 500px;
+            margin: 1.5rem auto 0 auto;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+            min-height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .launch-btn { background: #f8fafc; color: #0f172a; border: none; padding: 1rem 3rem; font-size: 1.2rem; border-radius: 50px; margin-top: 1.5rem; pointer-events: auto;}
         .launch-btn:hover { background: #e2e8f0; transform: scale(1.05); }
         .launch-btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
 
@@ -110,17 +133,63 @@
         .tab-btn.active { border-bottom: 3px solid var(--accent-primary); background: transparent; color: var(--accent-primary); box-shadow: none; }
 
         main { flex: 1; display: flex; position: relative; overflow: hidden; }
+        
+        /* Expanded Sidebar Layout */
         .sidebar {
-            width: 350px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color);
-            padding: 2rem; display: flex; flex-direction: column; overflow-y: auto; box-shadow: var(--shadow); z-index: 5;
+            width: 440px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color);
+            padding: 1.5rem; display: flex; flex-direction: column; overflow-y: auto; box-shadow: var(--shadow); z-index: 5;
         }
         .canvas-container { flex: 1; position: relative; background-color: var(--bg-main); overflow: hidden; }
         canvas.lab-canvas { display: block; width: 100%; height: 100%; cursor: grab; }
         canvas.lab-canvas:active { cursor: grabbing; }
 
+        /* Inquiry Card Component Styling */
+        .inquiry-section {
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+        .scientist-mode .inquiry-section {
+            background: rgba(14, 165, 233, 0.03);
+            border: 1px solid rgba(14, 165, 233, 0.15);
+            border-radius: 4px;
+        }
+        .inquiry-header {
+            font-size: 1.1rem;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .inquiry-list {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .inquiry-list li {
+            font-size: 0.9rem;
+            line-height: 1.55;
+            color: var(--text-main);
+            padding-left: 1.25rem;
+            position: relative;
+        }
+        .inquiry-list li::before {
+            content: "✦";
+            position: absolute;
+            left: 0;
+            color: var(--accent-primary);
+        }
+
         /* UI Elements */
-        .panel-section { margin-bottom: 2rem; }
-        .panel-title { font-size: 1.2rem; color: var(--accent-primary); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        .panel-section { margin-bottom: 1.5rem; }
+        .panel-title { font-size: 1.4rem; color: var(--accent-primary); margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
         
         .slider-container { margin-top: 1rem; }
         .slider-label { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; }
@@ -147,6 +216,10 @@
         .scientist-mode .math-eq { display: block; }
         .calc-display { font-size: 0.9rem; color: #34d399; margin-top: 0.75rem; border-top: 1px dashed var(--border-color); padding-top: 0.5rem; }
 
+        @media (max-width: 1024px) {
+            .sidebar { width: 380px; }
+        }
+
         @media (max-width: 768px) {
             header { flex-wrap: wrap; gap: 1rem; padding: 1rem; }
             .tab-controls { order: 3; width: 100%; }
@@ -154,6 +227,7 @@
             .sidebar { width: 100%; height: 40%; border-right: none; border-bottom: 1px solid var(--border-color); }
             .canvas-container { height: 60%; }
             .splash-title { font-size: 2.5rem; }
+            .splash-subtitle { font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -174,7 +248,8 @@
             <canvas id="splash-canvas"></canvas>
         </div>
         <div class="splash-content">
-            <h1 class="splash-title" data-i18n="appTitle">Flux and Flow : field trip to magnets</h1>
+            <h1 class="splash-title" data-i18n="appTitle">Flux and Flow</h1>
+            <p class="splash-subtitle" data-i18n="appSubtitle">field trip to magnets</p>
             <div class="selection-group">
                 <div class="selection-title" data-i18n="selectLanguage">1. Select Language / Choisir la langue</div>
                 <div class="btn-group">
@@ -185,9 +260,12 @@
             <div class="selection-group">
                 <div class="selection-title" data-i18n="selectMode">2. Select Mode</div>
                 <div class="btn-group">
-                    <button class="mode-btn" data-val="explorer" data-i18n="modeExplorerBtn">Explorer (Middle School)</button>
-                    <button class="mode-btn" data-val="scientist" data-i18n="modeScientistBtn">Scientist (High School)</button>
+                    <button class="mode-btn" data-val="explorer" data-i18n="modeExplorerBtn">Explorer</button>
+                    <button class="mode-btn" data-val="scientist" data-i18n="modeScientistBtn">Scientist</button>
                 </div>
+            </div>
+            <div id="mode-description-box" class="mode-desc-box">
+                <span data-i18n="selectModePrompt">Select a mode above to discover the experimental pathways.</span>
             </div>
             <button id="btn-launch" class="launch-btn" disabled data-i18n="launchBtn">Initialize Lab</button>
         </div>
@@ -233,6 +311,17 @@
                         </label>
                     </div>
                     <small style="color: var(--text-muted); display:block; margin-top:1rem;" data-i18n="lblDragHint">Hint: Drag the magnets to move them, and drag the circular handles at their ends to rotate them.</small>
+                    
+                    <div class="inquiry-section">
+                        <h3 class="inquiry-header" data-i18n="inquiryHeader">Inquiry Questions</h3>
+                        <ul class="inquiry-list">
+                            <li data-i18n="q_exp1_1">How does the field change when two magnets face North-to-North versus North-to-South?</li>
+                            <li data-i18n="q_exp1_2">Where is the magnetic field strongest around a single bar magnet, and how do you know?</li>
+                            <li data-i18n="q_exp1_3">What happens to the compass arrow when you place it exactly halfway between two repelling magnets?</li>
+                            <li data-i18n="q_exp1_4">Do magnetic field lines ever cross each other? Why or why not?</li>
+                            <li data-i18n="q_exp1_5">How does rotating one magnet affect a compass that is close to the other magnet?</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- EXP 2 -->
@@ -253,6 +342,17 @@
                     <div class="tek-box">
                         <strong data-i18n="tekTitle">Indigenous Perspectives:</strong><br>
                         <span data-i18n="tekContent">Many Northern Indigenous communities understand Auroras as the dancing spirits of ancestors. This profound connection physically manifests as charged particles dancing along the magnetic field lines.</span>
+                    </div>
+
+                    <div class="inquiry-section">
+                        <h3 class="inquiry-header" data-i18n="inquiryHeader">Inquiry Questions</h3>
+                        <ul class="inquiry-list">
+                            <li data-i18n="q_exp2_1">Why do solar particles loop around the Earth instead of hitting it directly?</li>
+                            <li data-i18n="q_exp2_2">How does increasing solar wind intensity change the shape of Earth's magnetic shield?</li>
+                            <li data-i18n="q_exp2_3">Why do auroras only occur near the planetary poles?</li>
+                            <li data-i18n="q_exp2_4">How does the visual magnetic axis differ from the rotational axis of Earth?</li>
+                            <li data-i18n="q_exp2_5">What is the relationship between the cosmic dancing auroras and Indigenous ancestor stories?</li>
+                        </ul>
                     </div>
                 </div>
 
@@ -299,6 +399,17 @@
                             <strong data-i18n="lblCloseCircuit">Close Circuit Switch</strong>
                         </label>
                     </div>
+
+                    <div class="inquiry-section">
+                        <h3 class="inquiry-header" data-i18n="inquiryHeader">Inquiry Questions</h3>
+                        <ul class="inquiry-list">
+                            <li data-i18n="q_exp3_1">What is the minimum combination of coils and voltage needed to lift the heavy scissors?</li>
+                            <li data-i18n="q_exp3_2">Why do some materials like wood or paper remain unaffected when the magnet is activated?</li>
+                            <li data-i18n="q_exp3_3">How does reversing the voltage change the polarity (North/South poles) of the electromagnet?</li>
+                            <li data-i18n="q_exp3_4">What happens to the gathered objects instantly when you open the circuit switch?</li>
+                            <li data-i18n="q_exp3_5">Does adding more wire coils increase the strength even if the voltage remains very low?</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- SCI 1 -->
@@ -324,6 +435,17 @@
                             <input type="checkbox" id="chk-gauss-t1" style="width: 20px; height: 20px;">
                             <strong data-i18n="lblGauss">Show Gaussmeter Probe</strong>
                         </label>
+                    </div>
+
+                    <div class="inquiry-section">
+                        <h3 class="inquiry-header" data-i18n="inquiryHeader">Inquiry Questions</h3>
+                        <ul class="inquiry-list">
+                            <li data-i18n="q_sci1_1">How does the field strength (B) change as you move the Gaussmeter radially away from the wire?</li>
+                            <li data-i18n="q_sci1_2">What is the relationship between current direction and the circular curl of the magnetic field?</li>
+                            <li data-i18n="q_sci1_3">Why is the field strength inversely proportional to the distance (r)?</li>
+                            <li data-i18n="q_sci1_4">How does switching the current from positive to negative alter the side-view dot/cross vectors?</li>
+                            <li data-i18n="q_sci1_5">If current is zero, what happens to the surrounding magnetic flux?</li>
+                        </ul>
                     </div>
                 </div>
 
@@ -367,6 +489,17 @@
                             <strong data-i18n="lblGauss">Show Gaussmeter Probe</strong>
                         </label>
                     </div>
+
+                    <div class="inquiry-section">
+                        <h3 class="inquiry-header" data-i18n="inquiryHeader">Inquiry Questions</h3>
+                        <ul class="inquiry-list">
+                            <li data-i18n="q_sci2_1">Why is the magnetic field inside the center of the solenoid nearly uniform compared to the outside?</li>
+                            <li data-i18n="q_sci2_2">How does doubling the number of loops (N) affect the calculated magnetic field (B)?</li>
+                            <li data-i18n="q_sci2_3">What happens to the field direction inside the coils when current (I) is reversed?</li>
+                            <li data-i18n="q_sci2_4">How does the spacing of the coils influence the leakage of magnetic flux between loops?</li>
+                            <li data-i18n="q_sci2_5">Why do the fields from individual loops superimpose to create a stronger overall dipole?</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- SCI 3 -->
@@ -409,6 +542,17 @@
                         <small style="color: var(--text-muted); display:block; margin-top:0.5rem;" data-i18n="lblFbDir">Positive = Out of page. Negative = Into page.</small>
                     </div>
                     <button id="btn-fire-particle" style="width: 100%; margin-top: 1rem; border-radius: 8px;" data-i18n="btnFire">Emit Particle</button>
+
+                    <div class="inquiry-section">
+                        <h3 class="inquiry-header" data-i18n="inquiryHeader">Inquiry Questions</h3>
+                        <ul class="inquiry-list">
+                            <li data-i18n="q_sci3_1">Why does a neutral particle (q=0) travel in a straight line through a magnetic field?</li>
+                            <li data-i18n="q_sci3_2">How does the sign of the charge (+q vs -q) determine the direction of the magnetic force deflection?</li>
+                            <li data-i18n="q_sci3_3">Why is the trajectory of a charged particle in a uniform magnetic field circular?</li>
+                            <li data-i18n="q_sci3_4">What happens to the radius of curvature of the path if you double the velocity (v)?</li>
+                            <li data-i18n="q_sci3_5">How does strengthening the external B-field affect the force vector magnitude and path tightness?</li>
+                        </ul>
+                    </div>
                 </div>
 
             </div>
@@ -424,11 +568,15 @@
         // --- I18N DICTIONARY ---
         const dict = {
             en: {
-                appTitle: "Flux and Flow : field trip to magnets",
+                appTitle: "Flux and Flow",
+                appSubtitle: "field trip to magnets",
                 selectLanguage: "1. Select Language",
                 selectMode: "2. Select Mode",
-                modeExplorerBtn: "Explorer (Middle School)",
-                modeScientistBtn: "Scientist (High School)",
+                modeExplorerBtn: "Explorer",
+                modeScientistBtn: "Scientist",
+                selectModePrompt: "Select a mode above to discover the experimental pathways.",
+                descExplorer: "Mode Description: Explore qualitative visual structures. Interact with movable compass tools, see the Earth's planetary deflection shields against solar winds, and assemble a heavy-duty battery-powered electrometallurgy rig.",
+                descScientist: "Mode Description: Investigate rigorous quantitative metrics. Run mathematical solvers for linear wire conductors using movable Gaussmeter sensors, test uniform solenoid fields, and track lorentzian cyclotron deflections.",
                 launchBtn: "Initialize Lab",
                 btnExit: "Exit",
                 btnBack: "Back",
@@ -476,14 +624,55 @@
                 lblFbVel: "Initial Velocity (v)",
                 lblFbB: "External B-Field",
                 lblFbDir: "Positive = Out of page. Negative = Into page.",
-                btnFire: "Emit Particle"
+                btnFire: "Emit Particle",
+
+                inquiryHeader: "Inquiry Questions",
+                q_exp1_1: "How does the field change when two magnets face North-to-North versus North-to-South?",
+                q_exp1_2: "Where is the magnetic field strongest around a single bar magnet, and how do you know?",
+                q_exp1_3: "What happens to the compass arrow when you place it exactly halfway between two repelling magnets?",
+                q_exp1_4: "Do magnetic field lines ever cross each other? Why or why not?",
+                q_exp1_5: "How does rotating one magnet affect a compass that is close to the other magnet?",
+
+                q_exp2_1: "Why do solar particles loop around the Earth instead of hitting it directly?",
+                q_exp2_2: "How does increasing solar wind intensity change the shape of Earth's magnetic shield?",
+                q_exp2_3: "Why do auroras only occur near the planetary poles?",
+                q_exp2_4: "How does the visual magnetic axis differ from the rotational axis of Earth?",
+                q_exp2_5: "What is the relationship between the cosmic dancing auroras and Indigenous ancestor stories?",
+
+                q_exp3_1: "What is the minimum combination of coils and voltage needed to lift the heavy scissors?",
+                q_exp3_2: "Why do some materials like wood or paper remain unaffected when the magnet is activated?",
+                q_exp3_3: "How does reversing the voltage change the polarity (North/South poles) of the electromagnet?",
+                q_exp3_4: "What happens to the gathered objects instantly when you open the circuit switch?",
+                q_exp3_5: "Does adding more wire coils increase the strength even if the voltage remains very low?",
+
+                q_sci1_1: "How does the field strength (B) change as you move the Gaussmeter radially away from the wire?",
+                q_sci1_2: "What is the relationship between current direction and the circular curl of the magnetic field?",
+                q_sci1_3: "Why is the field strength inversely proportional to the distance (r)?",
+                q_sci1_4: "How does switching the current from positive to negative alter the side-view dot/cross vectors?",
+                q_sci1_5: "If current is zero, what happens to the surrounding magnetic flux?",
+
+                q_sci2_1: "Why is the magnetic field inside the center of the solenoid nearly uniform compared to the outside?",
+                q_sci2_2: "How does doubling the number of loops (N) affect the calculated magnetic field (B)?",
+                q_sci2_3: "What happens to the field direction inside the coils when current (I) is reversed?",
+                q_sci2_4: "How does the spacing of the coils influence the leakage of magnetic flux between loops?",
+                q_sci2_5: "Why do the fields from individual loops superimpose to create a stronger overall dipole?",
+
+                q_sci3_1: "Why does a netural particle (q=0) travel in a straight line through a magnetic field?",
+                q_sci3_2: "How does the sign of the charge (+q vs -q) determine the direction of the magnetic force deflection?",
+                q_sci3_3: "Why is the trajectory of a charged particle in a uniform magnetic field circular?",
+                q_sci3_4: "What happens to the radius of curvature of the path if you double the velocity (v)?",
+                q_sci3_5: "How does strengthening the external B-field affect the force vector magnitude and path tightness?"
             },
             fr: {
-                appTitle: "Flux and Flow : excursion au cœur des aimants",
+                appTitle: "Flux and Flow",
+                appSubtitle: "excursion au cœur des aimants",
                 selectLanguage: "1. Choisir la langue",
                 selectMode: "2. Choisir le mode",
-                modeExplorerBtn: "Explorateur (Collège)",
-                modeScientistBtn: "Scientifique (Lycée)",
+                modeExplorerBtn: "Explorateur",
+                modeScientistBtn: "Scientifique",
+                selectModePrompt: "Sélectionnez un mode ci-dessus pour découvrir les parcours d'expérimentation.",
+                descExplorer: "Description du mode : Explorez les structures visuelles qualitatives. Interagissez avec des boussoles mobiles, observez la déviation du vent solaire par le bouclier planétaire de la Terre, et configurez un électroaimant de levage industriel.",
+                descScientist: "Description du mode : Analysez des mesures quantitatives rigoureuses. Calculez les valeurs de champ d'un fil conducteur avec des sondes Gaussmètres mobiles, testez le flux de solénoïdes uniformes, et suivez la déviation cyclotron de Lorentz.",
                 launchBtn: "Initialiser le Labo",
                 btnExit: "Quitter",
                 btnBack: "Retour",
@@ -504,7 +693,7 @@
                 lblSolarWind: "Intensité du vent solaire",
                 btnResetAurora: "Réinitialiser l'atmosphère",
                 tekTitle: "Perspectives Autochtones:",
-                tekContent: "De nombreuses communautés autochtones du Nord considèrent les aurores comme les esprits dansants des ancêtres.",
+                tekContent: "De nombreuses communautés autochtones du Nord considèrent les aurores comme les esprits dansants des ancêtres. Cette connexion cosmologique profonde se manifeste par des flux de particules le long des lignes magnétiques.",
                 windLow: "Faible", windMed: "Moyen", windHigh: "Fort",
                 
                 exp3Title: "Intro aux Électroaimants",
@@ -531,7 +720,44 @@
                 lblFbVel: "Vitesse initiale (v)",
                 lblFbB: "Champ Externe (B)",
                 lblFbDir: "Positif = Vers vous. Négatif = Vers l'écran.",
-                btnFire: "Émettre une particule"
+                btnFire: "Émettre une particule",
+
+                inquiryHeader: "Questions de recherche",
+                q_exp1_1: "Comment le champ change-t-il lorsque deux aimants se font face Nord-Nord vs Nord-Sud ?",
+                q_exp1_2: "Où le champ magnétique est-il le plus fort autour d'un seul aimant, et comment le savez-vous ?",
+                q_exp1_3: "Qu'arrive-t-il à l'aiguille de la boussole placée exactement au milieu de deux aimants qui se repoussent ?",
+                q_exp1_4: "Les lignes de champ magnétique se croisent-elles jamais ? Pourquoi ?",
+                q_exp1_5: "Comment la rotation d'un aimant affecte-t-elle une boussole proche de l'autre aimant ?",
+
+                q_exp2_1: "Pourquoi les particules solaires contournent-elles la Terre au lieu de la frapper directement ?",
+                q_exp2_2: "Comment l'augmentation du vent solaire modifie-t-elle la forme du bouclier magnétique terrestre ?",
+                q_exp2_3: "Pourquoi les aurores ne se produisent-elles que près des pôles planétaires ?",
+                q_exp2_4: "En quoi l'axe magnétique visuel diffère-t-il de l'axe de rotation de la Terre ?",
+                q_exp2_5: "Quel est le lien entre les aurores célestes et les récits ancestraux autochtones ?",
+
+                q_exp3_1: "Quelle est la combinaison minimale de bobines et de tension pour soulever les ciseaux lourds ?",
+                q_exp3_2: "Pourquoi certains matériaux comme le bois ou le papier restent-ils insensibles à l'aimant activé ?",
+                q_exp3_3: "Comment l'inversion de la tension modifie-t-elle la polarité (pôles N/S) de l'électroaimant ?",
+                q_exp3_4: "Qu'arrive-t-il aux objets ramassés dès que vous ouvrez l'interrupteur du circuit ?",
+                q_exp3_5: "L'ajout de spires augmente-t-il la force même si la tension reste très basse ?",
+
+                q_sci1_1: "Comment l'intensité (B) varie-t-elle lorsque l'on éloigne le gaussmètre radialement du fil ?",
+                q_sci1_2: "Quelle est la relation entre le sens du courant et l'enroulement circulaire du champ magnétique ?",
+                q_sci1_3: "Pourquoi l'intensité du champ est-elle inversement proportionnelle à la distance (r) ?",
+                q_sci1_4: "Comment l'inversion du courant modifie-t-elle les vecteurs points/croix en vue de côté ?",
+                q_sci1_5: "Si le courant est nul, qu'advient-il du flux magnétique environnant ?",
+
+                q_sci2_1: "Pourquoi le champ au centre du solénoïde est-il presque uniforme par rapport à l'extérieur ?",
+                q_sci2_2: "Comment le doublement du nombre de spires (N) affecte-t-il le champ magnétique calculé (B) ?",
+                q_sci2_3: "Qu'arrive-t-il à la direction du champ dans les bobines lorsque le courant (I) est inversé ?",
+                q_sci2_4: "Comment l'espacement des spires influence-t-il la fuite de flux magnétique entre les boucles ?",
+                q_sci2_5: "Pourquoi les champs des spires individuelles se superposent-ils pour créer un dipôle global plus fort ?",
+
+                q_sci3_1: "Pourquoi une particule neutre (q=0) se déplace-t-elle en ligne droite dans un champ magnétique ?",
+                q_sci3_2: "Comment le signe de la charge (+q vs -q) détermine-t-il le sens de la déflexion magnétique ?",
+                q_sci3_3: "Pourquoi la trajectoire d'une particule chargée dans un champ magnétique uniforme est-elle circulaire ?",
+                q_sci3_4: "Qu'arrive-t-il au rayon de courbure de la trajectoire si vous doublez la vitesse (v) ?",
+                q_sci3_5: "Comment le renforcement du champ B affecte-t-il la force de Lorentz et la courbure de la trajectoire ?"
             }
         };
 
@@ -588,7 +814,8 @@
             labCanvas: document.getElementById('lab-canvas'),
             ctx: document.getElementById('lab-canvas').getContext('2d'),
             splashCanvas: document.getElementById('splash-canvas'),
-            splashCtx: document.getElementById('splash-canvas').getContext('2d')
+            splashCtx: document.getElementById('splash-canvas').getContext('2d'),
+            modeDescBox: document.getElementById('mode-description-box')
         };
 
         // --- INITIALIZATION ---
@@ -618,6 +845,7 @@
                     e.target.classList.add('active');
                     State.lang = e.target.getAttribute('data-val');
                     applyTranslations();
+                    updateSplashModeDescription();
                     checkLaunchReady();
                 });
             });
@@ -627,6 +855,7 @@
                     DOM.modeBtns.forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
                     State.mode = e.target.getAttribute('data-val');
+                    updateSplashModeDescription();
                     checkLaunchReady();
                 });
             });
@@ -636,6 +865,20 @@
 
         function checkLaunchReady() {
             if (State.lang && State.mode) DOM.launchBtn.disabled = false;
+        }
+
+        function updateSplashModeDescription() {
+            if (!State.lang) return;
+            const currentDict = dict[State.lang];
+            if (!State.mode) {
+                DOM.modeDescBox.innerHTML = `<span data-i18n="selectModePrompt">${currentDict.selectModePrompt}</span>`;
+                return;
+            }
+            if (State.mode === 'explorer') {
+                DOM.modeDescBox.innerHTML = `<span style="color: #60a5fa; font-weight: 600;">${currentDict.modeExplorerBtn}:</span> <span style="font-size: 0.9rem; margin-left: 4px;">${currentDict.descExplorer}</span>`;
+            } else if (State.mode === 'scientist') {
+                DOM.modeDescBox.innerHTML = `<span style="color: #34d399; font-weight: 600;">${currentDict.modeScientistBtn}:</span> <span style="font-size: 0.9rem; margin-left: 4px;">${currentDict.descScientist}</span>`;
+            }
         }
 
         function switchTab(tabNum) {
@@ -693,11 +936,12 @@
                 State.lang = State.lang === 'en' ? 'fr' : 'en';
                 DOM.langBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-val') === State.lang));
                 applyTranslations();
+                updateSplashModeDescription();
             });
 
             DOM.tabBtns.forEach(btn => btn.addEventListener('click', (e) => switchTab(parseInt(e.target.getAttribute('data-tab')))));
 
-            // Explorer
+            // Explorer Setup
             document.getElementById('btn-toggle-mag2').addEventListener('click', () => {
                 State.mag2Active = !State.mag2Active;
             });
@@ -726,7 +970,7 @@
             document.getElementById('chk-circuit').addEventListener('change', (e) => State.circuitClosed = e.target.checked);
             document.getElementById('chk-poles-t3').addEventListener('change', (e) => State.showPolesTab3 = e.target.checked);
 
-            // Scientist
+            // Scientist Setup
             document.getElementById('slider-sci-current').addEventListener('input', (e) => {
                 State.sciCurrent = parseInt(e.target.value);
                 document.getElementById('val-sci-current').innerText = State.sciCurrent + " A";
@@ -895,9 +1139,9 @@
                 // 2. Global Color Gradient mapped exactly over the merged shapes (Made darker and subtler)
                 ctx.globalCompositeOperation = 'source-in';
                 let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                grd.addColorStop(0, 'rgba(14, 165, 233, 0.4)');    // Muted Sky Blue
-                grd.addColorStop(0.5, 'rgba(16, 185, 129, 0.35)');  // Muted Emerald Green
-                grd.addColorStop(1, 'rgba(4, 120, 87, 0.2)');       // Dark Muted Teal
+                grd.addColorStop(0, 'rgba(14, 165, 233, 0.15)');    // Super dark Sky Blue
+                grd.addColorStop(0.5, 'rgba(16, 185, 129, 0.12)');  // Super dark Emerald Green
+                grd.addColorStop(1, 'rgba(4, 120, 87, 0.08)');       // Near-black Muted Teal
                 
                 ctx.fillStyle = grd;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -998,8 +1242,6 @@
         function calcWireField(x, y, cx, cy, current) {
             let dx = x - cx, dy = y - cy;
             let r2 = dx*dx + dy*dy + 50;
-            // B points perpendicular to displacement: B_theta direction. 
-            // For positive current (+Z, out of page): Clockwise curl in screen coordinates (since Y is down)
             return { Bx: -current * dy / r2 * 100, By: current * dx / r2 * 100 };
         }
 
@@ -1135,9 +1377,8 @@
             if (isSideView) {
                 let current = args[2];
                 let dist = p.x - w*0.75;
-                // B loops around wire. On left side (dist<0) of an UP current, B is OUT. Right side is IN.
                 let drawDot = (current > 0 && dist < 0) || (current < 0 && dist > 0);
-                if (current === 0) drawDot = true; // Default off state
+                if (current === 0) drawDot = true; 
                 
                 ctx.strokeStyle = '#10b981'; ctx.fillStyle = '#10b981'; ctx.lineWidth = 3;
                 ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.stroke();
@@ -1192,11 +1433,10 @@
                     ctx.rotate(angle);
 
                     if(State.mode === 'scientist') {
-                        // High-visibility Heatmap Intensity (Blue to Cyan to Green)
                         let normMag = Math.min(1, Math.pow(mag / 1500, 0.45));
-                        let hue = 240 - normMag * 100; // Blue to Green
-                        let alpha = args[2] === 0 && bounds ? 0 : (0.4 + normMag*0.6); // Hide if I=0
-                        if (args[2] === 0 && !bounds && args.length === 2 && args[1]===0) alpha=0; // Hide solenoids if I=0
+                        let hue = 240 - normMag * 100; 
+                        let alpha = args[2] === 0 && bounds ? 0 : (0.4 + normMag*0.6); 
+                        if (args[2] === 0 && !bounds && args.length === 2 && args[1]===0) alpha=0; 
                         
                         ctx.strokeStyle = `hsla(${hue}, 100%, 55%, ${alpha})`;
                         ctx.lineWidth = 1.5 + normMag * 2.0;
@@ -1233,7 +1473,6 @@
                 return {Bx, By};
             };
             
-            // True vector loops perfectly matching compass grid
             if (State.showFieldLinesTab1) {
                 const activeMags = State.mag2Active ? State.magnets : [State.magnets[0]];
                 drawFieldLines(ctx, totalField, activeMags);
@@ -1330,7 +1569,7 @@
             const Re = 85; 
             const rotTilt = -23.5 * Math.PI / 180;
             const magTilt = -11.5 * Math.PI / 180; 
-            const totalTilt = rotTilt + magTilt; // Total visual tilt of magnetic axis
+            const totalTilt = rotTilt + magTilt; 
 
             // Draw Magnetospheric Field Lines
             ctx.save();
@@ -1358,8 +1597,8 @@
                 ctx.stroke();
             }
             
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.4)'; ctx.fillRect(-15, -45, 30, 45); // N
-            ctx.fillStyle = 'rgba(59, 130, 246, 0.4)'; ctx.fillRect(-15, 0, 30, 45);  // S
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.4)'; ctx.fillRect(-15, -45, 30, 45); 
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.4)'; ctx.fillRect(-15, 0, 30, 45);  
             ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
             ctx.fillText('N', 0, -25); ctx.fillText('S', 0, 25);
             ctx.restore();
@@ -1420,7 +1659,7 @@
                         if (my_base < 0) State.auroraGlowNorth += 0.2 * (State.solarWind / 50);
                         else State.auroraGlowSouth += 0.2 * (State.solarWind / 50);
                         
-                        p.life = 400; // Reset
+                        p.life = 400; 
                     }
                 }
 
@@ -1446,7 +1685,6 @@
                 }
             }
 
-            // Decay Aurora
             State.auroraGlowNorth = Math.min(2.5, State.auroraGlowNorth * 0.95);
             State.auroraGlowSouth = Math.min(2.5, State.auroraGlowSouth * 0.95);
 
@@ -1539,7 +1777,6 @@
             ctx.fillText('S', 5, -Re - 15); ctx.fillText('N', 5, Re + 20);
             ctx.restore();
 
-            // Render Impact Glowing Traces (Auroras bloom exact hit loc)
             ctx.restore();
             ctx.globalCompositeOperation = 'screen';
             State.impactTraces.forEach((trace, idx) => {
@@ -1584,7 +1821,6 @@
             
             // Draw circuit wire
             if (State.circuitClosed && State.emVoltage !== 0) {
-                // Animated flowing current indicators
                 ctx.setLineDash([10, 15]);
                 ctx.lineDashOffset = -Date.now() / 20 * (State.emVoltage > 0 ? 1 : -1);
             } else {
@@ -1596,7 +1832,7 @@
             ctx.moveTo(90, 0); ctx.lineTo(180, 0); ctx.lineTo(180, -140); ctx.lineTo(60, -140); 
             ctx.stroke();
             
-            ctx.setLineDash([]); // Reset dash for static shapes
+            ctx.setLineDash([]); // Reset dash
 
             ctx.fillStyle = '#1e293b'; ctx.fillRect(-60, -165, 50, 45); 
             ctx.fillStyle = '#f59e0b'; ctx.fillRect(-10, -165, 10, 45); 
@@ -1662,7 +1898,7 @@
                 if (obj.y > floorY) { obj.y = floorY; obj.vy = 0; }
 
                 if (obj.y < nailY + 12) {
-                    obj.y = nailY + 12; // Flush with the nail
+                    obj.y = nailY + 12; 
                     obj.vy = 0;
                     let targetX = (index - 3.5) * 12; 
                     obj.visualX += (targetX - obj.visualX) * 0.2;
