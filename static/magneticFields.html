@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flux & Flow: A Magnetic Journey</title>
+    <title>Flux and Flow : field trip to magnets</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <style>
         /* Core Variables & Reset */
         :root {
             --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             --font-title: 'Rajdhani', sans-serif;
-            --splash-bg: #0f172a;
+            --splash-bg: #010308;
             --splash-text: #f8fafc;
             --accent-primary: #3b82f6;
             --accent-hover: #60a5fa;
@@ -54,7 +54,7 @@
         /* Splash Screen */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: #020617; color: var(--splash-text);
+            background-color: #010308; color: var(--splash-text);
             display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
         }
         
@@ -62,7 +62,7 @@
         #splash-canvas-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             filter: url(#goo);
-            background-color: #020617; /* Deep dark background */
+            background-color: #010308; /* Deep dark background */
         }
         
         #splash-canvas { 
@@ -74,9 +74,9 @@
         
         .splash-title {
             font-family: var(--font-title); font-size: 5.5rem; font-weight: 700; letter-spacing: 2px;
-            margin-bottom: 0.5rem; background: linear-gradient(135deg, #60a5fa, #c084fc, #34d399);
+            margin-bottom: 0.5rem; background: linear-gradient(135deg, #ffffff, #60a5fa, #34d399);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0px 10px 40px rgba(96, 165, 250, 0.4);
+            text-shadow: 0px 5px 25px rgba(96, 165, 250, 0.2);
         }
         
         .selection-group { margin: 2rem 0; }
@@ -174,7 +174,7 @@
             <canvas id="splash-canvas"></canvas>
         </div>
         <div class="splash-content">
-            <h1 class="splash-title" data-i18n="appTitle">Flux & Flow: A Magnetic Journey</h1>
+            <h1 class="splash-title" data-i18n="appTitle">Flux and Flow : field trip to magnets</h1>
             <div class="selection-group">
                 <div class="selection-title" data-i18n="selectLanguage">1. Select Language / Choisir la langue</div>
                 <div class="btn-group">
@@ -424,7 +424,7 @@
         // --- I18N DICTIONARY ---
         const dict = {
             en: {
-                appTitle: "Flux & Flow",
+                appTitle: "Flux and Flow : field trip to magnets",
                 selectLanguage: "1. Select Language",
                 selectMode: "2. Select Mode",
                 modeExplorerBtn: "Explorer (Middle School)",
@@ -479,7 +479,7 @@
                 btnFire: "Emit Particle"
             },
             fr: {
-                appTitle: "Flux & Flow",
+                appTitle: "Flux and Flow : excursion au cœur des aimants",
                 selectLanguage: "1. Choisir la langue",
                 selectMode: "2. Choisir le mode",
                 modeExplorerBtn: "Explorateur (Collège)",
@@ -892,12 +892,12 @@
                 });
                 ctx.fill();
 
-                // 2. Global Color Gradient mapped exactly over the merged shapes
+                // 2. Global Color Gradient mapped exactly over the merged shapes (Made darker and subtler)
                 ctx.globalCompositeOperation = 'source-in';
                 let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                grd.addColorStop(0, '#0ea5e9');    // Sky blue at the cold top
-                grd.addColorStop(0.5, '#10b981');  // Emerald in the center
-                grd.addColorStop(1, '#064e3b');    // Deep warm green at the hot bottom
+                grd.addColorStop(0, 'rgba(14, 165, 233, 0.4)');    // Muted Sky Blue
+                grd.addColorStop(0.5, 'rgba(16, 185, 129, 0.35)');  // Muted Emerald Green
+                grd.addColorStop(1, 'rgba(4, 120, 87, 0.2)');       // Dark Muted Teal
                 
                 ctx.fillStyle = grd;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -994,10 +994,12 @@
             return {Bx, By};
         }
 
+        // Correct orientation & direction of B (Right-hand rule with Z-axis out of the screen)
         function calcWireField(x, y, cx, cy, current) {
             let dx = x - cx, dy = y - cy;
             let r2 = dx*dx + dy*dy + 50;
-            // Right Hand Rule perfectly implemented (Z-axis out = CounterClockwise B field)
+            // B points perpendicular to displacement: B_theta direction. 
+            // For positive current (+Z, out of page): Clockwise curl in screen coordinates (since Y is down)
             return { Bx: -current * dy / r2 * 100, By: current * dx / r2 * 100 };
         }
 
@@ -1231,6 +1233,7 @@
                 return {Bx, By};
             };
             
+            // True vector loops perfectly matching compass grid
             if (State.showFieldLinesTab1) {
                 const activeMags = State.mag2Active ? State.magnets : [State.magnets[0]];
                 drawFieldLines(ctx, totalField, activeMags);
@@ -1443,6 +1446,18 @@
                 }
             }
 
+            // Decay Aurora
+            State.auroraGlowNorth = Math.min(2.5, State.auroraGlowNorth * 0.95);
+            State.auroraGlowSouth = Math.min(2.5, State.auroraGlowSouth * 0.95);
+
+            State.impactTraces.forEach((trace, idx) => {
+                ctx.save(); ctx.globalAlpha = trace.alpha; ctx.fillStyle = trace.color;
+                ctx.beginPath(); ctx.arc(trace.x, trace.y, trace.size, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+                trace.alpha -= 0.015;
+                if (trace.alpha <= 0) State.impactTraces.splice(idx, 1);
+            });
+
             // Draw Elegant Earth Sphere
             ctx.save();
             ctx.translate(cx, cy);
@@ -1596,7 +1611,8 @@
             
             ctx.lineWidth = 4;
             ctx.strokeStyle = '#ef4444';
-            ctx.beginPath(); ctx.moveTo(15, -140);
+            ctx.beginPath();
+            ctx.moveTo(15, -140);
             if (State.circuitClosed) ctx.lineTo(55, -140); else ctx.lineTo(45, -165); 
             ctx.stroke();
 
@@ -1690,7 +1706,10 @@
 
             ctx.fillStyle = '#e2e8f0';
             if (I > 0) { ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill(); } 
-            else if (I < 0) { ctx.beginPath(); ctx.moveTo(-6, -6); ctx.lineTo(6, 6); ctx.moveTo(6, -6); ctx.lineTo(-6, 6); ctx.lineWidth = 2; ctx.strokeStyle = ctx.fillStyle; ctx.stroke(); }
+            else if (I < 0) {
+                ctx.beginPath(); ctx.moveTo(-6, -6); ctx.lineTo(6, 6); ctx.moveTo(6, -6); ctx.lineTo(-6, 6);
+                ctx.lineWidth = 2; ctx.strokeStyle = ctx.fillStyle; ctx.stroke();
+            }
 
             if (I !== 0) {
                 ctx.strokeStyle = 'rgba(14, 165, 233, 0.2)'; ctx.lineWidth = 1;
