@@ -6,7 +6,6 @@
     <title>Flux and Flow : field trip to magnets</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        /* Core Variables & Reset */
         :root {
             --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             --font-title: 'Rajdhani', sans-serif;
@@ -134,7 +133,6 @@
 
         main { flex: 1; display: flex; position: relative; overflow: hidden; }
         
-        /* Expanded Sidebar Layout */
         .sidebar {
             width: 440px; background-color: var(--bg-panel); border-right: 1px solid var(--border-color);
             padding: 1.5rem; display: flex; flex-direction: column; overflow-y: auto; box-shadow: var(--shadow); z-index: 5;
@@ -265,7 +263,7 @@
                 </div>
             </div>
             <div id="mode-description-box" class="mode-desc-box">
-                <span data-i18n="selectModePrompt">Select a mode above to discover the experimental pathways.</span>
+                <!-- Will automatically show descriptive detail of active mode directly -->
             </div>
             <button id="btn-launch" class="launch-btn" disabled data-i18n="launchBtn">Initialize Lab</button>
         </div>
@@ -570,13 +568,13 @@
             en: {
                 appTitle: "Flux and Flow",
                 appSubtitle: "field trip to magnets",
-                selectLanguage: "1. Select Language",
+                selectLanguage: "1. Select Language / Choisir la langue",
                 selectMode: "2. Select Mode",
                 modeExplorerBtn: "Explorer",
                 modeScientistBtn: "Scientist",
-                selectModePrompt: "Select a mode above to discover the experimental pathways.",
-                descExplorer: "Mode Description: Explore qualitative visual structures. Interact with movable compass tools, see the Earth's planetary deflection shields against solar winds, and assemble a heavy-duty battery-powered electrometallurgy rig.",
-                descScientist: "Mode Description: Investigate rigorous quantitative metrics. Run mathematical solvers for linear wire conductors using movable Gaussmeter sensors, test uniform solenoid fields, and track lorentzian cyclotron deflections.",
+                selectModePrompt: "Choose one of the specialized experimental modes above.",
+                descExplorer: "Discover magnetic dipoles and interactions. Drag compasses, change Earth's magnetic tilt to deflect particles into colorful auroras, and assemble custom battery electromagnets with physics objects.",
+                descScientist: "Analyze quantitative magnetic models. Measure straight conductor fields with a mobile Gaussmeter sensor, superimpose uniform solenoids, and calculate Lorentz force trajectories.",
                 launchBtn: "Initialize Lab",
                 btnExit: "Exit",
                 btnBack: "Back",
@@ -657,22 +655,31 @@
                 q_sci2_4: "How does the spacing of the coils influence the leakage of magnetic flux between loops?",
                 q_sci2_5: "Why do the fields from individual loops superimpose to create a stronger overall dipole?",
 
-                q_sci3_1: "Why does a netural particle (q=0) travel in a straight line through a magnetic field?",
+                q_sci3_1: "Why does a neutral particle (q=0) travel in a straight line through a magnetic field?",
                 q_sci3_2: "How does the sign of the charge (+q vs -q) determine the direction of the magnetic force deflection?",
                 q_sci3_3: "Why is the trajectory of a charged particle in a uniform magnetic field circular?",
                 q_sci3_4: "What happens to the radius of curvature of the path if you double the velocity (v)?",
-                q_sci3_5: "How does strengthening the external B-field affect the force vector magnitude and path tightness?"
+                q_sci3_5: "How does strengthening the external B-field affect the force vector magnitude and path tightness?",
+
+                obj_clip: "Paperclip",
+                obj_screw: "Screw",
+                obj_wood: "Wood Block",
+                obj_key: "Brass Key",
+                obj_coin: "Copper Coin",
+                obj_scissors: "Scissors",
+                obj_paper: "Paper Scrap",
+                obj_spoon: "Spoon"
             },
             fr: {
-                appTitle: "Flux and Flow",
+                appTitle: "Flux et Mouvement",
                 appSubtitle: "excursion au cœur des aimants",
-                selectLanguage: "1. Choisir la langue",
+                selectLanguage: "1. Select Language / Choisir la langue",
                 selectMode: "2. Choisir le mode",
                 modeExplorerBtn: "Explorateur",
                 modeScientistBtn: "Scientifique",
-                selectModePrompt: "Sélectionnez un mode ci-dessus pour découvrir les parcours d'expérimentation.",
-                descExplorer: "Description du mode : Explorez les structures visuelles qualitatives. Interagissez avec des boussoles mobiles, observez la déviation du vent solaire par le bouclier planétaire de la Terre, et configurez un électroaimant de levage industriel.",
-                descScientist: "Description du mode : Analysez des mesures quantitatives rigoureuses. Calculez les valeurs de champ d'un fil conducteur avec des sondes Gaussmètres mobiles, testez le flux de solénoïdes uniformes, et suivez la déviation cyclotron de Lorentz.",
+                selectModePrompt: "Choisissez l'un des modes d'expérimentation spécialisés ci-dessus.",
+                descExplorer: "Découvrez les dipôles et les interactions magnétiques. Déplacez des boussoles, modifiez l'inclinaison magnétique de la Terre pour guider les aurores boréales et créez un électroaimant interactif.",
+                descScientist: "Analysez des modèles magnétiques quantitatifs rigoureux. Mesurez les conducteurs linéaires avec un gaussmètre mobile, testez des solénoïdes et étudiez la force de Lorentz.",
                 launchBtn: "Initialiser le Labo",
                 btnExit: "Quitter",
                 btnBack: "Retour",
@@ -757,13 +764,24 @@
                 q_sci3_2: "Comment le signe de la charge (+q vs -q) détermine-t-il le sens de la déflexion magnétique ?",
                 q_sci3_3: "Pourquoi la trajectoire d'une particule chargée dans un champ magnétique uniforme est-elle circulaire ?",
                 q_sci3_4: "Qu'arrive-t-il au rayon de courbure de la trajectoire si vous doublez la vitesse (v) ?",
-                q_sci3_5: "Comment le renforcement du champ B affecte-t-il la force de Lorentz et la courbure de la trajectoire ?"
+                q_sci3_5: "Comment le renforcement du champ B affecte-t-il la force de Lorentz et la courbure de la trajectoire ?",
+
+                obj_clip: "Trombone",
+                obj_screw: "Vis",
+                obj_wood: "Bloc de bois",
+                obj_key: "Clé en laiton",
+                obj_coin: "Pièce en cuivre",
+                obj_scissors: "Ciseaux",
+                obj_paper: "Bout de papier",
+                obj_spoon: "Cuillère"
             }
         };
 
         // --- STATE MANAGEMENT ---
         const State = {
-            lang: null, mode: null, tab: 1,
+            lang: 'en',       // English default language
+            mode: 'explorer', // Explorer default mode
+            tab: 1,
             canvasWidth: 0, canvasHeight: 0, animationFrame: null,
             dragItem: null, 
             stars: [],
@@ -824,6 +842,12 @@
             setupAppListeners();
             initSplashAnimation();
             generateStars();
+
+            document.querySelector('.lang-btn[data-val="en"]').classList.add('active');
+            document.querySelector('.mode-btn[data-val="explorer"]').classList.add('active');
+            applyTranslations();
+            updateSplashModeDescription();
+            checkLaunchReady();
         }
 
         function generateStars() {
@@ -871,13 +895,13 @@
             if (!State.lang) return;
             const currentDict = dict[State.lang];
             if (!State.mode) {
-                DOM.modeDescBox.innerHTML = `<span data-i18n="selectModePrompt">${currentDict.selectModePrompt}</span>`;
+                DOM.modeDescBox.innerHTML = `<span>${currentDict.selectModePrompt}</span>`;
                 return;
             }
             if (State.mode === 'explorer') {
-                DOM.modeDescBox.innerHTML = `<span style="color: #60a5fa; font-weight: 600;">${currentDict.modeExplorerBtn}:</span> <span style="font-size: 0.9rem; margin-left: 4px;">${currentDict.descExplorer}</span>`;
+                DOM.modeDescBox.innerHTML = `<span style="font-size: 0.95rem; color: #cbd5e1; line-height: 1.5; font-weight: normal;">${currentDict.descExplorer}</span>`;
             } else if (State.mode === 'scientist') {
-                DOM.modeDescBox.innerHTML = `<span style="color: #34d399; font-weight: 600;">${currentDict.modeScientistBtn}:</span> <span style="font-size: 0.9rem; margin-left: 4px;">${currentDict.descScientist}</span>`;
+                DOM.modeDescBox.innerHTML = `<span style="font-size: 0.95rem; color: #cbd5e1; line-height: 1.5; font-weight: normal;">${currentDict.descScientist}</span>`;
             }
         }
 
@@ -1040,14 +1064,12 @@
             canvas.height = window.innerHeight;
             
             lavaBlobs = [];
-            const numBlobs = 90; // Doubled the amount of blobs for a very dense fluid
+            const numBlobs = 90; 
             
             for (let i = 0; i < numBlobs; i++) {
-                // Keep some massive anchor pools at the edges, make the rest highly varied floaters
                 let isPool = i < 16; 
                 let r = isPool ? Math.random() * 80 + 80 : Math.random() * 70 + 10; 
                 
-                // Spread evenly across the width, and random heights for floaters
                 let x = isPool ? (canvas.width / 16) * i + (Math.random() - 0.5) * 50 : Math.random() * canvas.width;
                 let y = isPool ? (i % 2 === 0 ? canvas.height + 20 : -20) : Math.random() * canvas.height;
                 
@@ -1076,11 +1098,9 @@
                 
                 lavaBlobs.forEach(b => {
                     if (b.isPool) {
-                        // Pools gently slosh back and forth at the borders
                         b.phaseX += 0.002;
                         b.x += Math.sin(b.phaseX) * 0.3;
                     } else {
-                        // Roaming 2D Thermodynamics
                         let dxTarget = b.targetX - b.x;
                         let dyTarget = b.targetY - b.y;
                         let distToTarget = Math.hypot(dxTarget, dyTarget);
@@ -1098,32 +1118,25 @@
                         b.vy += Math.cos(b.phaseX) * 0.02;
                     }
                     
-                    // Gentle Repulsive Mouse Interaction & Deformation
                     let dx = b.x - mouseX; 
                     let dy = b.y - mouseY;
                     let mDist = Math.hypot(dx, dy);
                     
-                    // Smoothly recover normal shape from deformation
                     b.r += (b.baseR - b.r) * 0.05;
 
-                    let interactionRadius = 120; // Drastically reduced interaction range
+                    let interactionRadius = 120; 
                     if (mDist < interactionRadius && mDist > 0) {
-                        // Very subtle shift away
                         let push = (interactionRadius - mDist) * 0.00003; 
                         b.vx += dx * push;
                         b.vy += dy * push;
-                        
-                        // Subtle deformation: squish very slightly
                         b.r = Math.max(b.baseR * 0.8, b.r - push * 15);
                     }
                     
-                    // Thick fluid damping
                     b.vx *= 0.94; 
                     b.vy *= 0.94;
                     b.x += b.vx;
                     b.y += b.vy;
                     
-                    // Hard boundaries to prevent blobs from leaving the screen limit
                     if (!b.isPool) {
                         if (b.x < 0) { b.x = 0; b.vx *= -0.5; }
                         if (b.x > canvas.width) { b.x = canvas.width; b.vx *= -0.5; }
@@ -1136,19 +1149,17 @@
                 });
                 ctx.fill();
 
-                // 2. Global Color Gradient mapped exactly over the merged shapes (Made darker and subtler)
+                // 2. Beautiful Reverted Bright Convection Layer against dark viewport
                 ctx.globalCompositeOperation = 'source-in';
                 let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                grd.addColorStop(0, 'rgba(14, 165, 233, 0.15)');    // Super dark Sky Blue
-                grd.addColorStop(0.5, 'rgba(16, 185, 129, 0.12)');  // Super dark Emerald Green
-                grd.addColorStop(1, 'rgba(4, 120, 87, 0.08)');       // Near-black Muted Teal
+                grd.addColorStop(0, 'rgba(56, 189, 248, 0.3)');    
+                grd.addColorStop(0.5, 'rgba(52, 211, 153, 0.25)');  
+                grd.addColorStop(1, 'rgba(5, 150, 105, 0.15)');       
                 
                 ctx.fillStyle = grd;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Reset composite
                 ctx.globalCompositeOperation = 'source-over';
-                
                 requestAnimationFrame(animate);
             }
             animate();
@@ -1218,7 +1229,6 @@
 
         function handlePointerUp() { State.dragItem = null; }
 
-        // Field Math (Two-Monopole model ensures perfect physical loop geometry for bar magnets)
         function calcDipoleFieldRotated(x, y, cx, cy, m, angle) {
             const L = 70; 
             const nX = cx + L * Math.cos(angle);
@@ -1238,7 +1248,6 @@
             return {Bx, By};
         }
 
-        // Correct orientation & direction of B (Right-hand rule with Z-axis out of the screen)
         function calcWireField(x, y, cx, cy, current) {
             let dx = x - cx, dy = y - cy;
             let r2 = dx*dx + dy*dy + 50;
@@ -1271,7 +1280,7 @@
             const L = 72; 
 
             magnetOrigins.forEach(origin => {
-                const numLines = 15; // 15 forward + 15 backward = 30 total dense lines
+                const numLines = 15; 
                 const angles = [];
                 for(let i = 0; i < numLines; i++) {
                     angles.push(-Math.PI * 0.95 + (i / (numLines - 1)) * Math.PI * 1.9);
@@ -1309,7 +1318,7 @@
                     ctx.stroke();
                 });
 
-                // BACKWARD INTEGRATION (From South to North) ensures perfect South pole connectivity
+                // BACKWARD INTEGRATION (From South to North)
                 angles.forEach(ang => {
                     let px = origin.x - L * Math.cos(origin.angle) + Math.cos(origin.angle + Math.PI + ang) * 8;
                     let py = origin.y - L * Math.sin(origin.angle) + Math.sin(origin.angle + Math.PI + ang) * 8;
@@ -1322,7 +1331,6 @@
                         let B_mag = Math.hypot(B.Bx, B.By);
                         if (B_mag < 0.001 || B_mag > 5000000) break;
 
-                        // Stepping backwards against the B-field vector
                         px -= (B.Bx / B_mag) * stepSize;
                         py -= (B.By / B_mag) * stepSize;
                         ctx.lineTo(px, py);
@@ -1813,26 +1821,15 @@
             ctx.save();
             ctx.translate(cx, cy);
             
+            // Draw circuit wire - ALWAYS A SOLID BLACK LINE (not dashed, not red!)
             ctx.lineWidth = 3;
-            ctx.strokeStyle = '#475569';
-            if (State.circuitClosed && State.emVoltage !== 0) {
-                ctx.strokeStyle = '#ef4444';
-            }
-            
-            // Draw circuit wire
-            if (State.circuitClosed && State.emVoltage !== 0) {
-                ctx.setLineDash([10, 15]);
-                ctx.lineDashOffset = -Date.now() / 20 * (State.emVoltage > 0 ? 1 : -1);
-            } else {
-                ctx.setLineDash([]);
-            }
+            ctx.strokeStyle = '#000000'; 
+            ctx.setLineDash([]); 
 
             ctx.beginPath();
             ctx.moveTo(-90, 0); ctx.lineTo(-180, 0); ctx.lineTo(-180, -140); ctx.lineTo(-60, -140); 
             ctx.moveTo(90, 0); ctx.lineTo(180, 0); ctx.lineTo(180, -140); ctx.lineTo(60, -140); 
             ctx.stroke();
-            
-            ctx.setLineDash([]); // Reset dash
 
             ctx.fillStyle = '#1e293b'; ctx.fillRect(-60, -165, 50, 45); 
             ctx.fillStyle = '#f59e0b'; ctx.fillRect(-10, -165, 10, 45); 
@@ -1845,8 +1842,9 @@
             ctx.beginPath(); ctx.arc(15, -140, 5, 0, Math.PI * 2); ctx.fillStyle = '#64748b'; ctx.fill(); 
             ctx.beginPath(); ctx.arc(55, -140, 5, 0, Math.PI * 2); ctx.fill(); 
             
+            // Switch Lever style
             ctx.lineWidth = 4;
-            ctx.strokeStyle = '#ef4444';
+            ctx.strokeStyle = '#334155';
             ctx.beginPath();
             ctx.moveTo(15, -140);
             if (State.circuitClosed) ctx.lineTo(55, -140); else ctx.lineTo(45, -165); 
@@ -1908,7 +1906,19 @@
 
                 ctx.save();
                 ctx.translate(cx + obj.visualX, obj.y);
-                ctx.font = '36px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(obj.emoji, 0, 0);
+                
+                // Render Emojis - 50% larger (from 36px to 54px)
+                ctx.font = '54px sans-serif'; 
+                ctx.textAlign = 'center'; 
+                ctx.textBaseline = 'middle'; 
+                ctx.fillText(obj.emoji, 0, 0);
+                
+                // Render Dynamic, Translated Object Label below each emoji
+                ctx.font = '11px sans-serif';
+                ctx.fillStyle = State.mode === 'scientist' ? '#94a3b8' : '#475569';
+                const labelText = dict[State.lang][`obj_${obj.id}`] || obj.type;
+                ctx.fillText(labelText, 0, 36); 
+
                 ctx.restore();
             });
             
