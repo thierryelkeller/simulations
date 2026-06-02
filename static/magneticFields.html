@@ -54,7 +54,7 @@
         /* Splash Screen */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: var(--splash-bg); color: var(--splash-text);
+            background-color: #020617; color: var(--splash-text);
             display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
         }
         
@@ -62,6 +62,7 @@
         #splash-canvas-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             filter: url(#goo);
+            background-color: #020617; /* Deep dark background */
         }
         
         #splash-canvas { 
@@ -162,8 +163,7 @@
         <defs>
             <filter id="goo">
                 <feGaussianBlur in="SourceGraphic" stdDeviation="25" result="blur" />
-                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 40 -15" result="goo" />
-                <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 25 -10" result="goo" />
             </filter>
         </defs>
     </svg>
@@ -746,7 +746,8 @@
             document.getElementById('slider-fb-charge').addEventListener('input', (e) => {
                 State.fbCharge = parseInt(e.target.value);
                 let txt = State.fbCharge > 0 ? "+" + State.fbCharge : State.fbCharge;
-                document.getElementById('val-fb-charge').innerText = txt;
+                if(State.fbCharge === 0) txt = "0";
+                document.getElementById('val-fb-charge').innerText = txt + " C";
             });
             document.getElementById('slider-fb-vel').addEventListener('input', (e) => {
                 State.fbVel = parseInt(e.target.value);
@@ -784,8 +785,8 @@
             }
         }
 
-        // --- SPLASH ANIMATION ---
-        let splashOrbs = [];
+        // --- SPLASH ANIMATION (Ferromagnetic Lava Lamp Physics) ---
+        let lavaBlobs = [];
         let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
         
         function initSplashAnimation() {
@@ -794,71 +795,116 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             
-            // Dynamic ferromagnetic liquid blobs
-            splashOrbs = [
-                { x: canvas.width * 0.3, y: canvas.height * 0.4, vx: 2.0, vy: 1.5, r: 250 },
-                { x: canvas.width * 0.7, y: canvas.height * 0.6, vx: -1.5, vy: 2.0, r: 300 },
-                { x: canvas.width * 0.5, y: canvas.height * 0.5, vx: 1.0, vy: -2.0, r: 200 }
-            ];
+            lavaBlobs = [];
+            const numBlobs = 90; // Doubled the amount of blobs for a very dense fluid
+            
+            for (let i = 0; i < numBlobs; i++) {
+                // Keep some massive anchor pools at the edges, make the rest highly varied floaters
+                let isPool = i < 16; 
+                let r = isPool ? Math.random() * 80 + 80 : Math.random() * 70 + 10; 
+                
+                // Spread evenly across the width, and random heights for floaters
+                let x = isPool ? (canvas.width / 16) * i + (Math.random() - 0.5) * 50 : Math.random() * canvas.width;
+                let y = isPool ? (i % 2 === 0 ? canvas.height + 20 : -20) : Math.random() * canvas.height;
+                
+                lavaBlobs.push({
+                    x: x, y: y,
+                    vx: 0, vy: 0,
+                    r: r,
+                    baseR: r, 
+                    isPool: isPool,
+                    targetX: Math.random() * canvas.width,
+                    targetY: Math.random() * canvas.height,
+                    phaseX: Math.random() * Math.PI * 2,
+                    speed: Math.random() * 0.006 + 0.002
+                });
+            }
             
             window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
             
             function animate() {
                 if(DOM.splash.style.display === 'none') return;
-                ctx.clearRect(0, 0, canvas.width, canvas.height); // Transparent for gooey filter
+                ctx.clearRect(0, 0, canvas.width, canvas.height); 
                 
-                // Repulsion between orbs to create "struggle" and organic fluid tension
-                for(let i=0; i<splashOrbs.length; i++) {
-                    for(let j=i+1; j<splashOrbs.length; j++) {
-                        let ox = splashOrbs[j].x - splashOrbs[i].x;
-                        let oy = splashOrbs[j].y - splashOrbs[i].y;
-                        let oDist = Math.hypot(ox, oy);
-                        if (oDist < 600) {
-                            let force = (600 - oDist) * 0.0008;
-                            splashOrbs[i].vx -= ox * force; splashOrbs[i].vy -= oy * force;
-                            splashOrbs[j].vx += ox * force; splashOrbs[j].vy += oy * force;
+                // 1. Render Shapes (Solid White for perfect alpha-threshold merging)
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                
+                lavaBlobs.forEach(b => {
+                    if (b.isPool) {
+                        // Pools gently slosh back and forth at the borders
+                        b.phaseX += 0.002;
+                        b.x += Math.sin(b.phaseX) * 0.3;
+                    } else {
+                        // Roaming 2D Thermodynamics
+                        let dxTarget = b.targetX - b.x;
+                        let dyTarget = b.targetY - b.y;
+                        let distToTarget = Math.hypot(dxTarget, dyTarget);
+                        
+                        if (distToTarget < 100) {
+                            b.targetX = Math.random() * canvas.width;
+                            b.targetY = Math.random() * canvas.height;
                         }
+                        
+                        b.vx += (dxTarget / Math.max(distToTarget, 1)) * b.speed;
+                        b.vy += (dyTarget / Math.max(distToTarget, 1)) * b.speed;
+                        
+                        b.phaseX += 0.01;
+                        b.vx += Math.sin(b.phaseX) * 0.02;
+                        b.vy += Math.cos(b.phaseX) * 0.02;
                     }
-                }
-
-                splashOrbs.forEach(orb => {
-                    orb.x += orb.vx; orb.y += orb.vy;
                     
-                    let dx = mouseX - orb.x;
-                    let dy = mouseY - orb.y;
+                    // Gentle Repulsive Mouse Interaction & Deformation
+                    let dx = b.x - mouseX; 
+                    let dy = b.y - mouseY;
                     let mDist = Math.hypot(dx, dy);
                     
-                    if (mDist < 500) {
-                        orb.vx += dx * 0.002;
-                        orb.vy += dy * 0.002;
+                    // Smoothly recover normal shape from deformation
+                    b.r += (b.baseR - b.r) * 0.05;
+
+                    let interactionRadius = 120; // Drastically reduced interaction range
+                    if (mDist < interactionRadius && mDist > 0) {
+                        // Very subtle shift away
+                        let push = (interactionRadius - mDist) * 0.00003; 
+                        b.vx += dx * push;
+                        b.vy += dy * push;
+                        
+                        // Subtle deformation: squish very slightly
+                        b.r = Math.max(b.baseR * 0.8, b.r - push * 15);
                     }
                     
-                    if (Math.hypot(orb.vx, orb.vy) > 3.5) { orb.vx *= 0.95; orb.vy *= 0.95; }
+                    // Thick fluid damping
+                    b.vx *= 0.94; 
+                    b.vy *= 0.94;
+                    b.x += b.vx;
+                    b.y += b.vy;
                     
-                    if(orb.x < 100) { orb.x = 100; orb.vx *= -1; }
-                    if(orb.x > canvas.width-100) { orb.x = canvas.width-100; orb.vx *= -1; }
-                    if(orb.y < 100) { orb.y = 100; orb.vy *= -1; }
-                    if(orb.y > canvas.height-100) { orb.y = canvas.height-100; orb.vy *= -1; }
+                    // Hard boundaries to prevent blobs from leaving the screen limit
+                    if (!b.isPool) {
+                        if (b.x < 0) { b.x = 0; b.vx *= -0.5; }
+                        if (b.x > canvas.width) { b.x = canvas.width; b.vx *= -0.5; }
+                        if (b.y < 0) { b.y = 0; b.vy *= -0.5; }
+                        if (b.y > canvas.height) { b.y = canvas.height; b.vy *= -0.5; }
+                    }
                     
-                    // Pole migration: Poles align with velocity + mouse influence
-                    let poleAngle = Math.atan2(orb.vy + dy*0.01, orb.vx + dx*0.01);
-                    let stretch = 1.0 + (Math.hypot(orb.vx, orb.vy) * 0.15); // Deforms based on speed
-                    
-                    ctx.save();
-                    ctx.translate(orb.x, orb.y);
-                    ctx.rotate(poleAngle);
-                    
-                    let grd = ctx.createLinearGradient(-orb.r * stretch, 0, orb.r * stretch, 0);
-                    grd.addColorStop(0, '#0ea5e9'); // Modern Blue
-                    grd.addColorStop(1, '#10b981'); // Emerald Green
-                    
-                    ctx.fillStyle = grd;
-                    ctx.beginPath();
-                    // Highly deformable ellipse
-                    ctx.ellipse(0, 0, orb.r * stretch, orb.r * 0.85, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
+                    ctx.moveTo(b.x, b.y);
+                    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
                 });
+                ctx.fill();
+
+                // 2. Global Color Gradient mapped exactly over the merged shapes
+                ctx.globalCompositeOperation = 'source-in';
+                let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                grd.addColorStop(0, '#0ea5e9');    // Sky blue at the cold top
+                grd.addColorStop(0.5, '#10b981');  // Emerald in the center
+                grd.addColorStop(1, '#064e3b');    // Deep warm green at the hot bottom
+                
+                ctx.fillStyle = grd;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Reset composite
+                ctx.globalCompositeOperation = 'source-over';
+                
                 requestAnimationFrame(animate);
             }
             animate();
@@ -928,7 +974,7 @@
 
         function handlePointerUp() { State.dragItem = null; }
 
-        // Field Math
+        // Field Math (Two-Monopole model ensures perfect physical loop geometry for bar magnets)
         function calcDipoleFieldRotated(x, y, cx, cy, m, angle) {
             const L = 70; 
             const nX = cx + L * Math.cos(angle);
@@ -951,8 +997,8 @@
         function calcWireField(x, y, cx, cy, current) {
             let dx = x - cx, dy = y - cy;
             let r2 = dx*dx + dy*dy + 50;
-            // Right Hand Rule perfectly implemented
-            return { Bx: current * dy / r2 * 100, By: -current * dx / r2 * 100 };
+            // Right Hand Rule perfectly implemented (Z-axis out = CounterClockwise B field)
+            return { Bx: -current * dy / r2 * 100, By: current * dx / r2 * 100 };
         }
 
         function calcSolenoidField(x, y, cx, cy, N, I) {
@@ -981,7 +1027,7 @@
             const L = 72; 
 
             magnetOrigins.forEach(origin => {
-                const numLines = 18; // 18 forward + 18 backward = 36 total dense lines
+                const numLines = 15; // 15 forward + 15 backward = 30 total dense lines
                 const angles = [];
                 for(let i = 0; i < numLines; i++) {
                     angles.push(-Math.PI * 0.95 + (i / (numLines - 1)) * Math.PI * 1.9);
@@ -1087,10 +1133,11 @@
             if (isSideView) {
                 let current = args[2];
                 let dist = p.x - w*0.75;
+                // B loops around wire. On left side (dist<0) of an UP current, B is OUT. Right side is IN.
                 let drawDot = (current > 0 && dist < 0) || (current < 0 && dist > 0);
-                if (current === 0) drawDot = true; // Default
+                if (current === 0) drawDot = true; // Default off state
                 
-                ctx.strokeStyle = '#ef4444'; ctx.fillStyle = '#ef4444'; ctx.lineWidth = 3;
+                ctx.strokeStyle = '#10b981'; ctx.fillStyle = '#10b981'; ctx.lineWidth = 3;
                 ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.stroke();
                 if (drawDot && current !== 0) {
                     ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI*2); ctx.fill();
@@ -1099,9 +1146,9 @@
                 }
             } else {
                 ctx.rotate(angle);
-                ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3;
+                ctx.strokeStyle = '#10b981'; ctx.lineWidth = 3;
                 ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(40, 0); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(40, 0); ctx.lineTo(30, -6); ctx.lineTo(30, 6); ctx.fillStyle='#ef4444'; ctx.fill();
+                ctx.beginPath(); ctx.moveTo(40, 0); ctx.lineTo(30, -6); ctx.lineTo(30, 6); ctx.fillStyle='#10b981'; ctx.fill();
                 ctx.rotate(-angle);
             }
             
@@ -1145,13 +1192,18 @@
                     if(State.mode === 'scientist') {
                         // High-visibility Heatmap Intensity (Blue to Cyan to Green)
                         let normMag = Math.min(1, Math.pow(mag / 1500, 0.45));
-                        let hue = 240 - normMag * 100; 
-                        ctx.strokeStyle = `hsla(${hue}, 100%, 55%, ${0.4 + normMag*0.6})`;
+                        let hue = 240 - normMag * 100; // Blue to Green
+                        let alpha = args[2] === 0 && bounds ? 0 : (0.4 + normMag*0.6); // Hide if I=0
+                        if (args[2] === 0 && !bounds && args.length === 2 && args[1]===0) alpha=0; // Hide solenoids if I=0
+                        
+                        ctx.strokeStyle = `hsla(${hue}, 100%, 55%, ${alpha})`;
                         ctx.lineWidth = 1.5 + normMag * 2.0;
-                        ctx.beginPath();
-                        ctx.moveTo(-len, 0); ctx.lineTo(len, 0);
-                        ctx.lineTo(len - 4, -3); ctx.moveTo(len, 0); ctx.lineTo(len - 4, 3);
-                        ctx.stroke();
+                        if (alpha > 0) {
+                            ctx.beginPath();
+                            ctx.moveTo(-len, 0); ctx.lineTo(len, 0);
+                            ctx.lineTo(len - 4, -3); ctx.moveTo(len, 0); ctx.lineTo(len - 4, 3);
+                            ctx.stroke();
+                        }
                     } else {
                         let alpha = Math.min(1, Math.max(0.15, mag / 2000));
                         ctx.globalAlpha = alpha;
@@ -1196,11 +1248,14 @@
                 ctx.rotate(mag.angle);
                 
                 ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 10;
-                ctx.fillStyle = '#3b82f6'; ctx.fillRect(-w/2, -h/2, w/2, h);
+                
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(-w/2, -h/2, w/2, h);
                 ctx.fillStyle = 'white'; ctx.font = 'bold 20px sans-serif';
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('S', -w/4, 0);
 
-                ctx.fillStyle = '#ef4444'; ctx.fillRect(0, -h/2, w/2, h);
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(0, -h/2, w/2, h);
                 ctx.fillStyle = 'white'; ctx.fillText('N', w/4, 0);
                 
                 ctx.shadowBlur = 0;
@@ -1300,7 +1355,6 @@
                 ctx.stroke();
             }
             
-            // Faint inner bar magnet indicating dipole core
             ctx.fillStyle = 'rgba(239, 68, 68, 0.4)'; ctx.fillRect(-15, -45, 30, 45); // N
             ctx.fillStyle = 'rgba(59, 130, 246, 0.4)'; ctx.fillRect(-15, 0, 30, 45);  // S
             ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -1360,6 +1414,9 @@
                             x: p.x, y: p.y, alpha: 1.0, size: Math.random() * 4 + 3,
                             color: my_base < 0 ? '#34d399' : '#a855f7'
                         });
+                        if (my_base < 0) State.auroraGlowNorth += 0.2 * (State.solarWind / 50);
+                        else State.auroraGlowSouth += 0.2 * (State.solarWind / 50);
+                        
                         p.life = 400; // Reset
                     }
                 }
@@ -1510,10 +1567,21 @@
                 ctx.strokeStyle = '#ef4444';
             }
             
+            // Draw circuit wire
+            if (State.circuitClosed && State.emVoltage !== 0) {
+                // Animated flowing current indicators
+                ctx.setLineDash([10, 15]);
+                ctx.lineDashOffset = -Date.now() / 20 * (State.emVoltage > 0 ? 1 : -1);
+            } else {
+                ctx.setLineDash([]);
+            }
+
             ctx.beginPath();
             ctx.moveTo(-90, 0); ctx.lineTo(-180, 0); ctx.lineTo(-180, -140); ctx.lineTo(-60, -140); 
             ctx.moveTo(90, 0); ctx.lineTo(180, 0); ctx.lineTo(180, -140); ctx.lineTo(60, -140); 
             ctx.stroke();
+            
+            ctx.setLineDash([]); // Reset dash for static shapes
 
             ctx.fillStyle = '#1e293b'; ctx.fillRect(-60, -165, 50, 45); 
             ctx.fillStyle = '#f59e0b'; ctx.fillRect(-10, -165, 10, 45); 
@@ -1651,13 +1719,15 @@
                 ctx.lineWidth = 2;
                 for(let dist = 40; dist < w/4; dist += 40 + dist*0.2) {
                     for(let y = -h/2 + 20; y < h/2; y += 40) {
-                        let mag = Math.min(1, Math.pow(Math.abs(calcWireField(w*0.75 + dist, h/2+y, w*0.75, h/2, I).By) / 100, 0.45));
+                        let B = calcWireField(w*0.75 + dist, h/2+y, w*0.75, h/2, I);
+                        let mag = Math.min(1, Math.pow(Math.abs(B.By) / 100, 0.45));
                         let hue = 240 - mag * 100; 
                         ctx.fillStyle = `hsla(${hue}, 100%, 55%, ${0.4 + mag*0.6})`;
                         ctx.strokeStyle = ctx.fillStyle;
                         ctx.lineWidth = 1.5 + mag * 2.5;
                         
                         let drawDot = (I > 0); 
+                        
                         ctx.beginPath();
                         if (drawDot) { ctx.arc(-dist, y, 3, 0, Math.PI * 2); ctx.fill(); }
                         else { ctx.moveTo(-dist-4, y-4); ctx.lineTo(-dist+4, y+4); ctx.moveTo(-dist+4, y-4); ctx.lineTo(-dist-4, y+4); ctx.stroke(); }
