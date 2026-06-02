@@ -215,7 +215,7 @@
             border: 1px solid var(--border); border-left: 4px solid var(--accent);
         }
 
-        /* Gamification Mission Panel (Explorer Mode - Now in Right Panel below canvas) */
+        /* Gamification Mission Panel */
         .mission-panel {
             background-color: var(--bg-panel); padding: 1.5rem 2rem; border-radius: var(--panel-radius);
             border: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.8rem; 
@@ -247,7 +247,7 @@
         .c-f2 { color: var(--force-2) !important; }
         .c-net { color: var(--force-net) !important; font-weight: 600; }
 
-        /* MS HIDING UTILITIES - Cleanly remove complex data overlaps */
+        /* MS HIDING UTILITIES */
         .hs-only { display: none; }
         .mode-hs .hs-only { display: flex; } 
         .mode-hs span.hs-only, .mode-hs div.hs-only { display: block; }
@@ -256,7 +256,6 @@
         .ms-only { display: flex; flex-direction: column; }
         .mode-hs .ms-only { display: none; }
         
-        /* Hide text values on sliders and HUD in MS mode */
         .mode-ms .slider-value { display: none; }
         .mode-ms .data-overlay { display: none; }
 
@@ -355,7 +354,6 @@
 
                     <hr class="hs-only" style="border-color: var(--border); margin: 0;">
                     
-                    <!-- MS Concept Box safely in left panel -->
                     <div class="explanation-box ms-only" data-i18n="exp_t1">
                         <strong>Concept:</strong> When forces pull in opposite directions, the stronger force wins. If they are balanced, the object stays still or keeps moving at a steady speed.
                     </div>
@@ -372,7 +370,6 @@
                         </div>
                     </div>
                     
-                    <!-- MS Mission Panel (Sits below Canvas) -->
                     <div class="mission-panel ms-only">
                         <div class="mission-header">
                             <span class="mission-level" id="m1-level">Level 1</span>
@@ -385,7 +382,6 @@
                         </div>
                     </div>
 
-                    <!-- HS Math Panel (Sits below Canvas) -->
                     <div class="bottom-panel hs-only">
                         <div style="display:flex; flex-direction:column; gap:0.6rem;">
                             <div><span style="color:var(--text-muted);">Force Left ($\mathsf{\vec{F}_{\,1}}$):</span> <span class="c-f1" id="t1-fl-val-btm" style="float:right;">$\mathsf{0 \text{ N}}$</span></div>
@@ -393,7 +389,7 @@
                         </div>
                         <div style="display:flex; flex-direction:column; gap:0.6rem;">
                             <div><span style="color:var(--text-muted);">Mass ($\mathsf{m}$):</span> <span style="color: var(--accent); float:right;" id="t1-m-val-btm">$\mathsf{50 \text{ kg}}$</span></div>
-                            <div><span style="color:var(--text-muted);">Velocity ($\mathsf{v}$):</span> <span style="float:right;" id="t1-vel-val-btm">$\mathsf{0 \text{ m/s}}$</span></div>
+                            <div><span style="color:var(--text-muted);">Velocity ($\mathsf{v}$):</span> <span style="float:right;"><span id="t1-vel-val-btm" style="font-family:var(--font-mono);">0.0</span> m/s</span></div>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:0.4rem; justify-content: center; border-left: 1px solid var(--border); padding-left: 2rem;">
                             <div style="color:var(--text-muted); font-size: 0.9rem;">$\mathsf{\Sigma \vec{F}}$ (Net)</div>
@@ -463,12 +459,10 @@
 
                     <hr class="hs-only" style="border-color: var(--border); margin: 0;">
                     
-                    <!-- MS Concept Box -->
                     <div class="explanation-box ms-only" data-i18n="exp_t2">
                         <strong>Concept:</strong> The Net Force (Green) is the combination of Force 1 and Force 2. Think of it as walking the distance of Force 1, then turning and walking Force 2.
                     </div>
 
-                    <!-- HS Math Formulas -->
                     <div class="explanation-box hs-only" style="border-left-color: var(--force-net);">
                         <strong style="color:var(--text-main); margin-bottom:0.5rem; display:block;">Vector Formulas:</strong>
                         $\mathsf{F_x = F \cos(\theta)}$<br>
@@ -489,7 +483,6 @@
                         </div>
                     </div>
 
-                    <!-- MS Mission Panel (Sits below Canvas) -->
                     <div class="mission-panel ms-only">
                         <div class="mission-header">
                             <span class="mission-level" id="m2-level">Level 1</span>
@@ -502,7 +495,6 @@
                         </div>
                     </div>
                     
-                    <!-- HS Math Panel (Sits below Canvas) -->
                     <div class="bottom-panel hs-only" style="align-items: flex-start; justify-content: flex-start;">
                         <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:280px;">
                             <div><span style="color:var(--text-muted);">$\mathsf{\vec{F}_{\,1}}$:</span> <span class="c-f1" id="t2-f1-val" style="float:right;">$\mathsf{0 \text{ N}, 0^\circ}$</span></div>
@@ -528,21 +520,21 @@
                     <div class="control-group">
                         <div class="label-row">
                             <label data-i18n="river_speed" class="c-f1">River Flow (Blue)</label>
-                            <span class="slider-value c-f1 hs-only" id="val-t3-river">$\mathsf{30 \text{ N}}$</span>
+                            <span class="slider-value c-f1 hs-only" id="val-t3-river">$\mathsf{3 \text{ m/s}}$</span>
                         </div>
                         <div class="slider-container">
-                            <input type="range" class="slider-f1" id="t3-river" min="-100" max="100" value="30" step="10" oninput="updateT3()">
-                            <div class="slider-marks" id="marks-t3-river"><span>-100</span><span>0</span><span>100</span></div>
+                            <input type="range" class="slider-f1" id="t3-river" min="-10" max="10" value="3" step="1" oninput="updateT3()">
+                            <div class="slider-marks" id="marks-t3-river"><span>-10</span><span>0</span><span>10</span></div>
                         </div>
                     </div>
                     <div class="control-group">
                         <div class="label-row">
-                            <label data-i18n="paddle_effort" class="c-f2">Paddling Effort (Gold)</label>
-                            <span class="slider-value c-f2 hs-only" id="val-t3-paddle">$\mathsf{50 \text{ N}}$</span>
+                            <label data-i18n="paddle_speed" class="c-f2">Paddling Speed (Gold)</label>
+                            <span class="slider-value c-f2 hs-only" id="val-t3-paddle">$\mathsf{5 \text{ m/s}}$</span>
                         </div>
                         <div class="slider-container">
-                            <input type="range" class="slider-f2" id="t3-paddle" min="0" max="100" value="50" step="10" oninput="updateT3()">
-                            <div class="slider-marks"><span>0</span><span>50</span><span>100</span></div>
+                            <input type="range" class="slider-f2" id="t3-paddle" min="0" max="10" value="5" step="1" oninput="updateT3()">
+                            <div class="slider-marks"><span>0</span><span>5</span><span>10</span></div>
                         </div>
                     </div>
                     <div class="control-group hs-only">
@@ -558,12 +550,10 @@
                     
                     <hr class="hs-only" style="border-color: var(--border); margin: 0;">
                     
-                    <!-- MS Concept Box -->
                     <div class="explanation-box ms-only" data-i18n="exp_t3">
-                        <strong>Concept:</strong> Your canoe is pushed by both your paddling (Gold) and the river's current (Blue). To hit a specific spot on the other side, you must visually balance your effort against the water's speed.
+                        <strong>Concept:</strong> Your canoe is pushed by both your paddling (Gold) and the river's current (Blue). To hit a specific spot on the other side, you must visually balance your speed against the water's speed.
                     </div>
 
-                    <!-- HS Math Formulas -->
                     <div class="explanation-box hs-only" style="border-left-color: var(--force-net);">
                         <strong style="color:var(--text-main); margin-bottom:0.5rem; display:block;">Velocity Formulas:</strong>
                         $\mathsf{v_{net,x} = v_{river} + v_{paddle} \cos(\theta)}$<br>
@@ -578,31 +568,35 @@
                         <button class="btn" style="position:absolute; bottom: 1.5rem; right: 1.5rem; z-index: 10; background: var(--bg-panel);" onclick="toggleRiverSimulation()" id="t3-btn-sim" data-i18n="start_sim">Start Simulation</button>
                     </div>
 
-                    <!-- MS Mission Panel (Sits below Canvas) -->
                     <div class="mission-panel ms-only">
                         <div class="mission-header">
                             <span class="mission-level" id="m3-level">Level 1</span>
                             <span class="mission-title" data-i18n="mission3_title">The Docking</span>
                         </div>
-                        <div class="mission-desc" data-i18n="mission3_desc">Observe the dock on the top shore. Adjust the sliders to find the right ratio of current-to-effort to land perfectly inside the dock.</div>
+                        <div class="mission-desc" data-i18n="mission3_desc">Observe the dock on the top shore. Adjust the sliders to find the right ratio of current-to-speed to land perfectly inside the dock.</div>
                         <div class="mission-footer">
                             <span class="challenge-status" id="t3-status" data-i18n="status_progress">In Progress...</span>
                             <button class="btn btn-next" id="btn-next-3" style="display:none;" onclick="advanceLevel(3)" data-i18n="next_level">Next Level</button>
                         </div>
                     </div>
                     
-                    <!-- HS Math Panel (Sits below Canvas) -->
                     <div class="bottom-panel hs-only" style="align-items: flex-start; justify-content: flex-start;">
-                        <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:280px;">
-                            <div><span style="color:var(--text-muted);">River Flow ($\mathsf{\vec{v}_{\,river}}$):</span> <span class="c-f1" id="t3-riv-val-btm" style="float:right;">$\mathsf{30 \text{ N}}$</span></div>
+                        <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:200px;">
+                            <div><span style="color:var(--text-muted);">River ($\mathsf{\vec{v}_{\,river}}$):</span> <span class="c-f1" id="t3-riv-val-btm" style="float:right;">$\mathsf{3 \text{ m/s}}$</span></div>
                         </div>
-                        <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:300px;">
-                            <div><span style="color:var(--text-muted);">Paddle Effort ($\mathsf{\vec{v}_{\,paddle}}$):</span> <span class="c-f2" id="t3-pad-val-btm" style="float:right;">$\mathsf{50 \text{ N}, 90^\circ}$</span></div>
+                        <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:260px;">
+                            <div><span style="color:var(--text-muted);">Paddle ($\mathsf{\vec{v}_{\,paddle}}$):</span> <span class="c-f2" id="t3-pad-val-btm" style="float:right;">$\mathsf{5 \text{ m/s}, 90^\circ}$</span></div>
                             <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">├ $\mathsf{v_{\,px} = v_{\,p} \cos(\theta)}$: <span style="color:var(--text-main); float:right;" id="t3-px-val"></span></div>
                             <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">└ $\mathsf{v_{\,py} = v_{\,p} \sin(\theta)}$: <span style="color:var(--text-main); float:right;" id="t3-py-val"></span></div>
                         </div>
-                        <div style="display:flex; flex-direction:column; gap:0.4rem; justify-content: center; border-left: 1px solid var(--border); padding-left: 2rem; width:100%;">
-                            <div style="color:var(--text-muted); font-size: 0.9rem;">Net Path ($\mathsf{\phi}$)</div>
+                        <div style="display:flex; flex-direction:column; gap:0.6rem; min-width:180px; border-left: 1px solid var(--border); padding-left: 1.5rem;">
+                            <div><span style="color:var(--text-muted);">Pos ($\mathsf{\vec{d}}$):</span></div>
+                            <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">├ $\mathsf{d_x}$: <span style="color:var(--text-main); float:right;"><span id="t3-dx-val" style="font-family:var(--font-mono);">0.0</span> m</span></div>
+                            <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">└ $\mathsf{d_y}$: <span style="color:var(--text-main); float:right;"><span id="t3-dy-val" style="font-family:var(--font-mono);">0.0</span> m</span></div>
+                            <div style="color:var(--text-muted); font-size: 0.85rem; padding-left: 1rem;">└ $\mathsf{t}$: <span style="color:var(--text-main); float:right;"><span id="t3-time-val" style="font-family:var(--font-mono);">0.0</span> s</span></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:0.4rem; justify-content: center; border-left: 1px solid var(--border); padding-left: 1.5rem; width:100%;">
+                            <div style="color:var(--text-muted); font-size: 0.9rem;">Path ($\mathsf{\phi}$)</div>
                             <div class="c-net" id="t3-net-val-btm" style="font-size: 1.6rem; font-weight: 400;">$\mathsf{0^\circ}$</div>
                         </div>
                     </div>
@@ -625,17 +619,17 @@
                 pull_left: "Pull Left (Blue)", pull_right: "Pull Right (Gold)", mass: "Object Mass",
                 river_f: "River Force:", paddle_f: "Paddle Force:", net_path: "Actual Path ($\\phi$):",
                 start_sim: "Start Simulation", reset_sim: "Reset Simulation",
-                river_speed: "River Flow (Blue)", paddle_effort: "Paddling Effort (Gold)", paddle_angle: "Angle ($\\theta$)",
+                river_speed: "River Flow (Blue)", paddle_speed: "Paddling Speed (Gold)", paddle_angle: "Angle ($\\theta$)",
                 f1_mag: "Force 1 (Blue)", f1_angle: "Angle ($\\theta_{\,1}$)", f2_mag: "Force 2 (Gold)", f2_angle: "Angle ($\\theta_{\,2}$)",
                 paddle_dir: "Direction", dir_diag_up: "Diagonal Up-Right", dir_straight: "Straight Across", dir_diag_left: "Diagonal Up-Left",
                 
                 exp_t1: "<strong>Concept:</strong> When forces pull in opposite directions, the stronger force wins. If they are balanced, the object stays still or keeps moving at a steady speed.",
                 exp_t2: "<strong>Concept:</strong> The Net Force (Green) is the combination of Force 1 and Force 2. Think of it as walking the distance of Force 1, then turning and walking Force 2.",
-                exp_t3: "<strong>Concept:</strong> Your canoe is pushed by both your paddling (Gold) and the river's current (Blue). To hit a specific spot on the other side, you must visually balance your effort against the water's speed.",
+                exp_t3: "<strong>Concept:</strong> Your canoe is pushed by both your paddling (Gold) and the river's current (Blue). To hit a specific spot on the other side, you must visually balance your speed against the water's speed.",
                 
                 mission1_title: "Dock the Crate", mission1_desc: "Experiment with the sliders to push the crate into the green zone, then exactly balance the forces to stop it.",
                 mission2_title: "Target Practice", mission2_desc: "Adjust the two forces so the tip of the Net Force (Green Arrow) perfectly hits the target ring on the canvas.",
-                mission3_title: "The Docking", mission3_desc: "Observe the dock on the top shore. Adjust the sliders to find the right ratio of current-to-effort to land perfectly inside the dock.",
+                mission3_title: "The Docking", mission3_desc: "Observe the dock on the top shore. Adjust the sliders to find the right ratio of current-to-speed to land perfectly inside the dock.",
                 
                 status_progress: "In Progress...", status_success: "Mission Accomplished!", status_fail: "Missed! Reset and try again.", status_nav: "Navigating...",
                 level: "Level", next_level: "Next Level", completed: "Completed!"
@@ -650,17 +644,17 @@
                 pull_left: "Tirer Gauche (Bleu)", pull_right: "Tirer Droite (Or)", mass: "Masse de l'objet",
                 river_f: "Force Rivière :", paddle_f: "Force Pagaie :", net_path: "Trajectoire ($\\phi$) :",
                 start_sim: "Démarrer", reset_sim: "Réinitialiser",
-                river_speed: "Courant (Bleu)", paddle_effort: "Effort de pagayage (Or)", paddle_angle: "Angle ($\\theta$)",
+                river_speed: "Courant (Bleu)", paddle_speed: "Vitesse de pagayage (Or)", paddle_angle: "Angle ($\\theta$)",
                 f1_mag: "Force 1 (Bleu)", f1_angle: "Angle ($\\theta_{\,1}$)", f2_mag: "Force 2 (Or)", f2_angle: "Angle ($\\theta_{\,2}$)",
                 paddle_dir: "Direction", dir_diag_up: "Diagonale Haut-Droite", dir_straight: "Tout Droit", dir_diag_left: "Diagonale Haut-Gauche",
                 
                 exp_t1: "<strong>Concept :</strong> Lorsque les forces tirent dans des directions opposées, la plus forte l'emporte. Si elles sont équilibrées, l'objet reste immobile ou conserve une vitesse constante.",
                 exp_t2: "<strong>Concept :</strong> La Force Résultante (Vert) est la combinaison des Forces 1 et 2. Imaginez marcher la distance de la Force 1, puis tourner pour marcher la Force 2.",
-                exp_t3: "<strong>Concept :</strong> Votre canoë est poussé par votre pagaie (Or) et le courant (Bleu). Pour atteindre un point précis, équilibrez visuellement votre effort avec la vitesse de l'eau.",
+                exp_t3: "<strong>Concept :</strong> Votre canoë est poussé par votre pagaie (Or) et le courant (Bleu). Pour atteindre un point précis, équilibrez visuellement votre vitesse avec la vitesse de l'eau.",
 
                 mission1_title: "Garer la caisse", mission1_desc: "Expérimentez avec les curseurs pour pousser la caisse dans la zone verte, puis équilibrez exactement les forces pour l'arrêter.",
                 mission2_title: "Tir sur cible", mission2_desc: "Ajustez les deux forces pour que la pointe de la Force Résultante (flèche verte) atteigne parfaitement l'anneau cible sur la toile.",
-                mission3_title: "L'amarrage", mission3_desc: "Observez le quai sur la rive supérieure. Ajustez les curseurs pour trouver le bon rapport courant/effort pour atterrir parfaitement à l'intérieur du quai.",
+                mission3_title: "L'amarrage", mission3_desc: "Observez le quai sur la rive supérieure. Ajustez les curseurs pour trouver le bon rapport courant/vitesse pour atterrir parfaitement à l'intérieur du quai.",
                 
                 status_progress: "En cours...", status_success: "Mission accomplie !", status_fail: "Raté ! Réinitialisez.", status_nav: "Navigation...",
                 level: "Niveau", next_level: "Niveau Suivant", completed: "Terminé !"
@@ -676,7 +670,7 @@
         const msLevels = {
             1: { current: 1, max: 3, targets: [{x: 80, w: 100}, {x: -120, w: 70}, {x: 140, w: 40}] },
             2: { current: 1, max: 3, targets: [{x: 50, y: 50}, {x: -80, y: 40}, {x: -40, y: -70}] },
-            3: { current: 1, max: 3, targets: [{ratio: 0.4}, {ratio: 0.6}, {ratio: 0.8}] } // Ratio = River / Paddle
+            3: { current: 1, max: 3, targets: [{ratio: 0.5}, {ratio: 0.0}, {ratio: -0.5}] } // Ratio = River / Paddle
         };
 
         const ctxVars = { f1: '#6b8ed8', f2: '#dca855', net: '#5ca984', grid: '#2a3140' };
@@ -772,7 +766,7 @@
             document.getElementById('t1-slider-l').value = 0;
             document.getElementById('t1-slider-r').value = 0;
             document.getElementById('t3-river').value = 0;
-            document.getElementById('t3-paddle').value = 0;
+            document.getElementById('t3-paddle').value = 5;
 
             if (mode === 'ms') {
                 document.getElementById('lbl-t2-f1').innerText = "Force 1 (X-Axis)";
@@ -836,7 +830,7 @@
             
             if (tabNum === 1) { t1_state.x = 0; t1_state.v = 0; loopT1(); }
             if (tabNum === 2) { updateT2(); loopT2(); }
-            if (tabNum === 3) { initWaves(); loopT3(); }
+            if (tabNum === 3) { initWaves(); t3_state.rulersInit = false; loopT3(); }
         }
 
         function resizeCanvases() {
@@ -847,6 +841,7 @@
                     canvas.height = canvas.parentElement.clientHeight;
                 }
             });
+            t3_state.rulersInit = false; // Reset rulers on resize
         }
         window.addEventListener('resize', resizeCanvases);
 
@@ -940,7 +935,7 @@
             if(t1_state.x > w/2) { t1_state.x = -w/2; }
             if(t1_state.x < -w/2) { t1_state.x = w/2; }
 
-            document.getElementById('t1-vel-val-btm').innerText = `$\\mathsf{${t1_state.v.toFixed(1)} \\text{ m/s}}$`;
+            document.getElementById('t1-vel-val-btm').innerText = t1_state.v.toFixed(1);
 
             ctx.fillStyle = ctxVars.grid;
             ctx.fillRect(0, h/2 + 30, w, 5);
@@ -1113,8 +1108,6 @@
                 ctx.fillStyle = ctxVars.net; ctx.fill();
             }
 
-            // (Removed parallelogram box rendering per user request in HS mode)
-
             // 2. Render Angles (HS Mode Only - Math Hidden in MS Mode)
             if(showF1 && mag1 > 0 && currentMode === 'hs') drawAngleArc(ctx, cx, cy, r1, ctxVars.f1, "θ ₁", 35);
             if(showF2 && mag2 > 0 && currentMode === 'hs') drawAngleArc(ctx, cx, cy, r2, ctxVars.f2, "θ ₂", 55);
@@ -1146,21 +1139,67 @@
         }
 
         /* --- TAB 3: RIVER CROSSING --- */
-        let t3_state = { running: false, x: 0, y: 0 };
+        let t3_state = { running: false, x: 0, y: 0, t: 0, rulerX: {y: 0}, rulerY: {x: 0}, rulersInit: false };
         let flowLines = [];
+        let t3_dragState = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const c3 = document.getElementById('canvas3');
+            function getC3Pos(e) {
+                const rect = c3.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            }
+            
+            function handleDown(e) {
+                if (currentTab !== 3) return;
+                const pos = getC3Pos(e);
+                if (Math.abs(pos.x - t3_state.rulerY.x) < 20) {
+                    t3_dragState = 'Y';
+                    e.preventDefault();
+                }
+                else if (Math.abs(pos.y - t3_state.rulerX.y) < 20) {
+                    t3_dragState = 'X';
+                    e.preventDefault();
+                }
+            }
+            
+            function handleMove(e) {
+                if (currentTab !== 3) return;
+                const pos = getC3Pos(e);
+                if (t3_dragState === 'X') {
+                    t3_state.rulerX.y = Math.max(10, Math.min(c3.height - 10, pos.y));
+                } else if (t3_dragState === 'Y') {
+                    t3_state.rulerY.x = Math.max(10, Math.min(c3.width - 10, pos.x));
+                } else {
+                    if (Math.abs(pos.x - t3_state.rulerY.x) < 15) c3.style.cursor = 'col-resize';
+                    else if (Math.abs(pos.y - t3_state.rulerX.y) < 15) c3.style.cursor = 'row-resize';
+                    else c3.style.cursor = 'crosshair';
+                }
+            }
+            
+            function handleUp() { t3_dragState = null; }
+
+            c3.addEventListener('mousedown', handleDown);
+            c3.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleUp);
+            c3.addEventListener('touchstart', handleDown, {passive: false});
+            c3.addEventListener('touchmove', handleMove, {passive: false});
+            window.addEventListener('touchend', handleUp);
+        });
         
         function initWaves() {
             flowLines = [];
-            let w = window.innerWidth; let h = window.innerHeight;
-            for(let i=0; i<60; i++) {
+            // Generate 20 distinct layers for a rich, overlapping wave effect
+            for(let i=0; i<20; i++) {
                 flowLines.push({
-                    x: Math.random() * (w + 400),
-                    y: 90 + Math.random() * Math.max(100, h - 180),
-                    len: 80 + Math.random() * 150,
-                    speedBase: 0.2 + Math.random() * 0.5,
-                    dir: Math.random() > 0.5 ? 1 : -1, // To support random drifting if river flow is 0
-                    amp: 2 + Math.random() * 3,
-                    freq: 0.02 + Math.random() * 0.05
+                    layerIndex: i,
+                    phase: Math.random() * Math.PI * 2,
+                    speedBase: 0.15 + (i * 0.015), // Deeper layers move slightly differently
+                    ampBase: 10 + Math.random() * 10,
+                    freq: 0.003 + (i * 0.0003),
+                    dir: Math.random() > 0.5 ? 1 : -1 // For random drift when flow is 0
                 });
             }
         }
@@ -1172,23 +1211,23 @@
         }
 
         function updateT3() {
-            let riv = document.getElementById('t3-river').value;
-            let pad = document.getElementById('t3-paddle').value;
-            let ang = document.getElementById('t3-angle').value;
+            let riv = parseInt(document.getElementById('t3-river').value);
+            let pad = parseInt(document.getElementById('t3-paddle').value);
+            let ang = parseInt(document.getElementById('t3-angle').value);
             
-            document.getElementById('val-t3-river').innerText = `$\\mathsf{${riv} \\text{ N}}$`;
-            document.getElementById('val-t3-paddle').innerText = `$\\mathsf{${pad} \\text{ N}}$`;
+            document.getElementById('val-t3-river').innerText = `$\\mathsf{${riv} \\text{ m/s}}$`;
+            document.getElementById('val-t3-paddle').innerText = `$\\mathsf{${pad} \\text{ m/s}}$`;
             document.getElementById('val-t3-angle').innerText = `$\\mathsf{${ang}^\\circ}$`;
 
             let rA = ang * Math.PI / 180;
             let pX = pad * Math.cos(rA); let pY = pad * Math.sin(rA); 
-            let netX = parseInt(riv) + pX; let netY = pY; 
+            let netX = riv + pX; let netY = pY; 
             let netAng = Math.atan2(netY, netX) * 180 / Math.PI;
 
-            document.getElementById('t3-riv-val-btm').innerText = `$\\mathsf{${riv} \\text{ N}}$`;
-            document.getElementById('t3-pad-val-btm').innerText = `$\\mathsf{${pad} \\text{ N}, ${ang}^\\circ}$`;
-            document.getElementById('t3-px-val').innerText = `$\\mathsf{${pad} \\times \\cos(${ang}^\\circ) = ${pX.toFixed(1)} \\text{ N}}$`;
-            document.getElementById('t3-py-val').innerText = `$\\mathsf{${pad} \\times \\sin(${ang}^\\circ) = ${pY.toFixed(1)} \\text{ N}}$`;
+            document.getElementById('t3-riv-val-btm').innerText = `$\\mathsf{${riv} \\text{ m/s}}$`;
+            document.getElementById('t3-pad-val-btm').innerText = `$\\mathsf{${pad} \\text{ m/s}, ${ang}^\\circ}$`;
+            document.getElementById('t3-px-val').innerText = `$\\mathsf{${pad} \\times \\cos(${ang}^\\circ) = ${pX.toFixed(1)} \\text{ m/s}}$`;
+            document.getElementById('t3-py-val').innerText = `$\\mathsf{${pad} \\times \\sin(${ang}^\\circ) = ${pY.toFixed(1)} \\text{ m/s}}$`;
             document.getElementById('t3-net-val-btm').innerText = `$\\mathsf{${netAng.toFixed(1)}^\\circ}$`;
             
             if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
@@ -1198,11 +1237,11 @@
             t3_state.running = !t3_state.running;
             let btn = document.getElementById('t3-btn-sim');
             if(t3_state.running) {
-                t3_state.x = 0; t3_state.y = 0; 
+                t3_state.x = 0; t3_state.y = 0; t3_state.t = 0;
                 btn.innerText = dict[currentLang]['reset_sim'];
                 btn.style.color = ctxVars.f1;
             } else {
-                t3_state.x = 0; t3_state.y = 0;
+                t3_state.x = 0; t3_state.y = 0; t3_state.t = 0;
                 btn.innerText = dict[currentLang]['start_sim'];
                 btn.style.color = "inherit";
             }
@@ -1214,16 +1253,19 @@
             const ctx = canvas.getContext('2d');
             const w = canvas.width; const h = canvas.height;
             
-            let waterGrad = ctx.createLinearGradient(0, 0, 0, h);
+            // Base background for the river
+            let waterGrad = ctx.createLinearGradient(0, 80, 0, h-80);
             if (currentMode === 'ms') {
-                waterGrad.addColorStop(0, '#1e293b'); waterGrad.addColorStop(0.5, '#334155'); waterGrad.addColorStop(1, '#1e293b');
+                waterGrad.addColorStop(0, '#1e293b'); waterGrad.addColorStop(1, '#0f172a');
             } else {
-                waterGrad.addColorStop(0, '#0b0f19'); waterGrad.addColorStop(0.5, '#111827'); waterGrad.addColorStop(1, '#0b0f19');
+                waterGrad.addColorStop(0, '#020617'); waterGrad.addColorStop(1, '#0b0f19');
             }
             ctx.fillStyle = waterGrad; ctx.fillRect(0, 0, w, h);
             
-            ctx.fillStyle = varColor = currentMode === 'ms' ? '#27354c' : 'rgba(17, 24, 39, 0.95)';
-            ctx.fillRect(0, h-80, w, 80); ctx.fillRect(0, 0, w, 80);   
+            // Draw Shores (Solid colors for crisp definition)
+            ctx.fillStyle = currentMode === 'ms' ? '#27354c' : '#111827';
+            ctx.fillRect(0, h-80, w, 80); // Bottom Shore
+            ctx.fillRect(0, 0, w, 80);    // Top Shore
 
             let riv = parseInt(document.getElementById('t3-river').value);
             let pad = parseInt(document.getElementById('t3-paddle').value);
@@ -1233,65 +1275,172 @@
             ctx.lineWidth = 1.5;
             let timeShift = Date.now() / 1000;
             
-            flowLines.forEach(line => {
+            // Define 20 color layers dynamically based on mode
+            let currentColors = [];
+            for(let i=0; i<20; i++) {
+                let t = i / 19;
+                if(currentMode === 'ms') {
+                    let l = Math.round(85 - t*70);
+                    let a = 0.4 + t*0.5;
+                    currentColors.push(`hsla(214, 80%, ${l}%, ${a})`);
+                } else {
+                    let l = Math.round(45 - t*40);
+                    let a = 0.2 + t*0.7;
+                    currentColors.push(`hsla(195, 90%, ${l}%, ${a})`);
+                }
+            }
+
+            // Restrict wave drawing strictly to the river body
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(0, 80, w, h - 160);
+            ctx.clip();
+
+            // Render Overlapping Waves (20 layers)
+            let riverHeight = h - 160;
+            let numWaves = flowLines.length;
+            let layerSpacing = riverHeight / Math.max(1, (numWaves - 1));
+            
+            // Wavelength compression factor based on flow speed (higher speed = more waves)
+            let flowScale = 1.0 - (Math.min(10, Math.abs(riv)) / 20); 
+
+            flowLines.forEach((wave, i) => {
                 ctx.beginPath();
                 
-                // Allow left & right flow, and multi-directional drift if river flow == 0
-                let currentSpeed;
+                let currentPhase;
                 if (Math.abs(riv) < 1) {
-                    currentSpeed = 2 * line.dir * line.speedBase; // Drift in random assigned directions
+                    currentPhase = wave.phase + (timeShift * 2 * wave.dir * wave.speedBase); // Random drift
                 } else {
-                    currentSpeed = riv * 1.5 * line.speedBase; // Normal flow
+                    currentPhase = wave.phase - (timeShift * riv * 1.5 * wave.speedBase); // True flow
                 }
                 
-                // Handle modulo for negative coordinates cleanly
-                let startX = ((line.x + timeShift * currentSpeed) % (w + 400) + (w + 400)) % (w + 400) - 200; 
-                let currentLen = line.len + (Math.abs(riv) * 4);
-                let currentAmp = line.amp + (Math.abs(riv) * 0.05);
-
-                ctx.moveTo(startX, line.y);
-                for (let x = 0; x <= currentLen; x += 5) {
-                    let waveY = Math.sin((x - timeShift * (100 + Math.abs(riv) * 2)) * line.freq) * currentAmp;
-                    ctx.lineTo(startX + x, line.y + waveY);
+                // Amplitude varies constantly over time for undulating water effect
+                let currentAmp = wave.ampBase * (0.8 + 0.3 * Math.sin(timeShift * 1.5 + wave.phase));
+                let currentFreq = wave.freq / flowScale;
+                
+                // The base Y level for this layer
+                let baseY = 80 + (i * layerSpacing);
+                
+                // Pull the topmost layer up slightly to ensure it overlaps the dock beautifully
+                if (i === 0) baseY -= 5;
+                
+                ctx.moveTo(0, baseY);
+                
+                // Draw the sine wave across the canvas
+                for (let x = 0; x <= w + 20; x += 20) {
+                    let yOffset = Math.sin((x * currentFreq) + currentPhase) * currentAmp;
+                    ctx.lineTo(x, baseY + yOffset);
                 }
                 
-                let gradColor = currentMode === 'ms' ? '129, 140, 248' : '56, 189, 248';
-                let grad = ctx.createLinearGradient(startX, 0, startX + currentLen, 0);
-                grad.addColorStop(0, `rgba(${gradColor}, 0)`); grad.addColorStop(0.5, `rgba(${gradColor}, 0.4)`); grad.addColorStop(1, `rgba(${gradColor}, 0)`);
-                ctx.strokeStyle = grad; ctx.stroke();
+                // Connect to the bottom shore to fill the shape
+                ctx.lineTo(w, h - 80);
+                ctx.lineTo(0, h - 80);
+                ctx.closePath();
+                
+                ctx.fillStyle = currentColors[i];
+                ctx.fill();
             });
 
+            ctx.restore(); // End clipping mask
+
+            // Draw clear river borders overlaying the edges
+            ctx.strokeStyle = currentMode === 'ms' ? '#475569' : '#334155';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 80); ctx.lineTo(w, 80);
+            ctx.moveTo(0, h-80); ctx.lineTo(w, h-80);
+            ctx.stroke();
+
+            // --- Real Physics Mapping (20m River Width) ---
+            let pixelsPerMeter = riverHeight / 20.0;
             let startX = Math.max(100, w * 0.25);
             let startY = h - 80;
 
-            let dockOffset = 0;
+            if (!t3_state.rulersInit) {
+                t3_state.rulerX.y = startY - 10 * pixelsPerMeter; // Start halfway across (10m)
+                t3_state.rulerY.x = startX + 10 * pixelsPerMeter;
+                t3_state.rulersInit = true;
+            }
+
+            // --- DRAW DRAGGABLE RULERS ---
+            ctx.lineWidth = 1;
+            ctx.font = '11px var(--font-mono)';
+            
+            // X Ruler (Horizontal)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(0, t3_state.rulerX.y - 12, w, 24);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.beginPath(); ctx.moveTo(0, t3_state.rulerX.y); ctx.lineTo(w, t3_state.rulerX.y); ctx.stroke();
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            // Draw ticks every 5m relative to startX (0m)
+            for(let dx = -40; dx <= 40; dx += 5) {
+                let x = startX + dx * pixelsPerMeter;
+                if(x < 0 || x > w) continue;
+                ctx.beginPath(); ctx.moveTo(x, t3_state.rulerX.y - 8); ctx.lineTo(x, t3_state.rulerX.y + 8); ctx.stroke();
+                ctx.fillText(dx + 'm', x + 4, t3_state.rulerX.y - 4);
+            }
+            // Drag Handle X
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+            ctx.fillRect(20, t3_state.rulerX.y - 14, 40, 28);
+            ctx.fillStyle = '#fff'; ctx.fillText("X ↕", 28, t3_state.rulerX.y + 4);
+
+            // Y Ruler (Vertical)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(t3_state.rulerY.x - 12, 0, 24, h);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.beginPath(); ctx.moveTo(t3_state.rulerY.x, 0); ctx.lineTo(t3_state.rulerY.x, h); ctx.stroke();
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            // Draw ticks every 5m relative to startY (0m)
+            for(let dy = 0; dy <= 20; dy += 5) {
+                let y = startY - dy * pixelsPerMeter; 
+                if(y < 0 || y > h) continue;
+                ctx.beginPath(); ctx.moveTo(t3_state.rulerY.x - 8, y); ctx.lineTo(t3_state.rulerY.x + 8, y); ctx.stroke();
+                ctx.fillText(dy + 'm', t3_state.rulerY.x + 6, y - 4);
+            }
+            // Drag Handle Y
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.85)';
+            ctx.fillRect(t3_state.rulerY.x - 14, 20, 28, 40);
+            ctx.fillStyle = '#000'; ctx.fillText("Y ↔", t3_state.rulerY.x - 10, 44);
+            // --- END RULERS ---
+
+            let dockOffsetMeters = 0;
             // Target shrinking dynamically per level
             let lvl = Math.min(msLevels[3].current, msLevels[3].max);
-            let dockW = currentMode === 'ms' ? 100 - (lvl - 1) * 30 : 100; // Level 1: 100, Level 2: 70, Level 3: 40
-            
+            let dockWMeters = currentMode === 'ms' ? 10 - (lvl - 1) * 3 : 10; // Level 1: 10m, Level 2: 7m, Level 3: 4m
+            let dockWPx = dockWMeters * pixelsPerMeter;
+
             if (currentMode === 'ms') {
                 let targetRatio = msLevels[3].targets[lvl-1].ratio; 
-                let riverWidth = h - 160; 
-                dockOffset = targetRatio * riverWidth; 
+                dockOffsetMeters = targetRatio * 20; 
+                let dockOffsetPx = dockOffsetMeters * pixelsPerMeter;
                 
                 ctx.fillStyle = '#b45309'; 
-                ctx.fillRect(startX + dockOffset - dockW/2, 60, dockW, 20); 
+                ctx.fillRect(startX + dockOffsetPx - dockWPx/2, 60, dockWPx, 20); 
                 
-                ctx.beginPath(); ctx.arc(startX + dockOffset, 70, 6, 0, Math.PI*2);
+                ctx.beginPath(); ctx.arc(startX + dockOffsetPx, 70, 6, 0, Math.PI*2);
                 ctx.fillStyle = ctxVars.net; ctx.fill();
             }
 
             if (t3_state.running) {
                 let netX = riv + (pad * Math.cos(rA));
                 let netY = pad * Math.sin(rA); 
-                t3_state.x += netX * 0.02;
-                t3_state.y -= netY * 0.02; 
-                if (startY + t3_state.y <= 80) t3_state.running = false;
+                t3_state.x += netX * 0.02; // meters
+                t3_state.y += netY * 0.02; // meters
+                t3_state.t += 0.02;
+                if (t3_state.y >= 20) {
+                    t3_state.running = false;
+                    t3_state.y = 20;
+                }
             }
 
-            let cx = startX + t3_state.x; let cy = startY + t3_state.y;
+            let cx = startX + t3_state.x * pixelsPerMeter; 
+            let cy = startY - t3_state.y * pixelsPerMeter;
 
-            if(t3_state.running || t3_state.y < 0) {
+            if(t3_state.running || t3_state.y > 0) {
                 ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(cx, cy);
                 ctx.strokeStyle = ctxVars.net; ctx.setLineDash([5,5]); ctx.lineWidth = 2;
                 ctx.stroke(); ctx.setLineDash([]);
@@ -1305,7 +1454,7 @@
             ctx.restore();
 
             if(!t3_state.running || currentMode === 'hs') {
-                let vScale = 1.5;
+                let vScale = pixelsPerMeter * 0.5; // Visually 10m/s -> 5m long arrow
                 drawArrow(ctx, cx, cy, cx + riv*vScale, cy, ctxVars.f1, 3);
                 drawArrow(ctx, cx, cy, cx + (pad*Math.cos(rA))*vScale, cy - (pad*Math.sin(rA))*vScale, ctxVars.f2, 3);
             }
@@ -1313,9 +1462,8 @@
             if (currentMode === 'ms') {
                 let statusEl = document.getElementById('t3-status');
                 
-                if (startY + t3_state.y <= 80 && !t3_state.running) {
-                    let boatX = startX + t3_state.x;
-                    if (Math.abs(boatX - (startX + dockOffset)) < (dockW/2)) {
+                if (t3_state.y >= 20 && !t3_state.running) {
+                    if (Math.abs(t3_state.x - dockOffsetMeters) <= (dockWMeters/2)) {
                         if (statusEl.innerText !== dict[currentLang]['status_success']) {
                             statusEl.innerText = dict[currentLang]['status_success'];
                             statusEl.className = 'challenge-status success c-net';
@@ -1336,6 +1484,15 @@
                     statusEl.innerText = dict[currentLang]['status_nav'];
                     statusEl.className = 'challenge-status';
                 }
+            }
+
+            if (currentMode === 'hs') {
+                let dxEl = document.getElementById('t3-dx-val');
+                let dyEl = document.getElementById('t3-dy-val');
+                let tEl = document.getElementById('t3-time-val');
+                if(dxEl) dxEl.innerText = t3_state.x.toFixed(1);
+                if(dyEl) dyEl.innerText = Math.abs(t3_state.y).toFixed(1);
+                if(tEl) tEl.innerText = t3_state.t.toFixed(1);
             }
 
             animationFrameId = requestAnimationFrame(loopT3);
@@ -1402,3 +1559,4 @@
     </script>
 </body>
 </html>
+```
