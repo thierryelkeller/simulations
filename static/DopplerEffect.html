@@ -199,7 +199,7 @@
             display: flex;
             flex-direction: column;
             flex: 1;
-            min-height: 0; /* allows flexbox to compress it if needed */
+            min-height: 0;
             position: relative;
         }
 
@@ -210,6 +210,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+            cursor: crosshair; 
         }
 
         .sim-canvas {
@@ -219,7 +220,7 @@
 
         /* --- Bottom Control Panel --- */
         .bottom-panel {
-            flex: 0 0 auto; /* Take natural height, do not stretch */
+            flex: 0 0 auto;
             background: var(--panel-bg);
             border-top: 1px solid var(--panel-border);
             z-index: 10;
@@ -298,7 +299,7 @@
             background: var(--accent-blue);
             cursor: pointer;
             -webkit-appearance: none;
-            margin-top: -6px; /* Aligns vertically with the track */
+            margin-top: -6px;
             transition: transform 0.1s;
         }
 
@@ -322,10 +323,39 @@
             position: absolute;
             transform: translateX(-50%);
             top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+        
+        .tick-marks span::before {
+            content: '';
+            width: 1px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-bottom: 3px;
+        }
+
         /* Lock edges so text doesn't overflow */
         .tick-marks span:first-child { transform: translateX(0); }
         .tick-marks span:last-child { transform: translateX(-100%); }
+
+        /* VU Meter Styles */
+        .vu-meter-bar {
+            width: 100%;
+            height: 14px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 7px;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        .vu-meter-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4ade80 0%, #facc15 60%, #ef4444 100%);
+            transition: width 0.1s ease-out; /* Smooth visual updates */
+        }
 
         /* Data Readouts */
         .data-readout {
@@ -408,8 +438,10 @@
             width: 100%;
             height: 35px;
             background: linear-gradient(to right, 
-                #1a0033 0%, #0000ff 15%, #00ffff 33%, 
-                #00ff00 50%, #ffff00 66%, #ff8000 83%, #330000 100%);
+                #150020 0%, #2a0040 17%, 
+                #400080 18%, #0000ff 24%, #00ffff 30%, 
+                #00ff00 36%, #ffff00 42%, #ff0000 50%, #4d0000 55%, 
+                #220000 56%, #0a0000 100%);
             border-radius: 6px;
             border: 1px solid var(--panel-border);
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
@@ -495,7 +527,7 @@
         </header>
 
         <main>
-            <div class="workspace">
+            <div class="workspace" id="sim-workspace">
                 <canvas id="sim-canvas" class="sim-canvas"></canvas>
                 
                 <!-- Spectrum overlay for Tab 3 -->
@@ -583,7 +615,8 @@
                 <div id="controls-tab2" class="tab-content">
                     <div class="panel-section">
                         <p class="explanation" id="t-t2-exp">
-                            When a source exceeds the wave speed, the wavefronts constructively interfere to form a shock wave known as a Mach cone.
+                            When a source exceeds the wave speed, the wavefronts constructively interfere to form a shock wave known as a Mach cone.<br><br>
+                            <em>(Click and drag the sensor dot to move it around!)</em>
                         </p>
                     </div>
 
@@ -598,7 +631,7 @@
                                 <span style="left: 0%">0</span>
                                 <span style="left: 34.3%">v</span>
                                 <span style="left: 68.6%">2v</span>
-                                <span style="left: 100%">Max</span>
+                                <span id="t-t2-max" style="left: 100%">Max</span>
                             </div>
                         </div>
                         
@@ -612,33 +645,37 @@
                             <label class="toggle-container">
                                 <input type="checkbox" id="in-t2-sound" style="display:none;">
                                 <div class="toggle-switch"></div>
-                                <span id="t-t2-sound">Boom</span>
+                                <span id="t-t2-sound">Sound</span>
                             </label>
                         </div>
                     </div>
 
                     <div class="panel-section">
-                        <div class="data-readout">
+                        <div class="data-readout" style="gap: 0.5rem; padding: 1rem 1.2rem;">
                             <div class="data-row" style="flex-direction: row; justify-content: space-between;">
-                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                <div style="display: flex; flex-direction: column; gap: 0.1rem;">
                                     <span class="label" id="t-t2-mach">Mach Number (M)</span>
                                     <span class="val" id="out-t2-mach">1.02</span>
                                 </div>
-                                <div style="display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-end;">
+                                <div style="display: flex; flex-direction: column; gap: 0.1rem; align-items: flex-end;">
                                     <span class="label" id="t-t2-angle">Mach Angle (θ)</span>
                                     <span class="val" id="out-t2-angle" style="color: var(--accent-red)">78.5°</span>
                                 </div>
                             </div>
-                            <hr style="border-color: rgba(255,255,255,0.1); border-style: dashed; margin: 0.2rem 0;">
-                            <div class="data-row" style="flex-direction: row; justify-content: space-between;">
-                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-                                    <span class="label" id="t-t2-pressure">Sensor Pressure</span>
-                                    <span class="val" id="out-t2-pressure" style="font-size: 1.2rem;">1.00 atm</span>
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-end;">
-                                    <span class="label" id="t-t2-max-pressure">Max Pressure</span>
-                                    <span class="val" id="out-t2-max-pressure" style="font-size: 1.2rem; color: var(--accent-red)">1.00 atm</span>
-                                </div>
+                            <hr style="border-color: rgba(255,255,255,0.1); border-style: dashed; margin: 0.3rem 0;">
+                            
+                            <!-- VU Meter Section -->
+                            <div class="control-header" style="margin-bottom: 0.2rem;">
+                                <span id="t-t2-pressure">Sensor Level (dB)</span>
+                                <span class="val" id="out-t2-vu-val">40 dB</span>
+                            </div>
+                            <div class="vu-meter-bar">
+                                <div class="vu-meter-fill" id="vu-fill"></div>
+                            </div>
+                            <div class="tick-marks">
+                                <span style="left: 0%">40</span>
+                                <span style="left: 50%">100</span>
+                                <span style="left: 100%">160</span>
                             </div>
                         </div>
                     </div>
@@ -663,9 +700,9 @@
                             </div>
                             <input type="range" id="in-t3-vs" min="-0.60" max="0.60" value="0" step="0.05">
                             <div class="tick-marks">
-                                <span style="left: 0%">Blue</span>
+                                <span id="t-t3-blue" style="left: 0%">Blue</span>
                                 <span style="left: 50%">0</span>
-                                <span style="left: 100%">Red</span>
+                                <span id="t-t3-red" style="left: 100%">Red</span>
                             </div>
                             <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 8px; text-align: center;" id="t-t3-dir">
                                 Negative = Approaching | Positive = Receding
@@ -700,21 +737,62 @@
             currentTab: 1,
             pointer: { x: window.innerWidth/2, y: window.innerHeight/2 },
             t1LastHitTime: -999,
-            t1AnalyticalFobs: 400, // True theoretical value updated continuously
+            t1AnalyticalFobs: 400, 
             t1HitRipple: 0,
             t1SoundEnabled: false,
             t2SoundEnabled: false,
-            lastFramePressure: 1.0,
-            t2LastBoomTime: 0
+            t2LastBoomTime: 0,
+            t2SensorDragging: false,
+            t2SmoothedDb: 40.0, 
+            t2BoomTriggered: false
         };
+
+        // --- Realistic Blackbody Color Conversion Engine ---
+        function kelvinToRGB(kelvin) {
+            let temp = kelvin / 100;
+            let red, green, blue;
+
+            if (temp <= 66) {
+                red = 255;
+                green = temp;
+                green = 99.4708025861 * Math.log(green) - 161.1195681661;
+                
+                if (temp <= 19) {
+                    blue = 0;
+                } else {
+                    blue = temp - 10;
+                    blue = 138.5177312231 * Math.log(blue) - 305.0447927307;
+                }
+            } else {
+                red = temp - 60;
+                red = 329.698727446 * Math.pow(red, -0.1332047592);
+                green = temp - 60;
+                green = 288.1221695283 * Math.pow(green, -0.0755148492);
+                blue = 255;
+            }
+            
+            // Clamp colors and format
+            red = Math.max(0, Math.min(255, red));
+            green = Math.max(0, Math.min(255, green));
+            blue = Math.max(0, Math.min(255, blue));
+            
+            return `rgb(${Math.round(red)}, ${Math.round(green)}, ${Math.round(blue)})`;
+        }
 
         // --- Audio Engine ---
         let audioCtx;
+        
+        // Tab 1 specific
         let t1Osc, t1Gain;
+        
+        // Tab 2 specific
+        let t2Osc, t2Filter, t2Gain;
 
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Init Tab 1 Sound
                 t1Osc = audioCtx.createOscillator();
                 t1Gain = audioCtx.createGain();
                 t1Osc.type = 'sine';
@@ -722,35 +800,75 @@
                 t1Osc.connect(t1Gain);
                 t1Gain.connect(audioCtx.destination);
                 t1Osc.start();
+                
+                // Init Tab 2 Sound (Continuous Engine Hum)
+                t2Osc = audioCtx.createOscillator();
+                t2Filter = audioCtx.createBiquadFilter();
+                t2Gain = audioCtx.createGain();
+                
+                t2Osc.type = 'sawtooth';
+                t2Filter.type = 'lowpass';
+                
+                t2Osc.connect(t2Filter);
+                t2Filter.connect(t2Gain);
+                t2Gain.connect(audioCtx.destination);
+                
+                t2Gain.gain.value = 0;
+                t2Osc.start();
             }
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
         }
 
-        function playSonicBoom() {
+        function playSonicBoom(dbLevel) {
             if (!audioCtx) return;
             const boomTime = audioCtx.currentTime;
             
-            // Debounce to prevent overlapping phase cancellation or chorusing
-            if (boomTime - state.t2LastBoomTime < 0.4) return;
-            state.t2LastBoomTime = boomTime;
+            let vol = Math.max(0, Math.min(1.0, (dbLevel - 80) / 80));
 
-            const boomOsc = audioCtx.createOscillator();
-            const boomGain = audioCtx.createGain();
-            
-            // 'triangle' gives a nice consistent physical "thump" without harsh overtones
-            boomOsc.type = 'triangle'; 
-            boomOsc.frequency.setValueAtTime(100, boomTime);
-            boomOsc.frequency.exponentialRampToValueAtTime(10, boomTime + 0.3);
-            
-            boomGain.gain.setValueAtTime(0.5, boomTime);
-            boomGain.gain.exponentialRampToValueAtTime(0.01, boomTime + 0.3);
-            
-            boomOsc.connect(boomGain);
-            boomGain.connect(audioCtx.destination);
-            boomOsc.start(boomTime);
-            boomOsc.stop(boomTime + 0.4);
+            const createThump = (timeOffset) => {
+                const tTime = boomTime + timeOffset;
+                
+                // Deep shockwave thump
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(120, tTime);
+                osc.frequency.exponentialRampToValueAtTime(20, tTime + 0.1);
+                
+                gain.gain.setValueAtTime(0, tTime);
+                gain.gain.linearRampToValueAtTime(vol * 2.5, tTime + 0.005);
+                gain.gain.exponentialRampToValueAtTime(0.01, tTime + 0.15);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(tTime);
+                osc.stop(tTime + 0.2);
+                
+                // Extremely sharp high-frequency "crack" of the shock
+                const snap = audioCtx.createOscillator();
+                const snapGain = audioCtx.createGain();
+                
+                snap.type = 'sawtooth';
+                snap.frequency.setValueAtTime(800, tTime);
+                snap.frequency.exponentialRampToValueAtTime(100, tTime + 0.05);
+                
+                snapGain.gain.setValueAtTime(0, tTime);
+                snapGain.gain.linearRampToValueAtTime(vol * 1.5, tTime + 0.001); // 1ms instant attack
+                snapGain.gain.exponentialRampToValueAtTime(0.01, tTime + 0.04);  // 40ms rapid decay
+                
+                snap.connect(snapGain);
+                snapGain.connect(audioCtx.destination);
+                
+                snap.start(tTime);
+                snap.stop(tTime + 0.05);
+            };
+
+            // Sonic booms are "N-waves": A double bang (nose shock, then tail shock)
+            createThump(0);
+            createThump(0.12); // Tighter delay for a more realistic fast jet
         }
 
         const inT1Sound = document.getElementById('in-t1-sound');
@@ -781,7 +899,7 @@
                 
                 // Explanations
                 "t-t1-exp": "Observe how the frequency of sound changes as the source and observer move relative to each other along a single axis.",
-                "t-t2-exp": "When a source exceeds the wave speed, the wavefronts constructively interfere to form a shock wave known as a Mach cone.",
+                "t-t2-exp": "When a source exceeds the wave speed, the wavefronts constructively interfere to form a shock wave known as a Mach cone.<br><br><em>(Click and drag the sensor dot to move it around!)</em>",
                 "t-t3-exp": "Light from receding stars stretches to longer wavelengths (Redshift), while approaching light compresses to shorter wavelengths (Blueshift).",
 
                 // Tab 1
@@ -797,10 +915,8 @@
                 "t-t2-mach": "Mach Number (M)",
                 "t-t2-angle": "Mach Angle (θ)",
                 "t-t2-show": "Envelope",
-                "t-t2-pressure": "Sensor Pressure",
-                "t-t2-max-pressure": "Max Pressure",
-                "t-t2-sound": "Boom",
-                "btn-t2-reset": "Reset Sensor",
+                "t-t2-pressure": "Sensor Level (dB)",
+                "t-t2-sound": "Sound",
                 
                 // Tab 3
                 "t-t3-vs": "Radial Velocity (β = v/c)",
@@ -809,7 +925,17 @@
                 "t-t3-shift": "Δλ (H-α Shift)",
                 "t-t3-h-exp": "<strong>Why Hydrogen?</strong> Its distinctive spectral lines (Balmer series) serve as a universal, recognizable standard to measure how much a galaxy's light has shifted.",
                 "t-spec-ref": "Reference",
-                "t-spec-obs": "Observed"
+                "t-spec-obs": "Observed",
+
+                // Embedded Canvas Strings & dynamic text
+                "t-t2-max": "Max",
+                "t-t3-blue": "Blue",
+                "t-t3-red": "Red",
+                "t-canvas-sensor": "SENSOR",
+                "t-canvas-obs": "Observer",
+                "t-canvas-star": "Star",
+                "t-na": "N/A",
+                "t-vis-light": "VISIBLE LIGHT"
             },
             fr: {
                 "t-splash-title": "Échos du Cosmos",
@@ -824,7 +950,7 @@
                 "btn-lang-toggle": "EN",
                 
                 "t-t1-exp": "Observez comment la fréquence du son change lorsque la source et l'observateur se déplacent l'un par rapport à l'autre le long d'un axe.",
-                "t-t2-exp": "Lorsqu'une source dépasse la vitesse de l'onde, les fronts d'onde interfèrent pour former une onde de choc appelée cône de Mach.",
+                "t-t2-exp": "Lorsqu'une source dépasse la vitesse de l'onde, les fronts d'onde interfèrent pour former une onde de choc appelée cône de Mach.<br><br><em>(Cliquez et faites glisser le capteur pour le déplacer !)</em>",
                 "t-t3-exp": "La lumière des étoiles s'éloignant s'étire vers de plus grandes longueurs d'onde (Redshift), tandis que celle qui s'approche se comprime (Blueshift).",
 
                 // Tab 1
@@ -840,10 +966,8 @@
                 "t-t2-mach": "Nombre de Mach (M)",
                 "t-t2-angle": "Angle de Mach (θ)",
                 "t-t2-show": "Enveloppe",
-                "t-t2-pressure": "Pression Capteur",
-                "t-t2-max-pressure": "Pression Max",
-                "t-t2-sound": "Bang",
-                "btn-t2-reset": "Réinitialiser Capteur",
+                "t-t2-pressure": "Niveau Sonore (dB)",
+                "t-t2-sound": "Son",
                 
                 // Tab 3
                 "t-t3-vs": "Vitesse Radiale (β = v/c)",
@@ -852,7 +976,17 @@
                 "t-t3-shift": "Δλ (Décalage H-α)",
                 "t-t3-h-exp": "<strong>Pourquoi l'Hydrogène?</strong> Ses raies spectrales (série de Balmer) servent de standard universel pour mesurer le décalage de la lumière des galaxies.",
                 "t-spec-ref": "Référence",
-                "t-spec-obs": "Observé"
+                "t-spec-obs": "Observé",
+
+                // Embedded Canvas Strings & dynamic text
+                "t-t2-max": "Max",
+                "t-t3-blue": "Bleu",
+                "t-t3-red": "Rouge",
+                "t-canvas-sensor": "CAPTEUR",
+                "t-canvas-obs": "Observateur",
+                "t-canvas-star": "Étoile",
+                "t-na": "N/D",
+                "t-vis-light": "LUMIÈRE VISIBLE"
             }
         };
 
@@ -881,7 +1015,6 @@
         function renderSplash() {
             if (state.appActive) return;
             
-            // Lower alpha for longer, ethereal trails
             sctx.fillStyle = 'rgba(3, 4, 7, 0.08)';
             sctx.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
 
@@ -893,19 +1026,17 @@
             if(globalShift > 20) globalShift = 20;
             if(globalShift < -20) globalShift = -20;
 
-            // Emit expanding waves from random positions
             if (Math.random() < 0.04) { 
                 splashWaves.push({ 
                     x: Math.random() * splashCanvas.width, 
                     y: Math.random() * splashCanvas.height, 
                     radius: 0, 
-                    alpha: Math.random() * 0.5 + 0.2, // Starting opacity
-                    fadeRate: Math.random() * 0.003 + 0.001, // Fade speed
-                    speed: Math.random() * 1.5 + 0.5 // Expansion speed
+                    alpha: Math.random() * 0.5 + 0.2, 
+                    fadeRate: Math.random() * 0.003 + 0.001, 
+                    speed: Math.random() * 1.5 + 0.5 
                 });
             }
 
-            // Move source context colors (Redshift / Blueshift visual based on cursor)
             let tintR = 120 + (globalShift * 15);
             let tintB = 255 - (globalShift * 15);
             if(tintR > 255) tintR = 255; if(tintR < 50) tintR = 50;
@@ -914,10 +1045,7 @@
             for(let i=splashWaves.length-1; i>=0; i--) {
                 let w = splashWaves[i];
                 
-                // Expand wave
                 w.radius += w.speed;
-
-                // Fade away
                 w.alpha -= w.fadeRate;
 
                 if (w.alpha <= 0) {
@@ -928,14 +1056,13 @@
                 const colorStr = `rgba(${tintR}, 80, ${tintB}, ${w.alpha})`;
                 
                 sctx.strokeStyle = colorStr;
-                sctx.lineWidth = 1.5 + (w.radius / 200); // Gets slightly thicker as it expands
-                sctx.shadowBlur = 15; // Adds the glow
+                sctx.lineWidth = 1.5 + (w.radius / 200);
+                sctx.shadowBlur = 15;
                 sctx.shadowColor = colorStr;
                 
                 const W = splashCanvas.width;
                 const H = splashCanvas.height;
                 
-                // Calculate virtual sources for wave reflection
                 const virtualX = [w.x];
                 if (w.x - w.radius < 0) virtualX.push(-w.x);
                 if (w.x + w.radius > W) virtualX.push(2*W - w.x);
@@ -944,7 +1071,6 @@
                 if (w.y - w.radius < 0) virtualY.push(-w.y);
                 if (w.y + w.radius > H) virtualY.push(2*H - w.y);
                 
-                // Draw main wave and all reflections perfectly intersecting the edges
                 for(let vx of virtualX) {
                     for(let vy of virtualY) {
                         sctx.beginPath();
@@ -954,7 +1080,7 @@
                 }
             }
             
-            sctx.shadowBlur = 0; // Reset shadow so it doesn't affect the clearing rect
+            sctx.shadowBlur = 0; 
 
             requestAnimationFrame(renderSplash);
         }
@@ -967,6 +1093,7 @@
 
         function togglePlay() {
             state.isPlaying = !state.isPlaying;
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             updatePlayBtnUI();
         }
 
@@ -988,6 +1115,8 @@
                 const el = document.getElementById(key);
                 if (el) el.innerHTML = textData[key];
             }
+            // Update N/A angle specific element explicitly as its ID is 'out-t2-angle' not 't-na'
+            updateTab2Data(); 
             updatePlayBtnUI();
             if(state.currentTab === 3) drawSpectrum();
         }
@@ -999,6 +1128,8 @@
             document.getElementById('splash').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
             state.appActive = true;
+            
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 
             resizeSim();
             resetSimPhysics();
@@ -1025,10 +1156,7 @@
 
             document.getElementById('spectrum-view').style.display = (tabIndex === 3) ? 'flex' : 'none';
             
-            // Allow the DOM to update layout, then force canvas resize to prevent deformation
-            setTimeout(() => {
-                resizeSim();
-            }, 0);
+            setTimeout(() => { resizeSim(); }, 0);
         }
 
         // --- Physics Engine ---
@@ -1042,10 +1170,51 @@
         let observer = { x: 0, y: 0 };
         
         let t2Observer = { x: 0, y: 0 };
-        let t2MaxPressure = 1.0;
 
         const V_SOUND = 343; 
         const PIXELS_PER_METER = 0.5;
+
+        // Sensor Dragging Interaction (Tab 2)
+        function getCanvasPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        canvas.addEventListener('mousedown', e => {
+            if (state.currentTab !== 2) return;
+            const pos = getCanvasPos(e);
+            if (Math.hypot(pos.x - t2Observer.x, pos.y - t2Observer.y) < 30) state.t2SensorDragging = true;
+        });
+
+        canvas.addEventListener('touchstart', e => {
+            if (state.currentTab !== 2) return;
+            const pos = getCanvasPos(e);
+            if (Math.hypot(pos.x - t2Observer.x, pos.y - t2Observer.y) < 40) {
+                state.t2SensorDragging = true;
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        window.addEventListener('mouseup', () => { state.t2SensorDragging = false; });
+        window.addEventListener('touchend', () => { state.t2SensorDragging = false; });
+        
+        window.addEventListener('mousemove', e => {
+            if (state.t2SensorDragging && state.currentTab === 2) {
+                const pos = getCanvasPos(e);
+                t2Observer.x = Math.max(20, Math.min(canvas.width - 20, pos.x));
+                t2Observer.y = Math.max(20, Math.min(canvas.height - 20, pos.y));
+            }
+        });
+        window.addEventListener('touchmove', e => {
+            if (state.t2SensorDragging && state.currentTab === 2 && e.touches.length > 0) {
+                const pos = getCanvasPos(e);
+                t2Observer.x = Math.max(20, Math.min(canvas.width - 20, pos.x));
+                t2Observer.y = Math.max(20, Math.min(canvas.height - 20, pos.y));
+                e.preventDefault();
+            }
+        }, { passive: false });
 
         function resizeSim() {
             canvas.width = canvas.parentElement.clientWidth;
@@ -1073,11 +1242,10 @@
                 source.x = 100;
                 t2Observer.x = canvas.width * 0.9;
                 t2Observer.y = canvas.height - 40;
-                t2MaxPressure = 1.0;
-                state.lastFramePressure = 1.0;
-                if (document.getElementById('out-t2-max-pressure')) {
-                    document.getElementById('out-t2-max-pressure').innerText = '1.00 atm';
-                }
+                state.t2SmoothedDb = 40.0;
+                state.t2BoomTriggered = false;
+                document.getElementById('out-t2-vu-val').innerText = '40 dB';
+                document.getElementById('vu-fill').style.width = '0%';
             } else if (state.currentTab === 3) {
                 source.x = canvas.width / 2;
                 source.lastEmit = simTime;
@@ -1086,13 +1254,19 @@
             }
         }
 
-        function resetT2Sensor() {
-            t2MaxPressure = 1.0;
-            state.lastFramePressure = 1.0;
-            document.getElementById('out-t2-max-pressure').innerText = t2MaxPressure.toFixed(2) + ' atm';
+        // --- Magnetic Snapping Utility ---
+        function applyMagneticSnap(inputEl, snaps, threshold) {
+            let val = parseFloat(inputEl.value);
+            for(let snap of snaps) {
+                if (Math.abs(val - snap) <= threshold) {
+                    inputEl.value = snap;
+                    return true;
+                }
+            }
+            return false;
         }
 
-        // --- Tab 1 ---
+        // --- Tab 1 Data ---
         const inT1Vs = document.getElementById('in-t1-vs');
         const inT1Vo = document.getElementById('in-t1-vo');
         const inT1Freq = document.getElementById('in-t1-freq');
@@ -1101,6 +1275,11 @@
 
         function updateTab1Data() {
             if (!inT1Vs || !inT1Vo || !inT1Freq) return;
+            
+            applyMagneticSnap(inT1Vs, [-300, 0, 300], 15);
+            applyMagneticSnap(inT1Vo, [-300, 0, 300], 15);
+            applyMagneticSnap(inT1Freq, [100, 550, 1000], 30);
+
             const vs = parseFloat(inT1Vs.value);
             const vo = parseFloat(inT1Vo.value);
             const f = parseFloat(inT1Freq.value);
@@ -1110,7 +1289,7 @@
             document.getElementById('val-t1-freq').innerText = `${f} Hz`;
         }
 
-        // --- Tab 2 ---
+        // --- Tab 2 Data ---
         const inT2Vs = document.getElementById('in-t2-vs');
         const inT2Cone = document.getElementById('in-t2-cone');
         inT2Vs?.addEventListener('input', updateTab2Data);
@@ -1118,6 +1297,9 @@
 
         function updateTab2Data() {
             if (!inT2Vs) return;
+
+            applyMagneticSnap(inT2Vs, [0, 343, 686, 1000], 25);
+
             const vs = parseFloat(inT2Vs.value);
             document.getElementById('val-t2-vs').innerText = `${vs} m/s`;
             
@@ -1129,11 +1311,11 @@
                 const angleDeg = (angleRad * 180 / Math.PI).toFixed(1);
                 document.getElementById('out-t2-angle').innerText = `${angleDeg}°`;
             } else {
-                document.getElementById('out-t2-angle').innerText = `N/A`;
+                document.getElementById('out-t2-angle').innerText = dict[state.lang]["t-na"];
             }
         }
 
-        // --- Tab 3 ---
+        // --- Tab 3 Data ---
         const inT3Vs = document.getElementById('in-t3-vs');
         inT3Vs?.addEventListener('input', updateTab3Data);
         
@@ -1149,14 +1331,31 @@
             const refContainer = document.getElementById('spectrum-ref');
             const obsContainer = document.getElementById('spectrum-obs');
             
-            // Clear previous lines, keep the label text
             Array.from(refContainer.children).forEach(c => { if(!c.classList.contains('spectrum-label-text')) c.remove() });
             Array.from(obsContainer.children).forEach(c => { if(!c.classList.contains('spectrum-label-text')) c.remove() });
             
-            const minW = 380, maxW = 750, range = maxW - minW;
+            // Widened scope (1000nm total range) to view deep UV and IR
+            const minW = 200, maxW = 1200, range = maxW - minW;
+
+            // UI Overlays to identify the invisible / visible zones
+            const addOverlays = (container, isRef) => {
+                const wrap = document.createElement('div');
+                const textVis = dict[state.lang]['t-vis-light'];
+                wrap.innerHTML = `
+                    <div style="position:absolute; left:4%; top:10px; font-size:0.75rem; color:rgba(255,255,255,0.15); font-weight:bold; letter-spacing:2px; pointer-events:none;">UV</div>
+                    <div style="position:absolute; right:15%; top:10px; font-size:0.75rem; color:rgba(255,255,255,0.15); font-weight:bold; letter-spacing:2px; pointer-events:none;">IR</div>
+                    ${isRef ? `
+                    <div style="position:absolute; top:-10px; left:18%; width:37%; height:6px; border-left:1px solid rgba(255,255,255,0.3); border-right:1px solid rgba(255,255,255,0.3); border-top:1px solid rgba(255,255,255,0.3); pointer-events:none;">
+                        <div id="t-vis-light" style="position:absolute; top:-16px; width:100%; text-align:center; font-size:0.6rem; color:rgba(255,255,255,0.5); letter-spacing:1px;">${textVis}</div>
+                    </div>` : ''}
+                `;
+                container.appendChild(wrap);
+            };
+            
+            addOverlays(refContainer, true);
+            addOverlays(obsContainer, false);
 
             spectralLinesData.forEach((line, i) => {
-                // Static Reference Line
                 const ref = document.createElement('div');
                 ref.className = 'spectral-line';
                 const refPercent = ((line.rest - minW) / range) * 100;
@@ -1168,7 +1367,6 @@
                 ref.appendChild(refLabel);
                 refContainer.appendChild(ref);
 
-                // Moving Spectral Line (Observed)
                 const el = document.createElement('div');
                 el.className = 'spectral-line';
                 el.id = 'line-' + i;
@@ -1181,7 +1379,8 @@
             const beta = parseFloat(inT3Vs.value); 
             const z = Math.sqrt((1 + beta) / (1 - beta)) - 1;
             
-            const minW = 380, maxW = 750, range = maxW - minW;
+            // Widened scope (1000nm total range) to match createSpectrumLines perfectly
+            const minW = 200, maxW = 1200, range = maxW - minW;
 
             spectralLinesData.forEach((line, i) => {
                 const el = document.getElementById('line-' + i);
@@ -1201,6 +1400,9 @@
 
         function updateTab3Data() {
             if (!inT3Vs) return;
+            
+            applyMagneticSnap(inT3Vs, [-0.6, 0, 0.6], 0.04);
+            
             const beta = parseFloat(inT3Vs.value);
             document.getElementById('val-t3-vs').innerText = `${beta.toFixed(2)} c`;
             
@@ -1220,20 +1422,19 @@
         function renderSim(timestamp) {
             if (!state.appActive) return;
 
-            // Safeguard: Ensure canvas buffer always perfectly matches display dimensions to prevent graphical deformation
             if (canvas.width !== canvas.parentElement.clientWidth || canvas.height !== canvas.parentElement.clientHeight) {
                 canvas.width = canvas.parentElement.clientWidth;
                 canvas.height = canvas.parentElement.clientHeight;
             }
             
             let dt = (timestamp - lastTime) / 1000;
-            if (dt > 0.1) dt = 0.1; // Cap dt to prevent huge jumps if tab was hidden
+            if (dt > 0.1) dt = 0.1;
             lastTime = timestamp;
             
             if(state.isPlaying) {
                 simTime += dt;
             } else {
-                dt = 0; // Freeze motion
+                dt = 0; 
             }
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1249,9 +1450,8 @@
             else if (state.currentTab === 2) renderTab2(dt);
             else if (state.currentTab === 3) renderTab3(dt);
 
-            // Global mute fallback for Tab 1
-            if (audioCtx && t1Gain) {
-                if (!state.isPlaying || state.currentTab !== 1 || !state.t1SoundEnabled) {
+            if (audioCtx && t1Gain && state.currentTab === 1) {
+                if (!state.isPlaying || !state.t1SoundEnabled) {
                     t1Gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
                 }
             }
@@ -1271,7 +1471,6 @@
                 source.x += vs * PIXELS_PER_METER * dt * simSpeedMultiplier;
                 observer.x += vo * PIXELS_PER_METER * dt * simSpeedMultiplier;
 
-                // Reset positions to wrap around
                 if(source.x > canvas.width + 50) { source.x = -50; }
                 if(source.x < -50) { source.x = canvas.width + 50; }
                 if(observer.x > canvas.width + 50) { observer.x = -50; }
@@ -1293,7 +1492,6 @@
                 if(state.isPlaying) {
                     w.radius += dr;
                     
-                    // Intersection detection for Observer
                     let distToObs = Math.hypot(w.x - observer.x, w.y - observer.y);
                     if (!w.hasHit && w.radius >= distToObs) {
                         w.hasHit = true;
@@ -1308,43 +1506,38 @@
                 if (w.radius > canvas.width * 1.5) waves.splice(i, 1);
             }
 
-            // Analytical Doppler Calculation (eliminates jitter and provides rock-steady pitch)
             let dir = Math.sign(observer.x - source.x);
-            if (dir === 0) dir = 1; // Fallback to prevent NaN
+            if (dir === 0) dir = 1; 
             
             let denom = V_SOUND - (vs * dir);
-            if (denom < 1) denom = 1; // Prevent division by zero or negative frequency anomalies
+            if (denom < 1) denom = 1; 
             
             state.t1AnalyticalFobs = freq * (V_SOUND - (vo * dir)) / denom;
 
             if (hit) {
                 state.t1LastHitTime = simTime;
-                state.t1HitRipple = 25; // Trigger visual ripple
+                state.t1HitRipple = 25;
             }
 
-            // Handle UI Display of Frequency
             let timeSinceHit = simTime - state.t1LastHitTime;
             let displayEl = document.getElementById('out-t1-fobs');
             
             if (timeSinceHit < 0.8) {
-                // Show the rock-steady analytical frequency
                 displayEl.innerText = `${state.t1AnalyticalFobs.toFixed(1)} Hz`;
                 
-                // Calculate dynamic color intensity based on shift magnitude
                 let intensity = Math.min(1, Math.abs(state.t1AnalyticalFobs - freq) / (freq * 0.8));
                 let r=255, g=255, b=255;
                 
-                if (state.t1AnalyticalFobs > freq + 0.1) { // Blueshift
+                if (state.t1AnalyticalFobs > freq + 0.1) {
                     r = Math.round(255 - intensity * 255);
                     g = Math.round(255 - intensity * 43);
                     b = 255;
-                } else if (state.t1AnalyticalFobs < freq - 0.1) { // Redshift
+                } else if (state.t1AnalyticalFobs < freq - 0.1) {
                     r = 255;
                     g = Math.round(255 - intensity * 204);
                     b = Math.round(255 - intensity * 153);
                 }
                 
-                // Fade out effect
                 let alpha = 1;
                 if (timeSinceHit > 0.5) alpha = 1 - ((timeSinceHit - 0.5) / 0.3);
                 
@@ -1356,10 +1549,8 @@
                 displayEl.style.textShadow = 'none';
             }
 
-            // --- AUDIO SYNC ---
             if (state.t1SoundEnabled && audioCtx && t1Gain) {
                 if (timeSinceHit < 0.8 && state.isPlaying) {
-                    // Update to the perfectly smooth analytical frequency
                     t1Osc.frequency.setTargetAtTime(state.t1AnalyticalFobs, audioCtx.currentTime, 0.05);
                     t1Gain.gain.setTargetAtTime(0.15, audioCtx.currentTime, 0.05);
                 } else {
@@ -1367,7 +1558,6 @@
                 }
             }
 
-            // Draw Obs with Hit Ripple
             if (state.t1HitRipple > 0) {
                 ctx.strokeStyle = `rgba(255, 255, 255, ${state.t1HitRipple / 25})`;
                 ctx.lineWidth = 2;
@@ -1377,43 +1567,49 @@
                 if(state.isPlaying) state.t1HitRipple -= 60 * dt;
             }
             
+            // Replaced offset positioning with textAlign Center for robust translation sizing
+            ctx.textAlign = 'center';
+
             ctx.fillStyle = '#00d4ff';
             ctx.beginPath();
             ctx.arc(observer.x, observer.y, 8, 0, Math.PI * 2);
             ctx.fill();
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 12px var(--font-mono)';
-            ctx.fillText('O', observer.x - 4, observer.y - 15);
+            ctx.font = 'bold 16px var(--font-mono)';
+            ctx.fillText('O', observer.x, observer.y - 15);
 
-            // Draw Src
             ctx.fillStyle = '#ff3366';
             ctx.beginPath();
             ctx.arc(source.x, source.y, 8, 0, Math.PI * 2);
             ctx.fill();
             ctx.fillStyle = '#fff';
-            ctx.fillText('S', source.x - 4, source.y - 15);
+            ctx.fillText('S', source.x, source.y - 15);
+            ctx.textAlign = 'left'; // reset
         }
 
         function renderTab2(dt) {
             const vs = inT2Vs ? parseFloat(inT2Vs.value) : 0;
             const simSpeedMultiplier = 0.5;
-            let currentPressure = 1.0; // Base atm
 
             if(state.isPlaying) {
                 source.x += vs * PIXELS_PER_METER * dt * simSpeedMultiplier;
                 if (source.x > canvas.width + 200) {
                     source.x = -50;
                     waves = [];
+                    state.t2BoomTriggered = false; // Reset the bang lock for the next pass
                 }
-                const visualPeriod = 0.03; // slightly faster emission to build pressure
+                const visualPeriod = 0.12; 
                 if (simTime - source.lastEmit > visualPeriod) {
                     waves.push({ x: source.x, y: source.y, radius: 0 });
                     source.lastEmit = simTime;
                 }
             }
 
+            let overlapCount = 0;
+            let soundReached = false; 
+            
             ctx.strokeStyle = 'rgba(255, 51, 102, 0.3)';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1.5; 
             for (let i = waves.length - 1; i >= 0; i--) {
                 let w = waves[i];
                 if(state.isPlaying) w.radius += V_SOUND * PIXELS_PER_METER * dt * simSpeedMultiplier;
@@ -1422,14 +1618,55 @@
                 ctx.arc(w.x, w.y, w.radius, 0, Math.PI * 2);
                 ctx.stroke();
                 
-                // Pressure Check
-                let dist = Math.hypot(w.x - t2Observer.x, w.y - t2Observer.y);
-                if (Math.abs(dist - w.radius) < 6) {
-                    currentPressure += 0.6; // Increment pressure if wave hits observer
+                let distToWaveCenter = Math.hypot(w.x - t2Observer.x, w.y - t2Observer.y);
+                
+                if (w.radius >= distToWaveCenter) soundReached = true;
+                
+                if (Math.abs(distToWaveCenter - w.radius) < 10) { 
+                    overlapCount++;
                 }
 
-                if (w.radius > canvas.width) waves.splice(i, 1);
+                if (w.radius > canvas.width * 1.5) waves.splice(i, 1);
             }
+
+            // Smoothed VU Meter Logic
+            let targetDb = 40;
+            if (overlapCount > 0) targetDb = Math.min(160, 60 + (overlapCount * 35));
+            
+            let alpha = state.isPlaying ? (dt / 0.15) : 0; 
+            if (alpha > 1) alpha = 1;
+            
+            if (targetDb > state.t2SmoothedDb) {
+                state.t2SmoothedDb += (targetDb - state.t2SmoothedDb) * (alpha * 4.0);
+            } else {
+                state.t2SmoothedDb += (targetDb - state.t2SmoothedDb) * (alpha * 0.4);
+            }
+            
+            if (state.t2SmoothedDb < 40) state.t2SmoothedDb = 40;
+
+            // --- Continuous Engine Sound Logic ---
+            if (state.t2SoundEnabled && audioCtx && t2Gain) {
+                let dist = Math.hypot(source.x - t2Observer.x, source.y - t2Observer.y);
+                let v_radial = vs * ((t2Observer.x - source.x) / (dist || 1));
+                
+                let dopplerFreq = 150;
+                let denom = V_SOUND - v_radial;
+                if (denom > 1) {
+                    dopplerFreq = 150 * (V_SOUND / denom);
+                } else {
+                    dopplerFreq = 150 * 2; 
+                }
+
+                let baseVol = soundReached ? Math.min(1, 150 / (dist + 10)) : 0;
+                if (!state.isPlaying) baseVol = 0;
+
+                t2Osc.frequency.setTargetAtTime(dopplerFreq, audioCtx.currentTime, 0.1);
+                t2Filter.frequency.setTargetAtTime(300 + baseVol * 2000, audioCtx.currentTime, 0.1);
+                t2Gain.gain.setTargetAtTime(baseVol * 0.3, audioCtx.currentTime, 0.1);
+            } else if (t2Gain && audioCtx) {
+                t2Gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+            }
+
 
             if (inT2Cone?.checked && vs > V_SOUND) {
                 const angleRad = Math.asin(V_SOUND / vs);
@@ -1448,24 +1685,39 @@
             }
 
             // Draw Ground Observer (Sensor)
-            ctx.fillStyle = '#00d4ff';
+            ctx.fillStyle = state.t2SensorDragging ? '#fff' : '#00d4ff';
             ctx.beginPath();
-            ctx.arc(t2Observer.x, t2Observer.y, 8, 0, Math.PI * 2);
+            ctx.arc(t2Observer.x, t2Observer.y, 10, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#fff';
-            ctx.font = '10px var(--font-mono)';
-            ctx.fillText('SENSOR', t2Observer.x - 18, t2Observer.y + 20);
-
-            // Audio trigger on Constructive Interference Spike (Sonic Boom)
-            if (state.t2SoundEnabled && currentPressure > 1.5 && state.lastFramePressure <= 1.5) {
-                playSonicBoom();
+            
+            if (state.t2SmoothedDb > 50) {
+                ctx.strokeStyle = `rgba(0, 212, 255, ${state.t2SmoothedDb / 160})`;
+                ctx.lineWidth = state.t2SmoothedDb / 40;
+                ctx.beginPath();
+                ctx.arc(t2Observer.x, t2Observer.y, 10 + (state.t2SmoothedDb/10), 0, Math.PI * 2);
+                ctx.stroke();
             }
-            state.lastFramePressure = currentPressure;
 
-            // Update Pressure UI
-            if (currentPressure > t2MaxPressure) t2MaxPressure = currentPressure;
-            document.getElementById('out-t2-pressure').innerText = currentPressure.toFixed(2) + ' atm';
-            document.getElementById('out-t2-max-pressure').innerText = t2MaxPressure.toFixed(2) + ' atm';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px var(--font-mono)';
+            const sensorText = dict[state.lang]['t-canvas-sensor'];
+            ctx.fillText(sensorText, t2Observer.x, t2Observer.y + 28);
+            ctx.textAlign = 'left'; // reset
+
+            // Trigger bang perfectly once when shockwave edge crosses the sensor
+            if (state.t2SoundEnabled && vs >= V_SOUND && targetDb > 110 && !state.t2BoomTriggered) {
+                playSonicBoom(targetDb);
+                state.t2BoomTriggered = true;
+            }
+
+            // Update DB UI
+            const displayDb = state.t2SmoothedDb.toFixed(0);
+            document.getElementById('out-t2-vu-val').innerText = `${displayDb} dB`;
+            
+            let fillPercent = ((state.t2SmoothedDb - 40) / 120) * 100;
+            if (fillPercent < 0) fillPercent = 0; if (fillPercent > 100) fillPercent = 100;
+            document.getElementById('vu-fill').style.width = `${fillPercent}%`;
 
             // Draw Source Jet
             ctx.fillStyle = '#fff';
@@ -1477,27 +1729,27 @@
         function renderTab3(dt) {
             const beta = inT3Vs ? parseFloat(inT3Vs.value) : 0;
             
-            // Adjust observer and star positions for better visual diagonal layout
             const obsX = canvas.width / 2 - 120;
             const obsY = canvas.height / 2 + 50;
             const sX = canvas.width / 2 + 180;
             const sY = canvas.height / 2 - 80;
             
+            ctx.textAlign = 'center';
             ctx.fillStyle = '#fff';
             ctx.beginPath();
-            ctx.arc(obsX, obsY, 5, 0, Math.PI * 2);
+            ctx.arc(obsX, obsY, 6, 0, Math.PI * 2);
             ctx.fill();
-            ctx.font = '12px var(--font-mono)';
-            ctx.fillText('Observer', obsX - 25, obsY + 20);
+            ctx.font = 'bold 16px var(--font-mono)';
+            const obsText = dict[state.lang]['t-canvas-obs'];
+            ctx.fillText(obsText, obsX, obsY + 25);
 
-            // Simulation speeds
-            const c_scale = 100; // Speed of light in pixels/s
+            const c_scale = 100; 
             const v = beta * c_scale;
-            const angle = Math.atan2(sY - obsY, sX - obsX); // Angle from obs to star
+            const angle = Math.atan2(sY - obsY, sX - obsX); 
             const v_x = v * Math.cos(angle);
             const v_y = v * Math.sin(angle);
             
-            const visualPeriod = 0.25; // Fixed emission period in star frame
+            const visualPeriod = 0.25; 
             
             if (state.isPlaying && simTime - source.lastEmit > visualPeriod) {
                 waves.push({ age: 0 }); 
@@ -1514,23 +1766,20 @@
                     continue;
                 }
                 
-                // Position of wave center (drifts opposite to star's velocity in the star's rendered frame)
                 let wx = sX - v_x * w.age;
                 let wy = sY - v_y * w.age;
 
                 ctx.beginPath();
                 ctx.arc(wx, wy, r, 0, Math.PI * 2);
                 
-                // Color gradient based on direction of motion
                 if (Math.abs(beta) > 0.01) {
-                    let vDir = beta >= 0 ? angle : angle + Math.PI; // Actual direction star is moving
-                    // Gradient from rarefied (red) to compressed (blue)
+                    let vDir = beta >= 0 ? angle : angle + Math.PI;
                     let grad = ctx.createLinearGradient(
                         wx - r * Math.cos(vDir), wy - r * Math.sin(vDir),
                         wx + r * Math.cos(vDir), wy + r * Math.sin(vDir)
                     );
-                    grad.addColorStop(0, 'rgba(255, 50, 50, 0.6)'); // Red trailing edge
-                    grad.addColorStop(1, 'rgba(50, 150, 255, 0.6)'); // Blue compressed edge
+                    grad.addColorStop(0, 'rgba(255, 50, 50, 0.6)'); 
+                    grad.addColorStop(1, 'rgba(50, 150, 255, 0.6)');
                     ctx.strokeStyle = grad;
                 } else {
                     ctx.strokeStyle = 'rgba(255,255,255,0.4)';
@@ -1540,8 +1789,12 @@
                 ctx.stroke();
             }
 
-            // Star rendering
-            const starColor = beta > 0.01 ? `rgba(255, 50, 50, 1)` : (beta < -0.01 ? `rgba(50, 150, 255, 1)` : `#fff`);
+            // Star observed color calculation via Color Temperature (Kelvin)
+            const z = Math.sqrt((1 + beta) / (1 - beta)) - 1;
+            const baseTemp = 6500; // Base pure white star
+            const obsTemp = baseTemp / (1 + z); 
+            const starColor = kelvinToRGB(obsTemp);
+
             ctx.fillStyle = starColor;
             ctx.beginPath();
             ctx.arc(sX, sY, 12, 0, Math.PI * 2);
@@ -1550,24 +1803,33 @@
             ctx.fill();
             ctx.shadowBlur = 0; 
 
-            // Velocity Vector arrow pointing in correct direction
+            // Text Label shadow to ensure readability on stars
+            ctx.fillStyle = '#fff';
+            ctx.shadowBlur = 4;
+            ctx.shadowColor = '#000';
+            ctx.font = 'bold 18px var(--font-mono)';
+            const starText = dict[state.lang]['t-canvas-star'];
+            ctx.fillText(starText, sX, sY - 22);
+            ctx.shadowBlur = 0;
+            
+            ctx.textAlign = 'left'; // reset
+
+            // Velocity Vector 
             if (Math.abs(beta) > 0.01) {
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.moveTo(sX, sY);
                 
-                const vecLength = Math.abs(beta) * 120; // Length proportional to speed
-                const dirAngle = beta > 0 ? angle : angle + Math.PI; // Adjust direction based on approach/recede
+                const vecLength = Math.abs(beta) * 120; 
+                const dirAngle = beta > 0 ? angle : angle + Math.PI; 
                 
                 const endX = sX + Math.cos(dirAngle) * vecLength;
                 const endY = sY + Math.sin(dirAngle) * vecLength;
                 
-                // Arrow line
                 ctx.lineTo(endX, endY);
                 ctx.stroke();
                 
-                // Arrowhead
                 ctx.beginPath();
                 ctx.moveTo(endX, endY);
                 ctx.lineTo(endX - 8 * Math.cos(dirAngle - Math.PI/6), endY - 8 * Math.sin(dirAngle - Math.PI/6));
@@ -1577,7 +1839,6 @@
             }
         }
 
-        // Initialize values on load
         createSpectrumLines();
         updateTab1Data();
         updateTab2Data();
