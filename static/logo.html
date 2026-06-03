@@ -41,7 +41,14 @@
             align-items: center;
             justify-content: center;
             z-index: 100;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+
+        #splash-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
 
         .splash-content {
@@ -49,29 +56,30 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(26, 36, 47, 0.9);
+            background: transparent; /* Removed rigid box */
             padding: 3rem;
-            border-radius: 12px;
-            border: 1px solid var(--accent-turquoise);
             text-align: center;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
         }
 
         h1 {
-            font-size: 3.5rem;
+            font-size: 4.5rem;
             color: var(--accent-turquoise);
             margin-bottom: 0.5rem;
-            letter-spacing: 4px;
+            letter-spacing: 6px;
+            text-shadow: 0 0 25px rgba(64, 224, 208, 0.6);
         }
 
         .subtitle {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: var(--accent-mango);
-            margin-bottom: 2rem;
-            letter-spacing: 2px;
+            margin-bottom: 2.5rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         button {
-            background: rgba(0,0,0,0.2);
+            background: rgba(26, 36, 47, 0.8);
             border: 1px solid var(--accent-turquoise);
             color: var(--accent-turquoise);
             padding: 0.6rem 1.2rem;
@@ -81,11 +89,13 @@
             cursor: pointer;
             transition: all 0.2s ease;
             text-transform: uppercase;
+            backdrop-filter: blur(4px);
         }
 
         button:hover, button.active {
             background: var(--accent-turquoise);
             color: var(--bg-color);
+            box-shadow: 0 0 15px rgba(64, 224, 208, 0.4);
         }
 
         button.mango {
@@ -96,9 +106,10 @@
         button.mango:hover, button.mango.active {
             background: var(--accent-mango);
             color: var(--bg-color);
+            box-shadow: 0 0 15px rgba(255, 130, 67, 0.4);
         }
 
-        /* --- MAIN APP --- */
+        /* --- MAIN APP LAYOUT --- */
         #app-container {
             display: none;
             width: 100%;
@@ -114,6 +125,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 1rem;
+            z-index: 10;
         }
 
         .header-tools { display: flex; gap: 0.5rem; align-items: center; }
@@ -131,10 +143,12 @@
             display: flex;
             flex: 1;
             overflow: hidden;
+            position: relative;
         }
 
-        aside {
-            width: 300px;
+        /* Left Panel */
+        aside#left-panel {
+            width: 280px;
             background: var(--panel-bg);
             border-right: 1px solid var(--border-color);
             padding: 1rem;
@@ -142,6 +156,27 @@
             flex-direction: column;
             gap: 1.25rem;
             overflow-y: auto;
+            z-index: 5;
+        }
+
+        /* Right Panel (Report) */
+        aside#right-panel {
+            width: 320px;
+            background: var(--panel-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 5;
+        }
+
+        .panel-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--accent-turquoise);
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .tool-section h3 {
@@ -150,6 +185,8 @@
             margin-bottom: 0.5rem;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 0.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .tool-grid {
@@ -184,7 +221,7 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 221, 87, 0); }
         }
 
-        /* --- STYLES & PROPERTIES PANEL --- */
+        /* --- STYLES & PROPERTIES --- */
         .style-panel, #properties-panel {
             background: rgba(0,0,0,0.2);
             padding: 0.75rem;
@@ -268,12 +305,13 @@
         }
         .picker-cell:hover { border: 1px solid white; transform: scale(1.1); }
 
-        /* --- CANVAS --- */
+        /* --- CANVAS & ZOOM --- */
         .canvas-wrapper {
             flex: 1;
             position: relative;
             background: var(--canvas-bg);
             cursor: crosshair;
+            overflow: hidden;
         }
 
         #geo-canvas {
@@ -291,6 +329,26 @@
             border-radius: 4px;
             font-family: monospace;
             color: var(--accent-mango);
+            pointer-events: none;
+        }
+        
+        /* Zoom Controls */
+        #zoom-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: flex;
+            gap: 0.3rem;
+            background: rgba(26, 36, 47, 0.9);
+            padding: 0.3rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .zoom-btn {
+            padding: 0.3rem 0.6rem;
+            font-size: 1rem;
+            font-weight: bold;
         }
 
         #poly-finish-btn {
@@ -307,7 +365,38 @@
             z-index: 50;
         }
 
-        /* --- MODALS (Help & Report) --- */
+        /* --- REPORT TABLE STYLES --- */
+        #report-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        #report-content table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        #report-content th {
+            border-bottom: 1px solid var(--accent-turquoise);
+            padding: 6px;
+            text-align: left;
+            color: var(--accent-turquoise);
+            position: sticky;
+            top: 0;
+            background: var(--panel-bg);
+        }
+        #report-content td {
+            border-bottom: 1px solid var(--border-color);
+            padding: 6px;
+            vertical-align: top;
+        }
+
+        #report-export-wrapper {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* --- HELP MODAL --- */
         .modal-overlay {
             position: absolute;
             top: 50%; left: 50%;
@@ -321,8 +410,6 @@
             width: 90%;
             display: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            max-height: 80vh;
-            display: flex;
             flex-direction: column;
         }
         
@@ -338,12 +425,6 @@
         .modal-overlay h2 { color: var(--accent-turquoise); }
         .modal-overlay ul { margin-left: 1.5rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.5; color: var(--text-main); }
         .modal-overlay li { margin-bottom: 0.5rem; }
-
-        /* Report Table Styles */
-        #report-content { overflow-y: auto; flex: 1; margin-bottom: 1rem; }
-        #report-content table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        #report-content th { border-bottom: 1px solid var(--accent-turquoise); padding: 8px; text-align: left; color: var(--accent-turquoise); }
-        #report-content td { border-bottom: 1px solid var(--border-color); padding: 8px; }
         
     </style>
 </head>
@@ -351,6 +432,7 @@
 
     <!-- Splash Screen -->
     <div id="splash-screen">
+        <canvas id="splash-canvas"></canvas>
         <div class="splash-content">
             <h1>GeoLogo</h1>
             <div class="subtitle" data-en="Magnetic Geometric Engine" data-fr="Moteur Géométrique Magnétique">Magnetic Geometric Engine</div>
@@ -365,30 +447,18 @@
     </div>
 
     <!-- Help Modal -->
-    <div id="help-modal" class="modal-overlay" style="display:none;">
+    <div id="help-modal" class="modal-overlay">
         <div class="modal-header">
             <h2 data-en="How to use GeoLogo" data-fr="Comment utiliser GeoLogo">How to use GeoLogo</h2>
             <button onclick="document.getElementById('help-modal').style.display='none'">X</button>
         </div>
         <ul>
             <li data-en="1. Magnetic Grid: The cursor snaps automatically for precise alignments." data-fr="1. Grille Magnétique : Le curseur s'accroche automatiquement pour des alignements précis.">1. Magnetic Grid: The cursor snaps automatically for precise alignments.</li>
-            <li data-en="2. Identity: Every shape gets an ID number attached to it automatically." data-fr="2. Identité : Chaque forme reçoit automatiquement un numéro d'identification.">2. Identity: Every shape gets an ID number attached to it automatically.</li>
-            <li data-en="3. Transform & Preview: Select a shape. Type an Angle or X/Y Translation. A ghost preview will appear! Click 'Apply'." data-fr="3. Transformer & Prévisualiser : Sélectionnez une forme. Tapez un angle ou une translation. Un aperçu fantôme apparaîtra !">3. Transform & Preview: Select a shape. Type an Angle or X/Y Translation. A ghost preview will appear! Click 'Apply'.</li>
-            <li data-en="4. History Report: Click 'Report' at the top to track your shapes and their transformation history." data-fr="4. Rapport d'Historique : Cliquez sur 'Rapport' en haut pour suivre vos formes et leurs transformations.">4. History Report: Click 'Report' at the top to track your shapes and their transformation history.</li>
+            <li data-en="2. Zoom: Scroll your mouse wheel or use the (+/-) buttons to zoom in and out." data-fr="2. Zoom : Utilisez la molette de la souris ou les boutons (+/-) pour zoomer.">2. Zoom: Scroll your mouse wheel or use the (+/-) buttons to zoom in and out.</li>
+            <li data-en="3. Transform & Preview: Select a shape. Type an Angle or Translation. A ghost preview will appear! Click 'Apply'." data-fr="3. Transformer & Prévisualiser : Sélectionnez une forme. Tapez un angle ou une translation. Un aperçu fantôme apparaîtra !">3. Transform & Preview: Select a shape. Type an Angle or Translation. A ghost preview will appear! Click 'Apply'.</li>
+            <li data-en="4. History Report: The right panel tracks all shapes and their transformations automatically." data-fr="4. Rapport d'Historique : Le panneau de droite suit automatiquement toutes les formes et leurs transformations.">4. History Report: The right panel tracks all shapes and their transformations automatically.</li>
         </ul>
         <button onclick="document.getElementById('help-modal').style.display='none'" class="mango" style="width:100%" data-en="Got it!" data-fr="Compris !">Got it!</button>
-    </div>
-
-    <!-- Designer's Report Modal -->
-    <div id="report-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-header">
-            <h2 data-en="Designer's Report" data-fr="Rapport du Graphiste">Designer's Report</h2>
-            <button onclick="document.getElementById('report-modal').style.display='none'">X</button>
-        </div>
-        <div id="report-content">
-            <!-- Table dynamically injected here -->
-        </div>
-        <button class="mango" style="width:100%" onclick="exportReport()" data-en="Export Report (TXT)" data-fr="Exporter Rapport (TXT)">Export Report (TXT)</button>
     </div>
 
     <!-- Color Picker -->
@@ -407,14 +477,14 @@
                 </div>
             </div>
             <div class="header-tools">
-                <button data-en="Report" data-fr="Rapport" onclick="showReport()">Report</button>
                 <button data-en="Clear All" data-fr="Tout Effacer" onclick="clearCanvas()">Clear All</button>
                 <button data-en="Export PNG" data-fr="Exporter PNG" onclick="exportImage()" class="mango">Export PNG</button>
             </div>
         </header>
 
         <main>
-            <aside>
+            <!-- LEFT PANEL: TOOLS -->
+            <aside id="left-panel">
                 <!-- GLOBAL STYLES -->
                 <div class="style-panel">
                     <h4 class="panel-title" data-en="Global Style" data-fr="Style Global">Global Style</h4>
@@ -436,7 +506,7 @@
                 </div>
 
                 <div class="tool-section">
-                    <h3 data-en="1. Draw Tools" data-fr="1. Outils de Dessin">1. Draw Tools</h3>
+                    <h3 data-en="Draw Tools" data-fr="Outils de Dessin">Draw Tools</h3>
                     <div class="tool-grid">
                         <button class="tool-btn active" data-tool="line" data-en="Line" data-fr="Ligne">Line</button>
                         <button class="tool-btn" data-tool="rect" data-en="Rectangle" data-fr="Rectangle">Rectangle</button>
@@ -498,11 +568,32 @@
                 </div>
             </aside>
 
+            <!-- CENTER: CANVAS -->
             <div class="canvas-wrapper">
                 <canvas id="geo-canvas"></canvas>
+                
+                <div id="zoom-controls">
+                    <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
+                    <button class="zoom-btn" onclick="resetZoom()" id="zoom-readout">100%</button>
+                    <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
+                </div>
+                
                 <div id="coords-display">X: 0, Y: 0</div>
                 <button id="poly-finish-btn" onclick="finishPolygon()" data-en="Close Polygon" data-fr="Fermer Polygone">Close Polygon</button>
             </div>
+
+            <!-- RIGHT PANEL: REPORT -->
+            <aside id="right-panel">
+                <div class="panel-header">
+                    <span data-en="Designer's Report" data-fr="Rapport du Graphiste">Designer's Report</span>
+                </div>
+                <div id="report-content">
+                    <!-- Dynamic Table -->
+                </div>
+                <div id="report-export-wrapper">
+                    <button class="mango" style="width:100%" onclick="exportReport()" data-en="Export TXT" data-fr="Exporter TXT">Export TXT</button>
+                </div>
+            </aside>
         </main>
     </div>
 
@@ -517,12 +608,94 @@
             });
             document.querySelectorAll('.lang-btn-en').forEach(btn => btn.classList.toggle('active', lang === 'en'));
             document.querySelectorAll('.lang-btn-fr').forEach(btn => btn.classList.toggle('active', lang === 'fr'));
-            
-            // Re-render report if open to update column names
-            if (document.getElementById('report-modal').style.display === 'flex') showReport();
+            updateReportPanel();
         }
         document.querySelectorAll('.lang-btn-en').forEach(btn => btn.addEventListener('click', () => updateLanguage('en')));
         document.querySelectorAll('.lang-btn-fr').forEach(btn => btn.addEventListener('click', () => updateLanguage('fr')));
+
+        // --- SPLASH SCREEN ANIMATION ---
+        const sCanvas = document.getElementById('splash-canvas');
+        const sCtx = sCanvas.getContext('2d');
+        let splashParticles = [];
+        let splashAnimationId;
+
+        function initSplashAnimation() {
+            sCanvas.width = window.innerWidth;
+            sCanvas.height = window.innerHeight;
+            splashParticles = [];
+            const colors = ['#40E0D0', '#FF8243', '#ffdd57'];
+            
+            for (let i = 0; i < 50; i++) {
+                splashParticles.push({
+                    x: Math.random() * sCanvas.width,
+                    y: Math.random() * sCanvas.height,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 1.5,
+                    size: Math.random() * 30 + 10,
+                    type: Math.floor(Math.random() * 3), // 0: circle, 1: rect, 2: line
+                    rot: Math.random() * Math.PI * 2,
+                    rotSpeed: (Math.random() - 0.5) * 0.04,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    pulseSpeed: Math.random() * 0.003 + 0.001,
+                    pulseOffset: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        function animateSplash() {
+            if(document.getElementById('splash-screen').style.display === 'none') return;
+            
+            sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
+
+            splashParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.rot += p.rotSpeed;
+
+                // Screen Wrap
+                if (p.x < -p.size) p.x = sCanvas.width + p.size;
+                if (p.x > sCanvas.width + p.size) p.x = -p.size;
+                if (p.y < -p.size) p.y = sCanvas.height + p.size;
+                if (p.y > sCanvas.height + p.size) p.y = -p.size;
+
+                // Pulsing Scale
+                let currentScale = Math.sin(Date.now() * p.pulseSpeed + p.pulseOffset) * 0.3 + 1.0;
+
+                sCtx.save();
+                sCtx.translate(p.x, p.y);
+                sCtx.rotate(p.rot);
+                sCtx.scale(currentScale, currentScale);
+                
+                sCtx.strokeStyle = p.color;
+                sCtx.lineWidth = 2;
+                
+                // Glow effect
+                sCtx.shadowBlur = 15;
+                sCtx.shadowColor = p.color;
+                
+                sCtx.beginPath();
+                if (p.type === 0) {
+                    sCtx.arc(0, 0, p.size, 0, Math.PI * 2);
+                } else if (p.type === 1) {
+                    sCtx.rect(-p.size/2, -p.size/2, p.size, p.size);
+                } else {
+                    sCtx.moveTo(0, -p.size);
+                    sCtx.lineTo(0, p.size);
+                }
+                
+                sCtx.globalAlpha = 0.6;
+                sCtx.stroke();
+                sCtx.restore();
+            });
+
+            splashAnimationId = requestAnimationFrame(animateSplash);
+        }
+        initSplashAnimation();
+        animateSplash();
+        window.addEventListener('resize', () => {
+            if(document.getElementById('splash-screen').style.display !== 'none') initSplashAnimation();
+        });
+
 
         // --- 64 COLOR GAMUT PALETTE ---
         const palette64 = [
@@ -623,10 +796,14 @@
         const splash = document.getElementById('splash-screen');
         const app = document.getElementById('app-container');
         document.getElementById('start-btn').addEventListener('click', () => {
-            splash.style.display = 'none';
-            app.style.display = 'flex';
-            resizeCanvas();
-            document.getElementById('help-modal').style.display = 'flex'; 
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                cancelAnimationFrame(splashAnimationId);
+                app.style.display = 'flex';
+                resizeCanvas();
+                updateReportPanel();
+            }, 500);
         });
 
         // --- GEOMETRIC ENGINE STATE ---
@@ -635,15 +812,18 @@
         const coordsDisplay = document.getElementById('coords-display');
         const propsPanel = document.getElementById('properties-panel');
         const polyFinishBtn = document.getElementById('poly-finish-btn');
-        const gridSize = 25; // Finer Grid Resolution
+        const gridSize = 25; 
         
         let shapes = []; 
         let activeShapeIndex = -1;
         let currentTool = 'line';
         
+        // Zoom State
+        let zoomLevel = 1.0;
+        
         // Identity Tracking
         let nextGlobalBaseId = 1;
-        let familyCloneCounters = {}; // tracks how many clones a baseId has
+        let familyCloneCounters = {}; 
         
         let isDrawing = false;
         let isDragging = false;
@@ -675,7 +855,7 @@
             });
         });
 
-        // --- CORE MATH & COORDINATES ---
+        // --- CORE MATH, ZOOM & COORDINATES ---
         function resizeCanvas() {
             const wrapper = document.querySelector('.canvas-wrapper');
             canvas.width = wrapper.clientWidth;
@@ -684,47 +864,78 @@
             originY = canvas.height / 2;
             redraw();
         }
-        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('resize', () => {
+            if(app.style.display !== 'none') resizeCanvas();
+        });
 
-        // Magnetic Grid Snap
+        function adjustZoom(delta) {
+            zoomLevel += delta;
+            if(zoomLevel < 0.2) zoomLevel = 0.2;
+            if(zoomLevel > 4.0) zoomLevel = 4.0;
+            document.getElementById('zoom-readout').innerText = Math.round(zoomLevel * 100) + '%';
+            redraw();
+        }
+        function resetZoom() {
+            zoomLevel = 1.0;
+            document.getElementById('zoom-readout').innerText = '100%';
+            redraw();
+        }
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            adjustZoom(e.deltaY < 0 ? 0.1 : -0.1);
+        });
+
+        // Map Screen coordinates to Mathematical Cartesian (Accounts for Zoom & Center Origin)
         function toMathSnapped(sx, sy) { 
-            let rawX = sx - originX;
-            let rawY = originY - sy;
+            let rawX = (sx - originX) / zoomLevel;
+            let rawY = (originY - sy) / zoomLevel;
             return { 
                 x: Math.round(rawX / gridSize) * gridSize, 
                 y: Math.round(rawY / gridSize) * gridSize 
             }; 
         }
-        function toScreen(cx, cy) { return { x: cx + originX, y: originY - cy }; }
+        
+        // Map Mathematical Cartesian to Screen (Accounts for Zoom)
+        function toScreen(cx, cy) { 
+            return { 
+                x: cx * zoomLevel + originX, 
+                y: originY - cy * zoomLevel 
+            }; 
+        }
 
         // --- REPORT LOGIC ---
-        function showReport() {
+        function updateReportPanel() {
             const container = document.getElementById('report-content');
-            container.innerHTML = '';
             
             const trHeaderID = currentLang === 'en' ? 'ID' : 'ID';
             const trHeaderType = currentLang === 'en' ? 'Type' : 'Type';
-            const trHeaderTrans = currentLang === 'en' ? 'Transformations (History)' : 'Transformations (Historique)';
+            const trHeaderTrans = currentLang === 'en' ? 'History' : 'Historique';
             
             if(shapes.length === 0) {
-                container.innerHTML = `<p>${currentLang === 'en' ? 'No shapes created yet.' : 'Aucune forme créée pour le moment.'}</p>`;
+                container.innerHTML = `<p style="color:var(--text-muted); text-align:center; margin-top:2rem;">${currentLang === 'en' ? 'No shapes created yet.' : 'Aucune forme créée pour le moment.'}</p>`;
             } else {
                 let table = '<table>';
                 table += `<tr><th>${trHeaderID}</th><th>${trHeaderType}</th><th>${trHeaderTrans}</th></tr>`;
-                shapes.forEach(s => {
-                    let transText = s.transformations.join(' ➔ ');
-                    if(!transText) transText = currentLang === 'en' ? 'None' : 'Aucune';
+                
+                // Sort by base ID so families stay together
+                let sortedShapes = [...shapes].sort((a,b) => {
+                    return a.displayId.localeCompare(b.displayId, undefined, {numeric: true});
+                });
+
+                sortedShapes.forEach(s => {
+                    let transText = s.transformations.join('<br>');
+                    if(!transText) transText = currentLang === 'en' ? '-' : '-';
                     
                     table += `<tr>
                         <td><strong>${s.displayId}</strong></td>
-                        <td style="text-transform:capitalize;">${s.type}</td>
+                        <td style="text-transform:capitalize; color:var(--text-main);">${s.type}</td>
                         <td style="font-size:0.85em; color:var(--text-muted);">${transText}</td>
                     </tr>`;
                 });
                 table += '</table>';
                 container.innerHTML = table;
             }
-            document.getElementById('report-modal').style.display = 'flex';
         }
 
         function exportReport() {
@@ -734,7 +945,8 @@
             if(shapes.length === 0) {
                 text += "No shapes detected / Aucune forme détectée.\n";
             } else {
-                shapes.forEach(s => {
+                let sortedShapes = [...shapes].sort((a,b) => a.displayId.localeCompare(b.displayId, undefined, {numeric: true}));
+                sortedShapes.forEach(s => {
                     text += `[ ID: ${s.displayId} ]\n`;
                     text += `Type: ${s.type.toUpperCase()}\n`;
                     text += `Transformations:\n  ${s.transformations.length > 0 ? s.transformations.join('\n  -> ') : 'None / Aucune'}\n`;
@@ -749,18 +961,20 @@
             link.click();
         }
 
-
         // --- RENDERING ---
         function drawGrid() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const scaledGrid = gridSize * zoomLevel;
+
             ctx.strokeStyle = 'rgba(44, 58, 74, 0.4)';
             ctx.lineWidth = 1;
             ctx.beginPath();
             
-            for (let x = originX % gridSize; x < canvas.width; x += gridSize) {
+            for (let x = originX % scaledGrid; x < canvas.width; x += scaledGrid) {
                 ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
             }
-            for (let y = originY % gridSize; y < canvas.height; y += gridSize) {
+            for (let y = originY % scaledGrid; y < canvas.height; y += scaledGrid) {
                 ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
             }
             ctx.stroke();
@@ -815,8 +1029,8 @@
             // Draw ID Text
             if (!isGhost && shape.displayId) {
                 ctx.fillStyle = isSelected ? '#ffdd57' : '#ffffff';
-                ctx.font = '13px monospace';
-                ctx.fillText(shape.displayId, pts[0].x + 8, pts[0].y - 8);
+                ctx.font = '12px monospace';
+                ctx.fillText(shape.displayId, pts[0].x + 6, pts[0].y - 6);
             }
             
             ctx.restore();
@@ -915,8 +1129,12 @@
 
             if (currentTool === 'select') {
                 let clickedIndex = -1;
+                // We map raw mouse position to Math space for hit detection, so threshold scales with zoom.
+                let rawMathX = (pos.x - originX) / zoomLevel;
+                let rawMathY = (originY - pos.y) / zoomLevel;
+                
                 for(let i = shapes.length - 1; i >= 0; i--) {
-                    if (isPointNearShape(mathPos, shapes[i])) {
+                    if (isPointNearShape({x: rawMathX, y: rawMathY}, shapes[i])) {
                         clickedIndex = i; break;
                     }
                 }
@@ -978,8 +1196,6 @@
                         shapes[activeShapeIndex].customCenter.x += dx;
                         shapes[activeShapeIndex].customCenter.y += dy;
                     }
-                    // For manual dragging, we can log a generic translation, but dragging dynamically is tricky to track cleanly.
-                    // We'll trust the explicit Transform panel for "Report" logging of translations.
                     startX = mathPos.x;
                     startY = mathPos.y;
                     redraw();
@@ -995,17 +1211,24 @@
                 
                 if(Math.abs(mathPos.x - startX) > 0 || Math.abs(mathPos.y - startY) > 0) {
                     shapes.push(createShapeData(currentTool, startX, startY, mathPos.x, mathPos.y));
+                    updateReportPanel();
                 }
                 redraw();
+            }
+            
+            if(isDragging) {
+                // If the shape was dragged dynamically, log a generic update to avoid spamming the report
+                updateReportPanel();
             }
             isDragging = false;
         }
 
         function finishPolygon() {
             if (polyPts.length >= 3) {
-                let sData = createShapeData('polygon', 0,0,0,0); // generic factory call
+                let sData = createShapeData('polygon', 0,0,0,0); 
                 sData.points = [...polyPts];
                 shapes.push(sData);
+                updateReportPanel();
             }
             polyPts = [];
             polyFinishBtn.style.display = 'none';
@@ -1073,6 +1296,7 @@
             
             document.getElementById('prop-trans-x').value = 0;
             document.getElementById('prop-trans-y').value = 0;
+            updateReportPanel();
             redraw();
         }
 
@@ -1096,6 +1320,7 @@
             
             shape.transformations.push(`Rot: ${deg}°`);
             document.getElementById('prop-angle').value = 0; 
+            updateReportPanel();
             redraw();
         }
 
@@ -1114,6 +1339,7 @@
 
             shape.transformations.push(`Refl: ${axis.toUpperCase()}`);
             updatePropUIFromShape(); 
+            updateReportPanel();
             redraw();
         }
 
@@ -1125,12 +1351,13 @@
             // Assign Iteration Identity
             familyCloneCounters[original.baseId]++;
             const cloneNum = familyCloneCounters[original.baseId];
-            copy.displayId = original.baseId.toString() + String.fromCharCode(96 + cloneNum); // e.g., 1a, 1b
+            copy.displayId = original.baseId.toString() + String.fromCharCode(96 + cloneNum); 
             
             copy.transformations.push(`Cloned from [${original.displayId}]`);
             
             shapes.push(copy);
             activeShapeIndex = shapes.length - 1;
+            updateReportPanel();
             redraw();
         }
 
@@ -1140,15 +1367,18 @@
             activeShapeIndex = -1;
             propsPanel.style.display = 'none';
             if(isPickingCenter) cancelPickCenter();
+            updateReportPanel();
             redraw();
         }
 
         // --- HIT DETECTION ---
-        function isPointNearShape(pt, shape) {
-            const threshold = 12;
+        function isPointNearShape(mathPt, shape) {
+            // Threshold is in pixels. Scale it by zoom level so it feels consistent when zoomed out.
+            const threshold = 12 / zoomLevel; 
+            
             if (shape.type === 'circle') {
                 const r = Math.hypot(shape.points[1].x - shape.points[0].x, shape.points[1].y - shape.points[0].y);
-                const distToCenter = Math.hypot(pt.x - shape.points[0].x, pt.y - shape.points[0].y);
+                const distToCenter = Math.hypot(mathPt.x - shape.points[0].x, mathPt.y - shape.points[0].y);
                 if (shape.fill.type !== 'none') return distToCenter <= r + threshold;
                 return Math.abs(distToCenter - r) < threshold;
             } 
@@ -1159,14 +1389,14 @@
                      if(p.x < minX) minX=p.x; if(p.x > maxX) maxX=p.x;
                      if(p.y < minY) minY=p.y; if(p.y > maxY) maxY=p.y;
                  });
-                 if (pt.x >= minX - threshold && pt.x <= maxX + threshold && pt.y >= minY - threshold && pt.y <= maxY + threshold) return true;
+                 if (mathPt.x >= minX - threshold && mathPt.x <= maxX + threshold && mathPt.y >= minY - threshold && mathPt.y <= maxY + threshold) return true;
             }
 
             for(let i=0; i<shape.points.length; i++) {
                 const p1 = shape.points[i];
                 const p2 = shape.type === 'line' ? shape.points[1] : shape.points[(i+1)%shape.points.length];
                 if(shape.type === 'line' && i === 1) break; 
-                if (distToSegmentSquared(pt, p1, p2) < threshold*threshold) return true;
+                if (distToSegmentSquared(mathPt, p1, p2) < threshold*threshold) return true;
             }
             return false;
         }
@@ -1186,7 +1416,8 @@
             activeShapeIndex = -1; 
             nextGlobalBaseId = 1;
             familyCloneCounters = {};
-            propsPanel.style.display='none'; 
+            propsPanel.style.display='none';
+            updateReportPanel();
             redraw(); 
         }
         
