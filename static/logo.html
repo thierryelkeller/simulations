@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GeoLogo Architect</title>
+    <title>GeoLogo Architect - Full Engine</title>
     <style>
         :root {
             --bg-color: #0f171e;
@@ -12,6 +12,7 @@
             --text-muted: #8b9bb4;
             --accent-turquoise: #40E0D0;
             --accent-mango: #FF8243;
+            --accent-highlight: #ffdd57;
             --border-color: #2c3a4a;
             --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             --canvas-bg: #1e2936;
@@ -40,14 +41,7 @@
             align-items: center;
             justify-content: center;
             z-index: 100;
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        #splash-canvas {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0;
-            pointer-events: none;
+            transition: opacity 0.5s ease;
         }
 
         .splash-content {
@@ -55,56 +49,43 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(15, 23, 30, 0.7);
+            background: rgba(26, 36, 47, 0.9);
             padding: 3rem;
             border-radius: 12px;
-            border: 1px solid rgba(64, 224, 208, 0.2);
-            backdrop-filter: blur(5px);
+            border: 1px solid var(--accent-turquoise);
+            text-align: center;
         }
 
         h1 {
-            font-size: 4.5rem;
-            font-weight: 300;
-            letter-spacing: 6px;
+            font-size: 3.5rem;
             color: var(--accent-turquoise);
             margin-bottom: 0.5rem;
-            text-shadow: 0 0 20px rgba(64, 224, 208, 0.4);
+            letter-spacing: 4px;
         }
 
         .subtitle {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--accent-mango);
-            margin-bottom: 3rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-
-        .control-group {
-            display: flex;
-            gap: 1rem;
             margin-bottom: 2rem;
-            align-items: center;
+            letter-spacing: 2px;
         }
 
         button {
-            background: rgba(26, 36, 47, 0.8);
+            background: rgba(0,0,0,0.2);
             border: 1px solid var(--accent-turquoise);
             color: var(--accent-turquoise);
-            padding: 0.75rem 1.5rem;
+            padding: 0.6rem 1.2rem;
             font-family: var(--font-family);
-            font-size: 1rem;
-            border-radius: 6px;
+            font-size: 0.9rem;
+            border-radius: 4px;
             cursor: pointer;
             transition: all 0.2s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            backdrop-filter: blur(4px);
         }
 
         button:hover, button.active {
             background: var(--accent-turquoise);
             color: var(--bg-color);
-            box-shadow: 0 0 15px rgba(64, 224, 208, 0.4);
         }
 
         button.mango {
@@ -115,66 +96,27 @@
         button.mango:hover, button.mango.active {
             background: var(--accent-mango);
             color: var(--bg-color);
-            box-shadow: 0 0 15px rgba(255, 130, 67, 0.4);
         }
 
-        #start-btn {
-            font-size: 1.1rem;
-            padding: 1rem 3rem;
-            margin-top: 1rem;
-        }
-
-        .copyright {
-            position: absolute;
-            bottom: 20px;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            z-index: 1;
-        }
-
-        /* --- MAIN APP UI --- */
+        /* --- MAIN APP --- */
         #app-container {
             display: none;
             width: 100%;
             height: 100%;
             flex-direction: column;
-            opacity: 0;
-            transition: opacity 0.5s ease;
         }
 
         header {
-            height: 60px;
+            height: 50px;
             background: var(--panel-bg);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 1.5rem;
+            padding: 0 1rem;
         }
 
-        .header-tools { display: flex; gap: 1rem; align-items: center; }
-        
-        .color-picker {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            background: rgba(0,0,0,0.2);
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-        }
-        
-        input[type="color"] {
-            border: none;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            background: none;
-            padding: 0;
-        }
+        .header-tools { display: flex; gap: 0.5rem; align-items: center; }
 
         main {
             display: flex;
@@ -183,25 +125,22 @@
         }
 
         aside {
-            width: 260px;
+            width: 280px;
             background: var(--panel-bg);
             border-right: 1px solid var(--border-color);
-            padding: 1.5rem;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
             overflow-y: auto;
         }
 
-        .tool-section { margin-bottom: 0.5rem; }
         .tool-section h3 {
             font-size: 0.8rem;
             color: var(--accent-turquoise);
-            text-transform: uppercase;
-            margin-bottom: 0.75rem;
-            letter-spacing: 1.5px;
+            margin-bottom: 0.5rem;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.25rem;
+            padding-bottom: 0.2rem;
         }
 
         .tool-grid {
@@ -211,166 +150,190 @@
         }
 
         .tool-btn {
-            padding: 0.6rem 0.2rem;
+            padding: 0.5rem;
             font-size: 0.75rem;
             border: 1px solid var(--border-color);
             color: var(--text-main);
-            text-align: center;
-            background: rgba(0,0,0,0.1);
         }
         
         .tool-btn.active {
             border-color: var(--accent-turquoise);
             background: rgba(64, 224, 208, 0.15);
             color: var(--accent-turquoise);
-            box-shadow: none;
         }
 
+        /* --- PROPERTIES PANEL --- */
+        #properties-panel {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px dashed var(--accent-mango);
+            display: none; /* Hidden by default */
+        }
+
+        #properties-panel h4 {
+            color: var(--accent-mango);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .prop-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .prop-row input[type="number"] {
+            width: 60px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 0.2rem;
+            text-align: center;
+        }
+
+        .prop-row input[type="color"] {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        /* --- CANVAS --- */
         .canvas-wrapper {
             flex: 1;
             position: relative;
             background: var(--canvas-bg);
             cursor: crosshair;
-            overflow: hidden;
         }
 
         #geo-canvas {
             display: block;
             width: 100%;
             height: 100%;
-            touch-action: none;
         }
 
         #coords-display {
             position: absolute;
-            bottom: 15px;
-            right: 15px;
+            bottom: 10px;
+            right: 10px;
             background: rgba(26, 36, 47, 0.9);
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            font-family: 'Courier New', Courier, monospace;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
             color: var(--accent-mango);
-            font-size: 0.9rem;
-            border: 1px solid var(--border-color);
-            pointer-events: none;
-        }
-        
-        #instruction-banner {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(64, 224, 208, 0.1);
-            color: var(--accent-turquoise);
-            padding: 0.5rem 1.5rem;
-            border-radius: 20px;
-            border: 1px solid var(--accent-turquoise);
-            font-size: 0.85rem;
-            pointer-events: none;
-            letter-spacing: 1px;
-            display: none;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            main { flex-direction: column; }
-            aside { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: row; flex-wrap: wrap; padding: 1rem;}
-            .tool-section { flex: 1; min-width: 150px;}
-            header { flex-wrap: wrap; height: auto; padding: 0.5rem; gap: 0.5rem;}
-            .header-tools { flex-wrap: wrap; }
-            h1 { font-size: 3rem; }
-            .splash-content { padding: 1.5rem; text-align: center;}
+        /* --- MODAL --- */
+        #help-modal {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--panel-bg);
+            border: 2px solid var(--accent-turquoise);
+            padding: 2rem;
+            border-radius: 8px;
+            z-index: 200;
+            max-width: 500px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+        
+        #help-modal h2 { color: var(--accent-turquoise); margin-bottom: 1rem; }
+        #help-modal ul { margin-left: 1.5rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.5; color: var(--text-main); }
+        #help-modal li { margin-bottom: 0.5rem; }
     </style>
 </head>
 <body>
 
     <!-- Splash Screen -->
     <div id="splash-screen">
-        <canvas id="splash-canvas"></canvas>
         <div class="splash-content">
             <h1>GeoLogo</h1>
-            <div class="subtitle" data-en="Geometric Architecture Lab" data-fr="Laboratoire d'Architecture Géométrique">Geometric Architecture Lab</div>
+            <div class="subtitle" data-en="Interactive Geometric Engine" data-fr="Moteur Géométrique Interactif">Interactive Geometric Engine</div>
             
-            <div class="control-group">
+            <div style="display:flex; gap:1rem; margin-bottom: 2rem;">
                 <button id="lang-en" class="active">EN</button>
                 <button id="lang-fr">FR</button>
             </div>
-
-            <div class="control-group">
-                <button class="mode-btn mango" data-mode="observer" data-en="Observer" data-fr="Observateur">Observer</button>
-                <button class="mode-btn mango" data-mode="explorer" data-en="Explorer" data-fr="Explorateur">Explorer</button>
-                <button class="mode-btn mango active" data-mode="scientist" data-en="Scientist" data-fr="Scientifique">Scientist</button>
-            </div>
-
-            <button id="start-btn" data-en="Initialize Workspace" data-fr="Initialiser l'Espace de Travail">Initialize Workspace</button>
+            
+            <button id="start-btn" data-en="Enter Workspace" data-fr="Entrer dans l'espace">Enter Workspace</button>
         </div>
-        <div class="copyright">© T. Keller</div>
     </div>
 
-    <!-- Main Application -->
+    <!-- Help Modal -->
+    <div id="help-modal">
+        <h2 data-en="How to use GeoLogo" data-fr="Comment utiliser GeoLogo">How to use GeoLogo</h2>
+        <ul>
+            <li data-en="1. Draw: Select Line, Rect, or Circle. Click and drag on the grid." data-fr="1. Dessiner : Sélectionnez Ligne, Rect ou Cercle. Cliquez et glissez.">1. Draw: Select Line, Rect, or Circle. Click and drag on the grid.</li>
+            <li data-en="2. Select: Click the 'Select' tool, then click any shape you drew. It will highlight yellow." data-fr="2. Sélectionner : Cliquez sur 'Sélectionner', puis sur une forme. Elle deviendra jaune.">2. Select: Click the 'Select' tool, then click any shape you drew. It will highlight yellow.</li>
+            <li data-en="3. Transform: Once selected, a Properties Panel appears on the left. Use it to precisely Rotate, Translate, or Reflect the shape." data-fr="3. Transformer : Une fois sélectionnée, un panneau apparaît à gauche. Utilisez-le pour tourner, translater ou refléter.">3. Transform: Once selected, a Properties Panel appears on the left. Use it to precisely Rotate, Translate, or Reflect the shape.</li>
+            <li data-en="4. Clone: Use the Clone button to easily make parallel lines or repeated shapes." data-fr="4. Cloner : Utilisez Cloner pour créer des lignes parallèles ou répéter des formes.">4. Clone: Use the Clone button to easily make parallel lines or repeated shapes.</li>
+        </ul>
+        <button onclick="document.getElementById('help-modal').style.display='none'" class="mango" style="width:100%" data-en="Got it!" data-fr="Compris !">Got it!</button>
+    </div>
+
+    <!-- Main App -->
     <div id="app-container">
         <header>
-            <div style="display:flex; gap:0.5rem; align-items:center;">
-                <button id="exit-btn" data-en="Exit" data-fr="Quitter" onclick="location.href='index.html'" style="padding: 0.5rem 1rem;">Exit</button>
-                <button id="back-btn" data-en="Setup" data-fr="Configuration" style="padding: 0.5rem 1rem;">Setup</button>
-                <button id="toggle-lang-btn" style="padding: 0.5rem 1rem;">FR</button>
+            <div style="display:flex; gap:0.5rem;">
+                <button id="exit-btn" data-en="Home" data-fr="Accueil" onclick="location.reload()">Home</button>
+                <button onclick="document.getElementById('help-modal').style.display='block'" data-en="Help Guide" data-fr="Guide d'Aide" class="mango">Help Guide</button>
             </div>
-            
             <div class="header-tools">
-                <div class="color-picker">
-                    <span data-en="Stroke" data-fr="Trait">Stroke</span>
-                    <input type="color" id="stroke-color" value="#40E0D0">
-                </div>
-                <div class="color-picker">
-                    <span data-en="Fill" data-fr="Remplissage">Fill</span>
-                    <input type="color" id="fill-color" value="#000000">
-                </div>
-                <button data-en="Export IMG" data-fr="Exporter IMG" onclick="exportImage()" style="padding: 0.5rem 1rem;">Export IMG</button>
-                <button data-en="Data I/O" data-fr="Données I/O" onclick="document.getElementById('import-file').click()" class="mango" style="padding: 0.5rem 1rem;">Data I/O</button>
-                <button onclick="exportJSON()" class="mango" style="padding: 0.5rem 1rem;">⬇</button>
-                <input type="file" id="import-file" style="display:none" accept=".json" onchange="importJSON(event)">
+                <button data-en="Clear All" data-fr="Tout Effacer" onclick="clearCanvas()">Clear All</button>
+                <button data-en="Export PNG" data-fr="Exporter PNG" onclick="exportImage()" class="mango">Export PNG</button>
             </div>
         </header>
 
         <main>
             <aside>
                 <div class="tool-section">
-                    <h3 data-en="1. Draw Forms" data-fr="1. Tracer Formes">1. Draw Forms</h3>
+                    <h3 data-en="1. Draw Tools" data-fr="1. Outils de Dessin">1. Draw Tools</h3>
                     <div class="tool-grid">
-                        <button class="tool-btn active" data-tool="line" data-en="Segment" data-fr="Segment">Segment</button>
+                        <button class="tool-btn active" data-tool="line" data-en="Line Segment" data-fr="Segment">Line Segment</button>
                         <button class="tool-btn" data-tool="rect" data-en="Rectangle" data-fr="Rectangle">Rectangle</button>
                         <button class="tool-btn" data-tool="circle" data-en="Circle" data-fr="Cercle">Circle</button>
-                        <button class="tool-btn" data-tool="polygon" data-en="Polygon" data-fr="Polygone">Polygon</button>
+                        <button class="tool-btn mango" data-tool="select" data-en="Select Shape" data-fr="Sélectionner">Select Shape</button>
                     </div>
                 </div>
 
-                <div class="tool-section scientist-only">
-                    <h3 data-en="2. Construct Lines" data-fr="2. Construire Droites">2. Construct Lines</h3>
-                    <div class="tool-grid">
-                        <button class="tool-btn" data-tool="parallel" data-en="Parallel" data-fr="Parallèle">Parallel</button>
-                        <button class="tool-btn" data-tool="perpendicular" data-en="Perpendic." data-fr="Perpendic.">Perpendic.</button>
-                        <button class="tool-btn" data-tool="bisector" data-en="Angle Bisector" data-fr="Bissectrice">Angle Bisector</button>
-                        <button class="tool-btn" data-tool="perp_bisector" data-en="Perp. Bisector" data-fr="Médiatrice">Perp. Bisector</button>
+                <!-- DYNAMIC PROPERTIES PANEL -->
+                <div id="properties-panel">
+                    <h4 data-en="Selected Geometry" data-fr="Géométrie Sélectionnée">Selected Geometry</h4>
+                    
+                    <div class="prop-row">
+                        <span data-en="Stroke Color" data-fr="Couleur Trait">Stroke Color</span>
+                        <input type="color" id="prop-stroke" onchange="updateSelectedShape()">
+                    </div>
+                    
+                    <div class="prop-row">
+                        <span data-en="Rotate (Degrees)" data-fr="Rotation (Degrés)">Rotate (Degrees)</span>
+                        <input type="number" id="prop-angle" value="45">
+                    </div>
+                    
+                    <button class="tool-btn" style="width:100%; margin-bottom: 0.5rem;" onclick="applyRotation()" data-en="Apply Rotation" data-fr="Appliquer Rotation">Apply Rotation</button>
+                    
+                    <div class="action-grid">
+                        <button class="tool-btn" onclick="applyReflection('y')" data-en="Reflect Y-Axis" data-fr="Réflexion Axe-Y">Reflect Y-Axis</button>
+                        <button class="tool-btn" onclick="applyReflection('x')" data-en="Reflect X-Axis" data-fr="Réflexion Axe-X">Reflect X-Axis</button>
+                        <button class="tool-btn" onclick="cloneShape()" data-en="Clone (Parallel)" data-fr="Cloner (Parallèle)">Clone (Parallel)</button>
+                        <button class="tool-btn mango" onclick="deleteShape()" data-en="Delete" data-fr="Supprimer">Delete</button>
                     </div>
                 </div>
-
-                <div class="tool-section scientist-only">
-                    <h3 data-en="3. Transform" data-fr="3. Transformer">3. Transform</h3>
-                    <div class="tool-grid">
-                        <button class="tool-btn" data-tool="translate" data-en="Translate" data-fr="Translation">Translate</button>
-                        <button class="tool-btn" data-tool="rotate" data-en="Rotate" data-fr="Rotation">Rotate</button>
-                        <button class="tool-btn" data-tool="reflect" data-en="Reflect" data-fr="Réflexion">Reflect</button>
-                        <button class="tool-btn" data-tool="select" data-en="Select" data-fr="Sélectionner">Select</button>
-                    </div>
-                </div>
-                
-                <button class="tool-btn" onclick="undo()" style="margin-top:auto" data-en="Undo Last" data-fr="Annuler">Undo Last</button>
-                <button class="tool-btn mango" onclick="clearCanvas()" style="margin-top:0.5rem" data-en="Clear Canvas" data-fr="Effacer">Clear Canvas</button>
             </aside>
 
             <div class="canvas-wrapper">
-                <div id="instruction-banner">Select a tool to begin</div>
                 <canvas id="geo-canvas"></canvas>
                 <div id="coords-display">X: 0, Y: 0</div>
             </div>
@@ -378,505 +341,380 @@
     </div>
 
     <script>
-        // --- SPLASH SCREEN ANIMATION ---
-        const sCanvas = document.getElementById('splash-canvas');
-        const sCtx = sCanvas.getContext('2d');
-        let particles = [];
-        let mouseX = 0, mouseY = 0;
-
-        function initSplashAnimation() {
-            sCanvas.width = window.innerWidth;
-            sCanvas.height = window.innerHeight;
-            particles = [];
-            for (let i = 0; i < 40; i++) {
-                particles.push({
-                    x: Math.random() * sCanvas.width,
-                    y: Math.random() * sCanvas.height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
-                    size: Math.random() * 40 + 10,
-                    type: Math.floor(Math.random() * 3), // 0: circle, 1: rect, 2: triangle
-                    rot: Math.random() * Math.PI * 2,
-                    rotSpeed: (Math.random() - 0.5) * 0.02
-                });
-            }
-        }
-
-        window.addEventListener('mousemove', (e) => {
-            if(document.getElementById('splash-screen').style.display !== 'none') {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            }
-        });
-
-        function animateSplash() {
-            if(document.getElementById('splash-screen').style.display === 'none') return;
-            
-            sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
-            sCtx.strokeStyle = 'rgba(64, 224, 208, 0.15)';
-            sCtx.lineWidth = 1;
-
-            particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.rot += p.rotSpeed;
-
-                // Mouse repel
-                let dx = mouseX - p.x;
-                let dy = mouseY - p.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 150) {
-                    p.x -= dx * 0.02;
-                    p.y -= dy * 0.02;
-                }
-
-                // Bounce
-                if (p.x < 0 || p.x > sCanvas.width) p.vx *= -1;
-                if (p.y < 0 || p.y > sCanvas.height) p.vy *= -1;
-
-                sCtx.save();
-                sCtx.translate(p.x, p.y);
-                sCtx.rotate(p.rot);
-                sCtx.beginPath();
-                
-                if (p.type === 0) {
-                    sCtx.arc(0, 0, p.size, 0, Math.PI * 2);
-                } else if (p.type === 1) {
-                    sCtx.rect(-p.size/2, -p.size/2, p.size, p.size);
-                } else {
-                    sCtx.moveTo(0, -p.size);
-                    sCtx.lineTo(p.size, p.size);
-                    sCtx.lineTo(-p.size, p.size);
-                    sCtx.closePath();
-                }
-                
-                sCtx.stroke();
-                sCtx.restore();
-            });
-
-            requestAnimationFrame(animateSplash);
-        }
-
-        initSplashAnimation();
-        animateSplash();
-        window.addEventListener('resize', () => {
-            if(document.getElementById('splash-screen').style.display !== 'none') initSplashAnimation();
-        });
-
-
-        // --- STATE MANAGEMENT ---
+        // --- MULTILINGUAL STATE ---
         let currentLang = 'en';
-        let currentMode = 'scientist';
-        let currentTool = 'line';
-        let shapes = []; 
-        let isDrawing = false;
-        let startX, startY;
-        let originX, originY;
-        let scale = 1; // For future zoom implementation
-        
-        // --- DOM ELEMENTS ---
-        const splash = document.getElementById('splash-screen');
-        const app = document.getElementById('app-container');
-        const canvas = document.getElementById('geo-canvas');
-        const ctx = canvas.getContext('2d');
-        const coordsDisplay = document.getElementById('coords-display');
-        const instructionBanner = document.getElementById('instruction-banner');
-        const strokeColorInput = document.getElementById('stroke-color');
-        const fillColorInput = document.getElementById('fill-color');
-
-        const toolInstructions = {
-            'line': { en: 'Click and drag to draw a line segment', fr: 'Cliquez et glissez pour tracer un segment' },
-            'rect': { en: 'Click and drag to draw a rectangle', fr: 'Cliquez et glissez pour tracer un rectangle' },
-            'circle': { en: 'Click and drag to draw a circle from center', fr: 'Cliquez et glissez pour tracer un cercle depuis le centre' },
-            'polygon': { en: 'Prototype: Polygon tool (Acts as line for now)', fr: 'Prototype: Polygone (agit comme ligne)' },
-            'parallel': { en: 'Select a line, then click to place parallel', fr: 'Sélectionnez une ligne, puis cliquez pour placer la parallèle' },
-            'perpendicular': { en: 'Select a line, then click to place perpendicular', fr: 'Sélectionnez une ligne, puis cliquez pour placer la perpendiculaire' },
-            'bisector': { en: 'Select two lines to construct angle bisector', fr: 'Sélectionnez deux lignes pour construire la bissectrice' },
-            'perp_bisector': { en: 'Select a segment to construct perpendicular bisector', fr: 'Sélectionnez un segment pour construire la médiatrice' },
-            'translate': { en: 'Select shape, then click and drag translation vector', fr: 'Sélectionnez une forme, puis glissez le vecteur de translation' },
-            'rotate': { en: 'Select shape, select center point, enter angle', fr: 'Sélectionnez une forme, le centre, puis entrez l\'angle' },
-            'reflect': { en: 'Select shape, then select axis of reflection', fr: 'Sélectionnez une forme, puis l\'axe de réflexion' },
-            'select': { en: 'Click shape to view mathematical properties', fr: 'Cliquez sur une forme pour voir ses propriétés' }
-        };
-
-        // --- UI LOGIC ---
         function updateLanguage(lang) {
             currentLang = lang;
             document.querySelectorAll('[data-en]').forEach(el => {
-                if(el.tagName === 'INPUT' && el.type === 'button') {
-                    el.value = el.getAttribute(`data-${lang}`);
-                } else {
-                    el.innerText = el.getAttribute(`data-${lang}`);
-                }
+                el.innerText = el.getAttribute(`data-${lang}`);
             });
-            document.getElementById('toggle-lang-btn').innerText = lang === 'en' ? 'FR' : 'EN';
-            showInstruction(currentTool);
         }
-
         document.getElementById('lang-en').addEventListener('click', (e) => {
             document.getElementById('lang-fr').classList.remove('active');
             e.target.classList.add('active');
             updateLanguage('en');
         });
-
         document.getElementById('lang-fr').addEventListener('click', (e) => {
             document.getElementById('lang-en').classList.remove('active');
             e.target.classList.add('active');
             updateLanguage('fr');
         });
-        
-        document.getElementById('toggle-lang-btn').addEventListener('click', () => {
-            updateLanguage(currentLang === 'en' ? 'fr' : 'en');
-        });
 
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                currentMode = e.target.getAttribute('data-mode');
-            });
-        });
-
-        function showInstruction(toolId) {
-            instructionBanner.style.display = 'block';
-            instructionBanner.innerText = toolInstructions[toolId][currentLang];
-        }
-
+        // --- APP INITIALIZATION ---
+        const splash = document.getElementById('splash-screen');
+        const app = document.getElementById('app-container');
         document.getElementById('start-btn').addEventListener('click', () => {
-            // Apply Mode Restrictions
-            if(currentMode === 'observer' || currentMode === 'explorer') {
-                document.querySelectorAll('.scientist-only').forEach(el => el.style.opacity = '0.3');
-                document.querySelectorAll('.scientist-only .tool-btn').forEach(btn => btn.style.pointerEvents = 'none');
-            } else {
-                document.querySelectorAll('.scientist-only').forEach(el => el.style.opacity = '1');
-                document.querySelectorAll('.scientist-only .tool-btn').forEach(btn => btn.style.pointerEvents = 'auto');
-            }
-
-            splash.style.opacity = '0';
-            splash.style.transform = 'scale(1.05)';
-            setTimeout(() => {
-                splash.style.display = 'none';
-                app.style.display = 'flex';
-                // Trigger reflow
-                void app.offsetWidth;
-                app.style.opacity = '1';
-                resizeCanvas();
-                showInstruction(currentTool);
-            }, 500);
+            splash.style.display = 'none';
+            app.style.display = 'flex';
+            resizeCanvas();
+            document.getElementById('help-modal').style.display = 'block'; // Show guide on entry
         });
 
-        document.getElementById('back-btn').addEventListener('click', () => {
-            app.style.opacity = '0';
-            setTimeout(() => {
-                app.style.display = 'none';
-                splash.style.display = 'flex';
-                splash.style.transform = 'scale(1)';
-                initSplashAnimation();
-                animateSplash();
-                setTimeout(() => splash.style.opacity = '1', 10);
-            }, 500);
-        });
+        // --- GEOMETRIC ENGINE STATE ---
+        const canvas = document.getElementById('geo-canvas');
+        const ctx = canvas.getContext('2d');
+        const coordsDisplay = document.getElementById('coords-display');
+        const propsPanel = document.getElementById('properties-panel');
+        
+        let shapes = []; 
+        let activeShapeIndex = -1;
+        let currentTool = 'line';
+        
+        // Drawing Interaction State
+        let isDrawing = false;
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let originX = 0, originY = 0;
 
+        // UI Listeners
         document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 currentTool = e.target.getAttribute('data-tool');
-                showInstruction(currentTool);
+                
+                // Deselect if switching away from select tool
+                if(currentTool !== 'select') {
+                    activeShapeIndex = -1;
+                    propsPanel.style.display = 'none';
+                    redraw();
+                }
             });
         });
 
-        // --- MATH & CANVAS LOGIC ---
+        // --- CORE MATH & COORDINATES ---
         function resizeCanvas() {
             const wrapper = document.querySelector('.canvas-wrapper');
             canvas.width = wrapper.clientWidth;
             canvas.height = wrapper.clientHeight;
             originX = canvas.width / 2;
             originY = canvas.height / 2;
-            redrawShapes();
+            redraw();
         }
-        window.addEventListener('resize', () => {
-            if(app.style.display !== 'none') resizeCanvas();
-        });
+        window.addEventListener('resize', resizeCanvas);
 
-        // Convert screen coordinates to true Cartesian coordinates (Y goes up)
-        function screenToCartesian(sx, sy) {
-            return {
-                x: Math.round(sx - originX),
-                y: Math.round(originY - sy)
-            };
+        // Convert Mouse (Screen) to Math (Cartesian: Y goes UP)
+        function toMath(sx, sy) {
+            return { x: Math.round(sx - originX), y: Math.round(originY - sy) };
         }
-
-        // Convert Cartesian coordinates to screen coordinates
-        function cartesianToScreen(cx, cy) {
-            return {
-                x: cx + originX,
-                y: originY - cy
-            };
+        // Convert Math to Screen
+        function toScreen(cx, cy) {
+            return { x: cx + originX, y: originY - cy };
         }
 
+        // --- RENDERING ---
         function drawGrid() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            const gridSize = 50;
-            
-            ctx.strokeStyle = 'rgba(44, 58, 74, 0.5)';
+            ctx.strokeStyle = 'rgba(44, 58, 74, 0.4)';
             ctx.lineWidth = 1;
             ctx.beginPath();
             
-            // Draw minor grid lines
-            for (let x = originX % gridSize; x < canvas.width; x += gridSize) {
+            // Grid lines
+            for (let x = originX % 50; x < canvas.width; x += 50) {
                 ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
             }
-            for (let y = originY % gridSize; y < canvas.height; y += gridSize) {
+            for (let y = originY % 50; y < canvas.height; y += 50) {
                 ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
             }
             ctx.stroke();
 
-            // Draw Axes
-            ctx.strokeStyle = 'rgba(139, 155, 180, 0.7)';
+            // Main Axes
+            ctx.strokeStyle = 'rgba(139, 155, 180, 0.8)';
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(originX, 0); ctx.lineTo(originX, canvas.height); // Y axis
             ctx.moveTo(0, originY); ctx.lineTo(canvas.width, originY); // X axis
             ctx.stroke();
-            
-            // Origin marker
-            ctx.fillStyle = varColor('--accent-mango');
+        }
+
+        function drawShape(shape, isSelected = false) {
+            ctx.save();
+            ctx.strokeStyle = isSelected ? '#ffdd57' : shape.stroke;
+            ctx.fillStyle = isSelected ? 'rgba(255, 221, 87, 0.2)' : shape.fill;
+            ctx.lineWidth = isSelected ? 4 : 2;
+            if(isSelected) ctx.setLineDash([5, 5]);
+
             ctx.beginPath();
-            ctx.arc(originX, originY, 3, 0, Math.PI*2);
-            ctx.fill();
+            // Convert shape points to screen coords
+            const pts = shape.points.map(p => toScreen(p.x, p.y));
+
+            if (shape.type === 'line') {
+                ctx.moveTo(pts[0].x, pts[0].y);
+                ctx.lineTo(pts[1].x, pts[1].y);
+            } else if (shape.type === 'rect' || shape.type === 'polygon') {
+                ctx.moveTo(pts[0].x, pts[0].y);
+                for(let i=1; i<pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+                ctx.closePath();
+                if(shape.fill !== 'transparent') ctx.fill();
+            } else if (shape.type === 'circle') {
+                // Circle point[0] is center, point[1] is a point on radius
+                const r = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+                ctx.arc(pts[0].x, pts[0].y, r, 0, Math.PI * 2);
+                if(shape.fill !== 'transparent') ctx.fill();
+            }
+            
+            ctx.stroke();
+            ctx.restore();
+
+            // If selected, draw center point for rotation visual
+            if (isSelected) {
+                const center = getShapeCenter(shape);
+                const sCenter = toScreen(center.x, center.y);
+                ctx.fillStyle = '#ffdd57';
+                ctx.beginPath();
+                ctx.arc(sCenter.x, sCenter.y, 4, 0, Math.PI*2);
+                ctx.fill();
+            }
         }
 
-        function varColor(name) {
-            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        }
-
-        function redrawShapes() {
+        function redraw() {
             drawGrid();
-            shapes.forEach(shape => {
-                ctx.strokeStyle = shape.stroke;
-                ctx.fillStyle = shape.fill;
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                
-                // We store coordinates in Cartesian to maintain math integrity,
-                // convert them back to screen for rendering.
-                const p1 = cartesianToScreen(shape.cx1, shape.cy1);
-                const p2 = cartesianToScreen(shape.cx2, shape.cy2);
-
-                if (shape.type === 'line') {
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(p2.x, p2.y);
-                } else if (shape.type === 'rect') {
-                    // Because Cartesian Y goes UP, calculating rect height means subtracting top-left from bottom-right differently
-                    ctx.rect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
-                    if(shape.fill !== '#000000') ctx.fill();
-                } else if (shape.type === 'circle') {
-                    const r = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-                    ctx.arc(p1.x, p1.y, r, 0, Math.PI * 2);
-                    if(shape.fill !== '#000000') ctx.fill();
-                } else if (shape.type === 'polygon' || ['parallel', 'perpendicular', 'bisector', 'perp_bisector', 'translate', 'rotate', 'reflect'].includes(shape.type)) {
-                     // For prototype, render complex structures as distinct dashed lines or distinct colors to show they exist.
-                     ctx.moveTo(p1.x, p1.y);
-                     ctx.lineTo(p2.x, p2.y);
-                     if(shape.type !== 'polygon') {
-                         ctx.setLineDash([5, 5]);
-                         ctx.strokeStyle = varColor('--accent-mango');
-                     }
-                }
-                ctx.stroke();
-                ctx.setLineDash([]); // reset
+            shapes.forEach((shape, index) => {
+                drawShape(shape, index === activeShapeIndex);
             });
         }
 
-        // --- INTERACTION ---
-        function getEventPos(e) {
+        // --- INTERACTION LOGIC ---
+        function getMousePos(e) {
             const rect = canvas.getBoundingClientRect();
-            let clientX = e.clientX;
-            let clientY = e.clientY;
-            
-            // Handle touch
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            }
-            
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
+            let cx = e.clientX, cy = e.clientY;
+            if(e.touches) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+            return { x: cx - rect.left, y: cy - rect.top };
         }
 
-        function handlePointerMove(e) {
+        canvas.addEventListener('mousedown', handleDown);
+        canvas.addEventListener('touchstart', handleDown, {passive: false});
+        canvas.addEventListener('mousemove', handleMove);
+        canvas.addEventListener('touchmove', handleMove, {passive: false});
+        window.addEventListener('mouseup', handleUp);
+        window.addEventListener('touchend', handleUp);
+
+        function handleDown(e) {
             e.preventDefault();
-            const pos = getEventPos(e);
-            
-            // Map to strict Cartesian
-            const cart = screenToCartesian(pos.x, pos.y);
-            coordsDisplay.innerText = `X: ${cart.x}, Y: ${cart.y}`;
+            const pos = getMousePos(e);
+            const mathPos = toMath(pos.x, pos.y);
 
-            if (isDrawing) {
-                redrawShapes();
-                ctx.strokeStyle = strokeColorInput.value;
-                ctx.fillStyle = fillColorInput.value;
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                
-                const sStart = cartesianToScreen(startX, startY);
-
-                if (['line', 'polygon', 'parallel', 'perpendicular', 'bisector', 'perp_bisector', 'translate', 'rotate', 'reflect'].includes(currentTool)) {
-                    if(!['line', 'polygon'].includes(currentTool)) ctx.setLineDash([5,5]);
-                    ctx.moveTo(sStart.x, sStart.y); 
-                    ctx.lineTo(pos.x, pos.y);
-                } else if (currentTool === 'rect') {
-                    ctx.rect(sStart.x, sStart.y, pos.x - sStart.x, pos.y - sStart.y);
-                } else if (currentTool === 'circle') {
-                    const r = Math.hypot(pos.x - sStart.x, pos.y - sStart.y);
-                    ctx.arc(sStart.x, sStart.y, r, 0, Math.PI * 2);
-                }
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
-        }
-
-        function handlePointerDown(e) {
-            e.preventDefault();
-            if(currentTool === 'select') return;
-            
-            const pos = getEventPos(e);
-            const cart = screenToCartesian(pos.x, pos.y);
-            startX = cart.x;
-            startY = cart.y;
-            isDrawing = true;
-            
-            if (!['line', 'rect', 'circle', 'polygon'].includes(currentTool)) {
-                // Mock behavior for advanced tools in this prototype
-                instructionBanner.innerText = currentLang === 'en' ? 'Prototyping: Dragging defines the transformation vector.' : 'Prototypage : Le glissement définit le vecteur de transformation.';
-                instructionBanner.style.color = varColor('--accent-mango');
-                instructionBanner.style.borderColor = varColor('--accent-mango');
-                instructionBanner.style.background = 'rgba(255, 130, 67, 0.1)';
-            }
-        }
-
-        function handlePointerUp(e) {
-            e.preventDefault();
-            if (!isDrawing) return;
-            isDrawing = false;
-            
-            // Reset banner colors
-            instructionBanner.style.color = varColor('--accent-turquoise');
-            instructionBanner.style.borderColor = varColor('--accent-turquoise');
-            instructionBanner.style.background = 'rgba(64, 224, 208, 0.1)';
-            showInstruction(currentTool);
-
-            const pos = getEventPos(e);
-            const cart = screenToCartesian(pos.x, pos.y);
-            
-            // Don't save if it's just a click (no drag)
-            if (startX === cart.x && startY === cart.y && currentTool !== 'select') return;
-
-            shapes.push({
-                type: currentTool,
-                cx1: startX, cy1: startY,
-                cx2: cart.x, cy2: cart.y,
-                stroke: strokeColorInput.value,
-                fill: fillColorInput.value
-            });
-            redrawShapes();
-        }
-
-        // Attach both mouse and touch events
-        canvas.addEventListener('mousemove', handlePointerMove);
-        canvas.addEventListener('touchmove', handlePointerMove, {passive: false});
-        
-        canvas.addEventListener('mousedown', handlePointerDown);
-        canvas.addEventListener('touchstart', handlePointerDown, {passive: false});
-        
-        canvas.addEventListener('mouseup', handlePointerUp);
-        canvas.addEventListener('touchend', handlePointerUp);
-
-        // --- DATA MANAGEMENT ---
-        function clearCanvas() {
-            shapes = [];
-            redrawShapes();
-        }
-        
-        function undo() {
-            shapes.pop();
-            redrawShapes();
-        }
-
-        function exportImage() {
-            // Create a temporary canvas to draw the final logo without the grid background
-            const exportCanvas = document.createElement('canvas');
-            exportCanvas.width = canvas.width;
-            exportCanvas.height = canvas.height;
-            const exCtx = exportCanvas.getContext('2d');
-            
-            // Fill with solid dark background
-            exCtx.fillStyle = varColor('--canvas-bg');
-            exCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-            
-            // Copy the shapes over
-            shapes.forEach(shape => {
-                exCtx.strokeStyle = shape.stroke;
-                exCtx.fillStyle = shape.fill;
-                exCtx.lineWidth = 2;
-                exCtx.beginPath();
-                
-                const p1 = cartesianToScreen(shape.cx1, shape.cy1);
-                const p2 = cartesianToScreen(shape.cx2, shape.cy2);
-
-                if (shape.type === 'line') {
-                    exCtx.moveTo(p1.x, p1.y); exCtx.lineTo(p2.x, p2.y);
-                } else if (shape.type === 'rect') {
-                    exCtx.rect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
-                    if(shape.fill !== '#000000') exCtx.fill();
-                } else if (shape.type === 'circle') {
-                    const r = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-                    exCtx.arc(p1.x, p1.y, r, 0, Math.PI * 2);
-                    if(shape.fill !== '#000000') exCtx.fill();
-                } else if (shape.type === 'polygon' || ['parallel', 'perpendicular', 'bisector', 'perp_bisector', 'translate', 'rotate', 'reflect'].includes(shape.type)) {
-                     exCtx.moveTo(p1.x, p1.y); exCtx.lineTo(p2.x, p2.y);
-                     if(shape.type !== 'polygon') {
-                         exCtx.setLineDash([5, 5]);
-                         exCtx.strokeStyle = varColor('--accent-mango');
-                     }
-                }
-                exCtx.stroke();
-                exCtx.setLineDash([]);
-            });
-
-            const link = document.createElement('a');
-            link.download = 'GeoLogo_Final_Design.png';
-            link.href = exportCanvas.toDataURL('image/png');
-            link.click();
-        }
-
-        function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(shapes));
-            const link = document.createElement('a');
-            link.download = "GeoLogo_Coordinate_Data.json";
-            link.href = dataStr;
-            link.click();
-        }
-
-        function importJSON(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        shapes = JSON.parse(e.target.result);
-                        redrawShapes();
-                    } catch (err) {
-                        alert(currentLang === 'en' ? "Invalid data file format." : "Format de fichier de données invalide.");
+            if (currentTool === 'select') {
+                // Find clicked shape
+                let clickedIndex = -1;
+                for(let i = shapes.length - 1; i >= 0; i--) {
+                    if (isPointNearShape(mathPos, shapes[i])) {
+                        clickedIndex = i;
+                        break;
                     }
-                };
-                reader.readAsText(file);
+                }
+                
+                activeShapeIndex = clickedIndex;
+                if (activeShapeIndex !== -1) {
+                    propsPanel.style.display = 'block';
+                    document.getElementById('prop-stroke').value = shapes[activeShapeIndex].stroke;
+                    isDragging = true;
+                    startX = mathPos.x;
+                    startY = mathPos.y;
+                } else {
+                    propsPanel.style.display = 'none';
+                }
+                redraw();
+            } else {
+                // Start Drawing
+                isDrawing = true;
+                startX = mathPos.x;
+                startY = mathPos.y;
             }
         }
+
+        function handleMove(e) {
+            e.preventDefault();
+            const pos = getMousePos(e);
+            const mathPos = toMath(pos.x, pos.y);
+            coordsDisplay.innerText = `X: ${mathPos.x}, Y: ${mathPos.y}`;
+
+            if (isDrawing && currentTool !== 'select') {
+                redraw(); // draw committed shapes
+                // Draw live preview
+                const mockShape = createShapeData(currentTool, startX, startY, mathPos.x, mathPos.y, '#40E0D0');
+                drawShape(mockShape, false);
+            } 
+            else if (isDragging && activeShapeIndex !== -1 && currentTool === 'select') {
+                // Translate shape dynamically
+                const dx = mathPos.x - startX;
+                const dy = mathPos.y - startY;
+                
+                // Move all points
+                shapes[activeShapeIndex].points.forEach(p => {
+                    p.x += dx;
+                    p.y += dy;
+                });
+                
+                startX = mathPos.x;
+                startY = mathPos.y;
+                redraw();
+            }
+        }
+
+        function handleUp(e) {
+            if (isDrawing && currentTool !== 'select') {
+                isDrawing = false;
+                const pos = getMousePos(e);
+                const mathPos = toMath(pos.x, pos.y);
+                
+                // Prevent clicking without dragging
+                if(Math.abs(mathPos.x - startX) > 2 || Math.abs(mathPos.y - startY) > 2) {
+                    shapes.push(createShapeData(currentTool, startX, startY, mathPos.x, mathPos.y, '#40E0D0'));
+                }
+                redraw();
+            }
+            isDragging = false;
+        }
+
+        // --- SHAPE DATA CREATION ---
+        function createShapeData(type, x1, y1, x2, y2, color) {
+            let pts = [];
+            if (type === 'line' || type === 'circle') {
+                pts = [{x: x1, y: y1}, {x: x2, y: y2}];
+            } else if (type === 'rect') {
+                pts = [
+                    {x: x1, y: y1},
+                    {x: x2, y: y1},
+                    {x: x2, y: y2},
+                    {x: x1, y: y2}
+                ];
+            }
+            return { type: type, points: pts, stroke: color, fill: 'transparent' };
+        }
+
+        // --- MATH & TRANSFORMATIONS ---
+        
+        // Find center of shape for rotation
+        function getShapeCenter(shape) {
+            if(shape.type === 'circle') return {x: shape.points[0].x, y: shape.points[0].y};
+            let sumX = 0, sumY = 0;
+            shape.points.forEach(p => { sumX += p.x; sumY += p.y; });
+            return { x: sumX / shape.points.length, y: sumY / shape.points.length };
+        }
+
+        function applyRotation() {
+            if(activeShapeIndex === -1) return;
+            const deg = parseFloat(document.getElementById('prop-angle').value);
+            if(isNaN(deg)) return;
+            const rad = deg * (Math.PI / 180);
+            
+            const shape = shapes[activeShapeIndex];
+            const center = getShapeCenter(shape);
+            const cosA = Math.cos(rad);
+            const sinA = Math.sin(rad);
+
+            shape.points.forEach(p => {
+                // Translate to origin, rotate, translate back
+                const tx = p.x - center.x;
+                const ty = p.y - center.y;
+                p.x = center.x + (tx * cosA - ty * sinA);
+                p.y = center.y + (tx * sinA + ty * cosA);
+            });
+            redraw();
+        }
+
+        function applyReflection(axis) {
+            if(activeShapeIndex === -1) return;
+            const shape = shapes[activeShapeIndex];
+            
+            // Reflect across global X or Y grid axis
+            shape.points.forEach(p => {
+                if (axis === 'y') p.x = -p.x;
+                if (axis === 'x') p.y = -p.y;
+            });
+            redraw();
+        }
+
+        function cloneShape() {
+            if(activeShapeIndex === -1) return;
+            // Deep copy the shape
+            const original = shapes[activeShapeIndex];
+            const copy = JSON.parse(JSON.stringify(original));
+            // Offset it slightly to simulate 'parallel' creation and make it visible
+            copy.points.forEach(p => { p.x += 20; p.y -= 20; });
+            shapes.push(copy);
+            activeShapeIndex = shapes.length - 1; // Select the new clone
+            redraw();
+        }
+
+        function updateSelectedShape() {
+            if(activeShapeIndex === -1) return;
+            shapes[activeShapeIndex].stroke = document.getElementById('prop-stroke').value;
+            redraw();
+        }
+
+        function deleteShape() {
+            if(activeShapeIndex === -1) return;
+            shapes.splice(activeShapeIndex, 1);
+            activeShapeIndex = -1;
+            propsPanel.style.display = 'none';
+            redraw();
+        }
+
+        // --- HIT DETECTION ---
+        function isPointNearShape(pt, shape) {
+            const threshold = 10;
+            
+            if (shape.type === 'circle') {
+                const r = Math.hypot(shape.points[1].x - shape.points[0].x, shape.points[1].y - shape.points[0].y);
+                const distToCenter = Math.hypot(pt.x - shape.points[0].x, pt.y - shape.points[0].y);
+                // Check if click is near edge of circle
+                return Math.abs(distToCenter - r) < threshold;
+            } 
+            
+            // For lines and rects (which are paths), check distance to line segments
+            for(let i=0; i<shape.points.length; i++) {
+                const p1 = shape.points[i];
+                const p2 = shape.type === 'line' ? shape.points[1] : shape.points[(i+1)%shape.points.length];
+                if(shape.type === 'line' && i === 1) break; // only 1 segment for line
+                
+                if (distToSegmentSquared(pt, p1, p2) < threshold*threshold) return true;
+            }
+            return false;
+        }
+
+        function distToSegmentSquared(p, v, w) {
+            const l2 = (v.x - w.x)*(v.x - w.x) + (v.y - w.y)*(v.y - w.y);
+            if (l2 === 0) return (p.x - v.x)*(p.x - v.x) + (p.y - v.y)*(p.y - v.y);
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            const proj = { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) };
+            return (p.x - proj.x)*(p.x - proj.x) + (p.y - proj.y)*(p.y - proj.y);
+        }
+
+        // --- EXPORT ---
+        function clearCanvas() { shapes = []; activeShapeIndex = -1; propsPanel.style.display='none'; redraw(); }
+        
+        function exportImage() {
+            activeShapeIndex = -1; // Deselect before photo
+            redraw();
+            const link = document.createElement('a');
+            link.download = 'GeoLogo_Final.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
     </script>
 </body>
 </html>
