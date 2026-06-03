@@ -307,8 +307,8 @@
             z-index: 50;
         }
 
-        /* --- MODAL --- */
-        #help-modal {
+        /* --- MODALS (Help & Report) --- */
+        .modal-overlay {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -317,14 +317,34 @@
             padding: 2rem;
             border-radius: 8px;
             z-index: 200;
-            max-width: 500px;
+            max-width: 600px;
+            width: 90%;
             display: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
         }
         
-        #help-modal h2 { color: var(--accent-turquoise); margin-bottom: 1rem; }
-        #help-modal ul { margin-left: 1.5rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.5; color: var(--text-main); }
-        #help-modal li { margin-bottom: 0.5rem; }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .modal-overlay h2 { color: var(--accent-turquoise); }
+        .modal-overlay ul { margin-left: 1.5rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.5; color: var(--text-main); }
+        .modal-overlay li { margin-bottom: 0.5rem; }
+
+        /* Report Table Styles */
+        #report-content { overflow-y: auto; flex: 1; margin-bottom: 1rem; }
+        #report-content table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        #report-content th { border-bottom: 1px solid var(--accent-turquoise); padding: 8px; text-align: left; color: var(--accent-turquoise); }
+        #report-content td { border-bottom: 1px solid var(--border-color); padding: 8px; }
+        
     </style>
 </head>
 <body>
@@ -345,14 +365,30 @@
     </div>
 
     <!-- Help Modal -->
-    <div id="help-modal">
-        <h2 data-en="How to use GeoLogo" data-fr="Comment utiliser GeoLogo">How to use GeoLogo</h2>
+    <div id="help-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-header">
+            <h2 data-en="How to use GeoLogo" data-fr="Comment utiliser GeoLogo">How to use GeoLogo</h2>
+            <button onclick="document.getElementById('help-modal').style.display='none'">X</button>
+        </div>
         <ul>
             <li data-en="1. Magnetic Grid: The cursor snaps automatically for precise alignments." data-fr="1. Grille Magnétique : Le curseur s'accroche automatiquement pour des alignements précis.">1. Magnetic Grid: The cursor snaps automatically for precise alignments.</li>
-            <li data-en="2. Transform & Preview: Select a shape. Type an Angle or X/Y Translation. A ghost preview will appear! Click 'Apply' to confirm." data-fr="2. Transformer & Prévisualiser : Sélectionnez une forme. Tapez un angle ou une translation X/Y. Un aperçu fantôme apparaîtra ! Cliquez sur 'Appliquer' pour confirmer.">2. Transform & Preview: Select a shape. Type an Angle or X/Y Translation. A ghost preview will appear! Click 'Apply' to confirm.</li>
-            <li data-en="3. Style: Pick your colors, gradients, and direction. Changing them while a shape is selected updates it instantly." data-fr="3. Style : Choisissez vos couleurs et dégradés. Les modifier lorsqu'une forme est sélectionnée la met à jour instantanément.">3. Style: Pick your colors, gradients, and direction. Changing them while a shape is selected updates it instantly.</li>
+            <li data-en="2. Identity: Every shape gets an ID number attached to it automatically." data-fr="2. Identité : Chaque forme reçoit automatiquement un numéro d'identification.">2. Identity: Every shape gets an ID number attached to it automatically.</li>
+            <li data-en="3. Transform & Preview: Select a shape. Type an Angle or X/Y Translation. A ghost preview will appear! Click 'Apply'." data-fr="3. Transformer & Prévisualiser : Sélectionnez une forme. Tapez un angle ou une translation. Un aperçu fantôme apparaîtra !">3. Transform & Preview: Select a shape. Type an Angle or X/Y Translation. A ghost preview will appear! Click 'Apply'.</li>
+            <li data-en="4. History Report: Click 'Report' at the top to track your shapes and their transformation history." data-fr="4. Rapport d'Historique : Cliquez sur 'Rapport' en haut pour suivre vos formes et leurs transformations.">4. History Report: Click 'Report' at the top to track your shapes and their transformation history.</li>
         </ul>
         <button onclick="document.getElementById('help-modal').style.display='none'" class="mango" style="width:100%" data-en="Got it!" data-fr="Compris !">Got it!</button>
+    </div>
+
+    <!-- Designer's Report Modal -->
+    <div id="report-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-header">
+            <h2 data-en="Designer's Report" data-fr="Rapport du Graphiste">Designer's Report</h2>
+            <button onclick="document.getElementById('report-modal').style.display='none'">X</button>
+        </div>
+        <div id="report-content">
+            <!-- Table dynamically injected here -->
+        </div>
+        <button class="mango" style="width:100%" onclick="exportReport()" data-en="Export Report (TXT)" data-fr="Exporter Rapport (TXT)">Export Report (TXT)</button>
     </div>
 
     <!-- Color Picker -->
@@ -363,7 +399,7 @@
         <header>
             <div style="display:flex; gap:0.5rem; align-items:center;">
                 <button id="exit-btn" data-en="Home" data-fr="Accueil" onclick="location.reload()">Home</button>
-                <button onclick="document.getElementById('help-modal').style.display='block'" data-en="Help Guide" data-fr="Guide d'Aide" class="mango">Help Guide</button>
+                <button onclick="document.getElementById('help-modal').style.display='flex'" data-en="Help" data-fr="Aide" class="mango">Help</button>
                 
                 <div class="lang-toggle-group" style="margin-left: 1rem;">
                     <button class="lang-btn lang-btn-en active">EN</button>
@@ -371,6 +407,7 @@
                 </div>
             </div>
             <div class="header-tools">
+                <button data-en="Report" data-fr="Rapport" onclick="showReport()">Report</button>
                 <button data-en="Clear All" data-fr="Tout Effacer" onclick="clearCanvas()">Clear All</button>
                 <button data-en="Export PNG" data-fr="Exporter PNG" onclick="exportImage()" class="mango">Export PNG</button>
             </div>
@@ -390,23 +427,11 @@
                         <select id="global-fill-type" onchange="updateGlobalFillUI()">
                             <option value="none" data-en="None" data-fr="Aucun">None</option>
                             <option value="solid" data-en="Solid" data-fr="Solide">Solid</option>
-                            <option value="gradient" data-en="Gradient" data-fr="Dégradé">Gradient</option>
-                        </select>
-                    </div>
-                    <div class="prop-row" id="global-fill-dir-row" style="display:none;">
-                        <span data-en="Gradient Dir" data-fr="Dir. Dégradé">Gradient Dir</span>
-                        <select id="global-fill-dir" onchange="updateGlobalFillUI()">
-                            <option value="horizontal" data-en="Horizontal" data-fr="Horizontal">Horizontal</option>
-                            <option value="vertical" data-en="Vertical" data-fr="Vertical">Vertical</option>
                         </select>
                     </div>
                     <div class="prop-row" id="global-fill-c1-row" style="display:none;">
-                        <span data-en="Color 1" data-fr="Couleur 1">Color 1</span>
+                        <span data-en="Fill Color" data-fr="Couleur Remplissage">Fill Color</span>
                         <div class="color-swatch-btn" id="global-fill-c1-btn" style="background-color: #FF8243;" onclick="openPicker(event, 'global', 'fill1')"></div>
-                    </div>
-                    <div class="prop-row" id="global-fill-c2-row" style="display:none;">
-                        <span data-en="Color 2" data-fr="Couleur 2">Color 2</span>
-                        <div class="color-swatch-btn" id="global-fill-c2-btn" style="background-color: #ffdd57;" onclick="openPicker(event, 'global', 'fill2')"></div>
                     </div>
                 </div>
 
@@ -435,24 +460,12 @@
                         <select id="prop-fill-type" onchange="updatePropFillUI()">
                             <option value="none" data-en="None" data-fr="Aucun">None</option>
                             <option value="solid" data-en="Solid" data-fr="Solide">Solid</option>
-                            <option value="gradient" data-en="Gradient" data-fr="Dégradé">Gradient</option>
                         </select>
                     </div>
                     
-                    <div class="prop-row" id="prop-fill-dir-row" style="display:none;">
-                        <span data-en="Gradient Dir" data-fr="Dir. Dégradé">Gradient Dir</span>
-                        <select id="prop-fill-dir" onchange="updatePropFillUI()">
-                            <option value="horizontal" data-en="Horizontal" data-fr="Horizontal">Horizontal</option>
-                            <option value="vertical" data-en="Vertical" data-fr="Vertical">Vertical</option>
-                        </select>
-                    </div>
                     <div class="prop-row" id="prop-fill-c1-row" style="display:none;">
-                        <span data-en="Color 1" data-fr="Couleur 1">Color 1</span>
+                        <span data-en="Fill Color" data-fr="Couleur Remplissage">Fill Color</span>
                         <div class="color-swatch-btn" id="prop-fill-c1-btn" onclick="openPicker(event, 'prop', 'fill1')"></div>
-                    </div>
-                    <div class="prop-row" id="prop-fill-c2-row" style="display:none;">
-                        <span data-en="Color 2" data-fr="Couleur 2">Color 2</span>
-                        <div class="color-swatch-btn" id="prop-fill-c2-btn" onclick="openPicker(event, 'prop', 'fill2')"></div>
                     </div>
 
                     <hr style="border:0; border-top: 1px dashed var(--border-color); margin: 10px 0;">
@@ -504,6 +517,9 @@
             });
             document.querySelectorAll('.lang-btn-en').forEach(btn => btn.classList.toggle('active', lang === 'en'));
             document.querySelectorAll('.lang-btn-fr').forEach(btn => btn.classList.toggle('active', lang === 'fr'));
+            
+            // Re-render report if open to update column names
+            if (document.getElementById('report-modal').style.display === 'flex') showReport();
         }
         document.querySelectorAll('.lang-btn-en').forEach(btn => btn.addEventListener('click', () => updateLanguage('en')));
         document.querySelectorAll('.lang-btn-fr').forEach(btn => btn.addEventListener('click', () => updateLanguage('fr')));
@@ -526,9 +542,7 @@
         let globalStyles = {
             stroke: '#40E0D0',
             fillType: 'none',
-            fillDir: 'horizontal',
-            fill1: '#FF8243',
-            fill2: '#ffdd57'
+            fill1: '#FF8243'
         };
 
         function initColorPicker() {
@@ -555,12 +569,11 @@
             pickerModal.style.display = 'none';
             if (currentPickerTarget.context === 'global') {
                 globalStyles[currentPickerTarget.type] = color;
-                document.getElementById(`global-${currentPickerTarget.type === 'fill1' || currentPickerTarget.type === 'fill2' ? currentPickerTarget.type : 'stroke'}-btn`).style.backgroundColor = color;
+                document.getElementById(`global-${currentPickerTarget.type}-btn`).style.backgroundColor = color;
             } else if (currentPickerTarget.context === 'prop' && activeShapeIndex !== -1) {
                 const shape = shapes[activeShapeIndex];
                 if (currentPickerTarget.type === 'stroke') shape.stroke = color;
                 else if (currentPickerTarget.type === 'fill1') shape.fill.c1 = color;
-                else if (currentPickerTarget.type === 'fill2') shape.fill.c2 = color;
                 updatePropUIFromShape();
                 redraw();
             }
@@ -572,10 +585,7 @@
 
         function updateGlobalFillUI() {
             globalStyles.fillType = document.getElementById('global-fill-type').value;
-            globalStyles.fillDir = document.getElementById('global-fill-dir').value;
             document.getElementById('global-fill-c1-row').style.display = globalStyles.fillType !== 'none' ? 'flex' : 'none';
-            document.getElementById('global-fill-c2-row').style.display = globalStyles.fillType === 'gradient' ? 'flex' : 'none';
-            document.getElementById('global-fill-dir-row').style.display = globalStyles.fillType === 'gradient' ? 'flex' : 'none';
         }
 
         function updatePropFillUI() {
@@ -584,11 +594,7 @@
             if(shape.type === 'line') return; 
             
             shape.fill.type = document.getElementById('prop-fill-type').value;
-            shape.fill.dir = document.getElementById('prop-fill-dir').value;
-            
             document.getElementById('prop-fill-c1-row').style.display = shape.fill.type !== 'none' ? 'flex' : 'none';
-            document.getElementById('prop-fill-c2-row').style.display = shape.fill.type === 'gradient' ? 'flex' : 'none';
-            document.getElementById('prop-fill-dir-row').style.display = shape.fill.type === 'gradient' ? 'flex' : 'none';
             redraw();
         }
 
@@ -604,18 +610,11 @@
             if (shape.type === 'line') {
                 document.getElementById('prop-fill-type-row').style.display = 'none';
                 document.getElementById('prop-fill-c1-row').style.display = 'none';
-                document.getElementById('prop-fill-c2-row').style.display = 'none';
-                document.getElementById('prop-fill-dir-row').style.display = 'none';
             } else {
                 document.getElementById('prop-fill-type-row').style.display = 'flex';
                 document.getElementById('prop-fill-type').value = shape.fill.type;
-                document.getElementById('prop-fill-dir').value = shape.fill.dir || 'horizontal';
                 document.getElementById('prop-fill-c1-btn').style.backgroundColor = shape.fill.c1;
-                document.getElementById('prop-fill-c2-btn').style.backgroundColor = shape.fill.c2;
-                
                 document.getElementById('prop-fill-c1-row').style.display = shape.fill.type !== 'none' ? 'flex' : 'none';
-                document.getElementById('prop-fill-c2-row').style.display = shape.fill.type === 'gradient' ? 'flex' : 'none';
-                document.getElementById('prop-fill-dir-row').style.display = shape.fill.type === 'gradient' ? 'flex' : 'none';
             }
         }
 
@@ -627,7 +626,7 @@
             splash.style.display = 'none';
             app.style.display = 'flex';
             resizeCanvas();
-            document.getElementById('help-modal').style.display = 'block'; 
+            document.getElementById('help-modal').style.display = 'flex'; 
         });
 
         // --- GEOMETRIC ENGINE STATE ---
@@ -641,6 +640,10 @@
         let shapes = []; 
         let activeShapeIndex = -1;
         let currentTool = 'line';
+        
+        // Identity Tracking
+        let nextGlobalBaseId = 1;
+        let familyCloneCounters = {}; // tracks how many clones a baseId has
         
         let isDrawing = false;
         let isDragging = false;
@@ -693,6 +696,59 @@
             }; 
         }
         function toScreen(cx, cy) { return { x: cx + originX, y: originY - cy }; }
+
+        // --- REPORT LOGIC ---
+        function showReport() {
+            const container = document.getElementById('report-content');
+            container.innerHTML = '';
+            
+            const trHeaderID = currentLang === 'en' ? 'ID' : 'ID';
+            const trHeaderType = currentLang === 'en' ? 'Type' : 'Type';
+            const trHeaderTrans = currentLang === 'en' ? 'Transformations (History)' : 'Transformations (Historique)';
+            
+            if(shapes.length === 0) {
+                container.innerHTML = `<p>${currentLang === 'en' ? 'No shapes created yet.' : 'Aucune forme créée pour le moment.'}</p>`;
+            } else {
+                let table = '<table>';
+                table += `<tr><th>${trHeaderID}</th><th>${trHeaderType}</th><th>${trHeaderTrans}</th></tr>`;
+                shapes.forEach(s => {
+                    let transText = s.transformations.join(' ➔ ');
+                    if(!transText) transText = currentLang === 'en' ? 'None' : 'Aucune';
+                    
+                    table += `<tr>
+                        <td><strong>${s.displayId}</strong></td>
+                        <td style="text-transform:capitalize;">${s.type}</td>
+                        <td style="font-size:0.85em; color:var(--text-muted);">${transText}</td>
+                    </tr>`;
+                });
+                table += '</table>';
+                container.innerHTML = table;
+            }
+            document.getElementById('report-modal').style.display = 'flex';
+        }
+
+        function exportReport() {
+            let text = "GeoLogo - Designer's Report / Rapport du Graphiste\n";
+            text += "=====================================================\n\n";
+            
+            if(shapes.length === 0) {
+                text += "No shapes detected / Aucune forme détectée.\n";
+            } else {
+                shapes.forEach(s => {
+                    text += `[ ID: ${s.displayId} ]\n`;
+                    text += `Type: ${s.type.toUpperCase()}\n`;
+                    text += `Transformations:\n  ${s.transformations.length > 0 ? s.transformations.join('\n  -> ') : 'None / Aucune'}\n`;
+                    text += `---------------------------\n`;
+                });
+            }
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.download = 'GeoLogo_Report.txt';
+            link.href = URL.createObjectURL(blob);
+            link.click();
+        }
+
 
         // --- RENDERING ---
         function drawGrid() {
@@ -752,41 +808,17 @@
                 } else if (shape.fill.type === 'solid') {
                     ctx.fillStyle = isSelected ? `${shape.fill.c1}88` : shape.fill.c1;
                     ctx.fill();
-                } else if (shape.fill.type === 'gradient') {
-                    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-                    if (shape.type === 'circle') {
-                        const r = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
-                        minX = pts[0].x - r; maxX = pts[0].x + r;
-                        minY = pts[0].y - r; maxY = pts[0].y + r;
-                    } else {
-                        pts.forEach(p => {
-                            if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
-                            if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
-                        });
-                    }
-                    
-                    let grad;
-                    if (shape.fill.dir === 'vertical') {
-                        grad = ctx.createLinearGradient(minX, minY, minX, maxY);
-                    } else {
-                        grad = ctx.createLinearGradient(minX, minY, maxX, minY);
-                    }
-                    grad.addColorStop(0, shape.fill.c1);
-                    grad.addColorStop(1, shape.fill.c2);
-                    ctx.fillStyle = grad;
-                    
-                    if(isSelected) {
-                        ctx.save();
-                        ctx.globalAlpha = 0.5;
-                        ctx.fill();
-                        ctx.restore();
-                    } else {
-                        ctx.fill();
-                    }
                 }
             }
-            
             ctx.stroke();
+            
+            // Draw ID Text
+            if (!isGhost && shape.displayId) {
+                ctx.fillStyle = isSelected ? '#ffdd57' : '#ffffff';
+                ctx.font = '13px monospace';
+                ctx.fillText(shape.displayId, pts[0].x + 8, pts[0].y - 8);
+            }
+            
             ctx.restore();
 
             // Center Point
@@ -933,7 +965,6 @@
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.moveTo(lastPt.x, lastPt.y);
-                // raw screen pos to show non-snapped line before click
                 ctx.lineTo(pos.x, pos.y);
                 ctx.stroke();
             }
@@ -947,6 +978,8 @@
                         shapes[activeShapeIndex].customCenter.x += dx;
                         shapes[activeShapeIndex].customCenter.y += dy;
                     }
+                    // For manual dragging, we can log a generic translation, but dragging dynamically is tricky to track cleanly.
+                    // We'll trust the explicit Transform panel for "Report" logging of translations.
                     startX = mathPos.x;
                     startY = mathPos.y;
                     redraw();
@@ -970,30 +1003,32 @@
 
         function finishPolygon() {
             if (polyPts.length >= 3) {
-                shapes.push({
-                    type: 'polygon',
-                    points: [...polyPts],
-                    stroke: globalStyles.stroke,
-                    fill: { type: globalStyles.fillType, dir: globalStyles.fillDir, c1: globalStyles.fill1, c2: globalStyles.fill2 },
-                    customCenter: null
-                });
+                let sData = createShapeData('polygon', 0,0,0,0); // generic factory call
+                sData.points = [...polyPts];
+                shapes.push(sData);
             }
             polyPts = [];
             polyFinishBtn.style.display = 'none';
             redraw();
         }
 
-        // --- SHAPE DATA CREATION ---
+        // --- SHAPE DATA CREATION (With Identity Tracking) ---
         function createShapeData(type, x1, y1, x2, y2) {
             let pts = [];
             if (type === 'line' || type === 'circle') pts = [{x: x1, y: y1}, {x: x2, y: y2}];
             else if (type === 'rect') pts = [{x: x1, y: y1}, {x: x2, y: y1}, {x: x2, y: y2}, {x: x1, y: y2}];
             
+            const bId = nextGlobalBaseId++;
+            familyCloneCounters[bId] = 0;
+            
             return { 
                 type: type, 
+                baseId: bId,
+                displayId: bId.toString(),
+                transformations: [],
                 points: pts, 
                 stroke: globalStyles.stroke, 
-                fill: { type: globalStyles.fillType, dir: globalStyles.fillDir, c1: globalStyles.fill1, c2: globalStyles.fill2 },
+                fill: { type: globalStyles.fillType, c1: globalStyles.fill1 },
                 customCenter: null
             };
         }
@@ -1034,6 +1069,8 @@
             shape.points.forEach(p => { p.x += transX; p.y += transY; });
             if(shape.customCenter) { shape.customCenter.x += transX; shape.customCenter.y += transY; }
             
+            shape.transformations.push(`T(x: ${transX}, y: ${transY})`);
+            
             document.getElementById('prop-trans-x').value = 0;
             document.getElementById('prop-trans-y').value = 0;
             redraw();
@@ -1057,7 +1094,8 @@
                 p.y = center.y + (tx * sinA + ty * cosA);
             });
             
-            document.getElementById('prop-angle').value = 0; // Reset after apply
+            shape.transformations.push(`Rot: ${deg}°`);
+            document.getElementById('prop-angle').value = 0; 
             redraw();
         }
 
@@ -1074,16 +1112,8 @@
                 if (axis === 'x') shape.customCenter.y = -shape.customCenter.y;
             }
 
-            // Swap gradient if reflected on appropriate axis
-            if (shape.fill.type === 'gradient') {
-                if (axis === 'y' && shape.fill.dir === 'horizontal') {
-                    let temp = shape.fill.c1; shape.fill.c1 = shape.fill.c2; shape.fill.c2 = temp;
-                }
-                if (axis === 'x' && shape.fill.dir === 'vertical') {
-                    let temp = shape.fill.c1; shape.fill.c1 = shape.fill.c2; shape.fill.c2 = temp;
-                }
-            }
-            updatePropUIFromShape(); // Update swatches
+            shape.transformations.push(`Refl: ${axis.toUpperCase()}`);
+            updatePropUIFromShape(); 
             redraw();
         }
 
@@ -1091,6 +1121,13 @@
             if(activeShapeIndex === -1) return;
             const original = shapes[activeShapeIndex];
             const copy = JSON.parse(JSON.stringify(original)); 
+            
+            // Assign Iteration Identity
+            familyCloneCounters[original.baseId]++;
+            const cloneNum = familyCloneCounters[original.baseId];
+            copy.displayId = original.baseId.toString() + String.fromCharCode(96 + cloneNum); // e.g., 1a, 1b
+            
+            copy.transformations.push(`Cloned from [${original.displayId}]`);
             
             shapes.push(copy);
             activeShapeIndex = shapes.length - 1;
@@ -1144,13 +1181,20 @@
         }
 
         // --- EXPORT ---
-        function clearCanvas() { shapes = []; activeShapeIndex = -1; propsPanel.style.display='none'; redraw(); }
+        function clearCanvas() { 
+            shapes = []; 
+            activeShapeIndex = -1; 
+            nextGlobalBaseId = 1;
+            familyCloneCounters = {};
+            propsPanel.style.display='none'; 
+            redraw(); 
+        }
         
         function exportImage() {
             activeShapeIndex = -1; 
             redraw();
             const link = document.createElement('a');
-            link.download = 'GeoLogo_Advanced.png';
+            link.download = 'GeoLogo_Architecture.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
