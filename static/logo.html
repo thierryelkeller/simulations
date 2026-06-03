@@ -98,13 +98,6 @@
             color: var(--bg-color);
         }
 
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            border-color: var(--border-color);
-            color: var(--text-muted);
-        }
-
         /* --- MAIN APP --- */
         #app-container {
             display: none;
@@ -125,6 +118,15 @@
 
         .header-tools { display: flex; gap: 0.5rem; align-items: center; }
 
+        .lang-toggle-group {
+            display: flex; 
+            gap: 0.2rem;
+        }
+        .lang-btn {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+
         main {
             display: flex;
             flex: 1;
@@ -132,13 +134,13 @@
         }
 
         aside {
-            width: 290px;
+            width: 300px;
             background: var(--panel-bg);
             border-right: 1px solid var(--border-color);
             padding: 1rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.25rem;
             overflow-y: auto;
         }
 
@@ -185,10 +187,9 @@
         /* --- STYLES & PROPERTIES PANEL --- */
         .style-panel, #properties-panel {
             background: rgba(0,0,0,0.2);
-            padding: 1rem;
+            padding: 0.75rem;
             border-radius: 6px;
             border: 1px solid var(--border-color);
-            margin-bottom: 0.5rem;
         }
 
         #properties-panel {
@@ -207,12 +208,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
             font-size: 0.8rem;
         }
 
         .prop-row input[type="number"] {
-            width: 60px;
+            width: 50px;
             background: var(--bg-color);
             border: 1px solid var(--border-color);
             color: white;
@@ -221,8 +222,8 @@
         }
 
         .color-swatch-btn {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             border: 2px solid var(--text-main);
             border-radius: 4px;
             cursor: pointer;
@@ -332,11 +333,11 @@
     <div id="splash-screen">
         <div class="splash-content">
             <h1>GeoLogo</h1>
-            <div class="subtitle" data-en="Interactive Geometric Engine" data-fr="Moteur Géométrique Interactif">Interactive Geometric Engine</div>
+            <div class="subtitle" data-en="Magnetic Geometric Engine" data-fr="Moteur Géométrique Magnétique">Magnetic Geometric Engine</div>
             
-            <div style="display:flex; gap:1rem; margin-bottom: 2rem;">
-                <button id="lang-en" class="active">EN</button>
-                <button id="lang-fr">FR</button>
+            <div class="lang-toggle-group" style="margin-bottom: 2rem;">
+                <button class="lang-btn lang-btn-en active">EN</button>
+                <button class="lang-btn lang-btn-fr">FR</button>
             </div>
             
             <button id="start-btn" data-en="Enter Workspace" data-fr="Entrer dans l'espace">Enter Workspace</button>
@@ -347,10 +348,9 @@
     <div id="help-modal">
         <h2 data-en="How to use GeoLogo" data-fr="Comment utiliser GeoLogo">How to use GeoLogo</h2>
         <ul>
-            <li data-en="1. Style: Pick your colors and fill type first." data-fr="1. Style : Choisissez vos couleurs et type de remplissage.">1. Style: Pick your colors and fill type first.</li>
-            <li data-en="2. Draw: Use Line, Rect, Circle, or Polygon. For polygons, click to add points, then click 'Close Polygon'." data-fr="2. Dessiner : Utilisez Ligne, Rect, Cercle, Polygone. Pour les polygones, cliquez pour ajouter des points, puis 'Fermer Polygone'.">2. Draw: Use Line, Rect, Circle, or Polygon. For polygons, click to add points, then click 'Close Polygon'.</li>
-            <li data-en="3. Transform: Click the 'Select' tool, click a shape. A Properties Panel appears." data-fr="3. Transformer : Cliquez sur 'Sélectionner', puis sur une forme. Un panneau apparaît.">3. Transform: Click the 'Select' tool, click a shape. A Properties Panel appears.</li>
-            <li data-en="4. Rotate: By default, shapes rotate around their center. Click 'Pick Center' to choose a custom pivot point!" data-fr="4. Rotation : Par défaut, ça tourne au centre. Cliquez sur 'Choisir Centre' pour un pivot personnalisé !">4. Rotate: By default, shapes rotate around their center. Click 'Pick Center' to choose a custom pivot point!</li>
+            <li data-en="1. Magnetic Grid: The cursor snaps automatically for precise alignments." data-fr="1. Grille Magnétique : Le curseur s'accroche automatiquement pour des alignements précis.">1. Magnetic Grid: The cursor snaps automatically for precise alignments.</li>
+            <li data-en="2. Transform & Preview: Select a shape. Type an Angle or X/Y Translation. A ghost preview will appear! Click 'Apply' to confirm." data-fr="2. Transformer & Prévisualiser : Sélectionnez une forme. Tapez un angle ou une translation X/Y. Un aperçu fantôme apparaîtra ! Cliquez sur 'Appliquer' pour confirmer.">2. Transform & Preview: Select a shape. Type an Angle or X/Y Translation. A ghost preview will appear! Click 'Apply' to confirm.</li>
+            <li data-en="3. Style: Pick your colors, gradients, and direction. Changing them while a shape is selected updates it instantly." data-fr="3. Style : Choisissez vos couleurs et dégradés. Les modifier lorsqu'une forme est sélectionnée la met à jour instantanément.">3. Style: Pick your colors, gradients, and direction. Changing them while a shape is selected updates it instantly.</li>
         </ul>
         <button onclick="document.getElementById('help-modal').style.display='none'" class="mango" style="width:100%" data-en="Got it!" data-fr="Compris !">Got it!</button>
     </div>
@@ -361,9 +361,14 @@
     <!-- Main App -->
     <div id="app-container">
         <header>
-            <div style="display:flex; gap:0.5rem;">
+            <div style="display:flex; gap:0.5rem; align-items:center;">
                 <button id="exit-btn" data-en="Home" data-fr="Accueil" onclick="location.reload()">Home</button>
                 <button onclick="document.getElementById('help-modal').style.display='block'" data-en="Help Guide" data-fr="Guide d'Aide" class="mango">Help Guide</button>
+                
+                <div class="lang-toggle-group" style="margin-left: 1rem;">
+                    <button class="lang-btn lang-btn-en active">EN</button>
+                    <button class="lang-btn lang-btn-fr">FR</button>
+                </div>
             </div>
             <div class="header-tools">
                 <button data-en="Clear All" data-fr="Tout Effacer" onclick="clearCanvas()">Clear All</button>
@@ -386,6 +391,13 @@
                             <option value="none" data-en="None" data-fr="Aucun">None</option>
                             <option value="solid" data-en="Solid" data-fr="Solide">Solid</option>
                             <option value="gradient" data-en="Gradient" data-fr="Dégradé">Gradient</option>
+                        </select>
+                    </div>
+                    <div class="prop-row" id="global-fill-dir-row" style="display:none;">
+                        <span data-en="Gradient Dir" data-fr="Dir. Dégradé">Gradient Dir</span>
+                        <select id="global-fill-dir" onchange="updateGlobalFillUI()">
+                            <option value="horizontal" data-en="Horizontal" data-fr="Horizontal">Horizontal</option>
+                            <option value="vertical" data-en="Vertical" data-fr="Vertical">Vertical</option>
                         </select>
                     </div>
                     <div class="prop-row" id="global-fill-c1-row" style="display:none;">
@@ -426,6 +438,14 @@
                             <option value="gradient" data-en="Gradient" data-fr="Dégradé">Gradient</option>
                         </select>
                     </div>
+                    
+                    <div class="prop-row" id="prop-fill-dir-row" style="display:none;">
+                        <span data-en="Gradient Dir" data-fr="Dir. Dégradé">Gradient Dir</span>
+                        <select id="prop-fill-dir" onchange="updatePropFillUI()">
+                            <option value="horizontal" data-en="Horizontal" data-fr="Horizontal">Horizontal</option>
+                            <option value="vertical" data-en="Vertical" data-fr="Vertical">Vertical</option>
+                        </select>
+                    </div>
                     <div class="prop-row" id="prop-fill-c1-row" style="display:none;">
                         <span data-en="Color 1" data-fr="Couleur 1">Color 1</span>
                         <div class="color-swatch-btn" id="prop-fill-c1-btn" onclick="openPicker(event, 'prop', 'fill1')"></div>
@@ -437,13 +457,22 @@
 
                     <hr style="border:0; border-top: 1px dashed var(--border-color); margin: 10px 0;">
 
+                    <!-- Transform Settings -->
+                    <div class="prop-row">
+                        <span data-en="Trans. X,Y" data-fr="Trans. X,Y">Trans. X,Y</span>
+                        <div style="display:flex; gap:2px;">
+                            <input type="number" id="prop-trans-x" value="0" oninput="redraw()">
+                            <input type="number" id="prop-trans-y" value="0" oninput="redraw()">
+                        </div>
+                    </div>
+                    <button class="tool-btn" style="width:100%; margin-bottom:0.5rem;" onclick="applyTranslation()" data-en="Apply Translate" data-fr="Appliquer Translation">Apply Translate</button>
+
                     <div class="prop-row">
                         <span data-en="Rotate (°)" data-fr="Rotation (°)">Rotate (°)</span>
-                        <input type="number" id="prop-angle" value="45">
+                        <input type="number" id="prop-angle" value="0" oninput="redraw()">
                     </div>
-                    
                     <div class="action-grid" style="margin-bottom: 0.5rem;">
-                        <button class="tool-btn" id="btn-apply-rot" onclick="applyRotation()" data-en="Apply" data-fr="Appliquer">Apply</button>
+                        <button class="tool-btn" onclick="applyRotation()" data-en="Apply Rotate" data-fr="Appliquer Rot.">Apply Rotate</button>
                         <button class="tool-btn" id="btn-pick-center" onclick="togglePickCenter()" data-en="Pick Center" data-fr="Choisir Centre">Pick Center</button>
                     </div>
                     
@@ -473,45 +502,31 @@
                 if(el.tagName === 'OPTION') el.text = el.getAttribute(`data-${lang}`);
                 else el.innerText = el.getAttribute(`data-${lang}`);
             });
+            document.querySelectorAll('.lang-btn-en').forEach(btn => btn.classList.toggle('active', lang === 'en'));
+            document.querySelectorAll('.lang-btn-fr').forEach(btn => btn.classList.toggle('active', lang === 'fr'));
         }
-        document.getElementById('lang-en').addEventListener('click', (e) => {
-            document.getElementById('lang-fr').classList.remove('active');
-            e.target.classList.add('active');
-            updateLanguage('en');
-        });
-        document.getElementById('lang-fr').addEventListener('click', (e) => {
-            document.getElementById('lang-en').classList.remove('active');
-            e.target.classList.add('active');
-            updateLanguage('fr');
-        });
+        document.querySelectorAll('.lang-btn-en').forEach(btn => btn.addEventListener('click', () => updateLanguage('en')));
+        document.querySelectorAll('.lang-btn-fr').forEach(btn => btn.addEventListener('click', () => updateLanguage('fr')));
 
         // --- 64 COLOR GAMUT PALETTE ---
         const palette64 = [
-            // Grays
             '#000000', '#222222', '#444444', '#666666', '#888888', '#AAAAAA', '#CCCCCC', '#FFFFFF',
-            // Reds
             '#4a0000', '#7a0000', '#a80000', '#d90000', '#ff0000', '#ff4d4d', '#ff9999', '#ffe6e6',
-            // Oranges
             '#4a2500', '#7a3e00', '#a85500', '#d96e00', '#ff8200', '#ff9e33', '#ffc285', '#ffebcc',
-            // Yellows
             '#4a4500', '#7a7200', '#a89d00', '#d9c900', '#fff000', '#fff34d', '#fff799', '#fffee6',
-            // Greens
             '#004a00', '#007a00', '#00a800', '#00d900', '#00ff00', '#4dff4d', '#99ff99', '#e6ffe6',
-            // Cyans
             '#004a4a', '#007a7a', '#00a8a8', '#00d9d9', '#00ffff', '#4dffff', '#99ffff', '#e6ffff',
-            // Blues
             '#00004a', '#00007a', '#0000a8', '#0000d9', '#0000ff', '#4d4dff', '#9999ff', '#e6e6ff',
-            // Purples
             '#4a004a', '#7a007a', '#a800a8', '#d900d9', '#ff00ff', '#ff4dff', '#ff99ff', '#ffe6ff'
         ];
 
         const pickerModal = document.getElementById('color-picker-modal');
-        let currentPickerTarget = { context: '', type: '' }; // context: 'global' or 'prop', type: 'stroke', 'fill1', 'fill2'
+        let currentPickerTarget = { context: '', type: '' }; 
 
-        // Global Styles State
         let globalStyles = {
             stroke: '#40E0D0',
             fillType: 'none',
+            fillDir: 'horizontal',
             fill1: '#FF8243',
             fill2: '#ffdd57'
         };
@@ -521,9 +536,7 @@
                 let cell = document.createElement('div');
                 cell.className = 'picker-cell';
                 cell.style.backgroundColor = color;
-                cell.addEventListener('click', () => {
-                    selectColor(color);
-                });
+                cell.addEventListener('click', () => selectColor(color));
                 pickerModal.appendChild(cell);
             });
         }
@@ -545,38 +558,37 @@
                 document.getElementById(`global-${currentPickerTarget.type === 'fill1' || currentPickerTarget.type === 'fill2' ? currentPickerTarget.type : 'stroke'}-btn`).style.backgroundColor = color;
             } else if (currentPickerTarget.context === 'prop' && activeShapeIndex !== -1) {
                 const shape = shapes[activeShapeIndex];
-                if (currentPickerTarget.type === 'stroke') {
-                    shape.stroke = color;
-                } else if (currentPickerTarget.type === 'fill1') {
-                    shape.fill.c1 = color;
-                } else if (currentPickerTarget.type === 'fill2') {
-                    shape.fill.c2 = color;
-                }
+                if (currentPickerTarget.type === 'stroke') shape.stroke = color;
+                else if (currentPickerTarget.type === 'fill1') shape.fill.c1 = color;
+                else if (currentPickerTarget.type === 'fill2') shape.fill.c2 = color;
                 updatePropUIFromShape();
                 redraw();
             }
         }
 
         window.addEventListener('click', (e) => {
-            if (pickerModal.style.display === 'grid' && !pickerModal.contains(e.target)) {
-                pickerModal.style.display = 'none';
-            }
+            if (pickerModal.style.display === 'grid' && !pickerModal.contains(e.target)) pickerModal.style.display = 'none';
         });
 
         function updateGlobalFillUI() {
             globalStyles.fillType = document.getElementById('global-fill-type').value;
+            globalStyles.fillDir = document.getElementById('global-fill-dir').value;
             document.getElementById('global-fill-c1-row').style.display = globalStyles.fillType !== 'none' ? 'flex' : 'none';
             document.getElementById('global-fill-c2-row').style.display = globalStyles.fillType === 'gradient' ? 'flex' : 'none';
+            document.getElementById('global-fill-dir-row').style.display = globalStyles.fillType === 'gradient' ? 'flex' : 'none';
         }
 
         function updatePropFillUI() {
             if (activeShapeIndex === -1) return;
             const shape = shapes[activeShapeIndex];
-            if(shape.type === 'line') return; // Lines can't have fills
+            if(shape.type === 'line') return; 
             
             shape.fill.type = document.getElementById('prop-fill-type').value;
+            shape.fill.dir = document.getElementById('prop-fill-dir').value;
+            
             document.getElementById('prop-fill-c1-row').style.display = shape.fill.type !== 'none' ? 'flex' : 'none';
             document.getElementById('prop-fill-c2-row').style.display = shape.fill.type === 'gradient' ? 'flex' : 'none';
+            document.getElementById('prop-fill-dir-row').style.display = shape.fill.type === 'gradient' ? 'flex' : 'none';
             redraw();
         }
 
@@ -585,18 +597,25 @@
             const shape = shapes[activeShapeIndex];
             
             document.getElementById('prop-stroke-btn').style.backgroundColor = shape.stroke;
+            document.getElementById('prop-angle').value = 0;
+            document.getElementById('prop-trans-x').value = 0;
+            document.getElementById('prop-trans-y').value = 0;
             
             if (shape.type === 'line') {
                 document.getElementById('prop-fill-type-row').style.display = 'none';
                 document.getElementById('prop-fill-c1-row').style.display = 'none';
                 document.getElementById('prop-fill-c2-row').style.display = 'none';
+                document.getElementById('prop-fill-dir-row').style.display = 'none';
             } else {
                 document.getElementById('prop-fill-type-row').style.display = 'flex';
                 document.getElementById('prop-fill-type').value = shape.fill.type;
+                document.getElementById('prop-fill-dir').value = shape.fill.dir || 'horizontal';
                 document.getElementById('prop-fill-c1-btn').style.backgroundColor = shape.fill.c1;
                 document.getElementById('prop-fill-c2-btn').style.backgroundColor = shape.fill.c2;
+                
                 document.getElementById('prop-fill-c1-row').style.display = shape.fill.type !== 'none' ? 'flex' : 'none';
                 document.getElementById('prop-fill-c2-row').style.display = shape.fill.type === 'gradient' ? 'flex' : 'none';
+                document.getElementById('prop-fill-dir-row').style.display = shape.fill.type === 'gradient' ? 'flex' : 'none';
             }
         }
 
@@ -617,18 +636,18 @@
         const coordsDisplay = document.getElementById('coords-display');
         const propsPanel = document.getElementById('properties-panel');
         const polyFinishBtn = document.getElementById('poly-finish-btn');
+        const gridSize = 25; // Finer Grid Resolution
         
         let shapes = []; 
         let activeShapeIndex = -1;
         let currentTool = 'line';
         
-        // Drawing/Interaction State
         let isDrawing = false;
         let isDragging = false;
         let isPickingCenter = false;
         let startX = 0, startY = 0;
         let originX = 0, originY = 0;
-        let polyPts = []; // For polygon tool
+        let polyPts = [];
 
         // UI Listeners
         document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
@@ -636,7 +655,6 @@
                 document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 
-                // Cleanup previous tool state
                 if (currentTool === 'polygon' && polyPts.length > 0) {
                     polyPts = [];
                     polyFinishBtn.style.display = 'none';
@@ -644,7 +662,6 @@
                 }
 
                 currentTool = e.target.getAttribute('data-tool');
-                
                 if (isPickingCenter) cancelPickCenter();
 
                 if(currentTool !== 'select') {
@@ -666,7 +683,15 @@
         }
         window.addEventListener('resize', resizeCanvas);
 
-        function toMath(sx, sy) { return { x: Math.round(sx - originX), y: Math.round(originY - sy) }; }
+        // Magnetic Grid Snap
+        function toMathSnapped(sx, sy) { 
+            let rawX = sx - originX;
+            let rawY = originY - sy;
+            return { 
+                x: Math.round(rawX / gridSize) * gridSize, 
+                y: Math.round(rawY / gridSize) * gridSize 
+            }; 
+        }
         function toScreen(cx, cy) { return { x: cx + originX, y: originY - cy }; }
 
         // --- RENDERING ---
@@ -676,10 +701,10 @@
             ctx.lineWidth = 1;
             ctx.beginPath();
             
-            for (let x = originX % 50; x < canvas.width; x += 50) {
+            for (let x = originX % gridSize; x < canvas.width; x += gridSize) {
                 ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
             }
-            for (let y = originY % 50; y < canvas.height; y += 50) {
+            for (let y = originY % gridSize; y < canvas.height; y += gridSize) {
                 ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
             }
             ctx.stroke();
@@ -692,11 +717,16 @@
             ctx.stroke();
         }
 
-        function drawShape(shape, isSelected = false) {
+        function drawShape(shape, isSelected = false, isGhost = false) {
             ctx.save();
             ctx.strokeStyle = isSelected ? '#ffdd57' : shape.stroke;
             ctx.lineWidth = isSelected ? 4 : 2;
+            
             if(isSelected) ctx.setLineDash([5, 5]);
+            if(isGhost) {
+                ctx.setLineDash([5, 5]);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            }
 
             const pts = shape.points.map(p => toScreen(p.x, p.y));
             
@@ -716,11 +746,13 @@
 
             // Fill Logic
             if (shape.type !== 'line' && shape.fill.type !== 'none') {
-                if (shape.fill.type === 'solid') {
+                if(isGhost) {
+                     ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                     ctx.fill();
+                } else if (shape.fill.type === 'solid') {
                     ctx.fillStyle = isSelected ? `${shape.fill.c1}88` : shape.fill.c1;
                     ctx.fill();
                 } else if (shape.fill.type === 'gradient') {
-                    // Calculate Screen Bounding Box for Gradient
                     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                     if (shape.type === 'circle') {
                         const r = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
@@ -733,8 +765,12 @@
                         });
                     }
                     
-                    // Top-Left to Bottom-Right Gradient
-                    const grad = ctx.createLinearGradient(minX, minY, maxX, maxY);
+                    let grad;
+                    if (shape.fill.dir === 'vertical') {
+                        grad = ctx.createLinearGradient(minX, minY, minX, maxY);
+                    } else {
+                        grad = ctx.createLinearGradient(minX, minY, maxX, minY);
+                    }
                     grad.addColorStop(0, shape.fill.c1);
                     grad.addColorStop(1, shape.fill.c2);
                     ctx.fillStyle = grad;
@@ -753,8 +789,8 @@
             ctx.stroke();
             ctx.restore();
 
-            // If selected, draw center point for rotation
-            if (isSelected) {
+            // Center Point
+            if (isSelected && !isGhost) {
                 const center = shape.customCenter || getShapeCenter(shape);
                 const sCenter = toScreen(center.x, center.y);
                 ctx.fillStyle = shape.customCenter ? '#ff0000' : '#ffdd57';
@@ -770,6 +806,35 @@
                 drawShape(shape, index === activeShapeIndex);
             });
             
+            // Draw Ghost Preview for Transforms
+            if (activeShapeIndex !== -1) {
+                const rotDeg = parseFloat(document.getElementById('prop-angle').value) || 0;
+                const transX = parseFloat(document.getElementById('prop-trans-x').value) || 0;
+                const transY = parseFloat(document.getElementById('prop-trans-y').value) || 0;
+
+                if (rotDeg !== 0 || transX !== 0 || transY !== 0) {
+                    const baseShape = shapes[activeShapeIndex];
+                    const ghost = JSON.parse(JSON.stringify(baseShape));
+                    
+                    const rad = rotDeg * (Math.PI / 180);
+                    const center = baseShape.customCenter || getShapeCenter(baseShape);
+                    const cosA = Math.cos(rad), sinA = Math.sin(rad);
+
+                    ghost.points.forEach(p => {
+                        if (rotDeg !== 0) {
+                            const tx = p.x - center.x;
+                            const ty = p.y - center.y;
+                            p.x = center.x + (tx * cosA - ty * sinA);
+                            p.y = center.y + (tx * sinA + ty * cosA);
+                        }
+                        p.x += transX;
+                        p.y += transY;
+                    });
+                    
+                    drawShape(ghost, false, true);
+                }
+            }
+
             // Draw live polygon
             if (currentTool === 'polygon' && polyPts.length > 0) {
                 ctx.strokeStyle = globalStyles.stroke;
@@ -781,7 +846,6 @@
                 for(let i=1; i<sPts.length; i++) ctx.lineTo(sPts[i].x, sPts[i].y);
                 ctx.stroke();
                 
-                // Draw start point highlighted to hint closing
                 ctx.fillStyle = '#ffdd57';
                 ctx.beginPath();
                 ctx.arc(sPts[0].x, sPts[0].y, 6, 0, Math.PI*2);
@@ -808,7 +872,7 @@
         function handleDown(e) {
             e.preventDefault();
             const pos = getMousePos(e);
-            const mathPos = toMath(pos.x, pos.y);
+            const mathPos = toMathSnapped(pos.x, pos.y);
 
             if (isPickingCenter && activeShapeIndex !== -1) {
                 shapes[activeShapeIndex].customCenter = mathPos;
@@ -837,8 +901,7 @@
                 }
                 redraw();
             } else if (currentTool === 'polygon') {
-                // Polygon logic
-                if (polyPts.length >= 3 && Math.hypot(mathPos.x - polyPts[0].x, mathPos.y - polyPts[0].y) < 15) {
+                if (polyPts.length >= 3 && Math.hypot(mathPos.x - polyPts[0].x, mathPos.y - polyPts[0].y) <= gridSize) {
                     finishPolygon();
                 } else {
                     polyPts.push(mathPos);
@@ -846,7 +909,6 @@
                     redraw();
                 }
             } else {
-                // Line, Rect, Circle logic
                 isDrawing = true;
                 startX = mathPos.x;
                 startY = mathPos.y;
@@ -856,7 +918,7 @@
         function handleMove(e) {
             e.preventDefault();
             const pos = getMousePos(e);
-            const mathPos = toMath(pos.x, pos.y);
+            const mathPos = toMathSnapped(pos.x, pos.y);
             coordsDisplay.innerText = `X: ${mathPos.x}, Y: ${mathPos.y}`;
 
             if (isDrawing && ['line', 'rect', 'circle'].includes(currentTool)) {
@@ -871,6 +933,7 @@
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.moveTo(lastPt.x, lastPt.y);
+                // raw screen pos to show non-snapped line before click
                 ctx.lineTo(pos.x, pos.y);
                 ctx.stroke();
             }
@@ -878,15 +941,16 @@
                 const dx = mathPos.x - startX;
                 const dy = mathPos.y - startY;
                 
-                shapes[activeShapeIndex].points.forEach(p => { p.x += dx; p.y += dy; });
-                if(shapes[activeShapeIndex].customCenter) {
-                    shapes[activeShapeIndex].customCenter.x += dx;
-                    shapes[activeShapeIndex].customCenter.y += dy;
+                if (dx !== 0 || dy !== 0) {
+                    shapes[activeShapeIndex].points.forEach(p => { p.x += dx; p.y += dy; });
+                    if(shapes[activeShapeIndex].customCenter) {
+                        shapes[activeShapeIndex].customCenter.x += dx;
+                        shapes[activeShapeIndex].customCenter.y += dy;
+                    }
+                    startX = mathPos.x;
+                    startY = mathPos.y;
+                    redraw();
                 }
-                
-                startX = mathPos.x;
-                startY = mathPos.y;
-                redraw();
             }
         }
 
@@ -894,9 +958,9 @@
             if (isDrawing && ['line', 'rect', 'circle'].includes(currentTool)) {
                 isDrawing = false;
                 const pos = getMousePos(e);
-                const mathPos = toMath(pos.x, pos.y);
+                const mathPos = toMathSnapped(pos.x, pos.y);
                 
-                if(Math.abs(mathPos.x - startX) > 2 || Math.abs(mathPos.y - startY) > 2) {
+                if(Math.abs(mathPos.x - startX) > 0 || Math.abs(mathPos.y - startY) > 0) {
                     shapes.push(createShapeData(currentTool, startX, startY, mathPos.x, mathPos.y));
                 }
                 redraw();
@@ -910,7 +974,7 @@
                     type: 'polygon',
                     points: [...polyPts],
                     stroke: globalStyles.stroke,
-                    fill: { type: globalStyles.fillType, c1: globalStyles.fill1, c2: globalStyles.fill2 },
+                    fill: { type: globalStyles.fillType, dir: globalStyles.fillDir, c1: globalStyles.fill1, c2: globalStyles.fill2 },
                     customCenter: null
                 });
             }
@@ -929,7 +993,7 @@
                 type: type, 
                 points: pts, 
                 stroke: globalStyles.stroke, 
-                fill: { type: globalStyles.fillType, c1: globalStyles.fill1, c2: globalStyles.fill2 },
+                fill: { type: globalStyles.fillType, dir: globalStyles.fillDir, c1: globalStyles.fill1, c2: globalStyles.fill2 },
                 customCenter: null
             };
         }
@@ -960,10 +1024,25 @@
             btn.innerText = currentLang === 'en' ? 'Pick Center' : 'Choisir Centre';
         }
 
+        function applyTranslation() {
+            if(activeShapeIndex === -1) return;
+            const transX = parseFloat(document.getElementById('prop-trans-x').value) || 0;
+            const transY = parseFloat(document.getElementById('prop-trans-y').value) || 0;
+            if(transX === 0 && transY === 0) return;
+
+            const shape = shapes[activeShapeIndex];
+            shape.points.forEach(p => { p.x += transX; p.y += transY; });
+            if(shape.customCenter) { shape.customCenter.x += transX; shape.customCenter.y += transY; }
+            
+            document.getElementById('prop-trans-x').value = 0;
+            document.getElementById('prop-trans-y').value = 0;
+            redraw();
+        }
+
         function applyRotation() {
             if(activeShapeIndex === -1) return;
             const deg = parseFloat(document.getElementById('prop-angle').value);
-            if(isNaN(deg)) return;
+            if(isNaN(deg) || deg === 0) return;
             const rad = deg * (Math.PI / 180);
             
             const shape = shapes[activeShapeIndex];
@@ -977,6 +1056,8 @@
                 p.x = center.x + (tx * cosA - ty * sinA);
                 p.y = center.y + (tx * sinA + ty * cosA);
             });
+            
+            document.getElementById('prop-angle').value = 0; // Reset after apply
             redraw();
         }
 
@@ -992,15 +1073,24 @@
                 if (axis === 'y') shape.customCenter.x = -shape.customCenter.x;
                 if (axis === 'x') shape.customCenter.y = -shape.customCenter.y;
             }
+
+            // Swap gradient if reflected on appropriate axis
+            if (shape.fill.type === 'gradient') {
+                if (axis === 'y' && shape.fill.dir === 'horizontal') {
+                    let temp = shape.fill.c1; shape.fill.c1 = shape.fill.c2; shape.fill.c2 = temp;
+                }
+                if (axis === 'x' && shape.fill.dir === 'vertical') {
+                    let temp = shape.fill.c1; shape.fill.c1 = shape.fill.c2; shape.fill.c2 = temp;
+                }
+            }
+            updatePropUIFromShape(); // Update swatches
             redraw();
         }
 
         function cloneShape() {
             if(activeShapeIndex === -1) return;
             const original = shapes[activeShapeIndex];
-            const copy = JSON.parse(JSON.stringify(original)); // Deep copy points and properties
-            copy.points.forEach(p => { p.x += 20; p.y -= 20; });
-            if(copy.customCenter) { copy.customCenter.x += 20; copy.customCenter.y -= 20; }
+            const copy = JSON.parse(JSON.stringify(original)); 
             
             shapes.push(copy);
             activeShapeIndex = shapes.length - 1;
@@ -1018,31 +1108,27 @@
 
         // --- HIT DETECTION ---
         function isPointNearShape(pt, shape) {
-            const threshold = 10;
+            const threshold = 12;
             if (shape.type === 'circle') {
                 const r = Math.hypot(shape.points[1].x - shape.points[0].x, shape.points[1].y - shape.points[0].y);
                 const distToCenter = Math.hypot(pt.x - shape.points[0].x, pt.y - shape.points[0].y);
-                
-                // If it has a fill, allow clicking anywhere inside. Else, just the stroke.
                 if (shape.fill.type !== 'none') return distToCenter <= r + threshold;
                 return Math.abs(distToCenter - r) < threshold;
             } 
             
             if (shape.type !== 'line' && shape.fill.type !== 'none') {
-                 // Simple bounding box check for filled polygons/rects to make selection easier
                  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                  shape.points.forEach(p => {
                      if(p.x < minX) minX=p.x; if(p.x > maxX) maxX=p.x;
                      if(p.y < minY) minY=p.y; if(p.y > maxY) maxY=p.y;
                  });
-                 if (pt.x >= minX && pt.x <= maxX && pt.y >= minY && pt.y <= maxY) return true;
+                 if (pt.x >= minX - threshold && pt.x <= maxX + threshold && pt.y >= minY - threshold && pt.y <= maxY + threshold) return true;
             }
 
             for(let i=0; i<shape.points.length; i++) {
                 const p1 = shape.points[i];
                 const p2 = shape.type === 'line' ? shape.points[1] : shape.points[(i+1)%shape.points.length];
                 if(shape.type === 'line' && i === 1) break; 
-                
                 if (distToSegmentSquared(pt, p1, p2) < threshold*threshold) return true;
             }
             return false;
