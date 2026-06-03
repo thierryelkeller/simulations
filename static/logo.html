@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GeoLogo Architect</title>
+    <style>
+        :root {
+            --bg-color: #0f171e;
+            --panel-bg: #1a242f;
+            --text-main: #e0e6ed;
+            --text-muted: #8b9bb4;
+            --accent-turquoise: #40E0D0;
+            --accent-mango: #FF8243;
+            --border-color: #2c3a4a;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --canvas-bg: #1e2936;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        #splash-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .splash-content {
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(15, 23, 30, 0.7);
+            padding: 3rem;
+            border-radius: 12px;
+            border: 1px solid rgba(64, 224, 208, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 300;
+            letter-spacing: 6px;
+            color: var(--accent-turquoise);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(64, 224, 208, 0.4);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--accent-mango);
+            margin-bottom: 3rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        button {
+            background: rgba(26, 36, 47, 0.8);
+            border: 1px solid var(--accent-turquoise);
+            color: var(--accent-turquoise);
+            padding: 0.75rem 1.5rem;
+            font-family: var(--font-family);
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(4px);
+        }
+
+        button:hover, button.active {
+            background: var(--accent-turquoise);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px rgba(64, 224, 208, 0.4);
+        }
+
+        button.mango {
+            border-color: var(--accent-mango);
+            color: var(--accent-mango);
+        }
+
+        button.mango:hover, button.mango.active {
+            background: var(--accent-mango);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px rgba(255, 130, 67, 0.4);
+        }
+
+        #start-btn {
+            font-size: 1.1rem;
+            padding: 1rem 3rem;
+            margin-top: 1rem;
+        }
+
+        .copyright {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            z-index: 1;
+        }
+
+        /* --- MAIN APP UI --- */
+        #app-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        header {
+            height: 60px;
+            background: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+        }
+
+        .header-tools { display: flex; gap: 1rem; align-items: center; }
+        
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+        
+        input[type="color"] {
+            border: none;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+        }
+
+        main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        aside {
+            width: 260px;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .tool-section { margin-bottom: 0.5rem; }
+        .tool-section h3 {
+            font-size: 0.8rem;
+            color: var(--accent-turquoise);
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.25rem;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .tool-btn {
+            padding: 0.6rem 0.2rem;
+            font-size: 0.75rem;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            text-align: center;
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .tool-btn.active {
+            border-color: var(--accent-turquoise);
+            background: rgba(64, 224, 208, 0.15);
+            color: var(--accent-turquoise);
+            box-shadow: none;
+        }
+
+        .canvas-wrapper {
+            flex: 1;
+            position: relative;
+            background: var(--canvas-bg);
+            cursor: crosshair;
+            overflow: hidden;
+        }
+
+        #geo-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        #coords-display {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(26, 36, 47, 0.9);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--accent-mango);
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            pointer-events: none;
+        }
+        
+        #instruction-banner {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(64, 224, 208, 0.1);
+            color: var(--accent-turquoise);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--accent-turquoise);
+            font-size: 0.85rem;
+            pointer-events: none;
+            letter-spacing: 1px;
+            display: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            main { flex-direction: column; }
+            aside { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: row; flex-wrap: wrap; padding: 1rem;}
+            .tool-section { flex: 1; min-width: 150px;}
+            header { flex-wrap: wrap; height: auto; padding: 0.5rem; gap: 0.5rem;}
+            .header-tools { flex-wrap: wrap; }
+            h1 { font-size: 3rem; }
+            .splash-content { padding: 1.5rem; text-align: center;}
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <canvas id="splash-canvas"></canvas>
+        <div class="splash-content">
+            <h1>GeoLogo</h1>
+            <div class="subtitle" data-en="Geometric Architecture Lab" data-fr="Laboratoire d'Architecture Géométrique">Geometric Architecture Lab</div>
+            
+            <div class="control-group">
+                <button id="lang-en" class="active">EN</button>
+                <button id="lang-fr">FR</button>
+            </div>
+
+            <div class="control-group">
+                <button class="mode-btn mango" data-mode="observer" data-en="Observer" data-fr="Observateur">Observer</button>
+                <button class="mode-btn mango" data-mode="explorer" data-en="Explorer" data-fr="Explorateur">Explorer</button>
+                <button class="mode-btn mango active" data-mode="scientist" data-en="Scientist" data-fr="Scientifique">Scientist</button>
+            </div>
+
+            <button id="start-btn" data-en="Initialize Workspace" data-fr="Initialiser l'Espace de Travail">Initialize Workspace</button>
+        </div>
+        <div class="copyright">© T. Keller</div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app-container">
+        <header>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button id="exit-btn" data-en="Exit" data-fr="Quitter" onclick="location.href='index.html'" style="padding: 0.5rem 1rem;">Exit</button>
+                <button id="back-btn" data-en="Setup" data-fr="Configuration" style="padding: 0.5rem 1rem;">Setup</button>
+                <button id="toggle-lang-btn" style="padding: 0.5rem 1rem;">FR</button>
+            </div>
+            
+            <div class="header-tools">
+                <div class="color-picker">
+                    <span data-en="Stroke" data-fr="Trait">Stroke</span>
+                    <input type="color" id="stroke-color" value="#40E0D0">
+                </div>
+                <div class="color-picker">
+                    <span data-en="Fill" data-fr="Remplissage">Fill</span>
+                    <input type="color" id="fill-color" value="#000000">
+                </div>
+                <button data-en="Export IMG" data-fr="Exporter IMG" onclick="exportImage()" style="padding: 0.5rem 1rem;">Export IMG</button>
+                <button data-en="Data I/O" data-fr="Données I/O" onclick="document.getElementById('import-file').click()" class="mango" style="padding: 0.5rem 1rem;">Data I/O</button>
+                <button onclick="exportJSON()" class="mango" style="padding: 0.5rem 1rem;">⬇</button>
+                <input type="file" id="import-file" style="display:none" accept=".json" onchange="importJSON(event)">
+            </div>
+        </header>
+
+        <main>
+            <aside>
+                <div class="tool-section">
+                    <h3 data-en="1. Draw Forms" data-fr="1. Tracer Formes">1. Draw Forms</h3>
+                    <div class="tool-grid">
+                        <button class="tool-btn active" data-tool="line" data-en="Segment" data-fr="Segment">Segment</button>
+                        <button class="tool-btn" data-tool="rect" data-en="Rectangle" data-fr="Rectangle">Rectangle</button>
+                        <button class="tool-btn" data-tool="circle" data-en="Circle" data-fr="Cercle">Circle</button>
+                        <button class="tool-btn" data-tool="polygon" data-en="Polygon" data-fr="Polygone">Polygon</button>
+                    </div>
+                </div>
+
+                <div class="tool-section scientist-only">
+                    <h3 data-en="2. Construct Lines" data-fr="2. Construire Droites">2. Construct Lines</h3>
+                    <div class="tool-grid">
+                        <button class="tool-btn" data-tool="parallel" data-en="Parallel" data-fr="Parallèle">Parallel</button>
+                        <button class="tool-btn" data-tool="perpendicular" data-en="Perpendic." data-fr="Perpendic.">Perpendic.</button>
+                        <button class="tool-btn" data-tool="bisector" data-en="Angle Bisector" data-fr="Bissectrice">Angle Bisector</button>
+                        <button class="tool-btn" data-tool="perp_bisector" data-en="Perp. Bisector" data-fr="Médiatrice">Perp. Bisector</button>
+                    </div>
+                </div>
+
+                <div class="tool-section scientist-only">
+                    <h3 data-en="3. Transform" data-fr="3. Transformer">3. Transform</h3>
+                    <div class="tool-grid">
+                        <button class="tool-btn" data-tool="translate" data-en="Translate" data-fr="Translation">Translate</button>
+                        <button class="tool-btn" data-tool="rotate" data-en="Rotate" data-fr="Rotation">Rotate</button>
+                        <button class="tool-btn" data-tool="reflect" data-en="Reflect" data-fr="Réflexion">Reflect</button>
+                        <button class="tool-btn" data-tool="select" data-en="Select" data-fr="Sélectionner">Select</button>
+                    </div>
+                </div>
+                
+                <button class="tool-btn" onclick="undo()" style="margin-top:auto" data-en="Undo Last" data-fr="Annuler">Undo Last</button>
+                <button class="tool-btn mango" onclick="clearCanvas()" style="margin-top:0.5rem" data-en="Clear Canvas" data-fr="Effacer">Clear Canvas</button>
+            </aside>
+
+            <div class="canvas-wrapper">
+                <div id="instruction-banner">Select a tool to begin</div>
+                <canvas id="geo-canvas"></canvas>
+                <div id="coords-display">X: 0, Y: 0</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- SPLASH SCREEN ANIMATION ---
+        const sCanvas = document.getElementById('splash-canvas');
+        const sCtx = sCanvas.getContext('2d');
+        let particles = [];
+        let mouseX = 0, mouseY = 0;
+
+        function initSplashAnimation() {
+            sCanvas.width = window.innerWidth;
+            sCanvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < 40; i++) {
+                particles.push({
+                    x: Math.random() * sCanvas.width,
+                    y: Math.random() * sCanvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.random() * 40 + 10,
+                    type: Math.floor(Math.random() * 3), // 0: circle, 1: rect, 2: triangle
+                    rot: Math.random() * Math.PI * 2,
+                    rotSpeed: (Math.random() - 0.5) * 0.02
+                });
+            }
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            if(document.getElementById('splash-screen').style.display !== 'none') {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+        });
+
+        function animateSplash() {
+            if(document.getElementById('splash-screen').style.display === 'none') return;
+            
+            sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
+            sCtx.strokeStyle = 'rgba(64, 224, 208, 0.15)';
+            sCtx.lineWidth = 1;
+
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.rot += p.rotSpeed;
+
+                // Mouse repel
+                let dx = mouseX - p.x;
+                let dy = mouseY - p.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 150) {
+                    p.x -= dx * 0.02;
+                    p.y -= dy * 0.02;
+                }
+
+                // Bounce
+                if (p.x < 0 || p.x > sCanvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > sCanvas.height) p.vy *= -1;
+
+                sCtx.save();
+                sCtx.translate(p.x, p.y);
+                sCtx.rotate(p.rot);
+                sCtx.beginPath();
+                
+                if (p.type === 0) {
+                    sCtx.arc(0, 0, p.size, 0, Math.PI * 2);
+                } else if (p.type === 1) {
+                    sCtx.rect(-p.size/2, -p.size/2, p.size, p.size);
+                } else {
+                    sCtx.moveTo(0, -p.size);
+                    sCtx.lineTo(p.size, p.size);
+                    sCtx.lineTo(-p.size, p.size);
+                    sCtx.closePath();
+                }
+                
+                sCtx.stroke();
+                sCtx.restore();
+            });
+
+            requestAnimationFrame(animateSplash);
+        }
+
+        initSplashAnimation();
+        animateSplash();
+        window.addEventListener('resize', () => {
+            if(document.getElementById('splash-screen').style.display !== 'none') initSplashAnimation();
+        });
+
+
+        // --- STATE MANAGEMENT ---
+        let currentLang = 'en';
+        let currentMode = 'scientist';
+        let currentTool = 'line';
+        let shapes = []; 
+        let isDrawing = false;
+        let startX, startY;
+        let originX, originY;
+        let scale = 1; // For future zoom implementation
+        
+        // --- DOM ELEMENTS ---
+        const splash = document.getElementById('splash-screen');
+        const app = document.getElementById('app-container');
+        const canvas = document.getElementById('geo-canvas');
+        const ctx = canvas.getContext('2d');
+        const coordsDisplay = document.getElementById('coords-display');
+        const instructionBanner = document.getElementById('instruction-banner');
+        const strokeColorInput = document.getElementById('stroke-color');
+        const fillColorInput = document.getElementById('fill-color');
+
+        const toolInstructions = {
+            'line': { en: 'Click and drag to draw a line segment', fr: 'Cliquez et glissez pour tracer un segment' },
+            'rect': { en: 'Click and drag to draw a rectangle', fr: 'Cliquez et glissez pour tracer un rectangle' },
+            'circle': { en: 'Click and drag to draw a circle from center', fr: 'Cliquez et glissez pour tracer un cercle depuis le centre' },
+            'polygon': { en: 'Prototype: Polygon tool (Acts as line for now)', fr: 'Prototype: Polygone (agit comme ligne)' },
+            'parallel': { en: 'Select a line, then click to place parallel', fr: 'Sélectionnez une ligne, puis cliquez pour placer la parallèle' },
+            'perpendicular': { en: 'Select a line, then click to place perpendicular', fr: 'Sélectionnez une ligne, puis cliquez pour placer la perpendiculaire' },
+            'bisector': { en: 'Select two lines to construct angle bisector', fr: 'Sélectionnez deux lignes pour construire la bissectrice' },
+            'perp_bisector': { en: 'Select a segment to construct perpendicular bisector', fr: 'Sélectionnez un segment pour construire la médiatrice' },
+            'translate': { en: 'Select shape, then click and drag translation vector', fr: 'Sélectionnez une forme, puis glissez le vecteur de translation' },
+            'rotate': { en: 'Select shape, select center point, enter angle', fr: 'Sélectionnez une forme, le centre, puis entrez l\'angle' },
+            'reflect': { en: 'Select shape, then select axis of reflection', fr: 'Sélectionnez une forme, puis l\'axe de réflexion' },
+            'select': { en: 'Click shape to view mathematical properties', fr: 'Cliquez sur une forme pour voir ses propriétés' }
+        };
+
+        // --- UI LOGIC ---
+        function updateLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-en]').forEach(el => {
+                if(el.tagName === 'INPUT' && el.type === 'button') {
+                    el.value = el.getAttribute(`data-${lang}`);
+                } else {
+                    el.innerText = el.getAttribute(`data-${lang}`);
+                }
+            });
+            document.getElementById('toggle-lang-btn').innerText = lang === 'en' ? 'FR' : 'EN';
+            showInstruction(currentTool);
+        }
+
+        document.getElementById('lang-en').addEventListener('click', (e) => {
+            document.getElementById('lang-fr').classList.remove('active');
+            e.target.classList.add('active');
+            updateLanguage('en');
+        });
+
+        document.getElementById('lang-fr').addEventListener('click', (e) => {
+            document.getElementById('lang-en').classList.remove('active');
+            e.target.classList.add('active');
+            updateLanguage('fr');
+        });
+        
+        document.getElementById('toggle-lang-btn').addEventListener('click', () => {
+            updateLanguage(currentLang === 'en' ? 'fr' : 'en');
+        });
+
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentMode = e.target.getAttribute('data-mode');
+            });
+        });
+
+        function showInstruction(toolId) {
+            instructionBanner.style.display = 'block';
+            instructionBanner.innerText = toolInstructions[toolId][currentLang];
+        }
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            // Apply Mode Restrictions
+            if(currentMode === 'observer' || currentMode === 'explorer') {
+                document.querySelectorAll('.scientist-only').forEach(el => el.style.opacity = '0.3');
+                document.querySelectorAll('.scientist-only .tool-btn').forEach(btn => btn.style.pointerEvents = 'none');
+            } else {
+                document.querySelectorAll('.scientist-only').forEach(el => el.style.opacity = '1');
+                document.querySelectorAll('.scientist-only .tool-btn').forEach(btn => btn.style.pointerEvents = 'auto');
+            }
+
+            splash.style.opacity = '0';
+            splash.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                app.style.display = 'flex';
+                // Trigger reflow
+                void app.offsetWidth;
+                app.style.opacity = '1';
+                resizeCanvas();
+                showInstruction(currentTool);
+            }, 500);
+        });
+
+        document.getElementById('back-btn').addEventListener('click', () => {
+            app.style.opacity = '0';
+            setTimeout(() => {
+                app.style.display = 'none';
+                splash.style.display = 'flex';
+                splash.style.transform = 'scale(1)';
+                initSplashAnimation();
+                animateSplash();
+                setTimeout(() => splash.style.opacity = '1', 10);
+            }, 500);
+        });
+
+        document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentTool = e.target.getAttribute('data-tool');
+                showInstruction(currentTool);
+            });
+        });
+
+        // --- MATH & CANVAS LOGIC ---
+        function resizeCanvas() {
+            const wrapper = document.querySelector('.canvas-wrapper');
+            canvas.width = wrapper.clientWidth;
+            canvas.height = wrapper.clientHeight;
+            originX = canvas.width / 2;
+            originY = canvas.height / 2;
+            redrawShapes();
+        }
+        window.addEventListener('resize', () => {
+            if(app.style.display !== 'none') resizeCanvas();
+        });
+
+        // Convert screen coordinates to true Cartesian coordinates (Y goes up)
+        function screenToCartesian(sx, sy) {
+            return {
+                x: Math.round(sx - originX),
+                y: Math.round(originY - sy)
+            };
+        }
+
+        // Convert Cartesian coordinates to screen coordinates
+        function cartesianToScreen(cx, cy) {
+            return {
+                x: cx + originX,
+                y: originY - cy
+            };
+        }
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const gridSize = 50;
+            
+            ctx.strokeStyle = 'rgba(44, 58, 74, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            
+            // Draw minor grid lines
+            for (let x = originX % gridSize; x < canvas.width; x += gridSize) {
+                ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+            }
+            for (let y = originY % gridSize; y < canvas.height; y += gridSize) {
+                ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+            }
+            ctx.stroke();
+
+            // Draw Axes
+            ctx.strokeStyle = 'rgba(139, 155, 180, 0.7)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(originX, 0); ctx.lineTo(originX, canvas.height); // Y axis
+            ctx.moveTo(0, originY); ctx.lineTo(canvas.width, originY); // X axis
+            ctx.stroke();
+            
+            // Origin marker
+            ctx.fillStyle = varColor('--accent-mango');
+            ctx.beginPath();
+            ctx.arc(originX, originY, 3, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        function varColor(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        function redrawShapes() {
+            drawGrid();
+            shapes.forEach(shape => {
+                ctx.strokeStyle = shape.stroke;
+                ctx.fillStyle = shape.fill;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                // We store coordinates in Cartesian to maintain math integrity,
+                // convert them back to screen for rendering.
+                const p1 = cartesianToScreen(shape.cx1, shape.cy1);
+                const p2 = cartesianToScreen(shape.cx2, shape.cy2);
+
+                if (shape.type === 'line') {
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                } else if (shape.type === 'rect') {
+                    // Because Cartesian Y goes UP, calculating rect height means subtracting top-left from bottom-right differently
+                    ctx.rect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
+                    if(shape.fill !== '#000000') ctx.fill();
+                } else if (shape.type === 'circle') {
+                    const r = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+                    ctx.arc(p1.x, p1.y, r, 0, Math.PI * 2);
+                    if(shape.fill !== '#000000') ctx.fill();
+                } else if (shape.type === 'polygon' || ['parallel', 'perpendicular', 'bisector', 'perp_bisector', 'translate', 'rotate', 'reflect'].includes(shape.type)) {
+                     // For prototype, render complex structures as distinct dashed lines or distinct colors to show they exist.
+                     ctx.moveTo(p1.x, p1.y);
+                     ctx.lineTo(p2.x, p2.y);
+                     if(shape.type !== 'polygon') {
+                         ctx.setLineDash([5, 5]);
+                         ctx.strokeStyle = varColor('--accent-mango');
+                     }
+                }
+                ctx.stroke();
+                ctx.setLineDash([]); // reset
+            });
+        }
+
+        // --- INTERACTION ---
+        function getEventPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            
+            // Handle touch
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function handlePointerMove(e) {
+            e.preventDefault();
+            const pos = getEventPos(e);
+            
+            // Map to strict Cartesian
+            const cart = screenToCartesian(pos.x, pos.y);
+            coordsDisplay.innerText = `X: ${cart.x}, Y: ${cart.y}`;
+
+            if (isDrawing) {
+                redrawShapes();
+                ctx.strokeStyle = strokeColorInput.value;
+                ctx.fillStyle = fillColorInput.value;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                const sStart = cartesianToScreen(startX, startY);
+
+                if (['line', 'polygon', 'parallel', 'perpendicular', 'bisector', 'perp_bisector', 'translate', 'rotate', 'reflect'].includes(currentTool)) {
+                    if(!['line', 'polygon'].includes(currentTool)) ctx.setLineDash([5,5]);
+                    ctx.moveTo(sStart.x, sStart.y); 
+                    ctx.lineTo(pos.x, pos.y);
+                } else if (currentTool === 'rect') {
+                    ctx.rect(sStart.x, sStart.y, pos.x - sStart.x, pos.y - sStart.y);
+                } else if (currentTool === 'circle') {
+                    const r = Math.hypot(pos.x - sStart.x, pos.y - sStart.y);
+                    ctx.arc(sStart.x, sStart.y, r, 0, Math.PI * 2);
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        function handlePointerDown(e) {
+            e.preventDefault();
+            if(currentTool === 'select') return;
+            
+            const pos = getEventPos(e);
+            const cart = screenToCartesian(pos.x, pos.y);
+            startX = cart.x;
+            startY = cart.y;
+            isDrawing = true;
+            
+            if (!['line', 'rect', 'circle', 'polygon'].includes(currentTool)) {
+                // Mock behavior for advanced tools in this prototype
+                instructionBanner.innerText = currentLang === 'en' ? 'Prototyping: Dragging defines the transformation vector.' : 'Prototypage : Le glissement définit le vecteur de transformation.';
+                instructionBanner.style.color = varColor('--accent-mango');
+                instructionBanner.style.borderColor = varColor('--accent-mango');
+                instructionBanner.style.background = 'rgba(255, 130, 67, 0.1)';
+            }
+        }
+
+        function handlePointerUp(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+            isDrawing = false;
+            
+            // Reset banner colors
+            instructionBanner.style.color = varColor('--accent-turquoise');
+            instructionBanner.style.borderColor = varColor('--accent-turquoise');
+            instructionBanner.style.background = 'rgba(64, 224, 208, 0.1)';
+            showInstruction(currentTool);
+
+            const pos = getEventPos(e);
+            const cart = screenToCartesian(pos.x, pos.y);
+            
+            // Don't save if it's just a click (no drag)
+            if (startX === cart.x && startY === cart.y && currentTool !== 'select') return;
+
+            shapes.push({
+                type: currentTool,
+                cx1: startX, cy1: startY,
+                cx2: cart.x, cy2: cart.y,
+                stroke: strokeColorInput.value,
+                fill: fillColorInput.value
+            });
+            redrawShapes();
+        }
+
+        // Attach both mouse and touch events
+        canvas.addEventListener('mousemove', handlePointerMove);
+        canvas.addEventListener('touchmove', handlePointerMove, {passive: false});
+        
+        canvas.addEventListener('mousedown', handlePointerDown);
+        canvas.addEventListener('touchstart', handlePointerDown, {passive: false});
+        
+        canvas.addEventListener('mouseup', handlePointerUp);
+        canvas.addEventListener('touchend', handlePointerUp);
+
+        // --- DATA MANAGEMENT ---
+        function clearCanvas() {
+            shapes = [];
+            redrawShapes();
+        }
+        
+        function undo() {
+            shapes.pop();
+            redrawShapes();
+        }
+
+        function exportImage() {
+            // Create a temporary canvas to draw the final logo without the grid background
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = canvas.width;
+            exportCanvas.height = canvas.height;
+            const exCtx = exportCanvas.getContext('2d');
+            
+            // Fill with solid dark background
+            exCtx.fillStyle = varColor('--canvas-bg');
+            exCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+            
+            // Copy the shapes over
+            shapes.forEach(shape => {
+                exCtx.strokeStyle = shape.stroke;
+                exCtx.fillStyle = shape.fill;
+                exCtx.lineWidth = 2;
+                exCtx.beginPath();
+                
+                const p1 = cartesianToScreen(shape.cx1, shape.cy1);
+                const p2 = cartesianToScreen(shape.cx2, shape.cy2);
+
+                if (shape.type === 'line') {
+                    exCtx.moveTo(p1.x, p1.y); exCtx.lineTo(p2.x, p2.y);
+                } else if (shape.type === 'rect') {
+                    exCtx.rect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
+                    if(shape.fill !== '#000000') exCtx.fill();
+                } else if (shape.type === 'circle') {
+                    const r = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+                    exCtx.arc(p1.x, p1.y, r, 0, Math.PI * 2);
+                    if(shape.fill !== '#000000') exCtx.fill();
+                } else if (shape.type === 'polygon' || ['parallel', 'perpendicular', 'bisector', 'perp_bisector', 'translate', 'rotate', 'reflect'].includes(shape.type)) {
+                     exCtx.moveTo(p1.x, p1.y); exCtx.lineTo(p2.x, p2.y);
+                     if(shape.type !== 'polygon') {
+                         exCtx.setLineDash([5, 5]);
+                         exCtx.strokeStyle = varColor('--accent-mango');
+                     }
+                }
+                exCtx.stroke();
+                exCtx.setLineDash([]);
+            });
+
+            const link = document.createElement('a');
+            link.download = 'GeoLogo_Final_Design.png';
+            link.href = exportCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(shapes));
+            const link = document.createElement('a');
+            link.download = "GeoLogo_Coordinate_Data.json";
+            link.href = dataStr;
+            link.click();
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        shapes = JSON.parse(e.target.result);
+                        redrawShapes();
+                    } catch (err) {
+                        alert(currentLang === 'en' ? "Invalid data file format." : "Format de fichier de données invalide.");
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+    </script>
+</body>
+</html>
