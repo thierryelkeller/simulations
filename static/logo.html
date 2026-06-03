@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GeoLogo Architect - Full Engine</title>
+    <title>GeoLogo Architect - Advanced Engine</title>
     <style>
         :root {
             --bg-color: #0f171e;
@@ -98,6 +98,13 @@
             color: var(--bg-color);
         }
 
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: var(--border-color);
+            color: var(--text-muted);
+        }
+
         /* --- MAIN APP --- */
         #app-container {
             display: none;
@@ -125,7 +132,7 @@
         }
 
         aside {
-            width: 280px;
+            width: 290px;
             background: var(--panel-bg);
             border-right: 1px solid var(--border-color);
             padding: 1rem;
@@ -161,27 +168,46 @@
             background: rgba(64, 224, 208, 0.15);
             color: var(--accent-turquoise);
         }
+        
+        .tool-btn.picking {
+            border-color: var(--accent-highlight);
+            background: rgba(255, 221, 87, 0.2);
+            color: var(--accent-highlight);
+            animation: pulse 1.5s infinite;
+        }
 
-        /* --- PROPERTIES PANEL --- */
-        #properties-panel {
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 221, 87, 0.4); }
+            70% { box-shadow: 0 0 0 5px rgba(255, 221, 87, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 221, 87, 0); }
+        }
+
+        /* --- STYLES & PROPERTIES PANEL --- */
+        .style-panel, #properties-panel {
             background: rgba(0,0,0,0.2);
             padding: 1rem;
             border-radius: 6px;
-            border: 1px dashed var(--accent-mango);
-            display: none; /* Hidden by default */
+            border: 1px solid var(--border-color);
+            margin-bottom: 0.5rem;
         }
 
-        #properties-panel h4 {
+        #properties-panel {
+            border: 1px dashed var(--accent-mango);
+            display: none;
+        }
+
+        .panel-title {
             color: var(--accent-mango);
             font-size: 0.85rem;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: bold;
         }
 
         .prop-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             font-size: 0.8rem;
         }
 
@@ -194,12 +220,21 @@
             text-align: center;
         }
 
-        .prop-row input[type="color"] {
-            width: 24px;
-            height: 24px;
-            border: none;
-            background: none;
+        .color-swatch-btn {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--text-main);
+            border-radius: 4px;
             cursor: pointer;
+        }
+
+        select {
+            background: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.2rem;
+            font-family: var(--font-family);
+            font-size: 0.8rem;
         }
 
         .action-grid {
@@ -208,6 +243,29 @@
             gap: 0.5rem;
             margin-top: 0.5rem;
         }
+
+        /* --- 64 COLOR PICKER MODAL --- */
+        #color-picker-modal {
+            position: absolute;
+            background: var(--panel-bg);
+            border: 1px solid var(--accent-turquoise);
+            border-radius: 6px;
+            padding: 0.5rem;
+            display: none;
+            grid-template-columns: repeat(8, 24px);
+            gap: 4px;
+            z-index: 300;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .picker-cell {
+            width: 24px;
+            height: 24px;
+            border-radius: 2px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .picker-cell:hover { border: 1px solid white; transform: scale(1.1); }
 
         /* --- CANVAS --- */
         .canvas-wrapper {
@@ -232,6 +290,20 @@
             border-radius: 4px;
             font-family: monospace;
             color: var(--accent-mango);
+        }
+
+        #poly-finish-btn {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            background: var(--accent-highlight);
+            color: black;
+            border: none;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            z-index: 50;
         }
 
         /* --- MODAL --- */
@@ -275,13 +347,16 @@
     <div id="help-modal">
         <h2 data-en="How to use GeoLogo" data-fr="Comment utiliser GeoLogo">How to use GeoLogo</h2>
         <ul>
-            <li data-en="1. Draw: Select Line, Rect, or Circle. Click and drag on the grid." data-fr="1. Dessiner : Sélectionnez Ligne, Rect ou Cercle. Cliquez et glissez.">1. Draw: Select Line, Rect, or Circle. Click and drag on the grid.</li>
-            <li data-en="2. Select: Click the 'Select' tool, then click any shape you drew. It will highlight yellow." data-fr="2. Sélectionner : Cliquez sur 'Sélectionner', puis sur une forme. Elle deviendra jaune.">2. Select: Click the 'Select' tool, then click any shape you drew. It will highlight yellow.</li>
-            <li data-en="3. Transform: Once selected, a Properties Panel appears on the left. Use it to precisely Rotate, Translate, or Reflect the shape." data-fr="3. Transformer : Une fois sélectionnée, un panneau apparaît à gauche. Utilisez-le pour tourner, translater ou refléter.">3. Transform: Once selected, a Properties Panel appears on the left. Use it to precisely Rotate, Translate, or Reflect the shape.</li>
-            <li data-en="4. Clone: Use the Clone button to easily make parallel lines or repeated shapes." data-fr="4. Cloner : Utilisez Cloner pour créer des lignes parallèles ou répéter des formes.">4. Clone: Use the Clone button to easily make parallel lines or repeated shapes.</li>
+            <li data-en="1. Style: Pick your colors and fill type first." data-fr="1. Style : Choisissez vos couleurs et type de remplissage.">1. Style: Pick your colors and fill type first.</li>
+            <li data-en="2. Draw: Use Line, Rect, Circle, or Polygon. For polygons, click to add points, then click 'Close Polygon'." data-fr="2. Dessiner : Utilisez Ligne, Rect, Cercle, Polygone. Pour les polygones, cliquez pour ajouter des points, puis 'Fermer Polygone'.">2. Draw: Use Line, Rect, Circle, or Polygon. For polygons, click to add points, then click 'Close Polygon'.</li>
+            <li data-en="3. Transform: Click the 'Select' tool, click a shape. A Properties Panel appears." data-fr="3. Transformer : Cliquez sur 'Sélectionner', puis sur une forme. Un panneau apparaît.">3. Transform: Click the 'Select' tool, click a shape. A Properties Panel appears.</li>
+            <li data-en="4. Rotate: By default, shapes rotate around their center. Click 'Pick Center' to choose a custom pivot point!" data-fr="4. Rotation : Par défaut, ça tourne au centre. Cliquez sur 'Choisir Centre' pour un pivot personnalisé !">4. Rotate: By default, shapes rotate around their center. Click 'Pick Center' to choose a custom pivot point!</li>
         </ul>
         <button onclick="document.getElementById('help-modal').style.display='none'" class="mango" style="width:100%" data-en="Got it!" data-fr="Compris !">Got it!</button>
     </div>
+
+    <!-- Color Picker -->
+    <div id="color-picker-modal"></div>
 
     <!-- Main App -->
     <div id="app-container">
@@ -298,36 +373,84 @@
 
         <main>
             <aside>
+                <!-- GLOBAL STYLES -->
+                <div class="style-panel">
+                    <h4 class="panel-title" data-en="Global Style" data-fr="Style Global">Global Style</h4>
+                    <div class="prop-row">
+                        <span data-en="Stroke" data-fr="Trait">Stroke</span>
+                        <div class="color-swatch-btn" id="global-stroke-btn" style="background-color: #40E0D0;" onclick="openPicker(event, 'global', 'stroke')"></div>
+                    </div>
+                    <div class="prop-row">
+                        <span data-en="Fill Type" data-fr="Type Remplissage">Fill Type</span>
+                        <select id="global-fill-type" onchange="updateGlobalFillUI()">
+                            <option value="none" data-en="None" data-fr="Aucun">None</option>
+                            <option value="solid" data-en="Solid" data-fr="Solide">Solid</option>
+                            <option value="gradient" data-en="Gradient" data-fr="Dégradé">Gradient</option>
+                        </select>
+                    </div>
+                    <div class="prop-row" id="global-fill-c1-row" style="display:none;">
+                        <span data-en="Color 1" data-fr="Couleur 1">Color 1</span>
+                        <div class="color-swatch-btn" id="global-fill-c1-btn" style="background-color: #FF8243;" onclick="openPicker(event, 'global', 'fill1')"></div>
+                    </div>
+                    <div class="prop-row" id="global-fill-c2-row" style="display:none;">
+                        <span data-en="Color 2" data-fr="Couleur 2">Color 2</span>
+                        <div class="color-swatch-btn" id="global-fill-c2-btn" style="background-color: #ffdd57;" onclick="openPicker(event, 'global', 'fill2')"></div>
+                    </div>
+                </div>
+
                 <div class="tool-section">
                     <h3 data-en="1. Draw Tools" data-fr="1. Outils de Dessin">1. Draw Tools</h3>
                     <div class="tool-grid">
-                        <button class="tool-btn active" data-tool="line" data-en="Line Segment" data-fr="Segment">Line Segment</button>
+                        <button class="tool-btn active" data-tool="line" data-en="Line" data-fr="Ligne">Line</button>
                         <button class="tool-btn" data-tool="rect" data-en="Rectangle" data-fr="Rectangle">Rectangle</button>
                         <button class="tool-btn" data-tool="circle" data-en="Circle" data-fr="Cercle">Circle</button>
-                        <button class="tool-btn mango" data-tool="select" data-en="Select Shape" data-fr="Sélectionner">Select Shape</button>
+                        <button class="tool-btn" data-tool="polygon" data-en="Polygon" data-fr="Polygone">Polygon</button>
+                        <button class="tool-btn mango" data-tool="select" style="grid-column: span 2;" data-en="Select Shape" data-fr="Sélectionner">Select Shape</button>
                     </div>
                 </div>
 
                 <!-- DYNAMIC PROPERTIES PANEL -->
                 <div id="properties-panel">
-                    <h4 data-en="Selected Geometry" data-fr="Géométrie Sélectionnée">Selected Geometry</h4>
+                    <h4 class="panel-title" data-en="Selected Geometry" data-fr="Géométrie Sélectionnée">Selected Geometry</h4>
                     
                     <div class="prop-row">
-                        <span data-en="Stroke Color" data-fr="Couleur Trait">Stroke Color</span>
-                        <input type="color" id="prop-stroke" onchange="updateSelectedShape()">
+                        <span data-en="Stroke" data-fr="Trait">Stroke</span>
+                        <div class="color-swatch-btn" id="prop-stroke-btn" onclick="openPicker(event, 'prop', 'stroke')"></div>
                     </div>
-                    
+
+                    <div class="prop-row" id="prop-fill-type-row">
+                        <span data-en="Fill Type" data-fr="Type Remplissage">Fill Type</span>
+                        <select id="prop-fill-type" onchange="updatePropFillUI()">
+                            <option value="none" data-en="None" data-fr="Aucun">None</option>
+                            <option value="solid" data-en="Solid" data-fr="Solide">Solid</option>
+                            <option value="gradient" data-en="Gradient" data-fr="Dégradé">Gradient</option>
+                        </select>
+                    </div>
+                    <div class="prop-row" id="prop-fill-c1-row" style="display:none;">
+                        <span data-en="Color 1" data-fr="Couleur 1">Color 1</span>
+                        <div class="color-swatch-btn" id="prop-fill-c1-btn" onclick="openPicker(event, 'prop', 'fill1')"></div>
+                    </div>
+                    <div class="prop-row" id="prop-fill-c2-row" style="display:none;">
+                        <span data-en="Color 2" data-fr="Couleur 2">Color 2</span>
+                        <div class="color-swatch-btn" id="prop-fill-c2-btn" onclick="openPicker(event, 'prop', 'fill2')"></div>
+                    </div>
+
+                    <hr style="border:0; border-top: 1px dashed var(--border-color); margin: 10px 0;">
+
                     <div class="prop-row">
-                        <span data-en="Rotate (Degrees)" data-fr="Rotation (Degrés)">Rotate (Degrees)</span>
+                        <span data-en="Rotate (°)" data-fr="Rotation (°)">Rotate (°)</span>
                         <input type="number" id="prop-angle" value="45">
                     </div>
                     
-                    <button class="tool-btn" style="width:100%; margin-bottom: 0.5rem;" onclick="applyRotation()" data-en="Apply Rotation" data-fr="Appliquer Rotation">Apply Rotation</button>
+                    <div class="action-grid" style="margin-bottom: 0.5rem;">
+                        <button class="tool-btn" id="btn-apply-rot" onclick="applyRotation()" data-en="Apply" data-fr="Appliquer">Apply</button>
+                        <button class="tool-btn" id="btn-pick-center" onclick="togglePickCenter()" data-en="Pick Center" data-fr="Choisir Centre">Pick Center</button>
+                    </div>
                     
                     <div class="action-grid">
-                        <button class="tool-btn" onclick="applyReflection('y')" data-en="Reflect Y-Axis" data-fr="Réflexion Axe-Y">Reflect Y-Axis</button>
-                        <button class="tool-btn" onclick="applyReflection('x')" data-en="Reflect X-Axis" data-fr="Réflexion Axe-X">Reflect X-Axis</button>
-                        <button class="tool-btn" onclick="cloneShape()" data-en="Clone (Parallel)" data-fr="Cloner (Parallèle)">Clone (Parallel)</button>
+                        <button class="tool-btn" onclick="applyReflection('y')" data-en="Reflect Y" data-fr="Réflexion Y">Reflect Y</button>
+                        <button class="tool-btn" onclick="applyReflection('x')" data-en="Reflect X" data-fr="Réflexion X">Reflect X</button>
+                        <button class="tool-btn" onclick="cloneShape()" data-en="Clone" data-fr="Cloner">Clone</button>
                         <button class="tool-btn mango" onclick="deleteShape()" data-en="Delete" data-fr="Supprimer">Delete</button>
                     </div>
                 </div>
@@ -336,6 +459,7 @@
             <div class="canvas-wrapper">
                 <canvas id="geo-canvas"></canvas>
                 <div id="coords-display">X: 0, Y: 0</div>
+                <button id="poly-finish-btn" onclick="finishPolygon()" data-en="Close Polygon" data-fr="Fermer Polygone">Close Polygon</button>
             </div>
         </main>
     </div>
@@ -346,7 +470,8 @@
         function updateLanguage(lang) {
             currentLang = lang;
             document.querySelectorAll('[data-en]').forEach(el => {
-                el.innerText = el.getAttribute(`data-${lang}`);
+                if(el.tagName === 'OPTION') el.text = el.getAttribute(`data-${lang}`);
+                else el.innerText = el.getAttribute(`data-${lang}`);
             });
         }
         document.getElementById('lang-en').addEventListener('click', (e) => {
@@ -360,6 +485,122 @@
             updateLanguage('fr');
         });
 
+        // --- 64 COLOR GAMUT PALETTE ---
+        const palette64 = [
+            // Grays
+            '#000000', '#222222', '#444444', '#666666', '#888888', '#AAAAAA', '#CCCCCC', '#FFFFFF',
+            // Reds
+            '#4a0000', '#7a0000', '#a80000', '#d90000', '#ff0000', '#ff4d4d', '#ff9999', '#ffe6e6',
+            // Oranges
+            '#4a2500', '#7a3e00', '#a85500', '#d96e00', '#ff8200', '#ff9e33', '#ffc285', '#ffebcc',
+            // Yellows
+            '#4a4500', '#7a7200', '#a89d00', '#d9c900', '#fff000', '#fff34d', '#fff799', '#fffee6',
+            // Greens
+            '#004a00', '#007a00', '#00a800', '#00d900', '#00ff00', '#4dff4d', '#99ff99', '#e6ffe6',
+            // Cyans
+            '#004a4a', '#007a7a', '#00a8a8', '#00d9d9', '#00ffff', '#4dffff', '#99ffff', '#e6ffff',
+            // Blues
+            '#00004a', '#00007a', '#0000a8', '#0000d9', '#0000ff', '#4d4dff', '#9999ff', '#e6e6ff',
+            // Purples
+            '#4a004a', '#7a007a', '#a800a8', '#d900d9', '#ff00ff', '#ff4dff', '#ff99ff', '#ffe6ff'
+        ];
+
+        const pickerModal = document.getElementById('color-picker-modal');
+        let currentPickerTarget = { context: '', type: '' }; // context: 'global' or 'prop', type: 'stroke', 'fill1', 'fill2'
+
+        // Global Styles State
+        let globalStyles = {
+            stroke: '#40E0D0',
+            fillType: 'none',
+            fill1: '#FF8243',
+            fill2: '#ffdd57'
+        };
+
+        function initColorPicker() {
+            palette64.forEach(color => {
+                let cell = document.createElement('div');
+                cell.className = 'picker-cell';
+                cell.style.backgroundColor = color;
+                cell.addEventListener('click', () => {
+                    selectColor(color);
+                });
+                pickerModal.appendChild(cell);
+            });
+        }
+        initColorPicker();
+
+        function openPicker(e, context, type) {
+            e.stopPropagation();
+            currentPickerTarget = { context, type };
+            const rect = e.target.getBoundingClientRect();
+            pickerModal.style.display = 'grid';
+            pickerModal.style.left = (rect.left + rect.width + 10) + 'px';
+            pickerModal.style.top = rect.top + 'px';
+        }
+
+        function selectColor(color) {
+            pickerModal.style.display = 'none';
+            if (currentPickerTarget.context === 'global') {
+                globalStyles[currentPickerTarget.type] = color;
+                document.getElementById(`global-${currentPickerTarget.type === 'fill1' || currentPickerTarget.type === 'fill2' ? currentPickerTarget.type : 'stroke'}-btn`).style.backgroundColor = color;
+            } else if (currentPickerTarget.context === 'prop' && activeShapeIndex !== -1) {
+                const shape = shapes[activeShapeIndex];
+                if (currentPickerTarget.type === 'stroke') {
+                    shape.stroke = color;
+                } else if (currentPickerTarget.type === 'fill1') {
+                    shape.fill.c1 = color;
+                } else if (currentPickerTarget.type === 'fill2') {
+                    shape.fill.c2 = color;
+                }
+                updatePropUIFromShape();
+                redraw();
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            if (pickerModal.style.display === 'grid' && !pickerModal.contains(e.target)) {
+                pickerModal.style.display = 'none';
+            }
+        });
+
+        function updateGlobalFillUI() {
+            globalStyles.fillType = document.getElementById('global-fill-type').value;
+            document.getElementById('global-fill-c1-row').style.display = globalStyles.fillType !== 'none' ? 'flex' : 'none';
+            document.getElementById('global-fill-c2-row').style.display = globalStyles.fillType === 'gradient' ? 'flex' : 'none';
+        }
+
+        function updatePropFillUI() {
+            if (activeShapeIndex === -1) return;
+            const shape = shapes[activeShapeIndex];
+            if(shape.type === 'line') return; // Lines can't have fills
+            
+            shape.fill.type = document.getElementById('prop-fill-type').value;
+            document.getElementById('prop-fill-c1-row').style.display = shape.fill.type !== 'none' ? 'flex' : 'none';
+            document.getElementById('prop-fill-c2-row').style.display = shape.fill.type === 'gradient' ? 'flex' : 'none';
+            redraw();
+        }
+
+        function updatePropUIFromShape() {
+            if (activeShapeIndex === -1) return;
+            const shape = shapes[activeShapeIndex];
+            
+            document.getElementById('prop-stroke-btn').style.backgroundColor = shape.stroke;
+            
+            if (shape.type === 'line') {
+                document.getElementById('prop-fill-type-row').style.display = 'none';
+                document.getElementById('prop-fill-c1-row').style.display = 'none';
+                document.getElementById('prop-fill-c2-row').style.display = 'none';
+            } else {
+                document.getElementById('prop-fill-type-row').style.display = 'flex';
+                document.getElementById('prop-fill-type').value = shape.fill.type;
+                document.getElementById('prop-fill-c1-btn').style.backgroundColor = shape.fill.c1;
+                document.getElementById('prop-fill-c2-btn').style.backgroundColor = shape.fill.c2;
+                document.getElementById('prop-fill-c1-row').style.display = shape.fill.type !== 'none' ? 'flex' : 'none';
+                document.getElementById('prop-fill-c2-row').style.display = shape.fill.type === 'gradient' ? 'flex' : 'none';
+            }
+        }
+
+
         // --- APP INITIALIZATION ---
         const splash = document.getElementById('splash-screen');
         const app = document.getElementById('app-container');
@@ -367,7 +608,7 @@
             splash.style.display = 'none';
             app.style.display = 'flex';
             resizeCanvas();
-            document.getElementById('help-modal').style.display = 'block'; // Show guide on entry
+            document.getElementById('help-modal').style.display = 'block'; 
         });
 
         // --- GEOMETRIC ENGINE STATE ---
@@ -375,25 +616,37 @@
         const ctx = canvas.getContext('2d');
         const coordsDisplay = document.getElementById('coords-display');
         const propsPanel = document.getElementById('properties-panel');
+        const polyFinishBtn = document.getElementById('poly-finish-btn');
         
         let shapes = []; 
         let activeShapeIndex = -1;
         let currentTool = 'line';
         
-        // Drawing Interaction State
+        // Drawing/Interaction State
         let isDrawing = false;
         let isDragging = false;
+        let isPickingCenter = false;
         let startX = 0, startY = 0;
         let originX = 0, originY = 0;
+        let polyPts = []; // For polygon tool
 
         // UI Listeners
         document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
+                
+                // Cleanup previous tool state
+                if (currentTool === 'polygon' && polyPts.length > 0) {
+                    polyPts = [];
+                    polyFinishBtn.style.display = 'none';
+                    redraw();
+                }
+
                 currentTool = e.target.getAttribute('data-tool');
                 
-                // Deselect if switching away from select tool
+                if (isPickingCenter) cancelPickCenter();
+
                 if(currentTool !== 'select') {
                     activeShapeIndex = -1;
                     propsPanel.style.display = 'none';
@@ -413,14 +666,8 @@
         }
         window.addEventListener('resize', resizeCanvas);
 
-        // Convert Mouse (Screen) to Math (Cartesian: Y goes UP)
-        function toMath(sx, sy) {
-            return { x: Math.round(sx - originX), y: Math.round(originY - sy) };
-        }
-        // Convert Math to Screen
-        function toScreen(cx, cy) {
-            return { x: cx + originX, y: originY - cy };
-        }
+        function toMath(sx, sy) { return { x: Math.round(sx - originX), y: Math.round(originY - sy) }; }
+        function toScreen(cx, cy) { return { x: cx + originX, y: originY - cy }; }
 
         // --- RENDERING ---
         function drawGrid() {
@@ -429,7 +676,6 @@
             ctx.lineWidth = 1;
             ctx.beginPath();
             
-            // Grid lines
             for (let x = originX % 50; x < canvas.width; x += 50) {
                 ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
             }
@@ -438,25 +684,23 @@
             }
             ctx.stroke();
 
-            // Main Axes
             ctx.strokeStyle = 'rgba(139, 155, 180, 0.8)';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(originX, 0); ctx.lineTo(originX, canvas.height); // Y axis
-            ctx.moveTo(0, originY); ctx.lineTo(canvas.width, originY); // X axis
+            ctx.moveTo(originX, 0); ctx.lineTo(originX, canvas.height); 
+            ctx.moveTo(0, originY); ctx.lineTo(canvas.width, originY); 
             ctx.stroke();
         }
 
         function drawShape(shape, isSelected = false) {
             ctx.save();
             ctx.strokeStyle = isSelected ? '#ffdd57' : shape.stroke;
-            ctx.fillStyle = isSelected ? 'rgba(255, 221, 87, 0.2)' : shape.fill;
             ctx.lineWidth = isSelected ? 4 : 2;
             if(isSelected) ctx.setLineDash([5, 5]);
 
-            ctx.beginPath();
-            // Convert shape points to screen coords
             const pts = shape.points.map(p => toScreen(p.x, p.y));
+            
+            ctx.beginPath();
 
             if (shape.type === 'line') {
                 ctx.moveTo(pts[0].x, pts[0].y);
@@ -465,24 +709,57 @@
                 ctx.moveTo(pts[0].x, pts[0].y);
                 for(let i=1; i<pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
                 ctx.closePath();
-                if(shape.fill !== 'transparent') ctx.fill();
             } else if (shape.type === 'circle') {
-                // Circle point[0] is center, point[1] is a point on radius
                 const r = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
                 ctx.arc(pts[0].x, pts[0].y, r, 0, Math.PI * 2);
-                if(shape.fill !== 'transparent') ctx.fill();
+            }
+
+            // Fill Logic
+            if (shape.type !== 'line' && shape.fill.type !== 'none') {
+                if (shape.fill.type === 'solid') {
+                    ctx.fillStyle = isSelected ? `${shape.fill.c1}88` : shape.fill.c1;
+                    ctx.fill();
+                } else if (shape.fill.type === 'gradient') {
+                    // Calculate Screen Bounding Box for Gradient
+                    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                    if (shape.type === 'circle') {
+                        const r = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+                        minX = pts[0].x - r; maxX = pts[0].x + r;
+                        minY = pts[0].y - r; maxY = pts[0].y + r;
+                    } else {
+                        pts.forEach(p => {
+                            if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
+                            if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
+                        });
+                    }
+                    
+                    // Top-Left to Bottom-Right Gradient
+                    const grad = ctx.createLinearGradient(minX, minY, maxX, maxY);
+                    grad.addColorStop(0, shape.fill.c1);
+                    grad.addColorStop(1, shape.fill.c2);
+                    ctx.fillStyle = grad;
+                    
+                    if(isSelected) {
+                        ctx.save();
+                        ctx.globalAlpha = 0.5;
+                        ctx.fill();
+                        ctx.restore();
+                    } else {
+                        ctx.fill();
+                    }
+                }
             }
             
             ctx.stroke();
             ctx.restore();
 
-            // If selected, draw center point for rotation visual
+            // If selected, draw center point for rotation
             if (isSelected) {
-                const center = getShapeCenter(shape);
+                const center = shape.customCenter || getShapeCenter(shape);
                 const sCenter = toScreen(center.x, center.y);
-                ctx.fillStyle = '#ffdd57';
+                ctx.fillStyle = shape.customCenter ? '#ff0000' : '#ffdd57';
                 ctx.beginPath();
-                ctx.arc(sCenter.x, sCenter.y, 4, 0, Math.PI*2);
+                ctx.arc(sCenter.x, sCenter.y, shape.customCenter ? 6 : 4, 0, Math.PI*2);
                 ctx.fill();
             }
         }
@@ -492,6 +769,25 @@
             shapes.forEach((shape, index) => {
                 drawShape(shape, index === activeShapeIndex);
             });
+            
+            // Draw live polygon
+            if (currentTool === 'polygon' && polyPts.length > 0) {
+                ctx.strokeStyle = globalStyles.stroke;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5,5]);
+                ctx.beginPath();
+                const sPts = polyPts.map(p => toScreen(p.x, p.y));
+                ctx.moveTo(sPts[0].x, sPts[0].y);
+                for(let i=1; i<sPts.length; i++) ctx.lineTo(sPts[i].x, sPts[i].y);
+                ctx.stroke();
+                
+                // Draw start point highlighted to hint closing
+                ctx.fillStyle = '#ffdd57';
+                ctx.beginPath();
+                ctx.arc(sPts[0].x, sPts[0].y, 6, 0, Math.PI*2);
+                ctx.fill();
+                ctx.setLineDash([]);
+            }
         }
 
         // --- INTERACTION LOGIC ---
@@ -514,20 +810,25 @@
             const pos = getMousePos(e);
             const mathPos = toMath(pos.x, pos.y);
 
+            if (isPickingCenter && activeShapeIndex !== -1) {
+                shapes[activeShapeIndex].customCenter = mathPos;
+                cancelPickCenter();
+                redraw();
+                return;
+            }
+
             if (currentTool === 'select') {
-                // Find clicked shape
                 let clickedIndex = -1;
                 for(let i = shapes.length - 1; i >= 0; i--) {
                     if (isPointNearShape(mathPos, shapes[i])) {
-                        clickedIndex = i;
-                        break;
+                        clickedIndex = i; break;
                     }
                 }
                 
                 activeShapeIndex = clickedIndex;
                 if (activeShapeIndex !== -1) {
                     propsPanel.style.display = 'block';
-                    document.getElementById('prop-stroke').value = shapes[activeShapeIndex].stroke;
+                    updatePropUIFromShape();
                     isDragging = true;
                     startX = mathPos.x;
                     startY = mathPos.y;
@@ -535,8 +836,17 @@
                     propsPanel.style.display = 'none';
                 }
                 redraw();
+            } else if (currentTool === 'polygon') {
+                // Polygon logic
+                if (polyPts.length >= 3 && Math.hypot(mathPos.x - polyPts[0].x, mathPos.y - polyPts[0].y) < 15) {
+                    finishPolygon();
+                } else {
+                    polyPts.push(mathPos);
+                    if (polyPts.length >= 3) polyFinishBtn.style.display = 'block';
+                    redraw();
+                }
             } else {
-                // Start Drawing
+                // Line, Rect, Circle logic
                 isDrawing = true;
                 startX = mathPos.x;
                 startY = mathPos.y;
@@ -549,22 +859,30 @@
             const mathPos = toMath(pos.x, pos.y);
             coordsDisplay.innerText = `X: ${mathPos.x}, Y: ${mathPos.y}`;
 
-            if (isDrawing && currentTool !== 'select') {
-                redraw(); // draw committed shapes
-                // Draw live preview
-                const mockShape = createShapeData(currentTool, startX, startY, mathPos.x, mathPos.y, '#40E0D0');
+            if (isDrawing && ['line', 'rect', 'circle'].includes(currentTool)) {
+                redraw(); 
+                const mockShape = createShapeData(currentTool, startX, startY, mathPos.x, mathPos.y);
                 drawShape(mockShape, false);
             } 
+            else if (currentTool === 'polygon' && polyPts.length > 0) {
+                redraw();
+                const lastPt = toScreen(polyPts[polyPts.length-1].x, polyPts[polyPts.length-1].y);
+                ctx.strokeStyle = globalStyles.stroke;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(lastPt.x, lastPt.y);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
             else if (isDragging && activeShapeIndex !== -1 && currentTool === 'select') {
-                // Translate shape dynamically
                 const dx = mathPos.x - startX;
                 const dy = mathPos.y - startY;
                 
-                // Move all points
-                shapes[activeShapeIndex].points.forEach(p => {
-                    p.x += dx;
-                    p.y += dy;
-                });
+                shapes[activeShapeIndex].points.forEach(p => { p.x += dx; p.y += dy; });
+                if(shapes[activeShapeIndex].customCenter) {
+                    shapes[activeShapeIndex].customCenter.x += dx;
+                    shapes[activeShapeIndex].customCenter.y += dy;
+                }
                 
                 startX = mathPos.x;
                 startY = mathPos.y;
@@ -573,44 +891,73 @@
         }
 
         function handleUp(e) {
-            if (isDrawing && currentTool !== 'select') {
+            if (isDrawing && ['line', 'rect', 'circle'].includes(currentTool)) {
                 isDrawing = false;
                 const pos = getMousePos(e);
                 const mathPos = toMath(pos.x, pos.y);
                 
-                // Prevent clicking without dragging
                 if(Math.abs(mathPos.x - startX) > 2 || Math.abs(mathPos.y - startY) > 2) {
-                    shapes.push(createShapeData(currentTool, startX, startY, mathPos.x, mathPos.y, '#40E0D0'));
+                    shapes.push(createShapeData(currentTool, startX, startY, mathPos.x, mathPos.y));
                 }
                 redraw();
             }
             isDragging = false;
         }
 
-        // --- SHAPE DATA CREATION ---
-        function createShapeData(type, x1, y1, x2, y2, color) {
-            let pts = [];
-            if (type === 'line' || type === 'circle') {
-                pts = [{x: x1, y: y1}, {x: x2, y: y2}];
-            } else if (type === 'rect') {
-                pts = [
-                    {x: x1, y: y1},
-                    {x: x2, y: y1},
-                    {x: x2, y: y2},
-                    {x: x1, y: y2}
-                ];
+        function finishPolygon() {
+            if (polyPts.length >= 3) {
+                shapes.push({
+                    type: 'polygon',
+                    points: [...polyPts],
+                    stroke: globalStyles.stroke,
+                    fill: { type: globalStyles.fillType, c1: globalStyles.fill1, c2: globalStyles.fill2 },
+                    customCenter: null
+                });
             }
-            return { type: type, points: pts, stroke: color, fill: 'transparent' };
+            polyPts = [];
+            polyFinishBtn.style.display = 'none';
+            redraw();
+        }
+
+        // --- SHAPE DATA CREATION ---
+        function createShapeData(type, x1, y1, x2, y2) {
+            let pts = [];
+            if (type === 'line' || type === 'circle') pts = [{x: x1, y: y1}, {x: x2, y: y2}];
+            else if (type === 'rect') pts = [{x: x1, y: y1}, {x: x2, y: y1}, {x: x2, y: y2}, {x: x1, y: y2}];
+            
+            return { 
+                type: type, 
+                points: pts, 
+                stroke: globalStyles.stroke, 
+                fill: { type: globalStyles.fillType, c1: globalStyles.fill1, c2: globalStyles.fill2 },
+                customCenter: null
+            };
         }
 
         // --- MATH & TRANSFORMATIONS ---
-        
-        // Find center of shape for rotation
         function getShapeCenter(shape) {
             if(shape.type === 'circle') return {x: shape.points[0].x, y: shape.points[0].y};
             let sumX = 0, sumY = 0;
             shape.points.forEach(p => { sumX += p.x; sumY += p.y; });
             return { x: sumX / shape.points.length, y: sumY / shape.points.length };
+        }
+
+        function togglePickCenter() {
+            if(activeShapeIndex === -1) return;
+            isPickingCenter = !isPickingCenter;
+            const btn = document.getElementById('btn-pick-center');
+            if (isPickingCenter) {
+                btn.classList.add('picking');
+                btn.innerText = currentLang === 'en' ? 'Click Grid...' : 'Cliquez Grille...';
+            } else {
+                cancelPickCenter();
+            }
+        }
+        function cancelPickCenter() {
+            isPickingCenter = false;
+            const btn = document.getElementById('btn-pick-center');
+            btn.classList.remove('picking');
+            btn.innerText = currentLang === 'en' ? 'Pick Center' : 'Choisir Centre';
         }
 
         function applyRotation() {
@@ -620,12 +967,11 @@
             const rad = deg * (Math.PI / 180);
             
             const shape = shapes[activeShapeIndex];
-            const center = getShapeCenter(shape);
+            const center = shape.customCenter || getShapeCenter(shape);
             const cosA = Math.cos(rad);
             const sinA = Math.sin(rad);
 
             shape.points.forEach(p => {
-                // Translate to origin, rotate, translate back
                 const tx = p.x - center.x;
                 const ty = p.y - center.y;
                 p.x = center.x + (tx * cosA - ty * sinA);
@@ -637,30 +983,27 @@
         function applyReflection(axis) {
             if(activeShapeIndex === -1) return;
             const shape = shapes[activeShapeIndex];
-            
-            // Reflect across global X or Y grid axis
             shape.points.forEach(p => {
                 if (axis === 'y') p.x = -p.x;
                 if (axis === 'x') p.y = -p.y;
             });
+            
+            if(shape.customCenter) {
+                if (axis === 'y') shape.customCenter.x = -shape.customCenter.x;
+                if (axis === 'x') shape.customCenter.y = -shape.customCenter.y;
+            }
             redraw();
         }
 
         function cloneShape() {
             if(activeShapeIndex === -1) return;
-            // Deep copy the shape
             const original = shapes[activeShapeIndex];
-            const copy = JSON.parse(JSON.stringify(original));
-            // Offset it slightly to simulate 'parallel' creation and make it visible
+            const copy = JSON.parse(JSON.stringify(original)); // Deep copy points and properties
             copy.points.forEach(p => { p.x += 20; p.y -= 20; });
+            if(copy.customCenter) { copy.customCenter.x += 20; copy.customCenter.y -= 20; }
+            
             shapes.push(copy);
-            activeShapeIndex = shapes.length - 1; // Select the new clone
-            redraw();
-        }
-
-        function updateSelectedShape() {
-            if(activeShapeIndex === -1) return;
-            shapes[activeShapeIndex].stroke = document.getElementById('prop-stroke').value;
+            activeShapeIndex = shapes.length - 1;
             redraw();
         }
 
@@ -669,25 +1012,36 @@
             shapes.splice(activeShapeIndex, 1);
             activeShapeIndex = -1;
             propsPanel.style.display = 'none';
+            if(isPickingCenter) cancelPickCenter();
             redraw();
         }
 
         // --- HIT DETECTION ---
         function isPointNearShape(pt, shape) {
             const threshold = 10;
-            
             if (shape.type === 'circle') {
                 const r = Math.hypot(shape.points[1].x - shape.points[0].x, shape.points[1].y - shape.points[0].y);
                 const distToCenter = Math.hypot(pt.x - shape.points[0].x, pt.y - shape.points[0].y);
-                // Check if click is near edge of circle
+                
+                // If it has a fill, allow clicking anywhere inside. Else, just the stroke.
+                if (shape.fill.type !== 'none') return distToCenter <= r + threshold;
                 return Math.abs(distToCenter - r) < threshold;
             } 
             
-            // For lines and rects (which are paths), check distance to line segments
+            if (shape.type !== 'line' && shape.fill.type !== 'none') {
+                 // Simple bounding box check for filled polygons/rects to make selection easier
+                 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                 shape.points.forEach(p => {
+                     if(p.x < minX) minX=p.x; if(p.x > maxX) maxX=p.x;
+                     if(p.y < minY) minY=p.y; if(p.y > maxY) maxY=p.y;
+                 });
+                 if (pt.x >= minX && pt.x <= maxX && pt.y >= minY && pt.y <= maxY) return true;
+            }
+
             for(let i=0; i<shape.points.length; i++) {
                 const p1 = shape.points[i];
                 const p2 = shape.type === 'line' ? shape.points[1] : shape.points[(i+1)%shape.points.length];
-                if(shape.type === 'line' && i === 1) break; // only 1 segment for line
+                if(shape.type === 'line' && i === 1) break; 
                 
                 if (distToSegmentSquared(pt, p1, p2) < threshold*threshold) return true;
             }
@@ -707,10 +1061,10 @@
         function clearCanvas() { shapes = []; activeShapeIndex = -1; propsPanel.style.display='none'; redraw(); }
         
         function exportImage() {
-            activeShapeIndex = -1; // Deselect before photo
+            activeShapeIndex = -1; 
             redraw();
             const link = document.createElement('a');
-            link.download = 'GeoLogo_Final.png';
+            link.download = 'GeoLogo_Advanced.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
