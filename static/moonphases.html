@@ -1,0 +1,1312 @@
+<!-- AIchemist v5.0.0 | Lumina: Lunar Phases | Observer/Explorer/Scientist | 2026-06-04 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina</title>
+    <style>
+        :root {
+            --bg-dark: #05070d;
+            --bg-panel: #111424;
+            --bg-panel-glass: rgba(17, 20, 36, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-purple: #a855f7;
+            --accent-blue: #3b82f6;
+            --valid-green: #10b981;
+            --warn-amber: #f59e0b;
+            --error-red: #ef4444;
+            --border: #334155;
+            --font-stack: 'Segoe UI', system-ui, sans-serif;
+            --turtle-skin: #3f6212;
+            --turtle-shell: #0f172a;
+            --turtle-scute: #1e293b;
+            --turtle-scute-hover: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* --- Splash Screen --- */
+        #splash-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 100; transition: opacity 0.8s ease;
+            background: radial-gradient(circle at center, #1a1625 0%, var(--bg-dark) 100%);
+            overflow: hidden;
+        }
+
+        .stars {
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><circle cx="20" cy="20" r="1.5" fill="white" opacity="0.8"/><circle cx="150" cy="80" r="2" fill="white" opacity="0.9"/><circle cx="300" cy="250" r="1.5" fill="white" opacity="0.7"/><circle cx="80" cy="350" r="2.5" fill="white" opacity="0.6"/><circle cx="50" cy="150" r="1" fill="white" opacity="0.5"/><circle cx="220" cy="310" r="1" fill="white" opacity="0.4"/><circle cx="350" cy="50" r="1.5" fill="white" opacity="0.8"/><circle cx="280" cy="150" r="1" fill="white" opacity="0.3"/><circle cx="100" cy="220" r="2" fill="white" opacity="0.5"/><circle cx="380" cy="380" r="1.5" fill="white" opacity="0.7"/><circle cx="180" cy="20" r="1" fill="white" opacity="0.4"/><circle cx="10" cy="280" r="1.5" fill="white" opacity="0.8"/><circle cx="250" cy="190" r="2" fill="white" opacity="0.6"/></svg>') repeat;
+            animation: rotateStars 200s linear infinite; z-index: 0;
+        }
+        @keyframes rotateStars { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .splash-content {
+            position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center;
+            backdrop-filter: blur(10px); padding: 3rem; border-radius: 24px;
+        }
+
+        .splash-title {
+            font-size: 4.5rem; font-weight: 300; letter-spacing: 6px; margin-bottom: 0.5rem; text-align: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #a855f7 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            opacity: 0; transform: translateY(20px); transition: all 0.5s ease;
+        }
+        .splash-title.visible { opacity: 1; transform: translateY(0); }
+        .splash-subtitle { font-size: 1.2rem; color: var(--text-muted); font-weight: 300; letter-spacing: 2px; margin-bottom: 3rem; text-align: center; }
+
+        .choice-row { display: flex; gap: 2rem; margin-bottom: 2rem; }
+        .choice-btn {
+            background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem;
+            font-weight: 300; letter-spacing: 1px; cursor: pointer; transition: all 0.3s ease;
+            position: relative; padding: 0.5rem 1rem;
+        }
+        .choice-btn::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px;
+            background: var(--accent-purple); transition: all 0.3s ease; transform: translateX(-50%);
+        }
+        .choice-btn:hover { color: var(--text-main); }
+        .choice-btn.active { color: var(--text-main); font-weight: 600; }
+        .choice-btn.active::after { width: 100%; }
+
+        #start-btn {
+            margin-top: 2rem; padding: 1rem 3.5rem; background: transparent; color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 30px; font-size: 1.1rem; font-weight: 400;
+            letter-spacing: 2px; cursor: pointer; transition: all 0.3s; opacity: 0; pointer-events: none;
+        }
+        #start-btn.ready { opacity: 1; pointer-events: auto; border-color: var(--accent-purple); background: rgba(168, 85, 247, 0.1); }
+        #start-btn.ready:hover { background: var(--accent-purple); box-shadow: 0 0 25px rgba(168, 85, 247, 0.5); }
+
+        .splash-footer { position: absolute; bottom: 2rem; text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 400; opacity: 0.6; z-index: 10; }
+
+        /* --- Main UI --- */
+        #sim-container { display: none; width: 100%; height: 100%; flex-direction: column; }
+        
+        .top-nav {
+            height: 60px; background: var(--bg-panel-glass); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; backdrop-filter: blur(10px); z-index: 10;
+        }
+        .nav-left { display: flex; align-items: center; gap: 2rem; }
+        .nav-title { font-weight: 600; font-size: 1.1rem; letter-spacing: 1px; color: var(--accent-purple); }
+        .nav-tabs { display: flex; gap: 0.5rem; }
+        
+        .tab-btn {
+            background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 1rem;
+            cursor: pointer; font-family: var(--font-stack); font-weight: 600; border-radius: 6px; transition: all 0.2s;
+            display: none; 
+        }
+        .tab-btn.active { background: rgba(168, 85, 247, 0.2); color: var(--accent-purple); }
+        
+        .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+        .action-link { background: transparent; border: none; color: var(--text-muted); font-size: 0.9rem; cursor: pointer; transition: color 0.2s; font-family: var(--font-stack); }
+        .action-link:hover { color: white; }
+
+        .workspace { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+        .controls-panel {
+            width: 340px; background: var(--bg-panel); border-right: 1px solid var(--border);
+            padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; overflow-y: auto; z-index: 10;
+        }
+        
+        .control-group { display: flex; flex-direction: column; gap: 1rem; }
+        .group-title { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+
+        /* Sliders */
+        .slider-container { display: flex; flex-direction: column; gap: 0.25rem; }
+        .slider-labels { display: flex; justify-content: space-between; align-items: baseline; }
+        .slider-name { font-weight: 600; font-size: 0.95rem; }
+        .slider-desc { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .slider-readout { font-weight: bold; color: var(--accent-purple); font-size: 1rem; }
+        
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 0.5rem 0; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: var(--accent-purple); cursor: pointer; margin-top: -8px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px; }
+        input[type=range]:disabled::-webkit-slider-thumb { background: var(--text-muted); cursor: not-allowed; }
+        .tick-marks { display: flex; justify-content: space-between; padding: 0 10px; }
+        .tick { width: 2px; height: 6px; background: var(--border); }
+
+        .playback-row { display: flex; gap: 0.5rem; }
+        .play-btn { flex: 1; padding: 0.6rem; background: var(--border); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: var(--font-stack); transition: 0.2s;}
+        .play-btn:hover { background: #475569; }
+        .play-btn.active-play { background: var(--valid-green); }
+
+        .outputs-panel { flex: 1; position: relative; display: flex; flex-direction: column; background: var(--bg-dark); overflow: hidden; }
+        
+        .metrics-bar {
+            height: 80px; border-bottom: 1px solid var(--border); display: flex;
+            align-items: center; justify-content: space-around; background: var(--bg-panel-glass); backdrop-filter: blur(5px); z-index: 10;
+        }
+        .metric { text-align: center; }
+        .metric-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .metric-value { font-size: 1.5rem; font-weight: bold; color: white; }
+        .metric-value.highlight { color: var(--accent-purple); }
+
+        .viz-container { flex: 1; position: absolute; top: 80px; bottom: 0; left: 0; right: 0; display: none; align-items: center; justify-content: center; }
+        .viz-container.active-viz { display: flex; }
+        canvas { width: 100%; height: 100%; }
+
+        .space-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><circle cx="50" cy="50" r="1" fill="white" opacity="0.4"/><circle cx="250" cy="180" r="1.5" fill="white" opacity="0.6"/><circle cx="400" cy="350" r="1" fill="white" opacity="0.3"/><circle cx="180" cy="450" r="2" fill="white" opacity="0.7"/><circle cx="550" cy="150" r="1" fill="white" opacity="0.5"/><circle cx="120" cy="30" r="1.5" fill="white" opacity="0.8"/><circle cx="450" cy="80" r="1" fill="white" opacity="0.4"/><circle cx="320" cy="500" r="2" fill="white" opacity="0.6"/><circle cx="50" cy="320" r="1" fill="white" opacity="0.5"/></svg>') repeat; z-index: -1; }
+
+        /* 13 Moons Specific */
+        .culture-nav { display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; max-width: 90%; padding-bottom: 10px; z-index: 10;}
+        .culture-btn {
+            background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-muted);
+            padding: 0.5rem 1rem; border-radius: 20px; font-family: var(--font-stack); font-size: 0.9rem;
+            cursor: pointer; white-space: nowrap; transition: 0.2s;
+        }
+        .culture-btn:hover { border-color: var(--text-main); color: var(--text-main); }
+        .culture-btn.active { background: rgba(168,85,247,0.1); border-color: var(--accent-purple); color: var(--accent-purple); }
+        
+        .turtle-container { position: relative; width: 550px; height: 550px; display: flex; justify-content: center;}
+        
+        .turtle-part { fill: var(--turtle-skin); }
+        .turtle-shell-base { fill: var(--turtle-shell); stroke: #020617; stroke-width: 4; }
+        .scute-inner { fill: var(--turtle-scute); stroke: #020617; stroke-width: 3; transition: fill 0.3s; cursor: pointer; }
+        .scute-inner:hover { fill: var(--turtle-scute-hover); }
+        .scute-inner.active-scute { fill: var(--accent-purple); stroke: white; }
+        .scute-outer { fill: var(--bg-panel); stroke: #020617; stroke-width: 2; transition: fill 0.3s;}
+        .scute-outer.active-outer { fill: var(--valid-green); }
+        .scute-text { fill: rgba(255,255,255,0.9); font-family: var(--font-stack); font-size: 16px; font-weight: bold; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+        .scute-text-outer { fill: rgba(255,255,255,0.7); font-family: var(--font-stack); font-size: 11px; text-anchor: middle; dominant-baseline: central; pointer-events: none; font-weight: 600;}
+
+        .moon-info-box { position: absolute; bottom: 20px; right: 20px; width: 360px; padding: 1.5rem; background: rgba(17, 20, 36, 0.95); border: 1px solid var(--border); border-radius: 12px; backdrop-filter: blur(10px); z-index: 10; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
+        .moon-name-ind { font-size: 1.6rem; font-weight: bold; color: var(--accent-purple); margin-bottom: 0.25rem; }
+        .moon-name-en { font-size: 1rem; color: var(--text-main); font-weight: 600; margin-bottom: 0.25rem; }
+        .moon-month { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 1rem; font-style: italic; }
+        .moon-desc { font-size: 0.95rem; line-height: 1.5; color: var(--text-muted); }
+        .moon-explainer { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+        
+        .mini-phase-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #mini-phase-canvas { width: 60px; height: 60px; border-radius: 50%; background: #05070d; border: 1px solid var(--border); }
+        .cycle-day-text { font-size: 0.75rem; color: #cbd5e1; margin-top: 0.5rem; font-weight: bold; text-align: center; }
+
+        /* Assumptions Panel & Modals */
+        .assumptions-panel {
+            position: absolute; bottom: 30px; left: 1rem; width: 380px;
+            background: rgba(17, 20, 36, 0.95); border: 1px solid var(--border); border-radius: 8px;
+            padding: 1.2rem; font-size: 0.85rem; display: none; backdrop-filter: blur(8px); z-index: 50; line-height: 1.6; color: var(--text-muted); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .assumptions-panel.show { display: block; }
+        .btn-close-assump { position: absolute; top: 0.5rem; right: 0.5rem; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; transition: color 0.2s; }
+        .btn-close-assump:hover { color: white; }
+        .assumptions-toggle { position: absolute; bottom: 35px; left: 1rem; background: transparent; border: none; color: var(--text-muted); cursor: pointer; text-decoration: underline; font-size: 0.85rem; z-index: 50; }
+
+        .version-badge { position: absolute; bottom: 8px; right: 12px; font-size: 11px; color: var(--text-muted); opacity: 0.45; z-index: 10; pointer-events: none; }
+
+        #reflection-modal {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(8px);
+        }
+        .modal-content { background: var(--bg-panel); border: 2px solid var(--warn-amber); border-radius: 12px; padding: 2.5rem; width: 90%; max-width: 550px; text-align: center; box-shadow: 0 0 40px rgba(245, 158, 11, 0.2); }
+        .modal-title { color: var(--warn-amber); font-size: 1.6rem; margin-bottom: 1rem; }
+        .modal-body { margin-bottom: 1.5rem; font-size: 1.15rem; line-height: 1.6; }
+        .hypothesis-btn { display: block; width: 100%; padding: 1.2rem; margin-bottom: 0.8rem; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 1.05rem;}
+        .hypothesis-btn:hover { background: rgba(255,255,255,0.1); border-color: white; }
+
+        .micro-annotation { position: absolute; background: rgba(16, 185, 129, 0.95); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.95rem; font-weight: bold; pointer-events: none; opacity: 0; transition: opacity 0.5s; transform: translate(-50%, -150%); z-index: 100; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);}
+
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <div class="stars"></div>
+        <div class="splash-content">
+            <div class="splash-title" id="splash-title">Lumina</div>
+            <div class="splash-subtitle" id="splash-subtitle">Select Language / Choisissez la langue</div>
+            
+            <div class="choice-row" id="lang-select">
+                <button class="choice-btn" data-val="en">English</button>
+                <button class="choice-btn" data-val="fr">Français</button>
+            </div>
+
+            <div class="choice-row" id="mode-select" style="display:none; margin-top:1rem;">
+                <button class="choice-btn" data-val="observer" id="btn-obs">Observer</button>
+                <button class="choice-btn" data-val="explorer" id="btn-exp">Explorer</button>
+                <button class="choice-btn" data-val="scientist" id="btn-sci">Scientist</button>
+            </div>
+
+            <button id="start-btn">Initialize</button>
+        </div>
+        <div class="splash-footer">Version 5.0.0 — updated June 2026<br>© T. Keller</div>
+    </div>
+
+    <div id="sim-container">
+        
+        <header class="top-nav">
+            <div class="nav-left">
+                <span class="nav-title">Lumina</span>
+                <div class="nav-tabs" id="main-tabs">
+                    <button class="tab-btn" data-tab="orbit" id="tab-orbit">Orbit & Earth</button>
+                    <button class="tab-btn" data-tab="skydome" id="tab-skydome">Sky Dome</button>
+                    <button class="tab-btn" data-tab="moons" id="tab-moons">13 Moons</button>
+                </div>
+            </div>
+            <div class="nav-right">
+                <button class="action-link" id="in-sim-lang">FR</button>
+                <button class="action-link" id="btn-back">Mode</button>
+                <a href="index.html" class="action-link" id="btn-exit">Exit</a>
+            </div>
+        </header>
+
+        <main class="workspace">
+            
+            <aside class="controls-panel">
+                
+                <div class="control-group">
+                    <div class="group-title" id="lbl-playback">Simulation Control</div>
+                    <div class="playback-row">
+                        <button class="play-btn" id="btn-play">▶ Play</button>
+                        <button class="play-btn" id="btn-step">⏭ Step</button>
+                        <button class="play-btn" id="btn-reset">↺ Reset</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="group-title" id="lbl-params">Parameters</div>
+                    
+                    <div class="slider-container" id="container-moon">
+                        <div class="slider-labels">
+                            <span class="slider-name" id="lbl-time-name">Moon Position</span>
+                            <span class="slider-readout" id="readout-time">0.0 d</span>
+                        </div>
+                        <div class="slider-desc" id="lbl-time-desc">Time passed since New Moon</div>
+                        <input type="range" id="slider-time" min="0" max="29.5" step="0.1" value="0">
+                        <div class="tick-marks">
+                            <div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+                        </div>
+                    </div>
+
+                    <div class="slider-container mode-adv" id="container-tod" style="display:none;">
+                        <div class="slider-labels">
+                            <span class="slider-name" id="lbl-tod-name">Time of Day</span>
+                            <span class="slider-readout" id="readout-tod">12:00</span>
+                        </div>
+                        <div class="slider-desc" id="lbl-tod-desc">Observer's local time</div>
+                        <input type="range" id="slider-tod" min="0" max="23.9" step="0.1" value="12">
+                        <div class="tick-marks">
+                            <div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+                        </div>
+                    </div>
+
+                    <div class="slider-container mode-sci" id="container-doy" style="display:none;">
+                        <div class="slider-labels">
+                            <span class="slider-name" id="lbl-doy-name">Day of Year</span>
+                            <span class="slider-readout" id="readout-doy">80</span>
+                        </div>
+                        <div class="slider-desc" id="lbl-doy-desc">Affects seasonal declination</div>
+                        <input type="range" id="slider-doy" min="1" max="365" step="1" value="80">
+                        <div class="tick-marks">
+                            <div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+                        </div>
+                    </div>
+
+                    <div class="slider-container mode-sci" id="container-lat" style="display:none;">
+                        <div class="slider-labels">
+                            <span class="slider-name" id="lbl-lat-name">Observer Latitude</span>
+                            <span class="slider-readout" id="readout-lat">50°</span>
+                        </div>
+                        <div class="slider-desc" id="lbl-lat-desc">Northern or Southern Hemisphere</div>
+                        <input type="range" id="slider-lat" min="-90" max="90" step="1" value="50">
+                        <div class="tick-marks">
+                            <div class="tick"></div><div class="tick"></div><div class="tick"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="playback-row mode-sci" style="display:none; margin-top:0.5rem;">
+                        <button class="play-btn" id="btn-sync-loc" style="font-size:0.8rem;">📍 Local Lat</button>
+                        <button class="play-btn" id="btn-sync-time" style="font-size:0.8rem;">⏱️ Sync Time</button>
+                    </div>
+                    
+                </div>
+                
+            </aside>
+
+            <section class="outputs-panel">
+                
+                <div class="metrics-bar">
+                    <div class="metric">
+                        <div class="metric-label" id="lbl-metric-phase">Current Phase</div>
+                        <div class="metric-value highlight" id="val-phase">New Moon</div>
+                    </div>
+                    <div class="metric mode-adv" style="display:none;">
+                        <div class="metric-label" id="lbl-metric-angle">Phase Angle</div>
+                        <div class="metric-value" id="val-angle">0.0°</div>
+                    </div>
+                    <div class="metric mode-sci" style="display:none;">
+                        <div class="metric-label" id="lbl-metric-alt">Moon Altitude</div>
+                        <div class="metric-value" id="val-alt">0°</div>
+                    </div>
+                </div>
+
+                <div class="viz-container active-viz" id="tab-orbit-viz">
+                    <div class="space-bg"></div>
+                    <canvas id="sim-canvas"></canvas>
+                    <div class="micro-annotation" id="micro-annotation">Tilt applied!</div>
+                </div>
+
+                <div class="viz-container" id="tab-skydome-viz">
+                    <canvas id="sky-canvas"></canvas>
+                </div>
+
+                <div class="viz-container" id="tab-moons-viz" style="background:var(--bg-dark); align-items:flex-start; padding-top:2rem;">
+                    <div style="width:100%; display:flex; flex-direction:column; align-items:center;">
+                        <div class="culture-nav" id="culture-nav"></div>
+                        <div class="turtle-container" id="turtle-container"></div>
+                        <div class="moon-info-box">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                <div>
+                                    <div class="moon-name-ind" id="moon-ind">Mnido Giizis</div>
+                                    <div class="moon-name-en" id="moon-en-fr">Spirit Moon</div>
+                                    <div class="moon-month" id="moon-month">~ January</div>
+                                </div>
+                                <div class="mini-phase-container">
+                                    <canvas id="mini-phase-canvas"></canvas>
+                                    <div class="cycle-day-text" id="cycle-day-text">Day 1/28</div>
+                                </div>
+                            </div>
+                            <div class="moon-desc" id="moon-desc">A time of clearing.</div>
+                            <div class="moon-explainer" id="moon-explainer">
+                                <strong>The 28 Outer Scales:</strong> Represent the 28 visible days of the lunar phase cycle.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="assumptions-toggle" id="btn-assumptions">Assumptions & Limits</button>
+                <div class="assumptions-panel" id="panel-assumptions">
+                    <button class="btn-close-assump" id="btn-close-assump">✕</button>
+                    <div id="assump-text"></div>
+                </div>
+                
+                <div class="version-badge">Lumina v5.0.0 | 2026-06-04</div>
+            </section>
+        </main>
+    </div>
+
+    <!-- PRODUCTIVE FAILURE MODAL -->
+    <div id="reflection-modal">
+        <div class="modal-content">
+            <div class="modal-title">⚠️ Wait a minute! / Attendez!</div>
+            <div class="modal-body" id="modal-text">
+                The Earth is directly between the Sun and the Moon (180°). Why isn't the Earth's shadow blocking the light?
+            </div>
+            <div id="hypotheses-container"></div>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            lang: null,
+            mode: null,
+            tab: null, 
+            culture: 'anishinaabe',
+            time: 0, 
+            tod: 12, 
+            doy: 80, 
+            lat: 50, 
+            isPlaying: false,
+            pfTriggered: false,
+            pfResolved: false
+        };
+
+        const MOON_CYCLE = 29.5;
+        let animationFrame;
+
+        // Image Assets (High-Res Textures)
+        const imgs = { moon: new Image(), earth: new Image() };
+        imgs.moon.crossOrigin = "Anonymous";
+        imgs.earth.crossOrigin = "Anonymous";
+        imgs.moon.src = 'https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg';
+        imgs.earth.src = 'https://upload.wikimedia.org/wikipedia/commons/2/22/Earth_Western_Hemisphere_transparent_background.png';
+        
+        imgs.moon.onload = () => { if(state.mode) renderCanvases(); };
+        imgs.earth.onload = () => { if(state.mode) renderCanvases(); };
+
+        const i18n = {
+            en: {
+                title: "Lumina: The Lunar Mechanic",
+                subReady: "Ready to launch",
+                btnInit: "Initialize",
+                obs: "Observer", exp: "Explorer", sci: "Scientist",
+                tabs: { orbit: "Orbit & Earth", skydome: "Sky Dome", moons: "13 Moons" },
+                back: "Mode", exit: "Exit",
+                playback: "Simulation Control", play: "▶ Play", pause: "⏸ Pause", step: "⏭ Step", reset: "↺ Reset",
+                params: "Parameters", 
+                timeName: "Moon Position", timeDesc: "Days since New Moon",
+                todName: "Time of Day", todDesc: "Observer's local time",
+                doyName: "Day of Year", doyDesc: "Affects seasonal path",
+                latName: "Observer Latitude", latDesc: "Northern or Southern Hemisphere",
+                syncLoc: "📍 Local Lat", syncTime: "⏱️ Sync Time",
+                phase: "Current Phase", angle: "Phase Angle", alt: "Moon Altitude",
+                phases: ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Third Quarter", "Waning Crescent"],
+                pfTitle: "⚠️ Wait a minute!",
+                pfText: "The Earth is directly between the Sun and the Moon (180°). If light travels in straight lines, why isn't the Earth's shadow making the Moon dark?",
+                pfH1: "The Moon creates its own light.",
+                pfH2: "The Moon's orbit is tilted, so it passes slightly above or below Earth's shadow.",
+                pfH3: "The Sun's light bends completely around the Earth.",
+                pfSuccess: "Tilt applied: Moon passes 5° above the shadow!",
+                assump: "Assumptions & Limits",
+                assumpObs: "<strong>Model Assumptions:</strong><br>- The synodic month is locked exactly at 29.5 days.<br>- Indigenous calendars vary by community and dialect; these represent educational adaptations.<br>- The 28 outer scutes represent the visible days of the lunar phase cycle.",
+                assumpSci: "<strong>Model Assumptions:</strong><br>- Orbital eccentricity is ignored (circular orbits).<br>- Ephemeris logic uses simplified spherical trigonometry.<br>- The Moon is approximated to follow the ecliptic (nodal regression tilt is ignored for Sky Dome visual clarity).<br>- Earth size is heavily scaled up in Orbit view.",
+                cultures: {
+                    anishinaabe: "Anishinaabe",
+                    cree: "Nehiyaw / Cree",
+                    dakota: "Dakota",
+                    mikmaq: "Mi'kmaq",
+                    wsanec: "W̱SÁNEĆ"
+                },
+                labels: { observer: "Observer", horizon: "Horizon Line (Visible Sky)", approxMonth: "Approx. Month: ", day: "Day", outerScutesExp: "<strong>The 28 Outer Scales:</strong> Represent the 28 visible days of the lunar phase cycle." },
+                moonsData: {
+                    anishinaabe: [
+                        { ind: "Mnido Giizis", name: "Spirit Moon", month: "January", desc: "A time of clearing and spiritual reflection in mid-winter." },
+                        { ind: "Makwa Giizis", name: "Bear Moon", month: "February", desc: "When the bear wakes up briefly during the cold." },
+                        { ind: "Ziisbaakdoke Giizis", name: "Sugar Moon", month: "March", desc: "The time maple sap begins to run." },
+                        { ind: "Namebine Giizis", name: "Sucker Moon", month: "April", desc: "When the sucker fish return to spawn." },
+                        { ind: "Waabgonii Giizis", name: "Flower Moon", month: "May", desc: "When spring flowers begin to bloom." },
+                        { ind: "Ode'miin Giizis", name: "Strawberry Moon", month: "June", desc: "The time for gathering strawberries, the heart berry." },
+                        { ind: "Mskomini Giizis", name: "Raspberry Moon", month: "July", desc: "When raspberries are ripe and harvested." },
+                        { ind: "Datkaagmin Giizis", name: "Thimbleberry Moon", month: "August", desc: "A time of abundant summer berries." },
+                        { ind: "Mdaamini Giizis", name: "Corn Moon", month: "September", desc: "When the corn is ready for harvest." },
+                        { ind: "Bnaakwii Giizis", name: "Falling Leaves Moon", month: "October", desc: "When the leaves change color and fall." },
+                        { ind: "Baashkaakodin Giizis", name: "Freezing Moon", month: "November", desc: "When the lakes and rivers begin to freeze." },
+                        { ind: "Mnidoo Giizisoons", name: "Little Spirit Moon", month: "December", desc: "A time of storytelling and preparing for deep winter." },
+                        { ind: "13th Moon", name: "Alignment Moon", month: "Intercalary", desc: "The cycle alignment moon to balance the solar year." }
+                    ],
+                    mikmaq: [
+                        { ind: "Punamuiku's", name: "Tomcod Moon", month: "January", desc: "Time when the frost fish spawn." },
+                        { ind: "Apuknajit", name: "Snow Blinding Moon", month: "February", desc: "The sun reflects brightly off the deep snow." },
+                        { ind: "Sikku", name: "Spring Moon", month: "March", desc: "The transition into the spring season begins." },
+                        { ind: "Penatmuiku's", name: "Birds Laying Eggs Moon", month: "April", desc: "The time when birds begin to nest." },
+                        { ind: "Sqoljuiku's", name: "Frog Croaking Moon", month: "May", desc: "The peepers and frogs begin to sing." },
+                        { ind: "Nipniku's", name: "Summer Moon", month: "June", desc: "The leaves are fully out." },
+                        { ind: "Peskewiku's", name: "Feather Shedding Moon", month: "July", desc: "Birds begin to moult their feathers." },
+                        { ind: "Kisikwekewiku's", name: "Fruit Ripening Moon", month: "August", desc: "Berries and fruits are ready to harvest." },
+                        { ind: "Wikumkewiku's", name: "Mate Calling Moon", month: "September", desc: "The time of the moose rut." },
+                        { ind: "Wikewiku's", name: "Animal Fattening Moon", month: "October", desc: "Animals prepare for the deep winter." },
+                        { ind: "Keptekewiku's", name: "River Freezing Moon", month: "November", desc: "Ice begins to form on the edges of rivers." },
+                        { ind: "Kesikewiku's", name: "Winter Moon", month: "December", desc: "The cold winter settles in." },
+                        { ind: "13th Moon", name: "Intercalary Moon", month: "Intercalary", desc: "Brings the lunar cycles back into alignment with the seasons." }
+                    ],
+                    wsanec: [
+                        { ind: "SIS,ET", name: "Elder Moon", month: "January", desc: "The older sibling moon of winter." },
+                        { ind: "NINENE", name: "Child Moon", month: "February", desc: "The younger sibling moon of winter." },
+                        { ind: "WEXES", name: "Frog Moon", month: "March", desc: "When the frogs wake up." },
+                        { ind: "PEXSISEN", name: "Opening Hands Moon", month: "April", desc: "Blossoms open like hands welcoming spring." },
+                        { ind: "SXANES", name: "Bullhead Moon", month: "May", desc: "Time of the bullhead fish." },
+                        { ind: "CENHENEN", name: "Humpback Salmon Moon", month: "June", desc: "When the humpback salmon run." },
+                        { ind: "CENTEKI", name: "Sockeye Salmon Moon", month: "July", desc: "When the sockeye salmon run." },
+                        { ind: "CENQOLEW", name: "Dog Salmon Moon", month: "August", desc: "When the dog salmon return." },
+                        { ind: "PEQELNEW", name: "Chum Moon", month: "September", desc: "Time of the chum salmon." },
+                        { ind: "WESELNEW", name: "Slacking Moon", month: "October", desc: "When the winds and tides slacken." },
+                        { ind: "SJELCASEN", name: "Putting Away Moon", month: "November", desc: "Time to put away the paddles." },
+                        { ind: "SXELCASEN", name: "Winter Moon", month: "December", desc: "The deep winter time." },
+                        { ind: "13th Moon", name: "Tide Moon", month: "Intercalary", desc: "Aligning the tides and the year." }
+                    ]
+                }
+            },
+            fr: {
+                title: "Lumina : Mécanique lunaire",
+                subReady: "Prêt pour le lancement",
+                btnInit: "Initialiser",
+                obs: "Observateur", exp: "Explorateur", sci: "Scientifique",
+                tabs: { orbit: "Orbite et Terre", skydome: "Dôme céleste", moons: "13 Lunes" },
+                back: "Mode", exit: "Quitter",
+                playback: "Contrôle", play: "▶ Lecture", pause: "⏸ Pause", step: "⏭ Étape", reset: "↺ Réinit.",
+                params: "Paramètres", 
+                timeName: "Position de la Lune", timeDesc: "Jours depuis la Nouvelle Lune",
+                todName: "Heure du jour", todDesc: "Heure locale de l'observateur",
+                doyName: "Jour de l'année", doyDesc: "Affecte la déclinaison saisonnière",
+                latName: "Latitude de l'observateur", latDesc: "Hémisphère Nord ou Sud",
+                syncLoc: "📍 Lat Locale", syncTime: "⏱️ Sync Heure",
+                phase: "Phase Actuelle", angle: "Angle de phase", alt: "Altitude Lune",
+                phases: ["Nouvelle Lune", "Premier Croissant", "Premier Quartier", "Gibbeuse Croissante", "Pleine Lune", "Gibbeuse Décroissante", "Dernier Quartier", "Dernier Croissant"],
+                pfTitle: "⚠️ Attendez une minute !",
+                pfText: "La Terre est directement entre le Soleil et la Lune (180°). Pourquoi l'ombre de la Terre ne rend-elle pas la Lune sombre ?",
+                pfH1: "La Lune crée sa propre lumière.",
+                pfH2: "L'orbite de la Lune est inclinée, elle passe donc au-dessus ou en dessous de l'ombre.",
+                pfH3: "La lumière du Soleil se plie complètement autour de la Terre.",
+                pfSuccess: "Inclinaison : La Lune passe 5° au-dessus de l'ombre !",
+                assump: "Hypothèses et limites",
+                assumpObs: "<strong>Hypothèses :</strong><br>- Le mois synodique est fixé à 29,5 jours.<br>- Les calendriers autochtones varient ; ceux-ci sont des modèles éducatifs.<br>- Les 28 écailles extérieures représentent les jours visibles du cycle.",
+                assumpSci: "<strong>Hypothèses :</strong><br>- L'excentricité orbitale est ignorée.<br>- La trigonométrie sphérique est simplifiée.<br>- La Lune est approximée sur l'écliptique pour la clarté visuelle.<br>- La Terre n'est pas à l'échelle dans la vue orbitale.",
+                cultures: {
+                    anishinaabe: "Anishinaabe",
+                    cree: "Nehiyaw / Cri",
+                    dakota: "Dakota",
+                    mikmaq: "Mi'kmaq",
+                    wsanec: "W̱SÁNEĆ"
+                },
+                labels: { observer: "Observateur", horizon: "Horizon (Ciel visible)", approxMonth: "Mois approx : ", day: "Jour", outerScutesExp: "<strong>Les 28 Écailles Extérieures :</strong> Représentent les 28 jours visibles du cycle des phases lunaires." },
+                moonsData: {
+                    anishinaabe: [
+                        { ind: "Mnido Giizis", name: "Lune de l'Esprit", month: "Janvier", desc: "Temps de réflexion spirituelle au milieu de l'hiver." },
+                        { ind: "Makwa Giizis", name: "Lune de l'Ours", month: "Février", desc: "Quand l'ours se réveille brièvement." },
+                        { ind: "Ziisbaakdoke Giizis", name: "Lune des Sucres", month: "Mars", desc: "Quand la sève d'érable commence à couler." },
+                        { ind: "Namebine Giizis", name: "Lune du Meunier", month: "Avril", desc: "Quand les poissons reviennent frayer." },
+                        { ind: "Waabgonii Giizis", name: "Lune des Fleurs", month: "Mai", desc: "Quand les fleurs éclosent." },
+                        { ind: "Ode'miin Giizis", name: "Lune des Fraises", month: "Juin", desc: "Le temps de la cueillette des fraises." },
+                        { ind: "Mskomini Giizis", name: "Lune des Framboises", month: "Juillet", desc: "Quand les framboises sont mûres." },
+                        { ind: "Datkaagmin Giizis", name: "Lune des Ronces", month: "Août", desc: "Temps d'abondance des baies." },
+                        { ind: "Mdaamini Giizis", name: "Lune du Maïs", month: "Septembre", desc: "Quand le maïs est prêt pour la récolte." },
+                        { ind: "Bnaakwii Giizis", name: "Lune des Feuilles", month: "Octobre", desc: "Quand les feuilles tombent." },
+                        { ind: "Baashkaakodin Giizis", name: "Lune du Gel", month: "Novembre", desc: "Quand les lacs commencent à geler." },
+                        { ind: "Mnidoo Giizisoons", name: "Petite Lune", month: "Décembre", desc: "Temps des contes pour l'hiver profond." },
+                        { ind: "13e Lune", name: "Lune d'alignement", month: "Intercalaire", desc: "Pour équilibrer l'année solaire." }
+                    ],
+                    mikmaq: [
+                        { ind: "Punamuiku's", name: "Lune du Poulamon", month: "Janvier", desc: "Frai du poisson d'hiver." },
+                        { ind: "Apuknajit", name: "Lune de l'Aveuglement", month: "Février", desc: "Le soleil brille sur la neige." },
+                        { ind: "Sikku", name: "Lune du Printemps", month: "Mars", desc: "La transition commence." },
+                        { ind: "Penatmuiku's", name: "Lune des Œufs", month: "Avril", desc: "Les oiseaux nichent." },
+                        { ind: "Sqoljuiku's", name: "Lune des Grenouilles", month: "Mai", desc: "Les grenouilles chantent." },
+                        { ind: "Nipniku's", name: "Lune d'Été", month: "Juin", desc: "Les feuilles sont sorties." },
+                        { ind: "Peskewiku's", name: "Lune de la Mue", month: "Juillet", desc: "Les oiseaux perdent leurs plumes." },
+                        { ind: "Kisikwekewiku's", name: "Lune des Fruits", month: "Août", desc: "Récolte des baies." },
+                        { ind: "Wikumkewiku's", name: "Lune de l'Appel", month: "Septembre", desc: "Le rut de l'orignal." },
+                        { ind: "Wikewiku's", name: "Lune de l'Engraissement", month: "Octobre", desc: "Préparation pour l'hiver." },
+                        { ind: "Keptekewiku's", name: "Lune des Rivières Gelées", month: "Novembre", desc: "La glace se forme." },
+                        { ind: "Kesikewiku's", name: "Lune d'Hiver", month: "Décembre", desc: "Le froid s'installe." },
+                        { ind: "13e Lune", name: "Lune Intercalaire", month: "Intercalaire", desc: "Réaligne le calendrier." }
+                    ],
+                    wsanec: [
+                        { ind: "SIS,ET", name: "Lune Aînée", month: "Janvier", desc: "L'aîné de l'hiver." },
+                        { ind: "NINENE", name: "Lune Enfant", month: "Février", desc: "Le plus jeune de l'hiver." },
+                        { ind: "WEXES", name: "Lune de la Grenouille", month: "Mars", desc: "Réveil des grenouilles." },
+                        { ind: "PEXSISEN", name: "Mains Ouvertes", month: "Avril", desc: "Les bourgeons s'ouvrent." },
+                        { ind: "SXANES", name: "Lune du Chabot", month: "Mai", desc: "Temps du poisson chabot." },
+                        { ind: "CENHENEN", name: "Saumon Rose", month: "Juin", desc: "Montaison du saumon rose." },
+                        { ind: "CENTEKI", name: "Saumon Rouge", month: "Juillet", desc: "Montaison du saumon rouge." },
+                        { ind: "CENQOLEW", name: "Saumon Kéta", month: "Août", desc: "Retour du saumon kéta." },
+                        { ind: "PEQELNEW", name: "Lune du Saumon", month: "Septembre", desc: "Temps des saumons." },
+                        { ind: "WESELNEW", name: "Lune du Relâchement", month: "Octobre", desc: "Vents et marées se calment." },
+                        { ind: "SJELCASEN", name: "Lune du Rangement", month: "Novembre", desc: "Temps de ranger les pagaies." },
+                        { ind: "SXELCASEN", name: "Lune d'Hiver", month: "Décembre", desc: "Hiver profond." },
+                        { ind: "13e Lune", name: "Lune des Marées", month: "Intercalaire", desc: "Alignement des marées." }
+                    ]
+                }
+            }
+        };
+        
+        i18n.en.moonsData.cree = i18n.en.moonsData.anishinaabe;
+        i18n.en.moonsData.dakota = i18n.en.moonsData.anishinaabe;
+        i18n.fr.moonsData.cree = i18n.fr.moonsData.anishinaabe;
+        i18n.fr.moonsData.dakota = i18n.fr.moonsData.anishinaabe;
+
+        const dom = {
+            splash: document.getElementById('splash-screen'),
+            splashTitle: document.getElementById('splash-title'),
+            splashSubtitle: document.getElementById('splash-subtitle'),
+            sim: document.getElementById('sim-container'),
+            langBtns: document.querySelectorAll('#lang-select .choice-btn'),
+            modeBtns: document.querySelectorAll('#mode-select .choice-btn'),
+            modeSelect: document.getElementById('mode-select'),
+            btnStart: document.getElementById('start-btn'),
+            tabBtns: document.querySelectorAll('.tab-btn'),
+            inSimLang: document.getElementById('in-sim-lang'),
+            btnBack: document.getElementById('btn-back'),
+            btnPlay: document.getElementById('btn-play'),
+            btnStep: document.getElementById('btn-step'),
+            btnReset: document.getElementById('btn-reset'),
+            
+            sliderTime: document.getElementById('slider-time'),
+            readoutTime: document.getElementById('readout-time'),
+            sliderTod: document.getElementById('slider-tod'),
+            readoutTod: document.getElementById('readout-tod'),
+            sliderDoy: document.getElementById('slider-doy'),
+            readoutDoy: document.getElementById('readout-doy'),
+            sliderLat: document.getElementById('slider-lat'),
+            readoutLat: document.getElementById('readout-lat'),
+            btnSyncLoc: document.getElementById('btn-sync-loc'),
+            btnSyncTime: document.getElementById('btn-sync-time'),
+            
+            valPhase: document.getElementById('val-phase'),
+            valAngle: document.getElementById('val-angle'),
+            valAlt: document.getElementById('val-alt'),
+            
+            canvasOrbit: document.getElementById('sim-canvas'),
+            ctxOrbit: document.getElementById('sim-canvas').getContext('2d'),
+            canvasSky: document.getElementById('sky-canvas'),
+            ctxSky: document.getElementById('sky-canvas').getContext('2d'),
+            canvasMiniPhase: document.getElementById('mini-phase-canvas'),
+            ctxMiniPhase: document.getElementById('mini-phase-canvas').getContext('2d'),
+            
+            tabOrbit: document.getElementById('tab-orbit-viz'),
+            tabSky: document.getElementById('tab-skydome-viz'),
+            tabMoons: document.getElementById('tab-moons-viz'),
+            
+            cultureNav: document.getElementById('culture-nav'),
+            turtleContainer: document.getElementById('turtle-container'),
+            moonInd: document.getElementById('moon-ind'),
+            moonEnFr: document.getElementById('moon-en-fr'),
+            moonMonth: document.getElementById('moon-month'),
+            moonDesc: document.getElementById('moon-desc'),
+            moonExplainer: document.getElementById('moon-explainer'),
+            cycleDayText: document.getElementById('cycle-day-text'),
+            
+            modal: document.getElementById('reflection-modal'),
+            modalHypotheses: document.getElementById('hypotheses-container'),
+            microAnn: document.getElementById('micro-annotation'),
+            
+            btnAssump: document.getElementById('btn-assumptions'),
+            panelAssump: document.getElementById('panel-assumptions'),
+            btnCloseAssump: document.getElementById('btn-close-assump'),
+            assumpText: document.getElementById('assump-text')
+        };
+
+        function init() {
+            bindSplash();
+            bindSim();
+            generateTurtleSVG();
+            window.addEventListener('resize', resizeCanvases);
+        }
+
+        function bindSplash() {
+            dom.langBtns.forEach(btn => btn.addEventListener('click', (e) => {
+                dom.langBtns.forEach(b => b.classList.remove('active'));
+                const targetBtn = e.currentTarget || e.target;
+                targetBtn.classList.add('active');
+                state.lang = targetBtn.dataset.val;
+                
+                dom.splashTitle.classList.remove('visible');
+                setTimeout(() => {
+                    if (!state.lang || !i18n[state.lang]) return;
+                    dom.splashTitle.textContent = i18n[state.lang].title;
+                    dom.splashSubtitle.textContent = i18n[state.lang].subReady;
+                    
+                    document.getElementById('btn-obs').textContent = i18n[state.lang].obs;
+                    document.getElementById('btn-exp').textContent = i18n[state.lang].exp;
+                    document.getElementById('btn-sci').textContent = i18n[state.lang].sci;
+                    
+                    dom.splashTitle.classList.add('visible');
+                    dom.modeSelect.style.display = 'flex';
+                }, 300);
+                
+                checkStartReady();
+            }));
+
+            dom.modeBtns.forEach(btn => btn.addEventListener('click', (e) => {
+                dom.modeBtns.forEach(b => b.classList.remove('active'));
+                const targetBtn = e.currentTarget || e.target;
+                targetBtn.classList.add('active');
+                state.mode = targetBtn.dataset.val;
+                checkStartReady();
+            }));
+
+            dom.btnStart.addEventListener('click', () => {
+                dom.splash.style.opacity = 0;
+                setTimeout(() => {
+                    dom.splash.style.display = 'none';
+                    dom.sim.style.display = 'flex';
+                    setupModeUI();
+                    updateSimText();
+                    resizeCanvases();
+                    updateOutputs();
+                }, 800);
+            });
+        }
+
+        function checkStartReady() {
+            if (state.lang && state.mode) {
+                dom.btnStart.classList.add('ready');
+                dom.btnStart.textContent = i18n[state.lang].btnInit;
+            }
+        }
+
+        function setupModeUI() {
+            document.querySelectorAll('.mode-adv, .mode-sci').forEach(el => el.style.display = 'none');
+            dom.tabBtns.forEach(btn => btn.style.display = 'none');
+            
+            if (state.mode === 'observer') {
+                document.getElementById('tab-orbit').style.display = 'block';
+                document.getElementById('tab-moons').style.display = 'block';
+                switchTab('orbit');
+            } 
+            else if (state.mode === 'explorer') {
+                document.querySelectorAll('.mode-adv').forEach(el => el.style.display = 'flex');
+                document.getElementById('tab-orbit').style.display = 'block';
+                switchTab('orbit');
+            } 
+            else if (state.mode === 'scientist') {
+                document.querySelectorAll('.mode-adv, .mode-sci').forEach(el => el.style.display = 'flex');
+                document.getElementById('tab-orbit').style.display = 'block';
+                document.getElementById('tab-skydome').style.display = 'block';
+                switchTab('orbit');
+            }
+            buildCultureButtons();
+        }
+
+        function switchTab(tabId) {
+            state.tab = tabId;
+            dom.tabBtns.forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            document.querySelectorAll('.viz-container').forEach(v => v.classList.remove('active-viz'));
+            
+            if(tabId === 'orbit') dom.tabOrbit.classList.add('active-viz');
+            if(tabId === 'skydome') dom.tabSky.classList.add('active-viz');
+            if(tabId === 'moons') dom.tabMoons.classList.add('active-viz');
+
+            resizeCanvases();
+            renderCanvases();
+        }
+
+        function bindSim() {
+            dom.btnBack.addEventListener('click', () => {
+                dom.sim.style.display = 'none';
+                dom.splash.style.display = 'flex';
+                dom.splash.style.opacity = 1;
+                pauseSim();
+            });
+
+            dom.inSimLang.addEventListener('click', () => {
+                state.lang = state.lang === 'en' ? 'fr' : 'en';
+                dom.inSimLang.textContent = state.lang === 'en' ? 'FR' : 'EN';
+                updateSimText();
+                updateOutputs();
+                buildCultureButtons();
+            });
+
+            dom.tabBtns.forEach(btn => btn.addEventListener('click', (e) => switchTab(e.target.dataset.tab)));
+
+            dom.btnPlay.addEventListener('click', togglePlay);
+            dom.btnStep.addEventListener('click', stepSim);
+            dom.btnReset.addEventListener('click', resetSim);
+
+            dom.sliderTime.addEventListener('input', (e) => {
+                state.time = parseFloat(e.target.value);
+                updateOutputs(); renderCanvases(); checkProductiveFailure();
+            });
+
+            dom.sliderTod.addEventListener('input', (e) => {
+                state.tod = parseFloat(e.target.value);
+                updateOutputs(); renderCanvases();
+            });
+
+            dom.sliderDoy.addEventListener('input', (e) => {
+                state.doy = parseInt(e.target.value);
+                updateOutputs(); renderCanvases();
+            });
+            
+            dom.sliderLat.addEventListener('input', (e) => {
+                state.lat = parseInt(e.target.value);
+                updateOutputs(); renderCanvases();
+            });
+
+            dom.btnSyncLoc.addEventListener('click', () => {
+                state.lat = 50; dom.sliderLat.value = 50; updateOutputs(); renderCanvases();
+            });
+            dom.btnSyncTime.addEventListener('click', () => {
+                const now = new Date();
+                state.tod = now.getHours() + now.getMinutes() / 60;
+                const start = new Date(now.getFullYear(), 0, 0);
+                const diff = now - start;
+                state.doy = Math.floor(diff / 86400000);
+                dom.sliderTod.value = state.tod; dom.sliderDoy.value = state.doy;
+                updateOutputs(); renderCanvases();
+            });
+
+            dom.btnAssump.addEventListener('click', () => { dom.panelAssump.classList.add('show'); });
+            dom.btnCloseAssump.addEventListener('click', () => { dom.panelAssump.classList.remove('show'); });
+        }
+
+        function formatTime(decimalHours) {
+            const h = Math.floor(decimalHours);
+            const m = Math.floor((decimalHours - h) * 60);
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        }
+
+        function updateSimText() {
+            if (!state.lang || !i18n[state.lang]) return;
+            const t = i18n[state.lang];
+            document.querySelector('.nav-title').textContent = t.title;
+            dom.btnBack.textContent = t.back;
+            document.getElementById('btn-exit').textContent = t.exit;
+            
+            document.getElementById('tab-orbit').textContent = t.tabs.orbit;
+            document.getElementById('tab-skydome').textContent = t.tabs.skydome;
+            document.getElementById('tab-moons').textContent = t.tabs.moons;
+            
+            document.getElementById('lbl-playback').textContent = t.playback;
+            dom.btnPlay.textContent = state.isPlaying ? t.pause : t.play;
+            dom.btnStep.textContent = t.step;
+            dom.btnReset.textContent = t.reset;
+            
+            document.getElementById('lbl-params').textContent = t.params;
+            document.getElementById('lbl-time-name').textContent = t.timeName;
+            document.getElementById('lbl-time-desc').textContent = t.timeDesc;
+            document.getElementById('lbl-tod-name').textContent = t.todName;
+            document.getElementById('lbl-tod-desc').textContent = t.todDesc;
+            document.getElementById('lbl-doy-name').textContent = t.doyName;
+            document.getElementById('lbl-doy-desc').textContent = t.doyDesc;
+            document.getElementById('lbl-lat-name').textContent = t.latName;
+            document.getElementById('lbl-lat-desc').textContent = t.latDesc;
+            
+            dom.btnSyncLoc.textContent = t.syncLoc;
+            dom.btnSyncTime.textContent = t.syncTime;
+            
+            document.getElementById('lbl-metric-phase').textContent = t.phase;
+            document.getElementById('lbl-metric-angle').textContent = t.angle;
+            document.getElementById('lbl-metric-alt').textContent = t.alt;
+
+            document.getElementById('modal-text').textContent = t.pfText;
+            document.getElementById('btn-assumptions').textContent = t.assump;
+            dom.assumpText.innerHTML = state.mode === 'observer' ? t.assumpObs : t.assumpSci;
+
+            if(state.tab === 'moons') updateTurtleMoons();
+        }
+
+        function togglePlay() {
+            state.isPlaying = !state.isPlaying;
+            dom.btnPlay.textContent = state.isPlaying ? i18n[state.lang].pause : i18n[state.lang].play;
+            dom.btnPlay.classList.toggle('active-play', state.isPlaying);
+            dom.sliderTime.disabled = state.isPlaying;
+            
+            if(state.isPlaying) {
+                lastTimestamp = performance.now();
+                animationFrame = requestAnimationFrame(gameLoop);
+            } else {
+                cancelAnimationFrame(animationFrame);
+            }
+        }
+
+        let lastTimestamp = 0;
+        function gameLoop(timestamp) {
+            if(!state.isPlaying) return;
+            const delta = (timestamp - lastTimestamp) / 1000; 
+            lastTimestamp = timestamp;
+
+            if(state.mode === 'observer') {
+                state.time += delta * 2; 
+            } else {
+                state.tod += delta * 4;
+                if(state.tod >= 24) { state.tod -= 24; state.time += 1; }
+            }
+
+            if(state.time >= MOON_CYCLE) state.time = 0;
+            
+            dom.sliderTime.value = state.time;
+            dom.sliderTod.value = state.tod;
+            updateOutputs(); renderCanvases(); checkProductiveFailure();
+
+            if(state.isPlaying) animationFrame = requestAnimationFrame(gameLoop);
+        }
+
+        function stepSim() { pauseSim(); state.time = (state.time + 1) % MOON_CYCLE; dom.sliderTime.value = state.time; updateOutputs(); renderCanvases(); checkProductiveFailure(); }
+        function resetSim() { pauseSim(); state.time = 0; state.tod = 12; state.pfTriggered = false; state.pfResolved = false; dom.microAnn.style.opacity = 0; dom.sliderTime.value = 0; dom.sliderTod.value = 12; updateOutputs(); renderCanvases(); }
+        function pauseSim() { 
+            state.isPlaying = false; 
+            if (i18n[state.lang]) dom.btnPlay.textContent = i18n[state.lang].play; 
+            dom.btnPlay.classList.remove('active-play'); 
+            dom.sliderTime.disabled = false; 
+            cancelAnimationFrame(animationFrame); 
+        }
+
+        const rad = deg => deg * Math.PI / 180;
+        const deg = rad => rad * 180 / Math.PI;
+
+        function getAngle() { return (state.time / MOON_CYCLE) * 360; }
+        
+        function updateOutputs() {
+            const angle = getAngle();
+            const phaseIdx = Math.floor(((angle + 22.5) % 360) / 45);
+            
+            if (i18n[state.lang]) dom.valPhase.textContent = i18n[state.lang].phases[phaseIdx];
+            dom.readoutTime.textContent = `${state.time.toFixed(1)} d`;
+            dom.readoutTod.textContent = formatTime(state.tod);
+            dom.readoutDoy.textContent = state.doy;
+            dom.readoutLat.textContent = `${state.lat}°`;
+            dom.valAngle.textContent = `${Math.round(angle)}°`;
+
+            if(state.tab === 'skydome') {
+                const coords = calcEphemeris(state.doy, state.tod, state.time, state.lat);
+                dom.valAlt.textContent = `${Math.max(0, Math.round(coords.moon.alt))}°`;
+            }
+        }
+
+        function calcEphemeris(dayOfYear, timeOfDay, moonAge, lat) {
+            const sunDecl = 23.44 * Math.sin(rad((360/365) * (dayOfYear - 81)));
+            const sunHA = (timeOfDay - 12) * 15;
+            
+            let sunAlt = Math.asin(Math.sin(rad(lat))*Math.sin(rad(sunDecl)) + Math.cos(rad(lat))*Math.cos(rad(sunDecl))*Math.cos(rad(sunHA)));
+            let sunAz = Math.acos((Math.sin(rad(sunDecl)) - Math.sin(rad(lat))*Math.sin(sunAlt)) / (Math.cos(rad(lat))*Math.cos(sunAlt)));
+            if(sunHA > 0) sunAz = 2*Math.PI - sunAz;
+
+            const sunLon = (dayOfYear / 365) * 360;
+            const moonLon = sunLon + (moonAge / MOON_CYCLE) * 360;
+            const moonDecl = 23.44 * Math.sin(rad(moonLon - 81));
+            const moonHA = sunHA - (moonAge / MOON_CYCLE) * 360;
+
+            let moonAlt = Math.asin(Math.sin(rad(lat))*Math.sin(rad(moonDecl)) + Math.cos(rad(lat))*Math.cos(rad(moonDecl))*Math.cos(rad(moonHA)));
+            let moonAz = Math.acos((Math.sin(rad(moonDecl)) - Math.sin(rad(lat))*Math.sin(moonAlt)) / (Math.cos(rad(lat))*Math.cos(moonAlt)));
+            
+            const normMoonHA = (moonHA % 360 + 360) % 360;
+            if(normMoonHA > 0 && normMoonHA < 180) moonAz = 2*Math.PI - moonAz;
+
+            return { sun: { alt: deg(sunAlt), az: deg(sunAz) }, moon: { alt: deg(moonAlt), az: deg(moonAz) } };
+        }
+
+        function getSkyColor(alt) {
+            if (alt > 10) return '#60a5fa'; 
+            if (alt > 0) return '#3b82f6'; 
+            if (alt > -6) return '#312e81'; 
+            if (alt > -18) return '#1e1b4b'; 
+            return '#05070d'; 
+        }
+
+        function resizeCanvases() {
+            if(dom.tabOrbit.classList.contains('active-viz')) {
+                const rect = dom.tabOrbit.getBoundingClientRect();
+                dom.canvasOrbit.width = rect.width; dom.canvasOrbit.height = rect.height;
+            }
+            if(dom.tabSky.classList.contains('active-viz')) {
+                const rect = dom.tabSky.getBoundingClientRect();
+                dom.canvasSky.width = rect.width; dom.canvasSky.height = rect.height;
+            }
+            renderCanvases();
+        }
+
+        function renderCanvases() {
+            if (!state.lang || !i18n[state.lang] || !state.mode) return;
+            if(dom.tabOrbit.classList.contains('active-viz')) renderOrbit();
+            if(dom.tabSky.classList.contains('active-viz')) renderSkyDome();
+            if(dom.tabMoons.classList.contains('active-viz')) updateTurtleMoons();
+        }
+
+        function addBrightPath(ctx, r, phaseAngle) {
+            const percentIllum = (1 - Math.cos(rad(phaseAngle))) / 2;
+            if (percentIllum === 0) return;
+            if (percentIllum === 1) { ctx.arc(0, 0, r, 0, Math.PI*2); return; }
+            
+            if (phaseAngle <= 180) { 
+                ctx.arc(0, 0, r, -Math.PI/2, Math.PI/2); 
+                if (percentIllum < 0.5) ctx.ellipse(0, 0, r*(1-percentIllum*2), r, 0, Math.PI/2, -Math.PI/2, true);
+                else ctx.ellipse(0, 0, r*((percentIllum-0.5)*2), r, 0, Math.PI/2, Math.PI*1.5, false);
+            } else { 
+                ctx.arc(0, 0, r, Math.PI/2, Math.PI*1.5); 
+                if (percentIllum < 0.5) ctx.ellipse(0, 0, r*(1-percentIllum*2), r, 0, -Math.PI/2, Math.PI/2, true);
+                else ctx.ellipse(0, 0, r*((percentIllum-0.5)*2), r, 0, -Math.PI/2, Math.PI/2, false);
+            }
+        }
+
+        function drawMoonPhase(ctx, x, y, r, phaseAngle, skyColor, rotationInSky = 0, hideEdge = false) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rotationInSky);
+            
+            ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
+            if (imgs.moon.complete) {
+                ctx.save(); ctx.clip(); ctx.drawImage(imgs.moon, -r, -r, r*2, r*2); ctx.restore();
+            } else {
+                ctx.fillStyle = '#cbd5e1'; ctx.fill();
+            }
+
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI*2); // Outer bounds (Clockwise)
+            addBrightPath(ctx, r, phaseAngle); // Bright shape (Counter-clockwise logical subpath)
+            
+            ctx.fillStyle = skyColor; 
+            ctx.fill('evenodd'); // Fills the inverse (the shadow) with atmospheric sky color
+            
+            ctx.fillStyle = 'rgba(0,0,0,0.82)'; // Adds the dark earthshine layer
+            ctx.fill('evenodd');
+
+            if (!hideEdge) {
+                ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1; ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function renderOrbit(showTilt = false) {
+            const ctx = dom.ctxOrbit;
+            const w = dom.canvasOrbit.width, h = dom.canvasOrbit.height;
+            ctx.clearRect(0, 0, w, h);
+
+            const cx = w / 2 - (state.mode === 'observer' ? 120 : 0);
+            const cy = h / 2;
+            const radius = Math.min(w, h) * 0.35;
+            const angleRad = rad(getAngle());
+            
+            // Massive Linear Sun Glare
+            const sunX = w + 200, sunY = cy;
+            let sunGrad = ctx.createRadialGradient(sunX, sunY, 50, sunX, sunY, 1000);
+            sunGrad.addColorStop(0, 'rgba(255, 255, 200, 1)');
+            sunGrad.addColorStop(0.1, 'rgba(251, 191, 36, 0.5)');
+            sunGrad.addColorStop(1, 'rgba(251, 191, 36, 0)');
+            ctx.fillStyle = sunGrad; 
+            ctx.beginPath(); ctx.arc(sunX, sunY, 1000, 0, Math.PI*2); ctx.fill();
+
+            // Orbit ring
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.stroke();
+
+            const earthR = 30;
+            const todRad = state.mode === 'observer' ? 0 : rad((state.tod - 12) * -15);
+
+            // Earth Umbra
+            const apexX = cx - (radius * 2.5);
+            ctx.beginPath(); ctx.moveTo(cx, cy - earthR); ctx.lineTo(apexX, cy); ctx.lineTo(cx, cy + earthR);
+            ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fill();
+
+            // Earth
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(todRad);
+            if (imgs.earth.complete) {
+                ctx.beginPath(); ctx.arc(0,0,earthR,0,Math.PI*2); ctx.clip();
+                ctx.drawImage(imgs.earth, -earthR, -earthR, earthR*2, earthR*2);
+            } else {
+                ctx.beginPath(); ctx.arc(0,0,earthR,0,Math.PI*2); ctx.fillStyle = '#1e3a8a'; ctx.fill();
+            }
+            ctx.restore();
+            
+            // Earth Shadow Overlay
+            ctx.beginPath(); ctx.arc(cx, cy, earthR, Math.PI/2, Math.PI*1.5);
+            ctx.fillStyle = 'rgba(0,0,0,0.75)'; ctx.fill();
+
+            // Horizon mechanic
+            if(state.mode !== 'observer') {
+                const ox = cx + earthR * Math.cos(todRad), oy = cy + earthR * Math.sin(todRad);
+                ctx.beginPath(); ctx.arc(ox, oy, 4, 0, Math.PI*2);
+                ctx.fillStyle = '#ef4444'; ctx.fill();
+
+                const hx1 = ox + 500 * Math.cos(todRad + Math.PI/2), hy1 = oy + 500 * Math.sin(todRad + Math.PI/2);
+                const hx2 = ox + 500 * Math.cos(todRad - Math.PI/2), hy2 = oy + 500 * Math.sin(todRad - Math.PI/2);
+                
+                ctx.beginPath(); ctx.moveTo(hx1, hy1); ctx.lineTo(hx2, hy2);
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
+                
+                ctx.fillStyle = '#ef4444'; ctx.font = '12px sans-serif';
+                const observerLabel = i18n[state.lang]?.labels?.observer || 'Observer';
+                const horizonLabel = i18n[state.lang]?.labels?.horizon || 'Horizon';
+                ctx.fillText(observerLabel, ox + Math.cos(todRad)*15, oy + Math.sin(todRad)*15);
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.9)';
+                ctx.fillText(horizonLabel, hx1 + 10, hy1 - 10);
+            }
+
+            // Orbiting Moon
+            let mx = cx + radius * Math.cos(angleRad), my = cy + radius * Math.sin(angleRad);
+            if(showTilt && Math.abs(getAngle() - 180) < 10) my -= 35;
+            drawMoonPhase(ctx, mx, my, 12, getAngle(), 'rgba(0,0,0,0)', angleRad + Math.PI, true);
+            
+            if(showTilt) { dom.microAnn.style.left = `${mx}px`; dom.microAnn.style.top = `${my}px`; }
+
+            // Dynamic Large Phase Rendering
+            let skyCol = '#05070d';
+            if (state.mode !== 'observer') {
+                const coords = calcEphemeris(state.doy, state.tod, state.time, state.lat);
+                skyCol = getSkyColor(coords.sun.alt);
+            }
+            drawMoonPhase(ctx, w - 160, h - 160, state.mode === 'observer' ? 120 : 80, getAngle(), skyCol, 0);
+        }
+
+        function renderSkyDome() {
+            const ctx = dom.ctxSky;
+            const w = dom.canvasSky.width, h = dom.canvasSky.height;
+            ctx.clearRect(0, 0, w, h);
+
+            const cx = w / 2, cy = h - 50, r = Math.min(w/2 - 50, h - 100);
+            const coords = calcEphemeris(state.doy, state.tod, state.time, state.lat);
+            
+            let skyGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+            if(coords.sun.alt > 0) {
+                skyGrad.addColorStop(0, '#38bdf8'); skyGrad.addColorStop(1, '#1e3a8a');
+            } else if (coords.sun.alt > -18) {
+                skyGrad.addColorStop(0, '#1e3a8a'); skyGrad.addColorStop(1, '#0f172a');
+            } else {
+                skyGrad.addColorStop(0, '#0f172a'); skyGrad.addColorStop(1, '#05070d');
+            }
+            
+            ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, 0);
+            ctx.fillStyle = skyGrad; ctx.fill();
+            
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+            for(let a=15; a<=90; a+=15) { ctx.beginPath(); ctx.arc(cx, cy, r*(1 - a/90), Math.PI, 0); ctx.stroke(); }
+
+            ctx.beginPath(); ctx.moveTo(cx-r-20, cy); ctx.lineTo(cx+r+20, cy);
+            ctx.strokeStyle = 'var(--valid-green)'; ctx.lineWidth = 2; ctx.stroke();
+            
+            ctx.fillStyle = 'var(--text-muted)'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText("EAST", cx-r, cy+20); ctx.fillText("SOUTH", cx, cy+20); ctx.fillText("WEST", cx+r, cy+20);
+
+            const mapX = (az) => cx - r * Math.cos(rad(az));
+            const mapY = (alt) => cy - r * (alt/90);
+
+            let sx = cx, sy = cy + 100;
+            if(coords.sun.az >= 90 && coords.sun.az <= 270 && coords.sun.alt >= -5) {
+                sx = mapX(coords.sun.az); sy = mapY(coords.sun.alt);
+                ctx.beginPath(); ctx.arc(sx, sy, 10, 0, Math.PI*2);
+                ctx.fillStyle = '#fbbf24'; ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 15; ctx.fill(); ctx.shadowBlur = 0;
+            }
+
+            if(coords.moon.az >= 90 && coords.moon.az <= 270 && coords.moon.alt >= -5) {
+                const mx = mapX(coords.moon.az), my = mapY(coords.moon.alt);
+                let localSkyColor = coords.sun.alt > 0 ? '#1e3a8a' : '#05070d';
+                
+                let rot = 0;
+                if(coords.sun.alt >= -5) rot = Math.atan2(sy - my, sx - mx);
+                
+                drawMoonPhase(ctx, mx, my, 20, getAngle(), localSkyColor, rot);
+                ctx.fillStyle = 'white'; ctx.fillText("Moon", mx, my-25);
+            }
+        }
+
+        function buildCultureButtons() {
+            dom.cultureNav.innerHTML = '';
+            if (!i18n[state.lang]) return;
+            const cultures = Object.keys(i18n[state.lang].cultures);
+            cultures.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = `culture-btn ${c === state.culture ? 'active' : ''}`;
+                btn.textContent = i18n[state.lang].cultures[c];
+                btn.onclick = () => { state.culture = c; buildCultureButtons(); updateTurtleMoons(); };
+                dom.cultureNav.appendChild(btn);
+            });
+        }
+
+        function generateTurtleSVG() {
+            let svg = `<svg width="550" height="550" viewBox="0 0 550 550" xmlns="http://www.w3.org/2000/svg">`;
+            
+            // Appendages
+            svg += `
+                <ellipse cx="275" cy="50" rx="35" ry="40" class="turtle-part" />
+                <circle cx="255" cy="40" r="4" fill="#111" /> <circle cx="295" cy="40" r="4" fill="#111" />
+                <path d="M 150,110 C 100,70 60,90 70,130 C 80,170 130,160 160,140 Z" class="turtle-part" />
+                <path d="M 400,110 C 450,70 490,90 480,130 C 470,170 420,160 390,140 Z" class="turtle-part" />
+                <path d="M 160,450 C 120,480 80,510 90,530 C 120,550 150,520 180,490 Z" class="turtle-part" />
+                <path d="M 390,450 C 430,480 470,510 460,530 C 430,550 400,520 370,490 Z" class="turtle-part" />
+                <polygon points="255,510 275,550 295,510" class="turtle-part" />
+                <ellipse cx="275" cy="290" rx="180" ry="220" class="turtle-shell-base" />
+            `;
+
+            const cx = 275, cy = 290;
+            // Precise topologically interlocking coordinates for 13 scutes
+            const scutes = [
+                "225,120 275,90 325,120 310,180 275,200 240,180", // V1
+                "240,180 275,200 310,180 320,250 275,270 230,250", // V2
+                "230,250 275,270 320,250 310,330 275,350 240,330", // V3
+                "240,330 275,350 310,330 315,400 275,430 235,400", // V4
+                "235,400 275,430 315,400 290,460 275,470 260,460", // V5
+                "225,120 240,180 180,210 140,160 160,110", // L1
+                "240,180 230,250 160,280 120,220 180,210", // L2
+                "230,250 240,330 180,360 120,300 160,280", // L3
+                "240,330 235,400 200,440 150,380 180,360", // L4
+                "325,120 310,180 370,210 410,160 390,110", // R1
+                "310,180 320,250 390,280 430,220 370,210", // R2
+                "320,250 310,330 370,360 430,300 390,280", // R3
+                "310,330 315,400 350,440 400,380 370,360"  // R4
+            ];
+
+            scutes.forEach((pts, i) => {
+                svg += `<polygon points="${pts}" class="scute-inner" data-moon="${i}" />`;
+                let ax=0, ay=0, pairs = pts.split(' ');
+                pairs.forEach(p => { let c=p.split(','); ax+=parseFloat(c[0]); ay+=parseFloat(c[1]); });
+                svg += `<text x="${ax/pairs.length}" y="${ay/pairs.length}" class="scute-text">${i+1}</text>`;
+            });
+
+            // 28 Marginal Scutes
+            const outRx = 180, outRy = 220;
+            for(let i=0; i<28; i++) {
+                const a1 = rad((i/28)*360 - 90), a2 = rad(((i+1)/28)*360 - 90);
+                const p1x = cx + outRx * Math.cos(a1), p1y = cy + outRy * Math.sin(a1);
+                const p2x = cx + outRx * Math.cos(a2), p2y = cy + outRy * Math.sin(a2);
+                const p3x = cx + outRx*0.85 * Math.cos(a2), p3y = cy + outRy*0.85 * Math.sin(a2);
+                const p4x = cx + outRx*0.85 * Math.cos(a1), p4y = cy + outRy*0.85 * Math.sin(a1);
+                
+                svg += `<polygon points="${p1x},${p1y} ${p2x},${p2y} ${p3x},${p3y} ${p4x},${p4y}" class="scute-outer" data-day="${i+1}" />`;
+                
+                const tx = cx + outRx*0.93 * Math.cos(rad(((i+0.5)/28)*360 - 90));
+                const ty = cy + outRy*0.93 * Math.sin(rad(((i+0.5)/28)*360 - 90));
+                svg += `<text x="${tx}" y="${ty}" class="scute-text-outer">${i+1}</text>`;
+            }
+
+            svg += `</svg>`;
+            dom.turtleContainer.innerHTML = svg;
+
+            document.querySelectorAll('.scute-inner').forEach(s => {
+                s.addEventListener('click', (e) => {
+                    const idx = parseInt(e.target.dataset.moon);
+                    state.time = (idx / 13) * MOON_CYCLE;
+                    dom.sliderTime.value = state.time;
+                    updateOutputs(); updateTurtleMoons();
+                });
+            });
+        }
+
+        function updateTurtleMoons() {
+            if(state.mode !== 'observer' || !i18n[state.lang]) return;
+            const cycleProgress = state.time / MOON_CYCLE; 
+            const moonIdx = Math.floor(cycleProgress * 13) % 13;
+            const dayIdx = Math.floor(cycleProgress * 28) + 1; 
+            
+            document.querySelectorAll('.scute-inner').forEach(s => s.classList.remove('active-scute'));
+            document.querySelectorAll('.scute-outer').forEach(s => s.classList.remove('active-outer'));
+            
+            const activeScute = document.querySelector(`.scute-inner[data-moon="${moonIdx}"]`);
+            if(activeScute) activeScute.classList.add('active-scute');
+
+            const activeOuter = document.querySelector(`.scute-outer[data-day="${dayIdx}"]`);
+            if(activeOuter) activeOuter.classList.add('active-outer');
+
+            const t = i18n[state.lang];
+            const data = t.moonsData[state.culture][moonIdx];
+            dom.moonInd.textContent = data.ind;
+            dom.moonEnFr.textContent = data.name;
+            dom.moonMonth.textContent = `${t.labels.approxMonth} ${data.month}`;
+            dom.moonDesc.textContent = data.desc;
+            dom.moonExplainer.innerHTML = t.labels.outerScutesExp;
+            dom.cycleDayText.textContent = `${t.labels.day} ${dayIdx}/28`;
+
+            // Draw mini phase
+            dom.ctxMiniPhase.clearRect(0,0,60,60);
+            drawMoonPhase(dom.ctxMiniPhase, 30, 30, 30, getAngle(), '#05070d', 0, true);
+        }
+
+        function checkProductiveFailure() {
+            if(state.mode === 'observer' || state.pfTriggered || state.tab !== 'orbit') return;
+            
+            const angle = getAngle();
+            if(Math.abs(angle - 180) < 3) {
+                pauseSim();
+                state.pfTriggered = true;
+                state.time = MOON_CYCLE / 2;
+                dom.sliderTime.value = state.time;
+                updateOutputs(); renderOrbit();
+                
+                if (!i18n[state.lang]) return;
+                const t = i18n[state.lang];
+                dom.modal.style.display = 'flex';
+                dom.modalHypotheses.innerHTML = `
+                    <button class="hypothesis-btn" onclick="resolvePF(false)">A) ${t.pfH1}</button>
+                    <button class="hypothesis-btn" onclick="resolvePF(true)" style="border-color: var(--accent-purple);">B) ${t.pfH2}</button>
+                    <button class="hypothesis-btn" onclick="resolvePF(false)">C) ${t.pfH3}</button>
+                `;
+            }
+        }
+
+        window.resolvePF = function(correct) {
+            dom.modal.style.display = 'none';
+            state.pfResolved = true;
+            if (i18n[state.lang]) dom.microAnn.textContent = i18n[state.lang].pfSuccess;
+            dom.microAnn.style.opacity = 1;
+            renderOrbit(true); 
+            setTimeout(() => { dom.microAnn.style.opacity = 0; renderOrbit(false); }, 4000);
+        }
+
+        init();
+
+    </script>
+</body>
+</html>
