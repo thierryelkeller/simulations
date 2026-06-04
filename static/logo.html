@@ -76,7 +76,7 @@
 
         /* Left Panel */
         aside#left-panel {
-            width: 300px; background: var(--panel-bg); border-right: 1px solid var(--border-color);
+            width: 320px; background: var(--panel-bg); border-right: 1px solid var(--border-color);
             padding: 1rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; z-index: 5;
         }
 
@@ -163,7 +163,7 @@
         </div>
     </div>
 
-    <!-- Color Picker -->
+    <!-- Color Picker Modal -->
     <div id="color-picker-modal"></div>
 
     <!-- Main App -->
@@ -186,9 +186,12 @@
             <!-- LEFT PANEL -->
             <aside id="left-panel">
                 
+                <!-- PRIMARY ACTION: Select -->
+                <button class="tool-btn mango" data-tool="select" style="font-size:0.9rem; padding:0.6rem; font-weight:bold;" data-en="Select / Modify Shape" data-fr="Sélectionner / Modifier Forme">Select / Modify Shape</button>
+
                 <!-- Box 1: Draw -->
                 <div class="tool-box">
-                    <h3 data-en="1. Draw" data-fr="1. Dessiner">1. Draw</h3>
+                    <h3 data-en="Box 1 (Draw)" data-fr="Boîte 1 (Dessin)">Box 1 (Draw)</h3>
                     <div class="tool-grid">
                         <button class="tool-btn active" data-tool="line" data-en="Segment" data-fr="Segment">Segment</button>
                         <button class="tool-btn" data-tool="rect" data-en="Rectangle" data-fr="Rectangle">Rectangle</button>
@@ -199,20 +202,16 @@
 
                 <!-- Box 2: Constructions -->
                 <div class="tool-box">
-                    <h3 data-en="2. Constructions" data-fr="2. Constructions">2. Constructions</h3>
+                    <h3 data-en="Box 2 (Constructions)" data-fr="Boîte 2 (Constructions)">Box 2 (Constructions)</h3>
                     <div class="tool-grid">
                         <button class="tool-btn" data-tool="bisector" data-en="Angle Bisector" data-fr="Bissectrice">Angle Bisector</button>
                         <button class="tool-btn" data-tool="perp_bisector" data-en="Perp. Bisector" data-fr="Médiatrice">Perp. Bisector</button>
                     </div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); text-align:center; margin-top:2px;" data-en="(Select lines/segments to construct)" data-fr="(Sélectionnez lignes/segments pour construire)">(Select lines/segments to construct)</div>
                 </div>
-
-                <!-- Select Mode Toggle -->
-                <button class="tool-btn mango" data-tool="select" style="font-size:0.9rem; padding:0.6rem; font-weight:bold;" data-en="Select / Modify Shape" data-fr="Sélectionner / Modifier Forme">Select / Modify Shape</button>
 
                 <!-- Box 3: Transformations -->
                 <div class="tool-box" id="transform-box">
-                    <h3 data-en="3. Transformations" data-fr="3. Transformations">3. Transformations</h3>
+                    <h3 data-en="Box 3 (Transformations)" data-fr="Boîte 3 (Transformations)">Box 3 (Transformations)</h3>
                     
                     <div id="transform-overlay" class="empty-state" data-en="Select a shape first." data-fr="Sélectionnez d'abord une forme.">Select a shape first.</div>
                     
@@ -220,13 +219,13 @@
                         <!-- Translate -->
                         <div>
                             <div class="prop-row" style="margin-bottom:2px;">
-                                <span data-en="Translate (Grid U)" data-fr="Translater (U. Grille)">Translate (Grid U)</span>
+                                <span data-en="Translate (X, Y)" data-fr="Translater (X, Y)">Translate (X, Y)</span>
                                 <div style="display:flex; gap:2px;">
                                     <input type="number" id="prop-trans-x" placeholder="X" value="0" oninput="redraw()">
                                     <input type="number" id="prop-trans-y" placeholder="Y" value="0" oninput="redraw()">
                                 </div>
                             </div>
-                            <button class="tool-btn" style="width:100%; border-color:var(--accent-mango); color:var(--accent-mango);" onclick="applyTranslation()" data-en="Apply Translation" data-fr="Appliquer Translation">Apply Translation</button>
+                            <button class="tool-btn" style="width:100%; border-color:var(--accent-mango); color:var(--accent-mango);" onclick="applyTranslation()" data-en="Apply Translate" data-fr="Appliquer Translation">Apply Translate</button>
                         </div>
                         
                         <!-- Rotate -->
@@ -235,13 +234,13 @@
                                 <span data-en="Rotate (Degrees)" data-fr="Rotation (Degrés)">Rotate (Degrees)</span>
                                 <input type="number" id="prop-angle" value="0" oninput="redraw()">
                             </div>
-                            <button class="tool-btn" style="width:100%; border-color:var(--accent-mango); color:var(--accent-mango);" onclick="applyRotation()" data-en="Apply Rotation" data-fr="Appliquer Rotation">Apply Rotation</button>
+                            <button class="tool-btn" style="width:100%; border-color:var(--accent-mango); color:var(--accent-mango);" onclick="applyRotation()" data-en="Apply Rotate" data-fr="Appliquer Rotation">Apply Rotate</button>
                         </div>
                         
                         <!-- Reflect -->
                         <div>
                             <div class="prop-row" style="margin-bottom:2px;">
-                                <span data-en="Reflection Axis" data-fr="Axe de Réflexion">Reflection Axis</span>
+                                <span data-en="Reflect (Axis)" data-fr="Réflexion (Axe)">Reflect (Axis)</span>
                             </div>
                             <div class="tool-grid">
                                 <button class="tool-btn" style="border-color:var(--accent-mango); color:var(--accent-mango);" onclick="applyReflection('y')" data-en="Reflect Y" data-fr="Refléter Y">Reflect Y</button>
@@ -253,26 +252,27 @@
 
                 <!-- Box 4: Utilities -->
                 <div class="tool-box">
-                    <h3 data-en="4. Utilities" data-fr="4. Utilitaires">4. Utilities</h3>
+                    <h3 data-en="Box 4 (Utilities)" data-fr="Boîte 4 (Utilitaires)">Box 4 (Utilities)</h3>
                     
                     <div class="tool-grid" style="margin-bottom:0.5rem;">
-                        <button class="tool-btn" id="btn-undo" onclick="undo()" data-en="Undo" data-fr="Annuler">Undo</button>
-                        <button class="tool-btn" id="btn-redo" onclick="redo()" data-en="Redo" data-fr="Refaire">Redo</button>
+                        <button class="tool-btn" id="btn-undo" onclick="undo()" data-en="Undo" data-fr="Annuler" disabled>Undo</button>
+                        <button class="tool-btn" id="btn-redo" onclick="redo()" data-en="Redo" data-fr="Refaire" disabled>Redo</button>
                     </div>
                     
                     <div class="tool-grid" style="margin-bottom:0.5rem;">
-                        <button class="tool-btn" id="btn-clone" onclick="cloneShape()" data-en="Clone (Exact)" data-fr="Cloner (Exact)" disabled>Clone (Exact)</button>
+                        <button class="tool-btn" id="btn-clone" onclick="cloneShape()" data-en="Clone" data-fr="Cloner" disabled>Clone</button>
                         <button class="tool-btn mango" id="btn-delete" onclick="deleteShape()" data-en="Delete" data-fr="Supprimer" disabled>Delete</button>
                     </div>
 
                     <hr style="border:0; border-top: 1px solid var(--border-color); margin: 0.25rem 0;">
 
+                    <!-- Unified Color Picker -->
                     <div class="prop-row">
-                        <span data-en="Stroke" data-fr="Trait">Stroke</span>
+                        <span data-en="Stroke Color" data-fr="Couleur Trait">Stroke Color</span>
                         <div class="color-swatch-btn" id="ui-stroke-btn" style="background-color: #40E0D0;" onclick="openPicker(event, 'stroke')"></div>
                     </div>
                     <div class="prop-row">
-                        <span data-en="Fill" data-fr="Remplissage">Fill</span>
+                        <span data-en="Fill Style" data-fr="Style Remplissage">Fill Style</span>
                         <div style="display:flex; gap:0.5rem; align-items:center;">
                             <select id="ui-fill-type" onchange="updateStyles()">
                                 <option value="none" data-en="None" data-fr="Aucun">None</option>
@@ -284,7 +284,7 @@
 
                     <hr style="border:0; border-top: 1px solid var(--border-color); margin: 0.25rem 0;">
                     
-                    <label style="font-size:0.8rem; display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <label style="font-size:0.8rem; display:flex; align-items:center; gap:0.5rem; cursor:pointer; color:var(--accent-highlight);">
                         <input type="checkbox" id="show-labels" onchange="redraw()"> 
                         <span data-en="Show Dimension Labels" data-fr="Afficher les Dimensions">Show Dimension Labels</span>
                     </label>
