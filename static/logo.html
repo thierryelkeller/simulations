@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GeoLogo Architect - Advanced Engine</title>
+    <title>GeoLogo Architect - Pro Edition</title>
     <style>
         :root {
             --bg-color: #0f171e;
@@ -43,389 +43,108 @@
             z-index: 100;
             transition: opacity 0.5s ease, visibility 0.5s;
         }
-
-        #splash-canvas {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
+        #splash-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .splash-content {
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: transparent; /* Removed rigid box */
-            padding: 3rem;
-            text-align: center;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            z-index: 1; display: flex; flex-direction: column; align-items: center;
+            background: transparent; padding: 3rem; text-align: center; text-shadow: 0 4px 20px rgba(0,0,0,0.8);
         }
-
-        h1 {
-            font-size: 4.5rem;
-            color: var(--accent-turquoise);
-            margin-bottom: 0.5rem;
-            letter-spacing: 6px;
-            text-shadow: 0 0 25px rgba(64, 224, 208, 0.6);
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            color: var(--accent-mango);
-            margin-bottom: 2.5rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
+        h1 { font-size: 4.5rem; color: var(--accent-turquoise); margin-bottom: 0.5rem; letter-spacing: 6px; text-shadow: 0 0 25px rgba(64, 224, 208, 0.6); }
+        .subtitle { font-size: 1.2rem; color: var(--accent-mango); margin-bottom: 2.5rem; letter-spacing: 3px; text-transform: uppercase; }
 
         button {
-            background: rgba(26, 36, 47, 0.8);
-            border: 1px solid var(--accent-turquoise);
-            color: var(--accent-turquoise);
-            padding: 0.6rem 1.2rem;
-            font-family: var(--font-family);
-            font-size: 0.9rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            backdrop-filter: blur(4px);
+            background: rgba(26, 36, 47, 0.8); border: 1px solid var(--accent-turquoise); color: var(--accent-turquoise);
+            padding: 0.6rem 1.2rem; font-family: var(--font-family); font-size: 0.9rem; border-radius: 4px;
+            cursor: pointer; transition: all 0.2s ease; text-transform: uppercase;
         }
-
-        button:hover, button.active {
-            background: var(--accent-turquoise);
-            color: var(--bg-color);
-            box-shadow: 0 0 15px rgba(64, 224, 208, 0.4);
-        }
-
-        button.mango {
-            border-color: var(--accent-mango);
-            color: var(--accent-mango);
-        }
-
-        button.mango:hover, button.mango.active {
-            background: var(--accent-mango);
-            color: var(--bg-color);
-            box-shadow: 0 0 15px rgba(255, 130, 67, 0.4);
-        }
+        button:hover, button.active { background: var(--accent-turquoise); color: var(--bg-color); box-shadow: 0 0 15px rgba(64, 224, 208, 0.4); }
+        button.mango { border-color: var(--accent-mango); color: var(--accent-mango); }
+        button.mango:hover, button.mango.active { background: var(--accent-mango); color: var(--bg-color); box-shadow: 0 0 15px rgba(255, 130, 67, 0.4); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; border-color: var(--border-color); color: var(--text-muted); box-shadow: none; background: transparent; }
 
         /* --- MAIN APP LAYOUT --- */
-        #app-container {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-        }
-
+        #app-container { display: none; width: 100%; height: 100%; flex-direction: column; }
+        
         header {
-            height: 50px;
-            background: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 1rem;
-            z-index: 10;
+            height: 50px; background: var(--panel-bg); border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; z-index: 10;
         }
-
         .header-tools { display: flex; gap: 0.5rem; align-items: center; }
+        .lang-toggle-group { display: flex; gap: 0.2rem; }
+        .lang-btn { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
 
-        .lang-toggle-group {
-            display: flex; 
-            gap: 0.2rem;
-        }
-        .lang-btn {
-            padding: 0.3rem 0.6rem;
-            font-size: 0.8rem;
-        }
-
-        main {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
+        main { display: flex; flex: 1; overflow: hidden; position: relative; }
 
         /* Left Panel */
         aside#left-panel {
-            width: 280px;
-            background: var(--panel-bg);
-            border-right: 1px solid var(--border-color);
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            overflow-y: auto;
-            z-index: 5;
+            width: 300px; background: var(--panel-bg); border-right: 1px solid var(--border-color);
+            padding: 1rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; z-index: 5;
         }
 
-        /* Right Panel (Report) */
+        /* Right Panel */
         aside#right-panel {
-            width: 320px;
-            background: var(--panel-bg);
-            border-left: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            z-index: 5;
+            width: 320px; background: var(--panel-bg); border-left: 1px solid var(--border-color);
+            display: flex; flex-direction: column; z-index: 5;
         }
+        .panel-header { padding: 1rem; border-bottom: 1px solid var(--border-color); color: var(--accent-turquoise); font-weight: bold; }
 
-        .panel-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--accent-turquoise);
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* UI Boxes */
+        .tool-box {
+            background: rgba(0,0,0,0.15); border: 1px solid var(--border-color);
+            padding: 0.75rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem;
         }
-
-        .tool-section h3 {
-            font-size: 0.8rem;
-            color: var(--accent-turquoise);
-            margin-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.2rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .tool-box h3 {
+            font-size: 0.8rem; color: var(--accent-turquoise); margin-bottom: 0.25rem;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 1px;
         }
-
-        .tool-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-        }
-
-        .tool-btn {
-            padding: 0.5rem;
-            font-size: 0.75rem;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-        }
+        .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
         
-        .tool-btn.active {
-            border-color: var(--accent-turquoise);
-            background: rgba(64, 224, 208, 0.15);
-            color: var(--accent-turquoise);
-        }
-        
-        .tool-btn.picking {
-            border-color: var(--accent-highlight);
-            background: rgba(255, 221, 87, 0.2);
-            color: var(--accent-highlight);
-            animation: pulse 1.5s infinite;
-        }
+        .tool-btn { padding: 0.5rem; font-size: 0.75rem; border: 1px solid var(--border-color); color: var(--text-main); text-align: center; }
+        .tool-btn.active { border-color: var(--accent-turquoise); background: rgba(64, 224, 208, 0.15); color: var(--accent-turquoise); }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 221, 87, 0.4); }
-            70% { box-shadow: 0 0 0 5px rgba(255, 221, 87, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 221, 87, 0); }
-        }
-
-        /* --- STYLES & PROPERTIES --- */
-        .style-panel, #properties-panel {
-            background: rgba(0,0,0,0.2);
-            padding: 0.75rem;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-        }
-
-        #properties-panel {
-            border: 1px dashed var(--accent-mango);
-            display: none;
-        }
-
-        .panel-title {
-            color: var(--accent-mango);
-            font-size: 0.85rem;
-            margin-bottom: 0.75rem;
-            font-weight: bold;
-        }
-
-        .prop-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            font-size: 0.8rem;
-        }
-
+        .prop-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; }
         .prop-row input[type="number"] {
-            width: 50px;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 0.2rem;
-            text-align: center;
+            width: 50px; background: var(--bg-color); border: 1px solid var(--border-color); color: white; padding: 0.2rem; text-align: center; font-family: monospace;
         }
+        .color-swatch-btn { width: 24px; height: 24px; border: 2px solid var(--text-main); border-radius: 4px; cursor: pointer; }
+        select { background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-color); padding: 0.2rem; font-family: var(--font-family); font-size: 0.8rem; }
 
-        .color-swatch-btn {
-            width: 24px;
-            height: 24px;
-            border: 2px solid var(--text-main);
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        select {
-            background: var(--bg-color);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 0.2rem;
-            font-family: var(--font-family);
-            font-size: 0.8rem;
-        }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        /* --- 64 COLOR PICKER MODAL --- */
+        /* Color Picker */
         #color-picker-modal {
-            position: absolute;
-            background: var(--panel-bg);
-            border: 1px solid var(--accent-turquoise);
-            border-radius: 6px;
-            padding: 0.5rem;
-            display: none;
-            grid-template-columns: repeat(8, 24px);
-            gap: 4px;
-            z-index: 300;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            position: absolute; background: var(--panel-bg); border: 1px solid var(--accent-turquoise);
+            border-radius: 6px; padding: 0.5rem; display: none; grid-template-columns: repeat(8, 24px);
+            gap: 4px; z-index: 300; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-
-        .picker-cell {
-            width: 24px;
-            height: 24px;
-            border-radius: 2px;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
+        .picker-cell { width: 24px; height: 24px; border-radius: 2px; cursor: pointer; border: 1px solid transparent; }
         .picker-cell:hover { border: 1px solid white; transform: scale(1.1); }
 
-        /* --- CANVAS & ZOOM --- */
-        .canvas-wrapper {
-            flex: 1;
-            position: relative;
-            background: var(--canvas-bg);
-            cursor: crosshair;
-            overflow: hidden;
-        }
-
-        #geo-canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
+        /* Canvas */
+        .canvas-wrapper { flex: 1; position: relative; background: var(--canvas-bg); cursor: crosshair; overflow: hidden; }
+        #geo-canvas { display: block; width: 100%; height: 100%; }
+        
         #coords-display {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(26, 36, 47, 0.9);
-            padding: 0.5rem;
-            border-radius: 4px;
-            font-family: monospace;
-            color: var(--accent-mango);
-            pointer-events: none;
+            position: absolute; bottom: 10px; right: 10px; background: rgba(26, 36, 47, 0.9);
+            padding: 0.5rem; border-radius: 4px; font-family: monospace; color: var(--accent-mango); pointer-events: none;
         }
-        
-        /* Zoom Controls */
         #zoom-controls {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            display: flex;
-            gap: 0.3rem;
-            background: rgba(26, 36, 47, 0.9);
-            padding: 0.3rem;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
+            position: absolute; bottom: 10px; left: 10px; display: flex; gap: 0.3rem;
+            background: rgba(26, 36, 47, 0.9); padding: 0.3rem; border-radius: 4px; border: 1px solid var(--border-color);
         }
-        
-        .zoom-btn {
-            padding: 0.3rem 0.6rem;
-            font-size: 1rem;
-            font-weight: bold;
-        }
+        .zoom-btn { padding: 0.3rem 0.6rem; font-size: 1rem; font-weight: bold; }
 
         #poly-finish-btn {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: none;
-            background: var(--accent-highlight);
-            color: black;
-            border: none;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-            z-index: 50;
+            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); display: none;
+            background: var(--accent-highlight); color: black; border: none; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 50;
         }
 
-        /* --- REPORT TABLE STYLES --- */
-        #report-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-        }
-        #report-content table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-        #report-content th {
-            border-bottom: 1px solid var(--accent-turquoise);
-            padding: 6px;
-            text-align: left;
-            color: var(--accent-turquoise);
-            position: sticky;
-            top: 0;
-            background: var(--panel-bg);
-        }
-        #report-content td {
-            border-bottom: 1px solid var(--border-color);
-            padding: 6px;
-            vertical-align: top;
-        }
-
-        #report-export-wrapper {
-            padding: 1rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        /* --- HELP MODAL --- */
-        .modal-overlay {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--panel-bg);
-            border: 2px solid var(--accent-turquoise);
-            padding: 2rem;
-            border-radius: 8px;
-            z-index: 200;
-            max-width: 600px;
-            width: 90%;
-            display: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            flex-direction: column;
-        }
+        /* Report */
+        #report-content { flex: 1; overflow-y: auto; padding: 1rem; }
+        #report-content table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        #report-content th { border-bottom: 1px solid var(--accent-turquoise); padding: 6px; text-align: left; color: var(--accent-turquoise); position: sticky; top: 0; background: var(--panel-bg); }
+        #report-content td { border-bottom: 1px solid var(--border-color); padding: 6px; vertical-align: top; }
+        #report-export-wrapper { padding: 1rem; border-top: 1px solid var(--border-color); }
         
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.5rem;
-        }
+        .empty-state { color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem; font-style: italic; }
 
-        .modal-overlay h2 { color: var(--accent-turquoise); }
-        .modal-overlay ul { margin-left: 1.5rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.5; color: var(--text-main); }
-        .modal-overlay li { margin-bottom: 0.5rem; }
-        
     </style>
 </head>
 <body>
@@ -435,30 +154,13 @@
         <canvas id="splash-canvas"></canvas>
         <div class="splash-content">
             <h1>GeoLogo</h1>
-            <div class="subtitle" data-en="Magnetic Geometric Engine" data-fr="Moteur Géométrique Magnétique">Magnetic Geometric Engine</div>
-            
+            <div class="subtitle" data-en="Precision Geometric Engine" data-fr="Moteur Géométrique de Précision">Precision Geometric Engine</div>
             <div class="lang-toggle-group" style="margin-bottom: 2rem;">
                 <button class="lang-btn lang-btn-en active">EN</button>
                 <button class="lang-btn lang-btn-fr">FR</button>
             </div>
-            
             <button id="start-btn" data-en="Enter Workspace" data-fr="Entrer dans l'espace">Enter Workspace</button>
         </div>
-    </div>
-
-    <!-- Help Modal -->
-    <div id="help-modal" class="modal-overlay">
-        <div class="modal-header">
-            <h2 data-en="How to use GeoLogo" data-fr="Comment utiliser GeoLogo">How to use GeoLogo</h2>
-            <button onclick="document.getElementById('help-modal').style.display='none'">X</button>
-        </div>
-        <ul>
-            <li data-en="1. Magnetic Grid: The cursor snaps automatically for precise alignments." data-fr="1. Grille Magnétique : Le curseur s'accroche automatiquement pour des alignements précis.">1. Magnetic Grid: The cursor snaps automatically for precise alignments.</li>
-            <li data-en="2. Zoom: Scroll your mouse wheel or use the (+/-) buttons to zoom in and out." data-fr="2. Zoom : Utilisez la molette de la souris ou les boutons (+/-) pour zoomer.">2. Zoom: Scroll your mouse wheel or use the (+/-) buttons to zoom in and out.</li>
-            <li data-en="3. Transform & Preview: Select a shape. Type an Angle or Translation. A ghost preview will appear! Click 'Apply'." data-fr="3. Transformer & Prévisualiser : Sélectionnez une forme. Tapez un angle ou une translation. Un aperçu fantôme apparaîtra !">3. Transform & Preview: Select a shape. Type an Angle or Translation. A ghost preview will appear! Click 'Apply'.</li>
-            <li data-en="4. History Report: The right panel tracks all shapes and their transformations automatically." data-fr="4. Rapport d'Historique : Le panneau de droite suit automatiquement toutes les formes et leurs transformations.">4. History Report: The right panel tracks all shapes and their transformations automatically.</li>
-        </ul>
-        <button onclick="document.getElementById('help-modal').style.display='none'" class="mango" style="width:100%" data-en="Got it!" data-fr="Compris !">Got it!</button>
     </div>
 
     <!-- Color Picker -->
@@ -469,8 +171,6 @@
         <header>
             <div style="display:flex; gap:0.5rem; align-items:center;">
                 <button id="exit-btn" data-en="Home" data-fr="Accueil" onclick="location.reload()">Home</button>
-                <button onclick="document.getElementById('help-modal').style.display='flex'" data-en="Help" data-fr="Aide" class="mango">Help</button>
-                
                 <div class="lang-toggle-group" style="margin-left: 1rem;">
                     <button class="lang-btn lang-btn-en active">EN</button>
                     <button class="lang-btn lang-btn-fr">FR</button>
@@ -483,88 +183,111 @@
         </header>
 
         <main>
-            <!-- LEFT PANEL: TOOLS -->
+            <!-- LEFT PANEL -->
             <aside id="left-panel">
-                <!-- GLOBAL STYLES -->
-                <div class="style-panel">
-                    <h4 class="panel-title" data-en="Global Style" data-fr="Style Global">Global Style</h4>
-                    <div class="prop-row">
-                        <span data-en="Stroke" data-fr="Trait">Stroke</span>
-                        <div class="color-swatch-btn" id="global-stroke-btn" style="background-color: #40E0D0;" onclick="openPicker(event, 'global', 'stroke')"></div>
-                    </div>
-                    <div class="prop-row">
-                        <span data-en="Fill Type" data-fr="Type Remplissage">Fill Type</span>
-                        <select id="global-fill-type" onchange="updateGlobalFillUI()">
-                            <option value="none" data-en="None" data-fr="Aucun">None</option>
-                            <option value="solid" data-en="Solid" data-fr="Solide">Solid</option>
-                        </select>
-                    </div>
-                    <div class="prop-row" id="global-fill-c1-row" style="display:none;">
-                        <span data-en="Fill Color" data-fr="Couleur Remplissage">Fill Color</span>
-                        <div class="color-swatch-btn" id="global-fill-c1-btn" style="background-color: #FF8243;" onclick="openPicker(event, 'global', 'fill1')"></div>
-                    </div>
-                </div>
-
-                <div class="tool-section">
-                    <h3 data-en="Draw Tools" data-fr="Outils de Dessin">Draw Tools</h3>
+                
+                <!-- Box 1: Draw -->
+                <div class="tool-box">
+                    <h3 data-en="1. Draw" data-fr="1. Dessiner">1. Draw</h3>
                     <div class="tool-grid">
-                        <button class="tool-btn active" data-tool="line" data-en="Line" data-fr="Ligne">Line</button>
+                        <button class="tool-btn active" data-tool="line" data-en="Segment" data-fr="Segment">Segment</button>
                         <button class="tool-btn" data-tool="rect" data-en="Rectangle" data-fr="Rectangle">Rectangle</button>
                         <button class="tool-btn" data-tool="circle" data-en="Circle" data-fr="Cercle">Circle</button>
                         <button class="tool-btn" data-tool="polygon" data-en="Polygon" data-fr="Polygone">Polygon</button>
-                        <button class="tool-btn mango" data-tool="select" style="grid-column: span 2;" data-en="Select Shape" data-fr="Sélectionner">Select Shape</button>
                     </div>
                 </div>
 
-                <!-- DYNAMIC PROPERTIES PANEL -->
-                <div id="properties-panel">
-                    <h4 class="panel-title" data-en="Selected Geometry" data-fr="Géométrie Sélectionnée">Selected Geometry</h4>
+                <!-- Box 2: Constructions -->
+                <div class="tool-box">
+                    <h3 data-en="2. Constructions" data-fr="2. Constructions">2. Constructions</h3>
+                    <div class="tool-grid">
+                        <button class="tool-btn" data-tool="bisector" data-en="Angle Bisector" data-fr="Bissectrice">Angle Bisector</button>
+                        <button class="tool-btn" data-tool="perp_bisector" data-en="Perp. Bisector" data-fr="Médiatrice">Perp. Bisector</button>
+                    </div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); text-align:center; margin-top:2px;" data-en="(Select lines/segments to construct)" data-fr="(Sélectionnez lignes/segments pour construire)">(Select lines/segments to construct)</div>
+                </div>
+
+                <!-- Select Mode Toggle -->
+                <button class="tool-btn mango" data-tool="select" style="font-size:0.9rem; padding:0.6rem; font-weight:bold;" data-en="Select / Modify Shape" data-fr="Sélectionner / Modifier Forme">Select / Modify Shape</button>
+
+                <!-- Box 3: Transformations -->
+                <div class="tool-box" id="transform-box">
+                    <h3 data-en="3. Transformations" data-fr="3. Transformations">3. Transformations</h3>
                     
-                    <div class="prop-row">
-                        <span data-en="Stroke" data-fr="Trait">Stroke</span>
-                        <div class="color-swatch-btn" id="prop-stroke-btn" onclick="openPicker(event, 'prop', 'stroke')"></div>
-                    </div>
-
-                    <div class="prop-row" id="prop-fill-type-row">
-                        <span data-en="Fill Type" data-fr="Type Remplissage">Fill Type</span>
-                        <select id="prop-fill-type" onchange="updatePropFillUI()">
-                            <option value="none" data-en="None" data-fr="Aucun">None</option>
-                            <option value="solid" data-en="Solid" data-fr="Solide">Solid</option>
-                        </select>
-                    </div>
+                    <div id="transform-overlay" class="empty-state" data-en="Select a shape first." data-fr="Sélectionnez d'abord une forme.">Select a shape first.</div>
                     
-                    <div class="prop-row" id="prop-fill-c1-row" style="display:none;">
-                        <span data-en="Fill Color" data-fr="Couleur Remplissage">Fill Color</span>
-                        <div class="color-swatch-btn" id="prop-fill-c1-btn" onclick="openPicker(event, 'prop', 'fill1')"></div>
-                    </div>
-
-                    <hr style="border:0; border-top: 1px dashed var(--border-color); margin: 10px 0;">
-
-                    <!-- Transform Settings -->
-                    <div class="prop-row">
-                        <span data-en="Trans. X,Y" data-fr="Trans. X,Y">Trans. X,Y</span>
-                        <div style="display:flex; gap:2px;">
-                            <input type="number" id="prop-trans-x" value="0" oninput="redraw()">
-                            <input type="number" id="prop-trans-y" value="0" oninput="redraw()">
+                    <div id="transform-controls" style="display:none; flex-direction:column; gap:0.75rem;">
+                        <!-- Translate -->
+                        <div>
+                            <div class="prop-row" style="margin-bottom:2px;">
+                                <span data-en="Translate (Grid U)" data-fr="Translater (U. Grille)">Translate (Grid U)</span>
+                                <div style="display:flex; gap:2px;">
+                                    <input type="number" id="prop-trans-x" placeholder="X" value="0" oninput="redraw()">
+                                    <input type="number" id="prop-trans-y" placeholder="Y" value="0" oninput="redraw()">
+                                </div>
+                            </div>
+                            <button class="tool-btn" style="width:100%; border-color:var(--accent-mango); color:var(--accent-mango);" onclick="applyTranslation()" data-en="Apply Translation" data-fr="Appliquer Translation">Apply Translation</button>
+                        </div>
+                        
+                        <!-- Rotate -->
+                        <div>
+                            <div class="prop-row" style="margin-bottom:2px;">
+                                <span data-en="Rotate (Degrees)" data-fr="Rotation (Degrés)">Rotate (Degrees)</span>
+                                <input type="number" id="prop-angle" value="0" oninput="redraw()">
+                            </div>
+                            <button class="tool-btn" style="width:100%; border-color:var(--accent-mango); color:var(--accent-mango);" onclick="applyRotation()" data-en="Apply Rotation" data-fr="Appliquer Rotation">Apply Rotation</button>
+                        </div>
+                        
+                        <!-- Reflect -->
+                        <div>
+                            <div class="prop-row" style="margin-bottom:2px;">
+                                <span data-en="Reflection Axis" data-fr="Axe de Réflexion">Reflection Axis</span>
+                            </div>
+                            <div class="tool-grid">
+                                <button class="tool-btn" style="border-color:var(--accent-mango); color:var(--accent-mango);" onclick="applyReflection('y')" data-en="Reflect Y" data-fr="Refléter Y">Reflect Y</button>
+                                <button class="tool-btn" style="border-color:var(--accent-mango); color:var(--accent-mango);" onclick="applyReflection('x')" data-en="Reflect X" data-fr="Refléter X">Reflect X</button>
+                            </div>
                         </div>
                     </div>
-                    <button class="tool-btn" style="width:100%; margin-bottom:0.5rem;" onclick="applyTranslation()" data-en="Apply Translate" data-fr="Appliquer Translation">Apply Translate</button>
+                </div>
 
-                    <div class="prop-row">
-                        <span data-en="Rotate (°)" data-fr="Rotation (°)">Rotate (°)</span>
-                        <input type="number" id="prop-angle" value="0" oninput="redraw()">
-                    </div>
-                    <div class="action-grid" style="margin-bottom: 0.5rem;">
-                        <button class="tool-btn" onclick="applyRotation()" data-en="Apply Rotate" data-fr="Appliquer Rot.">Apply Rotate</button>
-                        <button class="tool-btn" id="btn-pick-center" onclick="togglePickCenter()" data-en="Pick Center" data-fr="Choisir Centre">Pick Center</button>
+                <!-- Box 4: Utilities -->
+                <div class="tool-box">
+                    <h3 data-en="4. Utilities" data-fr="4. Utilitaires">4. Utilities</h3>
+                    
+                    <div class="tool-grid" style="margin-bottom:0.5rem;">
+                        <button class="tool-btn" id="btn-undo" onclick="undo()" data-en="Undo" data-fr="Annuler">Undo</button>
+                        <button class="tool-btn" id="btn-redo" onclick="redo()" data-en="Redo" data-fr="Refaire">Redo</button>
                     </div>
                     
-                    <div class="action-grid">
-                        <button class="tool-btn" onclick="applyReflection('y')" data-en="Reflect Y" data-fr="Réflexion Y">Reflect Y</button>
-                        <button class="tool-btn" onclick="applyReflection('x')" data-en="Reflect X" data-fr="Réflexion X">Reflect X</button>
-                        <button class="tool-btn" onclick="cloneShape()" data-en="Clone" data-fr="Cloner">Clone</button>
-                        <button class="tool-btn mango" onclick="deleteShape()" data-en="Delete" data-fr="Supprimer">Delete</button>
+                    <div class="tool-grid" style="margin-bottom:0.5rem;">
+                        <button class="tool-btn" id="btn-clone" onclick="cloneShape()" data-en="Clone (Exact)" data-fr="Cloner (Exact)" disabled>Clone (Exact)</button>
+                        <button class="tool-btn mango" id="btn-delete" onclick="deleteShape()" data-en="Delete" data-fr="Supprimer" disabled>Delete</button>
                     </div>
+
+                    <hr style="border:0; border-top: 1px solid var(--border-color); margin: 0.25rem 0;">
+
+                    <div class="prop-row">
+                        <span data-en="Stroke" data-fr="Trait">Stroke</span>
+                        <div class="color-swatch-btn" id="ui-stroke-btn" style="background-color: #40E0D0;" onclick="openPicker(event, 'stroke')"></div>
+                    </div>
+                    <div class="prop-row">
+                        <span data-en="Fill" data-fr="Remplissage">Fill</span>
+                        <div style="display:flex; gap:0.5rem; align-items:center;">
+                            <select id="ui-fill-type" onchange="updateStyles()">
+                                <option value="none" data-en="None" data-fr="Aucun">None</option>
+                                <option value="solid" data-en="Solid" data-fr="Solide">Solid</option>
+                            </select>
+                            <div class="color-swatch-btn" id="ui-fill-btn" style="background-color: #FF8243; display:none;" onclick="openPicker(event, 'fill')"></div>
+                        </div>
+                    </div>
+
+                    <hr style="border:0; border-top: 1px solid var(--border-color); margin: 0.25rem 0;">
+                    
+                    <label style="font-size:0.8rem; display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                        <input type="checkbox" id="show-labels" onchange="redraw()"> 
+                        <span data-en="Show Dimension Labels" data-fr="Afficher les Dimensions">Show Dimension Labels</span>
+                    </label>
                 </div>
             </aside>
 
@@ -587,9 +310,7 @@
                 <div class="panel-header">
                     <span data-en="Designer's Report" data-fr="Rapport du Graphiste">Designer's Report</span>
                 </div>
-                <div id="report-content">
-                    <!-- Dynamic Table -->
-                </div>
+                <div id="report-content"></div>
                 <div id="report-export-wrapper">
                     <button class="mango" style="width:100%" onclick="exportReport()" data-en="Export TXT" data-fr="Exporter TXT">Export TXT</button>
                 </div>
@@ -604,6 +325,7 @@
             currentLang = lang;
             document.querySelectorAll('[data-en]').forEach(el => {
                 if(el.tagName === 'OPTION') el.text = el.getAttribute(`data-${lang}`);
+                else if (el.tagName === 'INPUT' && el.type === 'button') el.value = el.getAttribute(`data-${lang}`);
                 else el.innerText = el.getAttribute(`data-${lang}`);
             });
             document.querySelectorAll('.lang-btn-en').forEach(btn => btn.classList.toggle('active', lang === 'en'));
@@ -620,84 +342,113 @@
         let splashAnimationId;
 
         function initSplashAnimation() {
-            sCanvas.width = window.innerWidth;
-            sCanvas.height = window.innerHeight;
+            sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight;
             splashParticles = [];
             const colors = ['#40E0D0', '#FF8243', '#ffdd57'];
-            
             for (let i = 0; i < 50; i++) {
                 splashParticles.push({
-                    x: Math.random() * sCanvas.width,
-                    y: Math.random() * sCanvas.height,
-                    vx: (Math.random() - 0.5) * 1.5,
-                    vy: (Math.random() - 0.5) * 1.5,
-                    size: Math.random() * 30 + 10,
-                    type: Math.floor(Math.random() * 3), // 0: circle, 1: rect, 2: line
-                    rot: Math.random() * Math.PI * 2,
-                    rotSpeed: (Math.random() - 0.5) * 0.04,
+                    x: Math.random() * sCanvas.width, y: Math.random() * sCanvas.height,
+                    vx: (Math.random() - 0.5) * 1.5, vy: (Math.random() - 0.5) * 1.5,
+                    size: Math.random() * 30 + 10, type: Math.floor(Math.random() * 3),
+                    rot: Math.random() * Math.PI * 2, rotSpeed: (Math.random() - 0.5) * 0.04,
                     color: colors[Math.floor(Math.random() * colors.length)],
-                    pulseSpeed: Math.random() * 0.003 + 0.001,
-                    pulseOffset: Math.random() * Math.PI * 2
+                    pulseSpeed: Math.random() * 0.003 + 0.001, pulseOffset: Math.random() * Math.PI * 2
                 });
             }
         }
-
         function animateSplash() {
             if(document.getElementById('splash-screen').style.display === 'none') return;
-            
             sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
-
             splashParticles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.rot += p.rotSpeed;
-
-                // Screen Wrap
+                p.x += p.vx; p.y += p.vy; p.rot += p.rotSpeed;
                 if (p.x < -p.size) p.x = sCanvas.width + p.size;
                 if (p.x > sCanvas.width + p.size) p.x = -p.size;
                 if (p.y < -p.size) p.y = sCanvas.height + p.size;
                 if (p.y > sCanvas.height + p.size) p.y = -p.size;
 
-                // Pulsing Scale
                 let currentScale = Math.sin(Date.now() * p.pulseSpeed + p.pulseOffset) * 0.3 + 1.0;
-
                 sCtx.save();
-                sCtx.translate(p.x, p.y);
-                sCtx.rotate(p.rot);
-                sCtx.scale(currentScale, currentScale);
-                
-                sCtx.strokeStyle = p.color;
-                sCtx.lineWidth = 2;
-                
-                // Glow effect
-                sCtx.shadowBlur = 15;
-                sCtx.shadowColor = p.color;
+                sCtx.translate(p.x, p.y); sCtx.rotate(p.rot); sCtx.scale(currentScale, currentScale);
+                sCtx.strokeStyle = p.color; sCtx.lineWidth = 2;
+                sCtx.shadowBlur = 15; sCtx.shadowColor = p.color;
                 
                 sCtx.beginPath();
-                if (p.type === 0) {
-                    sCtx.arc(0, 0, p.size, 0, Math.PI * 2);
-                } else if (p.type === 1) {
-                    sCtx.rect(-p.size/2, -p.size/2, p.size, p.size);
-                } else {
-                    sCtx.moveTo(0, -p.size);
-                    sCtx.lineTo(0, p.size);
-                }
+                if (p.type === 0) sCtx.arc(0, 0, p.size, 0, Math.PI * 2);
+                else if (p.type === 1) sCtx.rect(-p.size/2, -p.size/2, p.size, p.size);
+                else { sCtx.moveTo(0, -p.size); sCtx.lineTo(0, p.size); }
                 
-                sCtx.globalAlpha = 0.6;
-                sCtx.stroke();
-                sCtx.restore();
+                sCtx.globalAlpha = 0.6; sCtx.stroke(); sCtx.restore();
             });
-
             splashAnimationId = requestAnimationFrame(animateSplash);
         }
         initSplashAnimation();
         animateSplash();
-        window.addEventListener('resize', () => {
-            if(document.getElementById('splash-screen').style.display !== 'none') initSplashAnimation();
-        });
+        window.addEventListener('resize', () => { if(document.getElementById('splash-screen').style.display !== 'none') initSplashAnimation(); });
 
 
-        // --- 64 COLOR GAMUT PALETTE ---
+        // --- ENGINE STATE & UNDO/REDO ---
+        const canvas = document.getElementById('geo-canvas');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 25; 
+        
+        let shapes = []; 
+        let activeShapeIndex = -1;
+        let currentTool = 'line';
+        let zoomLevel = 1.0;
+        
+        // Logical IDs
+        let shapeCounters = { line: 0, rect: 0, circle: 0, polygon: 0, bisector: 0, perp_bisector: 0 };
+        const prefixMap = { 'line': 'L', 'rect': 'R', 'circle': 'C', 'polygon': 'P', 'bisector': 'B', 'perp_bisector': 'M' };
+        let familyCloneCounters = {}; 
+        
+        // History Stack
+        let history = [];
+        let historyIndex = -1;
+
+        // Interaction state
+        let isDrawing = false;
+        let startX = 0, startY = 0;
+        let originX = 0, originY = 0;
+        let polyPts = [];
+
+        // Global/Current Style
+        let activeStyle = { stroke: '#40E0D0', fillType: 'none', fill: '#FF8243' };
+
+        function saveState() {
+            if (historyIndex < history.length - 1) history = history.slice(0, historyIndex + 1);
+            history.push(JSON.stringify({ shapes, shapeCounters, familyCloneCounters }));
+            if (history.length > 15) history.shift();
+            historyIndex = history.length - 1;
+            updateUI();
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreState(history[historyIndex]);
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                restoreState(history[historyIndex]);
+            }
+        }
+
+        function restoreState(stateStr) {
+            const state = JSON.parse(stateStr);
+            shapes = state.shapes;
+            shapeCounters = state.shapeCounters;
+            familyCloneCounters = state.familyCloneCounters;
+            activeShapeIndex = -1;
+            polyPts = [];
+            document.getElementById('poly-finish-btn').style.display = 'none';
+            updateUI();
+            redraw();
+        }
+
+        // --- UI & COLOR LOGIC ---
         const palette64 = [
             '#000000', '#222222', '#444444', '#666666', '#888888', '#AAAAAA', '#CCCCCC', '#FFFFFF',
             '#4a0000', '#7a0000', '#a80000', '#d90000', '#ff0000', '#ff4d4d', '#ff9999', '#ffe6e6',
@@ -710,28 +461,19 @@
         ];
 
         const pickerModal = document.getElementById('color-picker-modal');
-        let currentPickerTarget = { context: '', type: '' }; 
+        let currentPickerTarget = ''; 
 
-        let globalStyles = {
-            stroke: '#40E0D0',
-            fillType: 'none',
-            fill1: '#FF8243'
-        };
+        palette64.forEach(color => {
+            let cell = document.createElement('div');
+            cell.className = 'picker-cell';
+            cell.style.backgroundColor = color;
+            cell.addEventListener('click', () => selectColor(color));
+            pickerModal.appendChild(cell);
+        });
 
-        function initColorPicker() {
-            palette64.forEach(color => {
-                let cell = document.createElement('div');
-                cell.className = 'picker-cell';
-                cell.style.backgroundColor = color;
-                cell.addEventListener('click', () => selectColor(color));
-                pickerModal.appendChild(cell);
-            });
-        }
-        initColorPicker();
-
-        function openPicker(e, context, type) {
+        function openPicker(e, type) {
             e.stopPropagation();
-            currentPickerTarget = { context, type };
+            currentPickerTarget = type;
             const rect = e.target.getBoundingClientRect();
             pickerModal.style.display = 'grid';
             pickerModal.style.left = (rect.left + rect.width + 10) + 'px';
@@ -740,14 +482,13 @@
 
         function selectColor(color) {
             pickerModal.style.display = 'none';
-            if (currentPickerTarget.context === 'global') {
-                globalStyles[currentPickerTarget.type] = color;
-                document.getElementById(`global-${currentPickerTarget.type}-btn`).style.backgroundColor = color;
-            } else if (currentPickerTarget.context === 'prop' && activeShapeIndex !== -1) {
-                const shape = shapes[activeShapeIndex];
-                if (currentPickerTarget.type === 'stroke') shape.stroke = color;
-                else if (currentPickerTarget.type === 'fill1') shape.fill.c1 = color;
-                updatePropUIFromShape();
+            activeStyle[currentPickerTarget] = color;
+            document.getElementById(`ui-${currentPickerTarget}-btn`).style.backgroundColor = color;
+            
+            if (activeShapeIndex !== -1) {
+                if (currentPickerTarget === 'stroke') shapes[activeShapeIndex].stroke = color;
+                if (currentPickerTarget === 'fill') shapes[activeShapeIndex].fill.c = color;
+                saveState();
                 redraw();
             }
         }
@@ -756,83 +497,52 @@
             if (pickerModal.style.display === 'grid' && !pickerModal.contains(e.target)) pickerModal.style.display = 'none';
         });
 
-        function updateGlobalFillUI() {
-            globalStyles.fillType = document.getElementById('global-fill-type').value;
-            document.getElementById('global-fill-c1-row').style.display = globalStyles.fillType !== 'none' ? 'flex' : 'none';
-        }
-
-        function updatePropFillUI() {
-            if (activeShapeIndex === -1) return;
-            const shape = shapes[activeShapeIndex];
-            if(shape.type === 'line') return; 
+        function updateStyles() {
+            activeStyle.fillType = document.getElementById('ui-fill-type').value;
+            document.getElementById('ui-fill-btn').style.display = activeStyle.fillType !== 'none' ? 'block' : 'none';
             
-            shape.fill.type = document.getElementById('prop-fill-type').value;
-            document.getElementById('prop-fill-c1-row').style.display = shape.fill.type !== 'none' ? 'flex' : 'none';
-            redraw();
-        }
-
-        function updatePropUIFromShape() {
-            if (activeShapeIndex === -1) return;
-            const shape = shapes[activeShapeIndex];
-            
-            document.getElementById('prop-stroke-btn').style.backgroundColor = shape.stroke;
-            document.getElementById('prop-angle').value = 0;
-            document.getElementById('prop-trans-x').value = 0;
-            document.getElementById('prop-trans-y').value = 0;
-            
-            if (shape.type === 'line') {
-                document.getElementById('prop-fill-type-row').style.display = 'none';
-                document.getElementById('prop-fill-c1-row').style.display = 'none';
-            } else {
-                document.getElementById('prop-fill-type-row').style.display = 'flex';
-                document.getElementById('prop-fill-type').value = shape.fill.type;
-                document.getElementById('prop-fill-c1-btn').style.backgroundColor = shape.fill.c1;
-                document.getElementById('prop-fill-c1-row').style.display = shape.fill.type !== 'none' ? 'flex' : 'none';
+            if (activeShapeIndex !== -1) {
+                const shape = shapes[activeShapeIndex];
+                if(shape.type !== 'line') {
+                    shape.fill.type = activeStyle.fillType;
+                    saveState();
+                    redraw();
+                }
             }
         }
 
+        function updateUI() {
+            // Update Undo/Redo Buttons
+            document.getElementById('btn-undo').disabled = historyIndex <= 0;
+            document.getElementById('btn-redo').disabled = historyIndex >= history.length - 1;
 
-        // --- APP INITIALIZATION ---
-        const splash = document.getElementById('splash-screen');
-        const app = document.getElementById('app-container');
-        document.getElementById('start-btn').addEventListener('click', () => {
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.display = 'none';
-                cancelAnimationFrame(splashAnimationId);
-                app.style.display = 'flex';
-                resizeCanvas();
-                updateReportPanel();
-            }, 500);
-        });
+            // Update Selection Dependent UI
+            const hasSelection = activeShapeIndex !== -1;
+            document.getElementById('transform-overlay').style.display = hasSelection ? 'none' : 'block';
+            document.getElementById('transform-controls').style.display = hasSelection ? 'flex' : 'none';
+            document.getElementById('btn-clone').disabled = !hasSelection;
+            document.getElementById('btn-delete').disabled = !hasSelection;
 
-        // --- GEOMETRIC ENGINE STATE ---
-        const canvas = document.getElementById('geo-canvas');
-        const ctx = canvas.getContext('2d');
-        const coordsDisplay = document.getElementById('coords-display');
-        const propsPanel = document.getElementById('properties-panel');
-        const polyFinishBtn = document.getElementById('poly-finish-btn');
-        const gridSize = 25; 
-        
-        let shapes = []; 
-        let activeShapeIndex = -1;
-        let currentTool = 'line';
-        
-        // Zoom State
-        let zoomLevel = 1.0;
-        
-        // Identity Tracking
-        let nextGlobalBaseId = 1;
-        let familyCloneCounters = {}; 
-        
-        let isDrawing = false;
-        let isDragging = false;
-        let isPickingCenter = false;
-        let startX = 0, startY = 0;
-        let originX = 0, originY = 0;
-        let polyPts = [];
+            if (hasSelection) {
+                const shape = shapes[activeShapeIndex];
+                document.getElementById('ui-stroke-btn').style.backgroundColor = shape.stroke;
+                if (shape.type === 'line') {
+                    document.getElementById('ui-fill-type').value = 'none';
+                    document.getElementById('ui-fill-btn').style.display = 'none';
+                } else {
+                    document.getElementById('ui-fill-type').value = shape.fill.type;
+                    document.getElementById('ui-fill-btn').style.backgroundColor = shape.fill.c;
+                    document.getElementById('ui-fill-btn').style.display = shape.fill.type !== 'none' ? 'block' : 'none';
+                }
+            } else {
+                // Reset transform inputs
+                document.getElementById('prop-trans-x').value = 0;
+                document.getElementById('prop-trans-y').value = 0;
+                document.getElementById('prop-angle').value = 0;
+            }
+            updateReportPanel();
+        }
 
-        // UI Listeners
         document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
@@ -845,17 +555,16 @@
                 }
 
                 currentTool = e.target.getAttribute('data-tool');
-                if (isPickingCenter) cancelPickCenter();
-
+                
                 if(currentTool !== 'select') {
                     activeShapeIndex = -1;
-                    propsPanel.style.display = 'none';
+                    updateUI();
                     redraw();
                 }
             });
         });
 
-        // --- CORE MATH, ZOOM & COORDINATES ---
+        // --- MATH, ZOOM & GRID ---
         function resizeCanvas() {
             const wrapper = document.querySelector('.canvas-wrapper');
             canvas.width = wrapper.clientWidth;
@@ -864,9 +573,7 @@
             originY = canvas.height / 2;
             redraw();
         }
-        window.addEventListener('resize', () => {
-            if(app.style.display !== 'none') resizeCanvas();
-        });
+        window.addEventListener('resize', () => { if(app.style.display !== 'none') resizeCanvas(); });
 
         function adjustZoom(delta) {
             zoomLevel += delta;
@@ -875,18 +582,10 @@
             document.getElementById('zoom-readout').innerText = Math.round(zoomLevel * 100) + '%';
             redraw();
         }
-        function resetZoom() {
-            zoomLevel = 1.0;
-            document.getElementById('zoom-readout').innerText = '100%';
-            redraw();
-        }
+        function resetZoom() { zoomLevel = 1.0; document.getElementById('zoom-readout').innerText = '100%'; redraw(); }
+        canvas.addEventListener('wheel', (e) => { e.preventDefault(); adjustZoom(e.deltaY < 0 ? 0.1 : -0.1); });
 
-        canvas.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            adjustZoom(e.deltaY < 0 ? 0.1 : -0.1);
-        });
-
-        // Map Screen coordinates to Mathematical Cartesian (Accounts for Zoom & Center Origin)
+        // Magnetic Grid Mapping (Returns mathematical units scaled by gridSize)
         function toMathSnapped(sx, sy) { 
             let rawX = (sx - originX) / zoomLevel;
             let rawY = (originY - sy) / zoomLevel;
@@ -895,93 +594,19 @@
                 y: Math.round(rawY / gridSize) * gridSize 
             }; 
         }
-        
-        // Map Mathematical Cartesian to Screen (Accounts for Zoom)
-        function toScreen(cx, cy) { 
-            return { 
-                x: cx * zoomLevel + originX, 
-                y: originY - cy * zoomLevel 
-            }; 
-        }
-
-        // --- REPORT LOGIC ---
-        function updateReportPanel() {
-            const container = document.getElementById('report-content');
-            
-            const trHeaderID = currentLang === 'en' ? 'ID' : 'ID';
-            const trHeaderType = currentLang === 'en' ? 'Type' : 'Type';
-            const trHeaderTrans = currentLang === 'en' ? 'History' : 'Historique';
-            
-            if(shapes.length === 0) {
-                container.innerHTML = `<p style="color:var(--text-muted); text-align:center; margin-top:2rem;">${currentLang === 'en' ? 'No shapes created yet.' : 'Aucune forme créée pour le moment.'}</p>`;
-            } else {
-                let table = '<table>';
-                table += `<tr><th>${trHeaderID}</th><th>${trHeaderType}</th><th>${trHeaderTrans}</th></tr>`;
-                
-                // Sort by base ID so families stay together
-                let sortedShapes = [...shapes].sort((a,b) => {
-                    return a.displayId.localeCompare(b.displayId, undefined, {numeric: true});
-                });
-
-                sortedShapes.forEach(s => {
-                    let transText = s.transformations.join('<br>');
-                    if(!transText) transText = currentLang === 'en' ? '-' : '-';
-                    
-                    table += `<tr>
-                        <td><strong>${s.displayId}</strong></td>
-                        <td style="text-transform:capitalize; color:var(--text-main);">${s.type}</td>
-                        <td style="font-size:0.85em; color:var(--text-muted);">${transText}</td>
-                    </tr>`;
-                });
-                table += '</table>';
-                container.innerHTML = table;
-            }
-        }
-
-        function exportReport() {
-            let text = "GeoLogo - Designer's Report / Rapport du Graphiste\n";
-            text += "=====================================================\n\n";
-            
-            if(shapes.length === 0) {
-                text += "No shapes detected / Aucune forme détectée.\n";
-            } else {
-                let sortedShapes = [...shapes].sort((a,b) => a.displayId.localeCompare(b.displayId, undefined, {numeric: true}));
-                sortedShapes.forEach(s => {
-                    text += `[ ID: ${s.displayId} ]\n`;
-                    text += `Type: ${s.type.toUpperCase()}\n`;
-                    text += `Transformations:\n  ${s.transformations.length > 0 ? s.transformations.join('\n  -> ') : 'None / Aucune'}\n`;
-                    text += `---------------------------\n`;
-                });
-            }
-            
-            const blob = new Blob([text], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.download = 'GeoLogo_Report.txt';
-            link.href = URL.createObjectURL(blob);
-            link.click();
-        }
+        function toScreen(cx, cy) { return { x: cx * zoomLevel + originX, y: originY - cy * zoomLevel }; }
 
         // --- RENDERING ---
         function drawGrid() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             const scaledGrid = gridSize * zoomLevel;
-
-            ctx.strokeStyle = 'rgba(44, 58, 74, 0.4)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(44, 58, 74, 0.4)'; ctx.lineWidth = 1; ctx.beginPath();
             
-            for (let x = originX % scaledGrid; x < canvas.width; x += scaledGrid) {
-                ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
-            }
-            for (let y = originY % scaledGrid; y < canvas.height; y += scaledGrid) {
-                ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
-            }
+            for (let x = originX % scaledGrid; x < canvas.width; x += scaledGrid) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
+            for (let y = originY % scaledGrid; y < canvas.height; y += scaledGrid) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
             ctx.stroke();
 
-            ctx.strokeStyle = 'rgba(139, 155, 180, 0.8)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(139, 155, 180, 0.8)'; ctx.lineWidth = 2; ctx.beginPath();
             ctx.moveTo(originX, 0); ctx.lineTo(originX, canvas.height); 
             ctx.moveTo(0, originY); ctx.lineTo(canvas.width, originY); 
             ctx.stroke();
@@ -993,18 +618,13 @@
             ctx.lineWidth = isSelected ? 4 : 2;
             
             if(isSelected) ctx.setLineDash([5, 5]);
-            if(isGhost) {
-                ctx.setLineDash([5, 5]);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-            }
+            if(isGhost) { ctx.setLineDash([5, 5]); ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'; }
 
             const pts = shape.points.map(p => toScreen(p.x, p.y));
-            
             ctx.beginPath();
 
             if (shape.type === 'line') {
-                ctx.moveTo(pts[0].x, pts[0].y);
-                ctx.lineTo(pts[1].x, pts[1].y);
+                ctx.moveTo(pts[0].x, pts[0].y); ctx.lineTo(pts[1].x, pts[1].y);
             } else if (shape.type === 'rect' || shape.type === 'polygon') {
                 ctx.moveTo(pts[0].x, pts[0].y);
                 for(let i=1; i<pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
@@ -1014,45 +634,50 @@
                 ctx.arc(pts[0].x, pts[0].y, r, 0, Math.PI * 2);
             }
 
-            // Fill Logic
             if (shape.type !== 'line' && shape.fill.type !== 'none') {
-                if(isGhost) {
-                     ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-                     ctx.fill();
-                } else if (shape.fill.type === 'solid') {
-                    ctx.fillStyle = isSelected ? `${shape.fill.c1}88` : shape.fill.c1;
-                    ctx.fill();
-                }
+                if(isGhost) { ctx.fillStyle = 'rgba(255, 255, 255, 0.15)'; ctx.fill(); }
+                else if (shape.fill.type === 'solid') { ctx.fillStyle = isSelected ? `${shape.fill.c}88` : shape.fill.c; ctx.fill(); }
             }
             ctx.stroke();
             
-            // Draw ID Text
-            if (!isGhost && shape.displayId) {
+            // Labels & Dimensions
+            if (!isGhost) {
+                const showDim = document.getElementById('show-labels').checked;
                 ctx.fillStyle = isSelected ? '#ffdd57' : '#ffffff';
-                ctx.font = '12px monospace';
+                
+                // Display ID
+                ctx.font = 'bold 12px monospace';
                 ctx.fillText(shape.displayId, pts[0].x + 6, pts[0].y - 6);
-            }
-            
-            ctx.restore();
 
-            // Center Point
-            if (isSelected && !isGhost) {
-                const center = shape.customCenter || getShapeCenter(shape);
-                const sCenter = toScreen(center.x, center.y);
-                ctx.fillStyle = shape.customCenter ? '#ff0000' : '#ffdd57';
-                ctx.beginPath();
-                ctx.arc(sCenter.x, sCenter.y, shape.customCenter ? 6 : 4, 0, Math.PI*2);
-                ctx.fill();
+                // Display Math Dimensions
+                if (showDim) {
+                    ctx.font = '11px sans-serif';
+                    let lx = pts[0].x, ly = pts[0].y, lbl = '';
+                    if (shape.type === 'line') {
+                        const len = Math.hypot(shape.points[1].x - shape.points[0].x, shape.points[1].y - shape.points[0].y) / gridSize;
+                        lbl = `${len.toFixed(1)}u`;
+                        lx = (pts[0].x + pts[1].x)/2 + 5; ly = (pts[0].y + pts[1].y)/2 - 5;
+                    } else if (shape.type === 'circle') {
+                        const r = Math.hypot(shape.points[1].x - shape.points[0].x, shape.points[1].y - shape.points[0].y) / gridSize;
+                        lbl = `r=${r.toFixed(1)}u`;
+                        lx = (pts[0].x + pts[1].x)/2 + 5; ly = (pts[0].y + pts[1].y)/2 - 5;
+                    } else if (shape.type === 'rect') {
+                        const w = Math.abs(shape.points[2].x - shape.points[0].x) / gridSize;
+                        const h = Math.abs(shape.points[2].y - shape.points[0].y) / gridSize;
+                        lbl = `${w}x${h}u`;
+                        lx = pts[0].x + (pts[2].x - pts[0].x)/2; ly = Math.min(pts[0].y, pts[2].y) - 8;
+                    }
+                    if(lbl) ctx.fillText(lbl, lx, ly);
+                }
             }
+            ctx.restore();
         }
 
         function redraw() {
             drawGrid();
-            shapes.forEach((shape, index) => {
-                drawShape(shape, index === activeShapeIndex);
-            });
+            shapes.forEach((shape, index) => { drawShape(shape, index === activeShapeIndex); });
             
-            // Draw Ghost Preview for Transforms
+            // Ghost Transformation Preview
             if (activeShapeIndex !== -1) {
                 const rotDeg = parseFloat(document.getElementById('prop-angle').value) || 0;
                 const transX = parseFloat(document.getElementById('prop-trans-x').value) || 0;
@@ -1063,40 +688,32 @@
                     const ghost = JSON.parse(JSON.stringify(baseShape));
                     
                     const rad = rotDeg * (Math.PI / 180);
-                    const center = baseShape.customCenter || getShapeCenter(baseShape);
+                    const center = getShapeCenter(baseShape);
                     const cosA = Math.cos(rad), sinA = Math.sin(rad);
+                    
+                    // Convert grid unit input to pixel translation
+                    const pxTransX = transX * gridSize;
+                    const pxTransY = transY * gridSize;
 
                     ghost.points.forEach(p => {
                         if (rotDeg !== 0) {
-                            const tx = p.x - center.x;
-                            const ty = p.y - center.y;
+                            const tx = p.x - center.x; const ty = p.y - center.y;
                             p.x = center.x + (tx * cosA - ty * sinA);
                             p.y = center.y + (tx * sinA + ty * cosA);
                         }
-                        p.x += transX;
-                        p.y += transY;
+                        p.x += pxTransX; p.y += pxTransY;
                     });
-                    
                     drawShape(ghost, false, true);
                 }
             }
 
-            // Draw live polygon
+            // Live Polygon
             if (currentTool === 'polygon' && polyPts.length > 0) {
-                ctx.strokeStyle = globalStyles.stroke;
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5,5]);
-                ctx.beginPath();
+                ctx.strokeStyle = activeStyle.stroke; ctx.lineWidth = 2; ctx.setLineDash([5,5]); ctx.beginPath();
                 const sPts = polyPts.map(p => toScreen(p.x, p.y));
                 ctx.moveTo(sPts[0].x, sPts[0].y);
                 for(let i=1; i<sPts.length; i++) ctx.lineTo(sPts[i].x, sPts[i].y);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#ffdd57';
-                ctx.beginPath();
-                ctx.arc(sPts[0].x, sPts[0].y, 6, 0, Math.PI*2);
-                ctx.fill();
-                ctx.setLineDash([]);
+                ctx.stroke(); ctx.fillStyle = '#ffdd57'; ctx.beginPath(); ctx.arc(sPts[0].x, sPts[0].y, 6, 0, Math.PI*2); ctx.fill(); ctx.setLineDash([]);
             }
         }
 
@@ -1120,36 +737,20 @@
             const pos = getMousePos(e);
             const mathPos = toMathSnapped(pos.x, pos.y);
 
-            if (isPickingCenter && activeShapeIndex !== -1) {
-                shapes[activeShapeIndex].customCenter = mathPos;
-                cancelPickCenter();
-                redraw();
-                return;
-            }
-
             if (currentTool === 'select') {
                 let clickedIndex = -1;
-                // We map raw mouse position to Math space for hit detection, so threshold scales with zoom.
                 let rawMathX = (pos.x - originX) / zoomLevel;
                 let rawMathY = (originY - pos.y) / zoomLevel;
                 
                 for(let i = shapes.length - 1; i >= 0; i--) {
-                    if (isPointNearShape({x: rawMathX, y: rawMathY}, shapes[i])) {
-                        clickedIndex = i; break;
-                    }
+                    if (isPointNearShape({x: rawMathX, y: rawMathY}, shapes[i])) { clickedIndex = i; break; }
                 }
                 
                 activeShapeIndex = clickedIndex;
-                if (activeShapeIndex !== -1) {
-                    propsPanel.style.display = 'block';
-                    updatePropUIFromShape();
-                    isDragging = true;
-                    startX = mathPos.x;
-                    startY = mathPos.y;
-                } else {
-                    propsPanel.style.display = 'none';
-                }
+                updateUI();
                 redraw();
+            } else if (currentTool === 'perp_bisector' || currentTool === 'bisector') {
+                alert(currentLang === 'en' ? "Use segment lines to manually construct precision geometry on the Cartesian grid." : "Utilisez les segments pour construire manuellement une géométrie de précision sur la grille cartésienne.");
             } else if (currentTool === 'polygon') {
                 if (polyPts.length >= 3 && Math.hypot(mathPos.x - polyPts[0].x, mathPos.y - polyPts[0].y) <= gridSize) {
                     finishPolygon();
@@ -1159,9 +760,7 @@
                     redraw();
                 }
             } else {
-                isDrawing = true;
-                startX = mathPos.x;
-                startY = mathPos.y;
+                isDrawing = true; startX = mathPos.x; startY = mathPos.y;
             }
         }
 
@@ -1169,37 +768,17 @@
             e.preventDefault();
             const pos = getMousePos(e);
             const mathPos = toMathSnapped(pos.x, pos.y);
-            coordsDisplay.innerText = `X: ${mathPos.x}, Y: ${mathPos.y}`;
+            coordsDisplay.innerText = `X: ${mathPos.x/gridSize}, Y: ${mathPos.y/gridSize}`;
 
             if (isDrawing && ['line', 'rect', 'circle'].includes(currentTool)) {
                 redraw(); 
                 const mockShape = createShapeData(currentTool, startX, startY, mathPos.x, mathPos.y);
                 drawShape(mockShape, false);
-            } 
-            else if (currentTool === 'polygon' && polyPts.length > 0) {
+            } else if (currentTool === 'polygon' && polyPts.length > 0) {
                 redraw();
                 const lastPt = toScreen(polyPts[polyPts.length-1].x, polyPts[polyPts.length-1].y);
-                ctx.strokeStyle = globalStyles.stroke;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(lastPt.x, lastPt.y);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-            }
-            else if (isDragging && activeShapeIndex !== -1 && currentTool === 'select') {
-                const dx = mathPos.x - startX;
-                const dy = mathPos.y - startY;
-                
-                if (dx !== 0 || dy !== 0) {
-                    shapes[activeShapeIndex].points.forEach(p => { p.x += dx; p.y += dy; });
-                    if(shapes[activeShapeIndex].customCenter) {
-                        shapes[activeShapeIndex].customCenter.x += dx;
-                        shapes[activeShapeIndex].customCenter.y += dy;
-                    }
-                    startX = mathPos.x;
-                    startY = mathPos.y;
-                    redraw();
-                }
+                ctx.strokeStyle = activeStyle.stroke; ctx.lineWidth = 1; ctx.beginPath();
+                ctx.moveTo(lastPt.x, lastPt.y); ctx.lineTo(pos.x, pos.y); ctx.stroke();
             }
         }
 
@@ -1211,16 +790,10 @@
                 
                 if(Math.abs(mathPos.x - startX) > 0 || Math.abs(mathPos.y - startY) > 0) {
                     shapes.push(createShapeData(currentTool, startX, startY, mathPos.x, mathPos.y));
-                    updateReportPanel();
+                    saveState();
                 }
                 redraw();
             }
-            
-            if(isDragging) {
-                // If the shape was dragged dynamically, log a generic update to avoid spamming the report
-                updateReportPanel();
-            }
-            isDragging = false;
         }
 
         function finishPolygon() {
@@ -1228,31 +801,32 @@
                 let sData = createShapeData('polygon', 0,0,0,0); 
                 sData.points = [...polyPts];
                 shapes.push(sData);
-                updateReportPanel();
+                saveState();
             }
             polyPts = [];
             polyFinishBtn.style.display = 'none';
             redraw();
         }
 
-        // --- SHAPE DATA CREATION (With Identity Tracking) ---
+        // --- SHAPE IDENTITY LOGIC ---
         function createShapeData(type, x1, y1, x2, y2) {
             let pts = [];
             if (type === 'line' || type === 'circle') pts = [{x: x1, y: y1}, {x: x2, y: y2}];
             else if (type === 'rect') pts = [{x: x1, y: y1}, {x: x2, y: y1}, {x: x2, y: y2}, {x: x1, y: y2}];
             
-            const bId = nextGlobalBaseId++;
+            const prefix = prefixMap[type] || 'S';
+            shapeCounters[prefix] = (shapeCounters[prefix] || 0) + 1;
+            const bId = `${prefix}_${shapeCounters[prefix]}`;
             familyCloneCounters[bId] = 0;
             
             return { 
                 type: type, 
                 baseId: bId,
-                displayId: bId.toString(),
+                displayId: bId,
                 transformations: [],
                 points: pts, 
-                stroke: globalStyles.stroke, 
-                fill: { type: globalStyles.fillType, c1: globalStyles.fill1 },
-                customCenter: null
+                stroke: activeStyle.stroke, 
+                fill: { type: activeStyle.fillType, c: activeStyle.fill }
             };
         }
 
@@ -1264,40 +838,22 @@
             return { x: sumX / shape.points.length, y: sumY / shape.points.length };
         }
 
-        function togglePickCenter() {
-            if(activeShapeIndex === -1) return;
-            isPickingCenter = !isPickingCenter;
-            const btn = document.getElementById('btn-pick-center');
-            if (isPickingCenter) {
-                btn.classList.add('picking');
-                btn.innerText = currentLang === 'en' ? 'Click Grid...' : 'Cliquez Grille...';
-            } else {
-                cancelPickCenter();
-            }
-        }
-        function cancelPickCenter() {
-            isPickingCenter = false;
-            const btn = document.getElementById('btn-pick-center');
-            btn.classList.remove('picking');
-            btn.innerText = currentLang === 'en' ? 'Pick Center' : 'Choisir Centre';
-        }
-
         function applyTranslation() {
             if(activeShapeIndex === -1) return;
-            const transX = parseFloat(document.getElementById('prop-trans-x').value) || 0;
-            const transY = parseFloat(document.getElementById('prop-trans-y').value) || 0;
-            if(transX === 0 && transY === 0) return;
+            const inputX = parseFloat(document.getElementById('prop-trans-x').value) || 0;
+            const inputY = parseFloat(document.getElementById('prop-trans-y').value) || 0;
+            if(inputX === 0 && inputY === 0) return;
+
+            const pxX = inputX * gridSize;
+            const pxY = inputY * gridSize;
 
             const shape = shapes[activeShapeIndex];
-            shape.points.forEach(p => { p.x += transX; p.y += transY; });
-            if(shape.customCenter) { shape.customCenter.x += transX; shape.customCenter.y += transY; }
+            shape.points.forEach(p => { p.x += pxX; p.y += pxY; });
             
-            shape.transformations.push(`T(x: ${transX}, y: ${transY})`);
-            
+            shape.transformations.push(`T(x: ${inputX}u, y: ${inputY}u)`);
             document.getElementById('prop-trans-x').value = 0;
             document.getElementById('prop-trans-y').value = 0;
-            updateReportPanel();
-            redraw();
+            saveState(); redraw();
         }
 
         function applyRotation() {
@@ -1307,21 +863,18 @@
             const rad = deg * (Math.PI / 180);
             
             const shape = shapes[activeShapeIndex];
-            const center = shape.customCenter || getShapeCenter(shape);
-            const cosA = Math.cos(rad);
-            const sinA = Math.sin(rad);
+            const center = getShapeCenter(shape);
+            const cosA = Math.cos(rad), sinA = Math.sin(rad);
 
             shape.points.forEach(p => {
-                const tx = p.x - center.x;
-                const ty = p.y - center.y;
+                const tx = p.x - center.x; const ty = p.y - center.y;
                 p.x = center.x + (tx * cosA - ty * sinA);
                 p.y = center.y + (tx * sinA + ty * cosA);
             });
             
             shape.transformations.push(`Rot: ${deg}°`);
             document.getElementById('prop-angle').value = 0; 
-            updateReportPanel();
-            redraw();
+            saveState(); redraw();
         }
 
         function applyReflection(axis) {
@@ -1331,16 +884,8 @@
                 if (axis === 'y') p.x = -p.x;
                 if (axis === 'x') p.y = -p.y;
             });
-            
-            if(shape.customCenter) {
-                if (axis === 'y') shape.customCenter.x = -shape.customCenter.x;
-                if (axis === 'x') shape.customCenter.y = -shape.customCenter.y;
-            }
-
             shape.transformations.push(`Refl: ${axis.toUpperCase()}`);
-            updatePropUIFromShape(); 
-            updateReportPanel();
-            redraw();
+            saveState(); redraw();
         }
 
         function cloneShape() {
@@ -1348,41 +893,32 @@
             const original = shapes[activeShapeIndex];
             const copy = JSON.parse(JSON.stringify(original)); 
             
-            // Assign Iteration Identity
             familyCloneCounters[original.baseId]++;
             const cloneNum = familyCloneCounters[original.baseId];
-            copy.displayId = original.baseId.toString() + String.fromCharCode(96 + cloneNum); 
-            
+            copy.displayId = original.baseId + String.fromCharCode(96 + cloneNum); 
             copy.transformations.push(`Cloned from [${original.displayId}]`);
             
             shapes.push(copy);
             activeShapeIndex = shapes.length - 1;
-            updateReportPanel();
-            redraw();
+            saveState(); redraw();
         }
 
         function deleteShape() {
             if(activeShapeIndex === -1) return;
             shapes.splice(activeShapeIndex, 1);
             activeShapeIndex = -1;
-            propsPanel.style.display = 'none';
-            if(isPickingCenter) cancelPickCenter();
-            updateReportPanel();
-            redraw();
+            saveState(); redraw();
         }
 
         // --- HIT DETECTION ---
         function isPointNearShape(mathPt, shape) {
-            // Threshold is in pixels. Scale it by zoom level so it feels consistent when zoomed out.
             const threshold = 12 / zoomLevel; 
-            
             if (shape.type === 'circle') {
                 const r = Math.hypot(shape.points[1].x - shape.points[0].x, shape.points[1].y - shape.points[0].y);
                 const distToCenter = Math.hypot(mathPt.x - shape.points[0].x, mathPt.y - shape.points[0].y);
                 if (shape.fill.type !== 'none') return distToCenter <= r + threshold;
                 return Math.abs(distToCenter - r) < threshold;
             } 
-            
             if (shape.type !== 'line' && shape.fill.type !== 'none') {
                  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                  shape.points.forEach(p => {
@@ -1391,7 +927,6 @@
                  });
                  if (mathPt.x >= minX - threshold && mathPt.x <= maxX + threshold && mathPt.y >= minY - threshold && mathPt.y <= maxY + threshold) return true;
             }
-
             for(let i=0; i<shape.points.length; i++) {
                 const p1 = shape.points[i];
                 const p2 = shape.type === 'line' ? shape.points[1] : shape.points[(i+1)%shape.points.length];
@@ -1410,25 +945,46 @@
             return (p.x - proj.x)*(p.x - proj.x) + (p.y - proj.y)*(p.y - proj.y);
         }
 
-        // --- EXPORT ---
-        function clearCanvas() { 
-            shapes = []; 
-            activeShapeIndex = -1; 
-            nextGlobalBaseId = 1;
-            familyCloneCounters = {};
-            propsPanel.style.display='none';
-            updateReportPanel();
-            redraw(); 
+        // --- REPORT LOGIC ---
+        function updateReportPanel() {
+            const container = document.getElementById('report-content');
+            if(shapes.length === 0) {
+                container.innerHTML = `<div class="empty-state">${currentLang === 'en' ? 'No geometry created yet.' : 'Aucune géométrie créée.'}</div>`;
+                return;
+            }
+            
+            let table = '<table><tr><th>ID</th><th>Type</th><th>Hist.</th></tr>';
+            let sortedShapes = [...shapes].sort((a,b) => a.displayId.localeCompare(b.displayId, undefined, {numeric: true}));
+            
+            sortedShapes.forEach(s => {
+                let transText = s.transformations.join('<br>');
+                if(!transText) transText = '-';
+                table += `<tr><td><strong>${s.displayId}</strong></td><td style="text-transform:capitalize;">${s.type}</td><td style="color:var(--text-muted);">${transText}</td></tr>`;
+            });
+            table += '</table>';
+            container.innerHTML = table;
         }
-        
-        function exportImage() {
-            activeShapeIndex = -1; 
-            redraw();
-            const link = document.createElement('a');
-            link.download = 'GeoLogo_Architecture.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+
+        function exportReport() {
+            let text = "GeoLogo - Designer's Report / Rapport du Graphiste\n=====================================================\n\n";
+            if(shapes.length === 0) text += "No shapes detected / Aucune forme détectée.\n";
+            else {
+                let sortedShapes = [...shapes].sort((a,b) => a.displayId.localeCompare(b.displayId, undefined, {numeric: true}));
+                sortedShapes.forEach(s => {
+                    text += `[ ID: ${s.displayId} ] | Type: ${s.type.toUpperCase()}\n`;
+                    text += `Transforms: ${s.transformations.length > 0 ? s.transformations.join(' -> ') : 'None'}\n---------------------------\n`;
+                });
+            }
+            const blob = new Blob([text], { type: 'text/plain' });
+            const link = document.createElement('a'); link.download = 'GeoLogo_Report.txt'; link.href = URL.createObjectURL(blob); link.click();
         }
+
+        // --- EXPORT & START ---
+        function clearCanvas() { shapes = []; activeShapeIndex = -1; shapeCounters = {}; familyCloneCounters = {}; saveState(); }
+        function exportImage() { activeShapeIndex = -1; redraw(); const link = document.createElement('a'); link.download = 'GeoLogo_Architecture.png'; link.href = canvas.toDataURL('image/png'); link.click(); }
+
+        // Initialize state queue on load
+        app.addEventListener('click', () => { if(history.length === 0) saveState(); }, {once: true});
 
     </script>
 </body>
